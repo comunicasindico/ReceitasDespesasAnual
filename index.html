@@ -152,23 +152,18 @@ carregar()
 ==================================================== */
 function editarPorId(id){
 const x=dados.find(d=>d.id==id)
-
 if(!x){
 alert("Registro não encontrado")
 return
 }
-
 editando=x.id
-
 document.getElementById("data").value=x.data
 document.getElementById("desc").value=x.descricao
 document.getElementById("tipo").value=x.tipo
 document.getElementById("categoria").value=x.categoria
 document.getElementById("valor").value=x.valor
-
+document.getElementById("desc").focus()
 }
-  
-
 /* ====================================================
 008 – ADICIONAR (INTELIGENTE)
 ==================================================== */
