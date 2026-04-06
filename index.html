@@ -147,18 +147,27 @@ async function del(id){
 await db.from("lancamentos").delete().eq("id",id)
 carregar()
 }
-
 /* ====================================================
-007 – EDITAR
+007 – EDITAR POR ID
 ==================================================== */
-function editar(x){
-editando=x.id
-data.value=x.data
-desc.value=x.descricao
-tipo.value=x.tipo
-categoria.value=x.categoria
-valor.value=x.valor
+function editarPorId(id){
+const x=dados.find(d=>d.id==id)
+
+if(!x){
+alert("Registro não encontrado")
+return
 }
+
+editando=x.id
+
+document.getElementById("data").value=x.data
+document.getElementById("desc").value=x.descricao
+document.getElementById("tipo").value=x.tipo
+document.getElementById("categoria").value=x.categoria
+document.getElementById("valor").value=x.valor
+
+}
+  
 
 /* ====================================================
 008 – ADICIONAR (INTELIGENTE)
@@ -302,7 +311,7 @@ cursor:pointer;
 </div>
 
 <div style="display:flex;gap:4px">
-<button class="edit" onclick='editar(${JSON.stringify(x)})'>✏️</button>
+<button class="edit" onclick="editarPorId('${x.id}')">✏️</button>
 <button class="delete" onclick="del('${x.id}')">🗑️</button>
 </div>
 
