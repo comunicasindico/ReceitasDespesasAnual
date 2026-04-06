@@ -40,7 +40,11 @@ button{cursor:pointer;background:#22c55e;color:#000}
 
 <input type="number" id="valor" placeholder="Valor">
 <button onclick="add()">Adicionar</button>
+<label style="margin-left:10px">
+<input type="checkbox" id="recorrente"> Recorrente
+</label>
 
+<input type="number" id="diaPadrao" placeholder="Dia" style="width:70px">
 <textarea id="importarTexto" placeholder="Cole aqui suas despesas e receitas..." style="width:100%;height:120px;margin-top:10px"></textarea>
 <button onclick="importarTexto()">Importar automático</button>
 <button onclick="copiarMesAnterior()">Gerar base mês</button>
@@ -117,9 +121,14 @@ render()
 004 – CARREGAR DADOS
 ==================================================== */
 async function carregar(){
+
 const{data,error}=await db.from("lancamentos").select("*").order("data",{ascending:true})
 if(error)return alert("Erro ao carregar")
+
 dados=data||[]
+
+await gerarRecorrentes()
+
 render()
 }
 
@@ -163,10 +172,12 @@ async function add(){
 /* 🔹 1 – CAPTURA CAMPOS */
 const obj={
 data:data.value,
-descricao:desc.value.trim(),
+descricao:desc.value,
 tipo:tipo.value,
 categoria:categoria.value,
-valor:parseFloat(valor.value)
+valor:parseFloat(valor.value),
+recorrente:document.getElementById("recorrente").checked,
+dia_padrao:parseInt(document.getElementById("diaPadrao").value)||null
 }
 
 /* 🔹 2 – VALIDAÇÃO */
@@ -356,6 +367,51 @@ location.reload()
 }
 
 carregar()
+/* ====================================================
+014 – GERAR RECORRÊNCIA AUTOMÁTICA
+==================================================== */
+async function gerarRecorrentes(){
+
+const hoje=new Date()
+const ano=hoje.getFullYear()
+const mes=hoje.getMonth()+1
+
+/* 🔹 busca recorrentes */
+const {data:recorrentes}=await db.from("lancamentos")
+.select("*")
+.eq("recorrente",true)
+
+for(const r of (recorrentes||[])){
+
+let dia=r.dia_padrao || 1
+
+let novaData=`${ano}-${String(mes).padStart(2,"0")}-${String(dia).padStart(2,"0")}`
+
+/* 🔹 verifica se já existe */
+const jaExiste=dados.find(x=>
+x.descricao===r.descricao &&
+x.data===novaData
+)
+
+if(!jaExiste){
+
+await db.from("lancamentos").insert({
+data:novaData,
+descricao:r.descricao,
+tipo:r.tipo,
+categoria:r.categoria,
+valor:r.valor,
+recorrente:true,
+dia_padrao:dia
+})
+
+}
+
+}
+
+carregar()
+}
+
 
 </script>
 
