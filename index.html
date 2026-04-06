@@ -10,7 +10,6 @@ input,select,button{padding:8px;margin:5px;border-radius:6px;border:none}
 button{cursor:pointer;background:#22c55e;color:#000}
 .delete{background:#ef4444;color:#fff}
 .edit{background:#3b82f6;color:#fff}
-.card{background:#1e293b;padding:10px;margin:10px 0;border-radius:10px}
 .topo{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
 .resumo{margin-top:20px;padding:10px;background:#111827;border-radius:10px}
 </style>
@@ -21,6 +20,7 @@ button{cursor:pointer;background:#22c55e;color:#000}
 <h1>ReceitasDespesasAnual PRO</h1>
 <button onclick="logout()" style="background:#ef4444;color:#fff">Sair</button>
 </div>
+
 <div class="topo">
 <input type="date" id="data">
 <input type="text" id="desc" placeholder="Descrição">
@@ -29,6 +29,7 @@ button{cursor:pointer;background:#22c55e;color:#000}
 <option>DESPESA</option>
 <option>RECEITA</option>
 </select>
+
 <select id="categoria">
 <option>GERAL</option>
 <option>CASA</option>
@@ -36,11 +37,13 @@ button{cursor:pointer;background:#22c55e;color:#000}
 <option>EDUCAÇÃO</option>
 <option>LAZER</option>
 </select>
+
 <input type="number" id="valor" placeholder="Valor">
 <button onclick="add()">Adicionar</button>
+
 <textarea id="importarTexto" placeholder="Cole aqui suas despesas e receitas..." style="width:100%;height:120px;margin-top:10px"></textarea>
 <button onclick="importarTexto()">Importar automático</button>
-  
+
 <select id="filtroMes" onchange="render()">
 <option value="">Todos Meses</option>
 <option value="0">Jan</option><option value="1">Fev</option>
@@ -62,22 +65,23 @@ button{cursor:pointer;background:#22c55e;color:#000}
 <option>RECEITA</option>
 <option>DESPESA</option>
 </select>
-
-<button onclick="exportar()">Backup</button>
-<input type="file" onchange="importar(event)">
 </div>
 
 <div class="resumo" id="resumo"></div>
-<canvas id="graficoResumo" style="margin-top:20px"></canvas>
-<canvas id="graficoMensal" style="margin-top:20px"></canvas>
+
+<canvas id="graficoResumo"></canvas>
+<canvas id="graficoMensal"></canvas>
+
 <h2 id="total"></h2>
-<button onclick="toggleValores()" style="margin-top:10px">👁 Mostrar/Ocultar valores</button>
+<button onclick="toggleValores()">👁 Mostrar/Ocultar valores</button>
+
 <div style="display:grid;grid-template-columns:120px 1fr 120px 120px;gap:10px;font-weight:bold;margin-top:20px">
 <div>Data</div>
 <div>Descrição</div>
 <div>Categoria</div>
 <div>Valor</div>
 </div>
+
 <div id="lista"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -85,29 +89,43 @@ button{cursor:pointer;background:#22c55e;color:#000}
 
 <script>
 
+/* ====================================================
+001 – CONFIG SUPABASE
+==================================================== */
 const SUPABASE_URL="https://gspdlrenyrzbkxlvyugc.supabase.co"
-const SUPABASE_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdzcGRscmVueXJ6Ymt4bHZ5dWdjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ4ODU0NzAsImV4cCI6MjA5MDQ2MTQ3MH0.UWfkWvOh4qMDEcByVL-KZ6ejJ80V7wJlDOFH76TywaI"
-
+const SUPABASE_KEY="SEU_TOKEN_AQUI"
 const db=supabase.createClient(SUPABASE_URL,SUPABASE_KEY)
 
+/* ====================================================
+002 – ESTADO GLOBAL
+==================================================== */
 let dados=[]
-let mostrarValores = true
+let editando=null
+let mostrarValores=true
+let graficoResumo=null
+let graficoMensal=null
 
+/* ====================================================
+003 – TOGGLE VALORES
+==================================================== */
 function toggleValores(){
-mostrarValores = !mostrarValores
+mostrarValores=!mostrarValores
 render()
 }
-let editando=null
 
-let graficoResumo = null
-let graficoMensal = null
+/* ====================================================
+004 – CARREGAR DADOS
+==================================================== */
 async function carregar(){
 const{data,error}=await db.from("lancamentos").select("*").order("data",{ascending:true})
-if(error){alert("Erro ao carregar");console.log(error);return}
+if(error)return alert("Erro ao carregar")
 dados=data||[]
 render()
 }
 
+/* ====================================================
+005 – SALVAR
+==================================================== */
 async function salvarRegistro(obj){
 if(obj.id){
 await db.from("lancamentos").update(obj).eq("id",obj.id)
@@ -117,198 +135,143 @@ await db.from("lancamentos").insert(obj)
 carregar()
 }
 
+/* ====================================================
+006 – EXCLUIR
+==================================================== */
 async function del(id){
 await db.from("lancamentos").delete().eq("id",id)
 carregar()
 }
 
+/* ====================================================
+007 – EDITAR
+==================================================== */
 function editar(x){
 editando=x.id
-document.getElementById("data").value=x.data
-document.getElementById("desc").value=x.descricao
-document.getElementById("tipo").value=x.tipo
-document.getElementById("categoria").value=x.categoria
-document.getElementById("valor").value=x.valor
+data.value=x.data
+desc.value=x.descricao
+tipo.value=x.tipo
+categoria.value=x.categoria
+valor.value=x.valor
 }
 
+/* ====================================================
+008 – ADICIONAR
+==================================================== */
 async function add(){
 const obj={
-data:document.getElementById("data").value,
-descricao:document.getElementById("desc").value,
-tipo:document.getElementById("tipo").value,
-categoria:document.getElementById("categoria").value,
-valor:parseFloat(document.getElementById("valor").value)
+data:data.value,
+descricao:desc.value,
+tipo:tipo.value,
+categoria:categoria.value,
+valor:parseFloat(valor.value)
 }
-
 if(!obj.data||!obj.descricao||!obj.valor)return alert("Preencha tudo")
-
 if(editando){obj.id=editando;editando=null}
-
 await salvarRegistro(obj)
 }
 
-function render(){
-const lista=document.getElementById("lista")
-lista.innerHTML=""
+/* ====================================================
+009 – IMPORTADOR
+==================================================== */
+async function importarTexto(){
+const txt=importarTexto.value
+if(!txt)return alert("Cole o texto")
 
+const linhas=txt.split("\n")
+
+for(const l of linhas){
+const m=l.match(/(\d{2}\/\d{2})\s+(.+?)\s+([\d\.,]+)/)
+if(!m)continue
+
+let[dia,mes]=m[1].split("/")
+let valor=parseFloat(m[3].replace(/\./g,"").replace(",","."))
+let tipo=m[2].includes("REMUNERA")?"RECEITA":"DESPESA"
+
+await db.from("lancamentos").insert({
+data:`2026-${mes}-${dia}`,
+descricao:m[2],
+tipo:tipo,
+categoria:"GERAL",
+valor:valor
+})
+}
+
+alert("Importado!")
+carregar()
+}
+
+/* ====================================================
+010 – RENDER
+==================================================== */
+function render(){
 let total=0,receitas=0,despesas=0
+lista.innerHTML=""
 
 dados.forEach(x=>{
 if(x.tipo==="RECEITA"){total+=x.valor;receitas+=x.valor}
 else{total-=x.valor;despesas+=x.valor}
 
 lista.innerHTML+=`
-<div style="display:grid;grid-template-columns:120px 1fr 120px 120px auto;gap:10px;background:#1e293b;padding:8px;margin:6px 0;border-radius:8px;align-items:center">
-
+<div style="display:grid;grid-template-columns:120px 1fr 120px 120px auto;gap:10px;background:#1e293b;padding:8px;margin:6px;border-radius:8px">
 <div>${x.data}</div>
-
 <div>${x.descricao}</div>
-
 <div>${x.categoria}</div>
-
-<div>${mostrarValores ? "R$ "+Number(x.valor).toFixed(2) : "••••"}</div>
-
-<div style="display:flex;gap:5px">
+<div>${mostrarValores?"R$ "+x.valor.toFixed(2):"••••"}</div>
+<div>
 <button class="edit" onclick='editar(${JSON.stringify(x)})'>Editar</button>
 <button class="delete" onclick="del('${x.id}')">Excluir</button>
 </div>
-
-</div>
-`
+</div>`
 })
 
-document.getElementById("total").innerText=
-"Saldo: "+(mostrarValores ? "R$ "+total.toFixed(2) : "••••")
-document.getElementById("resumo").innerHTML=
-"Receitas: R$ "+receitas.toFixed(2)+" | Despesas: R$ "+despesas.toFixed(2)
-}
+total.innerText="Saldo: "+(mostrarValores?"R$ "+total.toFixed(2):"••••")
+resumo.innerText=`Receitas: R$ ${receitas.toFixed(2)} | Despesas: R$ ${despesas.toFixed(2)}`
 
-carregar()
 atualizarDashboard()
-
-function importarTexto(){
-const txt=document.getElementById("importarTexto").value
-if(!txt)return alert("Cole o texto")
-
-const linhas=txt.split("\n")
-let registros=[]
-
-linhas.forEach(l=>{
-l=l.trim()
-if(!l)return
-
-// padrão: 01/03 NOME 123,45
-const match=l.match(/(\d{2}\/\d{2})\s+(.+?)\s+([\d\.,]+)/)
-
-if(match){
-let data=match[1]
-let desc=match[2]
-let valor=match[3]
-
-// transforma data
-let[dia,mes]=data.split("/")
-let dataFinal=`2026-${mes}-${dia}`
-
-// valor
-valor=parseFloat(valor.replace(/\./g,"").replace(",","."))
-if(!valor)return
-
-// tipo automático
-let tipo=desc.toUpperCase().includes("REMUNERA")?"RECEITA":"DESPESA"
-
-registros.push({
-data:dataFinal,
-descricao:desc,
-tipo:tipo,
-categoria:"GERAL",
-valor:valor
-})
-}
-})
-
-// envia pro banco
-registros.forEach(async r=>{
-await db.from("lancamentos").insert(r)
-})
-
-alert("Importado: "+registros.length+" registros")
-carregar()
 }
 
-let graficoResumo=null
-let graficoMensal=null
-
+/* ====================================================
+011 – DASHBOARD
+==================================================== */
 function atualizarDashboard(){
 
-let receitas=0
-let despesas=0
-let meses={}
-
-dados.forEach(x=>{
-const data=new Date(x.data)
-const mes=data.getMonth()
-
-if(!meses[mes])meses[mes]={r:0,d:0}
-
-if(x.tipo==="RECEITA"){
-receitas+=x.valor
-meses[mes].r+=x.valor
-}else{
-despesas+=x.valor
-meses[mes].d+=x.valor
-}
-})
-
-/* 🔥 DESTROI ANTES DE RECRIAR */
 if(graficoResumo)graficoResumo.destroy()
 if(graficoMensal)graficoMensal.destroy()
 
-/* 🔥 RESUMO (pizza) */
-graficoResumo=new Chart(document.getElementById("graficoResumo"),{
+let r=0,d=0,meses={}
+
+dados.forEach(x=>{
+let m=new Date(x.data).getMonth()
+if(!meses[m])meses[m]={r:0,d:0}
+if(x.tipo==="RECEITA"){r+=x.valor;meses[m].r+=x.valor}
+else{d+=x.valor;meses[m].d+=x.valor}
+})
+
+graficoResumo=new Chart(graficoResumo,{
 type:"doughnut",
-data:{
-labels:["Receitas","Despesas"],
-datasets:[{
-data:[receitas,despesas],
-backgroundColor:["#22c55e","#ef4444"]
-}]
-}
+data:{labels:["Receitas","Despesas"],datasets:[{data:[r,d]}]}
 })
 
-/* 🔥 MENSAL (barras) */
-const labels=["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"]
-
-graficoMensal=new Chart(document.getElementById("graficoMensal"),{
+graficoMensal=new Chart(graficoMensal,{
 type:"bar",
-data:{
-labels:labels,
+data:{labels:["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"],
 datasets:[
-{
-label:"Receitas",
-data:labels.map((_,i)=>meses[i]?.r||0),
-backgroundColor:"#22c55e"
-},
-{
-label:"Despesas",
-data:labels.map((_,i)=>meses[i]?.d||0),
-backgroundColor:"#ef4444"
-}
-]
-}
+{label:"Receitas",data:Object.values(meses).map(x=>x.r)},
+{label:"Despesas",data:Object.values(meses).map(x=>x.d)}
+]}
 })
-
 }
 
+/* ====================================================
+012 – LOGOUT
+==================================================== */
 function logout(){
 localStorage.clear()
 location.reload()
 }
-let mostrarValores=true
 
-function toggleValores(){
-mostrarValores=!mostrarValores
-render()
-}
+carregar()
 
 </script>
 
