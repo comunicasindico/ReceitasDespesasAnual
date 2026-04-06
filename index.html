@@ -2,20 +2,22 @@
 <html lang="pt-br">
 <head>
 <meta charset="UTF-8">
-<title>ReceitasDespesasAnual</title>
+<title>ReceitasDespesasAnual PRO</title>
 <style>
 body{font-family:Arial;background:#0f172a;color:#fff;padding:20px}
 h1{text-align:center}
 input,select,button{padding:8px;margin:5px;border-radius:6px;border:none}
 button{cursor:pointer;background:#22c55e;color:#000}
 .delete{background:#ef4444;color:#fff}
+.edit{background:#3b82f6;color:#fff}
 .card{background:#1e293b;padding:10px;margin:10px 0;border-radius:10px}
 .topo{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.resumo{margin-top:20px;padding:10px;background:#111827;border-radius:10px}
 </style>
 </head>
 <body>
 
-<h1>ReceitasDespesasAnual</h1>
+<h1>ReceitasDespesasAnual PRO</h1>
 
 <div class="topo">
 <input type="date" id="data">
@@ -23,6 +25,13 @@ button{cursor:pointer;background:#22c55e;color:#000}
 <select id="tipo">
 <option>DESPESA</option>
 <option>RECEITA</option>
+</select>
+<select id="categoria">
+<option>GERAL</option>
+<option>CASA</option>
+<option>SAÚDE</option>
+<option>EDUCAÇÃO</option>
+<option>LAZER</option>
 </select>
 <input type="number" id="valor" placeholder="Valor">
 <button onclick="add()">Adicionar</button>
@@ -42,7 +51,18 @@ button{cursor:pointer;background:#22c55e;color:#000}
 <option>2026</option>
 <option>2027</option>
 </select>
+
+<select id="filtroTipo" onchange="render()">
+<option value="">Todos</option>
+<option>RECEITA</option>
+<option>DESPESA</option>
+</select>
+
+<button onclick="exportar()">Backup</button>
+<input type="file" onchange="importar(event)">
 </div>
+
+<div class="resumo" id="resumo"></div>
 
 <h2 id="total"></h2>
 
@@ -50,6 +70,7 @@ button{cursor:pointer;background:#22c55e;color:#000}
 
 <script>
 let dados=JSON.parse(localStorage.getItem("dados")||"[]")
+let editando=null
 
 function salvar(){
 localStorage.setItem("dados",JSON.stringify(dados))
@@ -59,11 +80,18 @@ function add(){
 const d=document.getElementById("data").value
 const desc=document.getElementById("desc").value
 const tipo=document.getElementById("tipo").value
+const categoria=document.getElementById("categoria").value
 const valor=parseFloat(document.getElementById("valor").value)
 
 if(!d||!desc||!valor)return alert("Preencha tudo")
 
-dados.push({id:Date.now(),d,desc,tipo,valor})
+if(editando){
+dados=dados.map(x=>x.id===editando?{...x,d,desc,tipo,categoria,valor}:x)
+editando=null
+}else{
+dados.push({id:Date.now(),d,desc,tipo,categoria,valor})
+}
+
 salvar()
 render()
 }
@@ -74,14 +102,43 @@ salvar()
 render()
 }
 
+function editar(x){
+editando=x.id
+document.getElementById("data").value=x.d
+document.getElementById("desc").value=x.desc
+document.getElementById("tipo").value=x.tipo
+document.getElementById("categoria").value=x.categoria
+document.getElementById("valor").value=x.valor
+}
+
+function exportar(){
+const blob=new Blob([JSON.stringify(dados)],{type:"application/json"})
+const a=document.createElement("a")
+a.href=URL.createObjectURL(blob)
+a.download="backup.json"
+a.click()
+}
+
+function importar(e){
+const file=e.target.files[0]
+const reader=new FileReader()
+reader.onload=function(){
+dados=JSON.parse(reader.result)
+salvar()
+render()
+}
+reader.readAsText(file)
+}
+
 function render(){
 const lista=document.getElementById("lista")
 lista.innerHTML=""
 
-let total=0
+let total=0,receitas=0,despesas=0
 
 const mesFiltro=document.getElementById("filtroMes").value
 const anoFiltro=document.getElementById("filtroAno").value
+const tipoFiltro=document.getElementById("filtroTipo").value
 
 dados.sort((a,b)=>new Date(a.d)-new Date(b.d))
 
@@ -90,20 +147,24 @@ const data=new Date(x.d)
 const mes=data.getMonth().toString()
 const ano=data.getFullYear().toString()
 
-if((mesFiltro && mes!==mesFiltro)||(anoFiltro && ano!==anoFiltro))return
+if((mesFiltro && mes!==mesFiltro)||(anoFiltro && ano!==anoFiltro)||(tipoFiltro && x.tipo!==tipoFiltro))return
 
-if(x.tipo==="RECEITA")total+=x.valor
-else total-=x.valor
+if(x.tipo==="RECEITA"){total+=x.valor;receitas+=x.valor}
+else{total-=x.valor;despesas+=x.valor}
 
 lista.innerHTML+=`
 <div class="card">
-${x.d} - ${x.desc} - R$ ${x.valor.toFixed(2)}
+${x.d} - ${x.desc} - ${x.categoria} - R$ ${x.valor.toFixed(2)}
+<button class="edit" onclick='editar(${JSON.stringify(x)})'>Editar</button>
 <button class="delete" onclick="del(${x.id})">Excluir</button>
 </div>
 `
 })
 
 document.getElementById("total").innerText="Saldo: R$ "+total.toFixed(2)
+
+document.getElementById("resumo").innerHTML=
+"Receitas: R$ "+receitas.toFixed(2)+" | Despesas: R$ "+despesas.toFixed(2)
 }
 
 render()
