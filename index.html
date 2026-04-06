@@ -74,6 +74,7 @@ button{cursor:pointer;background:#22c55e;color:#000}
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <script>
 
 const SUPABASE_URL="https://gspdlrenyrzbkxlvyugc.supabase.co"
@@ -84,6 +85,8 @@ const db=supabase.createClient(SUPABASE_URL,SUPABASE_KEY)
 let dados=[]
 let editando=null
 
+let graficoResumo = null
+let graficoMensal = null
 async function carregar(){
 const{data,error}=await db.from("lancamentos").select("*").order("data",{ascending:true})
 if(error){alert("Erro ao carregar");console.log(error);return}
