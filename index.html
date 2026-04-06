@@ -17,8 +17,10 @@ button{cursor:pointer;background:#22c55e;color:#000}
 </head>
 <body>
 
+<div style="display:flex;justify-content:space-between;align-items:center">
 <h1>ReceitasDespesasAnual PRO</h1>
-
+<button onclick="logout()" style="background:#ef4444;color:#fff">Sair</button>
+</div>
 <div class="topo">
 <input type="date" id="data">
 <input type="text" id="desc" placeholder="Descrição">
@@ -69,7 +71,13 @@ button{cursor:pointer;background:#22c55e;color:#000}
 <canvas id="graficoResumo" style="margin-top:20px"></canvas>
 <canvas id="graficoMensal" style="margin-top:20px"></canvas>
 <h2 id="total"></h2>
-
+<button onclick="toggleValores()" style="margin-top:10px">👁 Mostrar/Ocultar valores</button>
+<div style="display:grid;grid-template-columns:120px 1fr 120px 120px;gap:10px;font-weight:bold;margin-top:20px">
+<div>Data</div>
+<div>Descrição</div>
+<div>Categoria</div>
+<div>Valor</div>
+</div>
 <div id="lista"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -83,6 +91,12 @@ const SUPABASE_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSI
 const db=supabase.createClient(SUPABASE_URL,SUPABASE_KEY)
 
 let dados=[]
+let mostrarValores = true
+
+function toggleValores(){
+mostrarValores = !mostrarValores
+render()
+}
 let editando=null
 
 let graficoResumo = null
@@ -144,15 +158,27 @@ if(x.tipo==="RECEITA"){total+=x.valor;receitas+=x.valor}
 else{total-=x.valor;despesas+=x.valor}
 
 lista.innerHTML+=`
-<div class="card">
-${x.data} - ${x.descricao} - ${x.categoria} - R$ ${Number(x.valor).toFixed(2)}
+<div style="display:grid;grid-template-columns:120px 1fr 120px 120px auto;gap:10px;background:#1e293b;padding:8px;margin:6px 0;border-radius:8px;align-items:center">
+
+<div>${x.data}</div>
+
+<div>${x.descricao}</div>
+
+<div>${x.categoria}</div>
+
+<div>${mostrarValores ? "R$ "+Number(x.valor).toFixed(2) : "••••"}</div>
+
+<div style="display:flex;gap:5px">
 <button class="edit" onclick='editar(${JSON.stringify(x)})'>Editar</button>
-<button class="delete" onclick="del("${x.id}")">Excluir</button>
+<button class="delete" onclick="del('${x.id}')">Excluir</button>
+</div>
+
 </div>
 `
 })
 
-document.getElementById("total").innerText="Saldo: R$ "+total.toFixed(2)
+document.getElementById("total").innerText=
+"Saldo: "+(mostrarValores ? "R$ "+total.toFixed(2) : "••••")
 document.getElementById("resumo").innerHTML=
 "Receitas: R$ "+receitas.toFixed(2)+" | Despesas: R$ "+despesas.toFixed(2)
 }
@@ -272,7 +298,18 @@ backgroundColor:"#ef4444"
 })
 
 }
-  
+
+function logout(){
+localStorage.clear()
+location.reload()
+}
+let mostrarValores=true
+
+function toggleValores(){
+mostrarValores=!mostrarValores
+render()
+}
+
 </script>
 
 </body>
