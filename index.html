@@ -258,7 +258,7 @@ if(x.tipo==="RECEITA"){saldo+=x.valor;receitas+=x.valor}
 else{saldo-=x.valor;despesas+=x.valor}
 
 lista.innerHTML+=`
-style="
+<div style="
 display:grid;
 grid-template-columns:90px 1fr 100px 130px auto;
 gap:6px;
@@ -269,22 +269,39 @@ border-radius:6px;
 align-items:center;
 border-left:3px solid ${x.tipo==="RECEITA"?"#22c55e":"#ef4444"};
 font-size:13px;
-"
+">
 
-<div style="font-size:12px;color:#94a3b8">${formatarDataBR(x.data)}</div>
-
-<div style="font-weight:bold">${x.descricao}</div>
-
-<div>${x.categoria}</div>
-
-<div style="text-align:right;font-variant-numeric:tabular-nums;">
-<span id="valor_${x.id}">
-${visibilidade[x.id]===false?"••••":"R$ "+formatarMoeda(x.valor)}
-</span>
-<button onclick="toggleValor('${x.id}')">👁</button>
+<div style="font-size:12px;color:#94a3b8">
+${formatarDataBR(x.data)}
 </div>
 
-<div style="display:flex;gap:5px">
+<div style="font-weight:600">
+${x.descricao}
+</div>
+
+<div style="font-size:12px;color:#94a3b8">
+${x.categoria}
+</div>
+
+<div style="display:flex;justify-content:flex-end;align-items:center;gap:6px">
+
+<span style="min-width:90px;text-align:right;font-variant-numeric:tabular-nums">
+${visibilidade[x.id]===false?"••••":"R$ "+formatarMoeda(x.valor)}
+</span>
+
+<button onclick="toggleValor('${x.id}')" style="
+background:#22c55e;
+border:none;
+border-radius:6px;
+padding:4px 6px;
+cursor:pointer;
+">
+👁
+</button>
+
+</div>
+
+<div style="display:flex;gap:4px">
 <button class="edit" onclick='editar(${JSON.stringify(x)})'>✏️</button>
 <button class="delete" onclick="del('${x.id}')">🗑️</button>
 </div>
@@ -293,8 +310,11 @@ ${visibilidade[x.id]===false?"••••":"R$ "+formatarMoeda(x.valor)}
 `
 })
 
-document.getElementById("total").innerText="Saldo: R$ "+saldo.toFixed(2)
-document.getElementById("resumo").innerText=`Receitas: R$ ${receitas.toFixed(2)} | Despesas: R$ ${despesas.toFixed(2)}`
+document.getElementById("total").innerText=
+"Saldo: "+(mostrarValores ? "R$ "+formatarMoeda(saldo) : "••••")
+
+document.getElementById("resumo").innerText=
+`Receitas: ${mostrarValores ? "R$ "+formatarMoeda(receitas) : "••••"} | Despesas: ${mostrarValores ? "R$ "+formatarMoeda(despesas) : "••••"}`
 
 atualizarDashboard()
 }
