@@ -151,18 +151,25 @@ carregar()
 007 – EDITAR POR ID
 ==================================================== */
 function editarPorId(id){
-const x=dados.find(d=>d.id==id)
+
+const x = dados.find(d => String(d.id) === String(id))
+
 if(!x){
 alert("Registro não encontrado")
 return
 }
-editando=x.id
-document.getElementById("data").value=x.data
-document.getElementById("desc").value=x.descricao
-document.getElementById("tipo").value=x.tipo
-document.getElementById("categoria").value=x.categoria
-document.getElementById("valor").value=x.valor
+
+editando = x.id
+
+document.getElementById("data").value = x.data || ""
+document.getElementById("desc").value = x.descricao || ""
+document.getElementById("tipo").value = x.tipo || "DESPESA"
+document.getElementById("categoria").value = x.categoria || "GERAL"
+document.getElementById("valor").value = x.valor || 0
+
+// foco automático
 document.getElementById("desc").focus()
+
 }
 /* ====================================================
 008 – ADICIONAR (INTELIGENTE)
