@@ -22,6 +22,8 @@ button{cursor:pointer;background:#22c55e;color:#000}
 <div class="topo">
 <input type="date" id="data">
 <input type="text" id="desc" placeholder="Descrição">
+<textarea id="importarTexto" placeholder="Cole aqui suas despesas e receitas..." style="width:100%;height:120px;margin-top:10px"></textarea>
+<button onclick="importarTexto()">Importar automático</button>
 <select id="tipo">
 <option>DESPESA</option>
 <option>RECEITA</option>
@@ -151,6 +153,54 @@ document.getElementById("resumo").innerHTML=
 
 carregar()
 
+function importarTexto(){
+const txt=document.getElementById("importarTexto").value
+if(!txt)return alert("Cole o texto")
+
+const linhas=txt.split("\n")
+let registros=[]
+
+linhas.forEach(l=>{
+l=l.trim()
+if(!l)return
+
+// padrão: 01/03 NOME 123,45
+const match=l.match(/(\d{2}\/\d{2})\s+(.+?)\s+([\d\.,]+)/)
+
+if(match){
+let data=match[1]
+let desc=match[2]
+let valor=match[3]
+
+// transforma data
+let[dia,mes]=data.split("/")
+let dataFinal=`2026-${mes}-${dia}`
+
+// valor
+valor=parseFloat(valor.replace(/\./g,"").replace(",","."))
+if(!valor)return
+
+// tipo automático
+let tipo=desc.toUpperCase().includes("REMUNERA")?"RECEITA":"DESPESA"
+
+registros.push({
+data:dataFinal,
+descricao:desc,
+tipo:tipo,
+categoria:"GERAL",
+valor:valor
+})
+}
+})
+
+// envia pro banco
+registros.forEach(async r=>{
+await db.from("lancamentos").insert(r)
+})
+
+alert("Importado: "+registros.length+" registros")
+carregar()
+}
 </script>
 
 </body>
