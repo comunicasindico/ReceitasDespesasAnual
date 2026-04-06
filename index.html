@@ -22,8 +22,7 @@ button{cursor:pointer;background:#22c55e;color:#000}
 <div class="topo">
 <input type="date" id="data">
 <input type="text" id="desc" placeholder="Descrição">
-<textarea id="importarTexto" placeholder="Cole aqui suas despesas e receitas..." style="width:100%;height:120px;margin-top:10px"></textarea>
-<button onclick="importarTexto()">Importar automático</button>
+
 <select id="tipo">
 <option>DESPESA</option>
 <option>RECEITA</option>
@@ -37,7 +36,9 @@ button{cursor:pointer;background:#22c55e;color:#000}
 </select>
 <input type="number" id="valor" placeholder="Valor">
 <button onclick="add()">Adicionar</button>
-
+<textarea id="importarTexto" placeholder="Cole aqui suas despesas e receitas..." style="width:100%;height:120px;margin-top:10px"></textarea>
+<button onclick="importarTexto()">Importar automático</button>
+  
 <select id="filtroMes" onchange="render()">
 <option value="">Todos Meses</option>
 <option value="0">Jan</option><option value="1">Fev</option>
