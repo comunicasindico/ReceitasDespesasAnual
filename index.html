@@ -66,12 +66,14 @@ button{cursor:pointer;background:#22c55e;color:#000}
 </div>
 
 <div class="resumo" id="resumo"></div>
-
+<canvas id="graficoResumo" style="margin-top:20px"></canvas>
+<canvas id="graficoMensal" style="margin-top:20px"></canvas>
 <h2 id="total"></h2>
 
 <div id="lista"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
 
 const SUPABASE_URL="https://gspdlrenyrzbkxlvyugc.supabase.co"
@@ -153,6 +155,7 @@ document.getElementById("resumo").innerHTML=
 }
 
 carregar()
+atualizarDashboard()
 
 function importarTexto(){
 const txt=document.getElementById("importarTexto").value
@@ -202,6 +205,56 @@ await db.from("lancamentos").insert(r)
 alert("Importado: "+registros.length+" registros")
 carregar()
 }
+
+function atualizarDashboard(){
+
+let receitas=0
+let despesas=0
+
+let meses={}
+
+dados.forEach(x=>{
+const data=new Date(x.data)
+const mes=data.getMonth()
+
+if(!meses[mes])meses[mes]={r:0,d:0}
+
+if(x.tipo==="RECEITA"){
+receitas+=x.valor
+meses[mes].r+=x.valor
+}else{
+despesas+=x.valor
+meses[mes].d+=x.valor
+}
+})
+
+/* 🔥 GRÁFICO RESUMO */
+new Chart(document.getElementById("graficoResumo"),{
+type:"doughnut",
+data:{
+labels:["Receitas","Despesas"],
+datasets:[{
+data:[receitas,despesas]
+}]
+}
+})
+
+/* 🔥 GRÁFICO MENSAL */
+const labels=["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"]
+
+new Chart(document.getElementById("graficoMensal"),{
+type:"bar",
+data:{
+labels:labels,
+datasets:[
+{label:"Receitas",data:labels.map((_,i)=>meses[i]?.r||0)},
+{label:"Despesas",data:labels.map((_,i)=>meses[i]?.d||0)}
+]
+}
+})
+
+}
+  
 </script>
 
 </body>
