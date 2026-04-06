@@ -43,7 +43,7 @@ button{cursor:pointer;background:#22c55e;color:#000}
 
 <textarea id="importarTexto" placeholder="Cole aqui suas despesas e receitas..." style="width:100%;height:120px;margin-top:10px"></textarea>
 <button onclick="importarTexto()">Importar automático</button>
-
+<button onclick="copiarMesAnterior()">Gerar base mês</button>
 <select id="filtroMes" onchange="render()">
 <option value="">Todos Meses</option>
 <option value="0">Jan</option><option value="1">Fev</option>
@@ -156,18 +156,57 @@ valor.value=x.valor
 }
 
 /* ====================================================
-008 – ADICIONAR
+008 – ADICIONAR (INTELIGENTE - SEM DUPLICIDADE)
 ==================================================== */
 async function add(){
+
+/* 🔹 1 – CAPTURA CAMPOS */
 const obj={
 data:data.value,
-descricao:desc.value,
+descricao:desc.value.trim(),
 tipo:tipo.value,
 categoria:categoria.value,
 valor:parseFloat(valor.value)
 }
-if(!obj.data||!obj.descricao||!obj.valor)return alert("Preencha tudo")
-if(editando){obj.id=editando;editando=null}
+
+/* 🔹 2 – VALIDAÇÃO */
+if(!obj.data || !obj.descricao){
+alert("Preencha data e descrição")
+return
+}
+
+/* 🔹 3 – VALOR ZERO NÃO ENTRA */
+if(!obj.valor || obj.valor===0){
+alert("Valor deve ser maior que zero")
+return
+}
+
+/* 🔹 4 – EDIÇÃO NORMAL */
+if(editando){
+obj.id=editando
+editando=null
+await salvarRegistro(obj)
+return
+}
+
+/* 🔹 5 – IDENTIFICA MÊS/ANO */
+const mesAtual=obj.data.slice(0,7)
+
+/* 🔹 6 – BUSCA EXISTENTE (MESMO MÊS + DESCRIÇÃO) */
+const existente=dados.find(x=>
+x.descricao.toLowerCase()===obj.descricao.toLowerCase() &&
+x.data.slice(0,7)===mesAtual
+)
+
+/* 🔹 7 – SE EXISTE → ATUALIZA */
+if(existente){
+obj.id=existente.id
+await salvarRegistro(obj)
+alert("Registro atualizado")
+return
+}
+
+/* 🔹 8 – SENÃO → INSERE */
 await salvarRegistro(obj)
 }
 
@@ -206,6 +245,7 @@ carregar()
 ==================================================== */
 function render(){
 let total=0,receitas=0,despesas=0
+dados=dados.filter(x=>x.valor!==0)
 lista.innerHTML=""
 
 dados.forEach(x=>{
@@ -262,9 +302,53 @@ datasets:[
 ]}
 })
 }
-
 /* ====================================================
-012 – LOGOUT
+012 – MÊS ANTERIOR
+==================================================== */
+async function copiarMesAnterior(){
+
+const hoje=new Date()
+const ano=hoje.getFullYear()
+const mes=hoje.getMonth() // atual
+const mesAnterior=mes-1
+
+// busca mês anterior
+const {data:anteriores}=await db.from("lancamentos")
+.select("*")
+.gte("data",`${ano}-${String(mesAnterior+1).padStart(2,"0")}-01`)
+.lte("data",`${ano}-${String(mesAnterior+1).padStart(2,"0")}-31`)
+
+// busca mês atual
+const {data:atuais}=await db.from("lancamentos")
+.select("*")
+.gte("data",`${ano}-${String(mes+1).padStart(2,"0")}-01`)
+.lte("data",`${ano}-${String(mes+1).padStart(2,"0")}-31`)
+
+// cria lista existente
+let descricoesExistentes=new Set((atuais||[]).map(x=>x.descricao))
+
+for(const x of (anteriores||[])){
+
+if(!descricoesExistentes.has(x.descricao)){
+
+await db.from("lancamentos").insert({
+data:`${ano}-${String(mes+1).padStart(2,"0")}-01`,
+descricao:x.descricao,
+tipo:x.tipo,
+categoria:x.categoria,
+valor:0
+})
+
+}
+
+}
+
+alert("Base do mês criada")
+carregar()
+
+}
+/* ====================================================
+013 – LOGOUT
 ==================================================== */
 function logout(){
 localStorage.clear()
