@@ -206,11 +206,13 @@ alert("Importado: "+registros.length+" registros")
 carregar()
 }
 
+let graficoResumo=null
+let graficoMensal=null
+
 function atualizarDashboard(){
 
 let receitas=0
 let despesas=0
-
 let meses={}
 
 dados.forEach(x=>{
@@ -228,27 +230,40 @@ meses[mes].d+=x.valor
 }
 })
 
-/* 🔥 GRÁFICO RESUMO */
-new Chart(document.getElementById("graficoResumo"),{
+/* 🔥 DESTROI ANTES DE RECRIAR */
+if(graficoResumo)graficoResumo.destroy()
+if(graficoMensal)graficoMensal.destroy()
+
+/* 🔥 RESUMO (pizza) */
+graficoResumo=new Chart(document.getElementById("graficoResumo"),{
 type:"doughnut",
 data:{
 labels:["Receitas","Despesas"],
 datasets:[{
-data:[receitas,despesas]
+data:[receitas,despesas],
+backgroundColor:["#22c55e","#ef4444"]
 }]
 }
 })
 
-/* 🔥 GRÁFICO MENSAL */
+/* 🔥 MENSAL (barras) */
 const labels=["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"]
 
-new Chart(document.getElementById("graficoMensal"),{
+graficoMensal=new Chart(document.getElementById("graficoMensal"),{
 type:"bar",
 data:{
 labels:labels,
 datasets:[
-{label:"Receitas",data:labels.map((_,i)=>meses[i]?.r||0)},
-{label:"Despesas",data:labels.map((_,i)=>meses[i]?.d||0)}
+{
+label:"Receitas",
+data:labels.map((_,i)=>meses[i]?.r||0),
+backgroundColor:"#22c55e"
+},
+{
+label:"Despesas",
+data:labels.map((_,i)=>meses[i]?.d||0),
+backgroundColor:"#ef4444"
+}
 ]
 }
 })
