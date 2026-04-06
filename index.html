@@ -68,66 +68,61 @@ button{cursor:pointer;background:#22c55e;color:#000}
 
 <div id="lista"></div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-let dados=JSON.parse(localStorage.getItem("dados")||"[]")
+
+const SUPABASE_URL="https://gspdlrenyrzbkxlvyugc.supabase.co"
+const SUPABASE_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdzcGRscmVueXJ6Ymt4bHZ5dWdjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ4ODU0NzAsImV4cCI6MjA5MDQ2MTQ3MH0.UWfkWvOh4qMDEcByVL-KZ6ejJ80V7wJlDOFH76TywaI"
+
+const db=supabase.createClient(SUPABASE_URL,SUPABASE_KEY)
+
+let dados=[]
 let editando=null
 
-function salvar(){
-localStorage.setItem("dados",JSON.stringify(dados))
+async function carregar(){
+const{data,error}=await db.from("lancamentos").select("*").order("data",{ascending:true})
+if(error){alert("Erro ao carregar");console.log(error);return}
+dados=data||[]
+render()
 }
 
-function add(){
-const d=document.getElementById("data").value
-const desc=document.getElementById("desc").value
-const tipo=document.getElementById("tipo").value
-const categoria=document.getElementById("categoria").value
-const valor=parseFloat(document.getElementById("valor").value)
-
-if(!d||!desc||!valor)return alert("Preencha tudo")
-
-if(editando){
-dados=dados.map(x=>x.id===editando?{...x,d,desc,tipo,categoria,valor}:x)
-editando=null
+async function salvarRegistro(obj){
+if(obj.id){
+await db.from("lancamentos").update(obj).eq("id",obj.id)
 }else{
-dados.push({id:Date.now(),d,desc,tipo,categoria,valor})
+await db.from("lancamentos").insert(obj)
+}
+carregar()
 }
 
-salvar()
-render()
-}
-
-function del(id){
-dados=dados.filter(x=>x.id!==id)
-salvar()
-render()
+async function del(id){
+await db.from("lancamentos").delete().eq("id",id)
+carregar()
 }
 
 function editar(x){
 editando=x.id
-document.getElementById("data").value=x.d
-document.getElementById("desc").value=x.desc
+document.getElementById("data").value=x.data
+document.getElementById("desc").value=x.descricao
 document.getElementById("tipo").value=x.tipo
 document.getElementById("categoria").value=x.categoria
 document.getElementById("valor").value=x.valor
 }
 
-function exportar(){
-const blob=new Blob([JSON.stringify(dados)],{type:"application/json"})
-const a=document.createElement("a")
-a.href=URL.createObjectURL(blob)
-a.download="backup.json"
-a.click()
+async function add(){
+const obj={
+data:document.getElementById("data").value,
+descricao:document.getElementById("desc").value,
+tipo:document.getElementById("tipo").value,
+categoria:document.getElementById("categoria").value,
+valor:parseFloat(document.getElementById("valor").value)
 }
 
-function importar(e){
-const file=e.target.files[0]
-const reader=new FileReader()
-reader.onload=function(){
-dados=JSON.parse(reader.result)
-salvar()
-render()
-}
-reader.readAsText(file)
+if(!obj.data||!obj.descricao||!obj.valor)return alert("Preencha tudo")
+
+if(editando){obj.id=editando;editando=null}
+
+await salvarRegistro(obj)
 }
 
 function render(){
@@ -136,38 +131,26 @@ lista.innerHTML=""
 
 let total=0,receitas=0,despesas=0
 
-const mesFiltro=document.getElementById("filtroMes").value
-const anoFiltro=document.getElementById("filtroAno").value
-const tipoFiltro=document.getElementById("filtroTipo").value
-
-dados.sort((a,b)=>new Date(a.d)-new Date(b.d))
-
 dados.forEach(x=>{
-const data=new Date(x.d)
-const mes=data.getMonth().toString()
-const ano=data.getFullYear().toString()
-
-if((mesFiltro && mes!==mesFiltro)||(anoFiltro && ano!==anoFiltro)||(tipoFiltro && x.tipo!==tipoFiltro))return
-
 if(x.tipo==="RECEITA"){total+=x.valor;receitas+=x.valor}
 else{total-=x.valor;despesas+=x.valor}
 
 lista.innerHTML+=`
 <div class="card">
-${x.d} - ${x.desc} - ${x.categoria} - R$ ${x.valor.toFixed(2)}
+${x.data} - ${x.descricao} - ${x.categoria} - R$ ${Number(x.valor).toFixed(2)}
 <button class="edit" onclick='editar(${JSON.stringify(x)})'>Editar</button>
-<button class="delete" onclick="del(${x.id})">Excluir</button>
+<button class="delete" onclick="del("${x.id}")">Excluir</button>
 </div>
 `
 })
 
 document.getElementById("total").innerText="Saldo: R$ "+total.toFixed(2)
-
 document.getElementById("resumo").innerHTML=
 "Receitas: R$ "+receitas.toFixed(2)+" | Despesas: R$ "+despesas.toFixed(2)
 }
 
-render()
+carregar()
+
 </script>
 
 </body>
