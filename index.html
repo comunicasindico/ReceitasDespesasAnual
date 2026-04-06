@@ -121,14 +121,10 @@ render()
 004 – CARREGAR DADOS
 ==================================================== */
 async function carregar(){
-
 const{data,error}=await db.from("lancamentos").select("*").order("data",{ascending:true})
 if(error)return alert("Erro ao carregar")
-
 dados=data||[]
-
 await gerarRecorrentes()
-
 render()
 }
 
@@ -165,34 +161,23 @@ valor.value=x.valor
 }
 
 /* ====================================================
-008 – ADICIONAR (INTELIGENTE - SEM DUPLICIDADE)
+008 – ADICIONAR (INTELIGENTE)
 ==================================================== */
 async function add(){
 
-/* 🔹 1 – CAPTURA CAMPOS */
 const obj={
 data:data.value,
-descricao:desc.value,
+descricao:desc.value.trim(),
 tipo:tipo.value,
 categoria:categoria.value,
 valor:parseFloat(valor.value),
-recorrente:document.getElementById("recorrente").checked,
-dia_padrao:parseInt(document.getElementById("diaPadrao").value)||null
+recorrente:document.getElementById("recorrente")?.checked||false,
+dia_padrao:parseInt(document.getElementById("diaPadrao")?.value)||null
 }
 
-/* 🔹 2 – VALIDAÇÃO */
-if(!obj.data || !obj.descricao){
-alert("Preencha data e descrição")
-return
-}
+if(!obj.data||!obj.descricao)return alert("Preencha data e descrição")
+if(!obj.valor||obj.valor===0)return alert("Valor inválido")
 
-/* 🔹 3 – VALOR ZERO NÃO ENTRA */
-if(!obj.valor || obj.valor===0){
-alert("Valor deve ser maior que zero")
-return
-}
-
-/* 🔹 4 – EDIÇÃO NORMAL */
 if(editando){
 obj.id=editando
 editando=null
@@ -200,43 +185,43 @@ await salvarRegistro(obj)
 return
 }
 
-/* 🔹 5 – IDENTIFICA MÊS/ANO */
 const mesAtual=obj.data.slice(0,7)
 
-/* 🔹 6 – BUSCA EXISTENTE (MESMO MÊS + DESCRIÇÃO) */
 const existente=dados.find(x=>
 x.descricao.toLowerCase()===obj.descricao.toLowerCase() &&
 x.data.slice(0,7)===mesAtual
 )
 
-/* 🔹 7 – SE EXISTE → ATUALIZA */
 if(existente){
 obj.id=existente.id
 await salvarRegistro(obj)
-alert("Registro atualizado")
+alert("Atualizado")
 return
 }
 
-/* 🔹 8 – SENÃO → INSERE */
 await salvarRegistro(obj)
 }
 
 /* ====================================================
-009 – IMPORTADOR
+009 – IMPORTADOR (CORRIGIDO)
 ==================================================== */
 async function importarTexto(){
-const txt=importarTexto.value
+
+const txt=document.getElementById("importarTexto").value
 if(!txt)return alert("Cole o texto")
 
 const linhas=txt.split("\n")
 
 for(const l of linhas){
+
 const m=l.match(/(\d{2}\/\d{2})\s+(.+?)\s+([\d\.,]+)/)
 if(!m)continue
 
 let[dia,mes]=m[1].split("/")
-let valor=parseFloat(m[3].replace(/\./g,"").replace(",","."))
-let tipo=m[2].includes("REMUNERA")?"RECEITA":"DESPESA"
+
+let valor=parseFloat(m[3].replace(/\./g,"").replace(/,/g,"."))
+
+let tipo=m[2].toUpperCase().includes("REMUNERA")?"RECEITA":"DESPESA"
 
 await db.from("lancamentos").insert({
 data:`2026-${mes}-${dia}`,
@@ -245,45 +230,84 @@ tipo:tipo,
 categoria:"GERAL",
 valor:valor
 })
+
 }
 
-alert("Importado!")
+alert("Importado com sucesso")
 carregar()
 }
 
 /* ====================================================
-010 – RENDER
+010 – CONTROLE VISUAL POR ITEM
+==================================================== */
+let visibilidade={}
+
+/* ====================================================
+011 – RENDER (PROFISSIONAL)
 ==================================================== */
 function render(){
-let total=0,receitas=0,despesas=0
-dados=dados.filter(x=>x.valor!==0)
+
+let saldo=0,receitas=0,despesas=0
 lista.innerHTML=""
 
-dados.forEach(x=>{
-if(x.tipo==="RECEITA"){total+=x.valor;receitas+=x.valor}
-else{total-=x.valor;despesas+=x.valor}
+const dadosFiltrados=dados.filter(x=>x.valor!==0)
+
+dadosFiltrados.forEach(x=>{
+
+if(x.tipo==="RECEITA"){saldo+=x.valor;receitas+=x.valor}
+else{saldo-=x.valor;despesas+=x.valor}
 
 lista.innerHTML+=`
-<div style="display:grid;grid-template-columns:120px 1fr 120px 120px auto;gap:10px;background:#1e293b;padding:8px;margin:6px;border-radius:8px">
-<div>${x.data}</div>
-<div>${x.descricao}</div>
+<div style="
+display:grid;
+grid-template-columns:110px 1fr 120px 140px auto;
+gap:10px;
+background:#1e293b;
+padding:10px;
+margin:6px 0;
+border-radius:10px;
+align-items:center;
+border-left:4px solid ${x.tipo==="RECEITA"?"#22c55e":"#ef4444"};
+">
+
+<div style="font-size:12px;color:#94a3b8">${x.data}</div>
+
+<div style="font-weight:bold">${x.descricao}</div>
+
 <div>${x.categoria}</div>
-<div>${mostrarValores?"R$ "+x.valor.toFixed(2):"••••"}</div>
+
 <div>
-<button class="edit" onclick='editar(${JSON.stringify(x)})'>Editar</button>
-<button class="delete" onclick="del('${x.id}')">Excluir</button>
+<span id="valor_${x.id}">
+${visibilidade[x.id]===false?"••••":"R$ "+x.valor.toFixed(2)}
+</span>
+<button onclick="toggleValor('${x.id}')">👁</button>
 </div>
-</div>`
+
+<div style="display:flex;gap:5px">
+<button class="edit" onclick='editar(${JSON.stringify(x)})'>✏️</button>
+<button class="delete" onclick="del('${x.id}')">🗑️</button>
+</div>
+
+</div>
+`
 })
 
-total.innerText="Saldo: "+(mostrarValores?"R$ "+total.toFixed(2):"••••")
-resumo.innerText=`Receitas: R$ ${receitas.toFixed(2)} | Despesas: R$ ${despesas.toFixed(2)}`
+document.getElementById("total").innerText="Saldo: R$ "+saldo.toFixed(2)
+document.getElementById("resumo").innerText=`Receitas: R$ ${receitas.toFixed(2)} | Despesas: R$ ${despesas.toFixed(2)}`
 
 atualizarDashboard()
 }
 
 /* ====================================================
-011 – DASHBOARD
+012 – TOGGLE INDIVIDUAL
+==================================================== */
+function toggleValor(id){
+visibilidade[id]=!visibilidade[id]
+render()
+}
+
+/* ====================================================
+013 – DASHBOARD (CORRIGIDO)
 ==================================================== */
 function atualizarDashboard(){
 
@@ -299,49 +323,47 @@ if(x.tipo==="RECEITA"){r+=x.valor;meses[m].r+=x.valor}
 else{d+=x.valor;meses[m].d+=x.valor}
 })
 
-graficoResumo=new Chart(graficoResumo,{
+graficoResumo=new Chart(document.getElementById("graficoResumo"),{
 type:"doughnut",
 data:{labels:["Receitas","Despesas"],datasets:[{data:[r,d]}]}
 })
 
-graficoMensal=new Chart(graficoMensal,{
+const labels=["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"]
+
+graficoMensal=new Chart(document.getElementById("graficoMensal"),{
 type:"bar",
-data:{labels:["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"],
+data:{
+labels:labels,
 datasets:[
-{label:"Receitas",data:Object.values(meses).map(x=>x.r)},
-{label:"Despesas",data:Object.values(meses).map(x=>x.d)}
-]}
+{label:"Receitas",data:labels.map((_,i)=>meses[i]?.r||0)},
+{label:"Despesas",data:labels.map((_,i)=>meses[i]?.d||0)}
+]
+}
 })
 }
+
 /* ====================================================
-012 – MÊS ANTERIOR
+014 – COPIAR MÊS ANTERIOR
 ==================================================== */
 async function copiarMesAnterior(){
 
 const hoje=new Date()
 const ano=hoje.getFullYear()
-const mes=hoje.getMonth() // atual
+const mes=hoje.getMonth()
 const mesAnterior=mes-1
 
-// busca mês anterior
-const {data:anteriores}=await db.from("lancamentos")
-.select("*")
+const {data:anteriores}=await db.from("lancamentos").select("*")
 .gte("data",`${ano}-${String(mesAnterior+1).padStart(2,"0")}-01`)
 .lte("data",`${ano}-${String(mesAnterior+1).padStart(2,"0")}-31`)
 
-// busca mês atual
-const {data:atuais}=await db.from("lancamentos")
-.select("*")
+const {data:atuais}=await db.from("lancamentos").select("*")
 .gte("data",`${ano}-${String(mes+1).padStart(2,"0")}-01`)
 .lte("data",`${ano}-${String(mes+1).padStart(2,"0")}-31`)
 
-// cria lista existente
-let descricoesExistentes=new Set((atuais||[]).map(x=>x.descricao))
+let set=new Set((atuais||[]).map(x=>x.descricao))
 
 for(const x of (anteriores||[])){
-
-if(!descricoesExistentes.has(x.descricao)){
-
+if(!set.has(x.descricao)){
 await db.from("lancamentos").insert({
 data:`${ano}-${String(mes+1).padStart(2,"0")}-01`,
 descricao:x.descricao,
@@ -349,26 +371,15 @@ tipo:x.tipo,
 categoria:x.categoria,
 valor:0
 })
-
+}
 }
 
-}
-
-alert("Base do mês criada")
+alert("Base criada")
 carregar()
-
-}
-/* ====================================================
-013 – LOGOUT
-==================================================== */
-function logout(){
-localStorage.clear()
-location.reload()
 }
 
-carregar()
 /* ====================================================
-014 – GERAR RECORRÊNCIA AUTOMÁTICA
+015 – RECORRÊNCIA AUTOMÁTICA
 ==================================================== */
 async function gerarRecorrentes(){
 
@@ -376,27 +387,18 @@ const hoje=new Date()
 const ano=hoje.getFullYear()
 const mes=hoje.getMonth()+1
 
-/* 🔹 busca recorrentes */
-const {data:recorrentes}=await db.from("lancamentos")
-.select("*")
-.eq("recorrente",true)
+const {data:rec}=await db.from("lancamentos").select("*").eq("recorrente",true)
 
-for(const r of (recorrentes||[])){
+for(const r of (rec||[])){
 
-let dia=r.dia_padrao || 1
+let dia=r.dia_padrao||1
+let dataNova=`${ano}-${String(mes).padStart(2,"0")}-${String(dia).padStart(2,"0")}`
 
-let novaData=`${ano}-${String(mes).padStart(2,"0")}-${String(dia).padStart(2,"0")}`
+const existe=dados.find(x=>x.descricao===r.descricao && x.data===dataNova)
 
-/* 🔹 verifica se já existe */
-const jaExiste=dados.find(x=>
-x.descricao===r.descricao &&
-x.data===novaData
-)
-
-if(!jaExiste){
-
+if(!existe){
 await db.from("lancamentos").insert({
-data:novaData,
+data:dataNova,
 descricao:r.descricao,
 tipo:r.tipo,
 categoria:r.categoria,
@@ -404,13 +406,19 @@ valor:r.valor,
 recorrente:true,
 dia_padrao:dia
 })
-
+}
+}
 }
 
+/* ====================================================
+016 – LOGOUT
+==================================================== */
+function logout(){
+localStorage.clear()
+location.reload()
 }
 
 carregar()
-}
 
 
 </script>
