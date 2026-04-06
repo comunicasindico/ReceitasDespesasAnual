@@ -73,8 +73,8 @@ button{cursor:pointer;background:#22c55e;color:#000}
 
 <div class="resumo" id="resumo"></div>
 
-<canvas id="graficoResumo"></canvas>
-<canvas id="graficoMensal"></canvas>
+<canvas id="graficoResumo" style="max-height:180px"></canvas>
+<canvas id="graficoMensal" style="max-height:220px;margin-top:10px"></canvas>
 
 <h2 id="total"></h2>
 <button onclick="toggleValores()">👁 Mostrar/Ocultar valores</button>
@@ -258,27 +258,28 @@ if(x.tipo==="RECEITA"){saldo+=x.valor;receitas+=x.valor}
 else{saldo-=x.valor;despesas+=x.valor}
 
 lista.innerHTML+=`
-<div style="
+style="
 display:grid;
-grid-template-columns:110px 1fr 120px 140px auto;
-gap:10px;
+grid-template-columns:90px 1fr 100px 130px auto;
+gap:6px;
 background:#1e293b;
-padding:10px;
-margin:6px 0;
-border-radius:10px;
+padding:6px 8px;
+margin:3px 0;
+border-radius:6px;
 align-items:center;
-border-left:4px solid ${x.tipo==="RECEITA"?"#22c55e":"#ef4444"};
-">
+border-left:3px solid ${x.tipo==="RECEITA"?"#22c55e":"#ef4444"};
+font-size:13px;
+"
 
-<div style="font-size:12px;color:#94a3b8">${x.data}</div>
+<div style="font-size:12px;color:#94a3b8">${formatarDataBR(x.data)}</div>
 
 <div style="font-weight:bold">${x.descricao}</div>
 
 <div>${x.categoria}</div>
 
-<div>
+<div style="text-align:right;font-variant-numeric:tabular-nums;">
 <span id="valor_${x.id}">
-${visibilidade[x.id]===false?"••••":"R$ "+x.valor.toFixed(2)}
+${visibilidade[x.id]===false?"••••":"R$ "+formatarMoeda(x.valor)}
 </span>
 <button onclick="toggleValor('${x.id}')">👁</button>
 </div>
@@ -297,7 +298,12 @@ document.getElementById("resumo").innerText=`Receitas: R$ ${receitas.toFixed(2)}
 
 atualizarDashboard()
 }
-
+/* ====================================================
+011 – FORMATAR MOEDA
+==================================================== */
+function formatarMoeda(v){
+return Number(v).toLocaleString("pt-BR",{minimumFractionDigits:2})
+}
 /* ====================================================
 012 – TOGGLE INDIVIDUAL
 ==================================================== */
@@ -325,7 +331,28 @@ else{d+=x.valor;meses[m].d+=x.valor}
 
 graficoResumo=new Chart(document.getElementById("graficoResumo"),{
 type:"doughnut",
-data:{labels:["Receitas","Despesas"],datasets:[{data:[r,d]}]}
+data:{
+labels:["Receitas","Despesas"],
+datasets:[{
+data:[r,d],
+backgroundColor:["#22c55e","#ef4444"],
+borderWidth:0
+}]
+},
+options:{
+responsive:true,
+maintainAspectRatio:false,
+plugins:{
+legend:{
+position:"bottom",
+labels:{
+color:"#fff",
+boxWidth:12,
+padding:15
+}
+}
+}
+}
 })
 
 const labels=["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"]
@@ -335,9 +362,41 @@ type:"bar",
 data:{
 labels:labels,
 datasets:[
-{label:"Receitas",data:labels.map((_,i)=>meses[i]?.r||0)},
-{label:"Despesas",data:labels.map((_,i)=>meses[i]?.d||0)}
+{
+label:"Receitas",
+data:labels.map((_,i)=>meses[i]?.r||0),
+backgroundColor:"#22c55e",
+borderRadius:6
+},
+{
+label:"Despesas",
+data:labels.map((_,i)=>meses[i]?.d||0),
+backgroundColor:"#ef4444",
+borderRadius:6
+}
 ]
+},
+options:{
+responsive:true,
+maintainAspectRatio:false,
+plugins:{
+legend:{
+position:"bottom",
+labels:{
+color:"#fff"
+}
+}
+},
+scales:{
+x:{
+ticks:{color:"#94a3b8"},
+grid:{display:false}
+},
+y:{
+ticks:{color:"#94a3b8"},
+grid:{color:"#1e293b"}
+}
+}
 }
 })
 }
@@ -409,9 +468,18 @@ dia_padrao:dia
 }
 }
 }
-
 /* ====================================================
-016 – LOGOUT
+016 – FORMATAR DATABR
+==================================================== */
+  function formatarDataBR(data){
+if(!data)return ""
+const d=new Date(data)
+return String(d.getDate()).padStart(2,"0")+"/"+
+String(d.getMonth()+1).padStart(2,"0")+"/"+
+d.getFullYear()
+}
+/* ====================================================
+017 – LOGOUT
 ==================================================== */
 function logout(){
 localStorage.clear()
