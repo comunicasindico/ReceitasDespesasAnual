@@ -450,9 +450,8 @@ grid:{color:"#1e293b"}
 ==================================================== */
 async function copiarMesAnterior(){
 
-const hoje=new Date()
-const ano=hoje.getFullYear()
-const mes=hoje.getMonth()
+const ano=new Date().getFullYear()
+const mes=parseInt(document.getElementById("mesBase").value)-1
 const mesAnterior=mes-1
 
 const {data:anteriores}=await db.from("lancamentos").select("*")
