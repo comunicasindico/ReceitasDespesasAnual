@@ -15,7 +15,14 @@ button{cursor:pointer;background:#22c55e;color:#000}
 </style>
 </head>
 <body>
-
+<div id="telaLogin" style="position:fixed;top:0;left:0;width:100%;height:100%;background:#020617;display:flex;align-items:center;justify-content:center;z-index:9999">
+<div style="background:#111827;padding:30px;border-radius:10px;width:300px;display:flex;flex-direction:column;gap:10px">
+<h2 style="text-align:center">Acesso</h2>
+<input id="loginUser" placeholder="Usuário">
+<input id="loginPass" type="password" placeholder="Senha">
+<button onclick="loginSistema()">Entrar</button>
+</div>
+</div>
 <div style="display:flex;justify-content:space-between;align-items:center">
 <h1>ReceitasDespesasAnual PRO</h1>
 <button onclick="logout()" style="background:#ef4444;color:#fff">Sair</button>
@@ -100,50 +107,40 @@ button{cursor:pointer;background:#22c55e;color:#000}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
-
+/* ====================================================000 – USUÁRIO FIXO==================================================== */
+const USUARIO_FIXO="admin"
+const SENHA_FIXA="123456"
 /* ====================================================
 001 – CONFIG
 ==================================================== */
 const SUPABASE_URL="https://gspdlrenyrzbkxlvyugc.supabase.co"
 const SUPABASE_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdzcGRscmVueXJ6Ymt4bHZ5dWdjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ4ODU0NzAsImV4cCI6MjA5MDQ2MTQ3MH0.UWfkWvOh4qMDEcByVL-KZ6ejJ80V7wJlDOFH76TywaI"
 const db=supabase.createClient(SUPABASE_URL,SUPABASE_KEY)
-
-/* ====================================================
-001A – LOGIN / SESSÃO (CORRIGIDO)
-==================================================== */
-async function loginSistema(){
-const email=prompt("Email:")
-const senha=prompt("Senha:")
-if(!email||!senha)return
-
-const {error}=await db.auth.signInWithPassword({
-email,
-password:senha
-})
-
-if(error){
-alert("Login inválido")
-return
-}
-
-await carregar()
-}
-
-async function verificarSessao(){
-const {data}=await db.auth.getSession()
-
-if(!data?.session){
-await loginSistema()
+/* ====================================================001A – LOGIN SIMPLES 1 USUÁRIO==================================================== */
+function loginSistema(){
+const user=document.getElementById("loginUser").value.trim()
+const pass=document.getElementById("loginPass").value.trim()
+if(user===USUARIO_FIXO&&pass===SENHA_FIXA){
+localStorage.setItem("logado","sim")
+document.getElementById("telaLogin").style.display="none"
+carregar()
 }else{
-await carregar()
+alert("Login inválido")
 }
 }
-
-async function logout(){
-await db.auth.signOut()
+function verificarSessao(){
+const ok=localStorage.getItem("logado")
+if(ok==="sim"){
+document.getElementById("telaLogin").style.display="none"
+carregar()
+}else{
+document.getElementById("telaLogin").style.display="flex"
+}
+}
+function logout(){
+localStorage.removeItem("logado")
 location.reload()
 }
-
 /* ====================================================
 002 – ESTADO
 ==================================================== */
@@ -621,19 +618,11 @@ mostrarValores=!mostrarValores
 render()
 }
 
-/* ====================================================
-017 – LOGOUT (UNIFICADO)
-==================================================== */
-async function logout(){
-
-try{
-await db.auth.signOut()
-}catch(e){}
-
-localStorage.clear()
+/* ====================================================017 – LOGOUT (SIMPLES 1 USUÁRIO)==================================================== */
+function logout(){
+localStorage.removeItem("logado")
 location.reload()
 }
-
 /* ====================================================
 018 – START SISTEMA
 ==================================================== */
