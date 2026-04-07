@@ -397,9 +397,21 @@ await carregar()
 /* ====================================================019 – TOGGLE INSERÇÃO==================================================== */
 function toggleInsercao(){const el=document.getElementById("boxInsercao");if(!el)return;el.style.display=el.style.display==="none"?"flex":"none"}
 
-/* ====================================================020 – LIMPAR FILTROS (ANO COMPLETO)==================================================== */
-function limparFiltros(){modoAnoCompleto=true;document.getElementById("filtroMes").value="";document.getElementById("filtroAno").value="";filtroInicio=null;filtroFim=null;document.getElementById("dataInicio").value="";document.getElementById("dataFim").value="";render()}
-/* ====================================================021 – NORMALIZAR DATA==================================================== */
+/* ====================================================020 – LIMPAR FILTROS==================================================== */
+function limparFiltros(){
+modoAnoCompleto=true
+const fMes=document.getElementById("filtroMes")
+const fAno=document.getElementById("filtroAno")
+const dIni=document.getElementById("dataInicio")
+const dFim=document.getElementById("dataFim")
+if(fMes)fMes.value=""
+if(fAno)fAno.value=""
+if(dIni)dIni.value=""
+if(dFim)dFim.value=""
+filtroInicio=null
+filtroFim=null
+render()
+}/* ====================================================021 – NORMALIZAR DATA==================================================== */
 function normalizarDataLocal(dataStr){if(!dataStr)return null;const[ano,mes,dia]=dataStr.split("-");return`${ano}-${mes}-${dia}`}
 /* ====================================================022 – FILTRO PERÍODO==================================================== */
 let filtroInicio=null
