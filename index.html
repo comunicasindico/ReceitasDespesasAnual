@@ -226,7 +226,25 @@ tipo,categoria:"GERAL",valor
 }
 carregar()
 }
+/* ====================================================
+009A – MARCAR COMO PAGO (CLIQUE NA LINHA)
+==================================================== */
+async function marcarPago(id){
 
+const item = dados.find(x=>String(x.id)===String(id))
+if(!item)return
+
+const novoStatus = !item.pago
+
+await db.from("lancamentos")
+.update({
+pago:novoStatus,
+data_pagamento:novoStatus ? new Date().toISOString() : null
+})
+.eq("id",id)
+
+carregar()
+}
 /* ====================================================
 010 – RENDER
 ==================================================== */
@@ -256,8 +274,20 @@ listaFiltrada.forEach(x=>{
 if(x.tipo==="RECEITA"){saldo+=x.valor;r+=x.valor}else{saldo-=x.valor;d+=x.valor}
 
 lista.innerHTML+=`
-<div style="
+<div onclick="marcarPago('${x.id}')" style="
 display:grid;
+grid-template-columns:90px 1fr 100px 130px auto;
+gap:6px;
+background:${x.pago ? "#14532d" : "#1e293b"};
+padding:6px 8px;
+margin:3px 0;
+border-radius:6px;
+align-items:center;
+border-left:3px solid ${x.pago ? "#22c55e" : (x.tipo==="RECEITA"?"#22c55e":"#ef4444")};
+font-size:13px;
+cursor:pointer;
+transition:0.2s;
+">
 grid-template-columns:70px 1fr 90px 140px auto;
 gap:6px;
 background:${x.pago?"#052e16":"#1e293b"};
