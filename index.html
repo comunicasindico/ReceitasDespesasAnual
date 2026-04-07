@@ -53,7 +53,13 @@ button{cursor:pointer;background:#22c55e;color:#000}
 </div>
 
 <div id="resumo" class="resumo"></div>
-
+<button onclick="limparFiltros()">🔍 Ver todos os períodos</button>
+<div>
+<canvas id="graficoResumo"></canvas>
+</div>
+<div>
+<canvas id="graficoMensal"></canvas>
+</div>
 <h2 id="total"></h2>
 
 <div style="display:grid;grid-template-columns:100px 1fr 120px 140px 200px;gap:10px;margin-top:20px;font-weight:bold">
@@ -285,17 +291,54 @@ function formatarDataBR(d){if(!d)return"";const[ano,mes,dia]=d.split("-");return
 function toggleValor(id){visibilidade[id]=!visibilidade[id];render()}
 /* ====================================================013 – DASHBOARD==================================================== */
 function atualizarDashboard(){
+
 if(typeof Chart==="undefined")return
+
+const canvasResumo=document.getElementById("graficoResumo")
+const canvasMensal=document.getElementById("graficoMensal")
+
+if(!canvasResumo||!canvasMensal)return
+
+const ctxResumo=canvasResumo.getContext("2d")
+const ctxMensal=canvasMensal.getContext("2d")
+
+if(!ctxResumo||!ctxMensal)return
+
 if(graficoResumo)graficoResumo.destroy()
 if(graficoMensal)graficoMensal.destroy()
+
 let r=0,d=0,meses={}
+
 dados.forEach(x=>{
 let m=getMesBase(x)
 if(!meses[m])meses[m]={r:0,d:0}
 if(x.tipo==="RECEITA"){r+=x.valor;meses[m].r+=x.valor}else{d+=x.valor;meses[m].d+=x.valor}
 })
-graficoResumo=new Chart(document.getElementById("graficoResumo"),{type:"doughnut",data:{labels:["Receitas","Despesas"],datasets:[{data:[r,d],backgroundColor:["#22c55e","#ef4444"]}]},options:{responsive:true,maintainAspectRatio:false}})
-graficoMensal=new Chart(document.getElementById("graficoMensal"),{type:"bar",data:{labels:["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"],datasets:[{label:"Receitas",data:Array.from({length:12},(_,i)=>meses[i]?.r||0),backgroundColor:"#22c55e"},{label:"Despesas",data:Array.from({length:12},(_,i)=>meses[i]?.d||0),backgroundColor:"#ef4444"}]},options:{responsive:true,maintainAspectRatio:false}})
+
+graficoResumo=new Chart(ctxResumo,{
+type:"doughnut",
+data:{
+labels:["Receitas","Despesas"],
+datasets:[{
+data:[r,d],
+backgroundColor:["#22c55e","#ef4444"]
+}]
+},
+options:{responsive:true,maintainAspectRatio:false}
+})
+
+graficoMensal=new Chart(ctxMensal,{
+type:"bar",
+data:{
+labels:["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"],
+datasets:[
+{label:"Receitas",data:Array.from({length:12},(_,i)=>meses[i]?.r||0),backgroundColor:"#22c55e"},
+{label:"Despesas",data:Array.from({length:12},(_,i)=>meses[i]?.d||0),backgroundColor:"#ef4444"}
+]
+},
+options:{responsive:true,maintainAspectRatio:false}
+})
+
 }
 /* ====================================================014 – COPIAR MÊS==================================================== */
 async function copiarMesAnterior(){
@@ -339,8 +382,11 @@ function toggleValores(){mostrarValores=!mostrarValores;render()}
 function logout(){localStorage.removeItem("logado");location.reload()}
 
 /* ====================================================018 – START==================================================== */
-async function iniciarSistema(){await verificarSessao();await gerarRecorrentes()}
-
+async function iniciarSistema(){
+await verificarSessao()
+await gerarRecorrentes()
+await carregar()
+}
 /* ====================================================019 – TOGGLE INSERÇÃO==================================================== */
 function toggleInsercao(){const el=document.getElementById("boxInsercao");if(!el)return;el.style.display=el.style.display==="none"?"flex":"none"}
 
