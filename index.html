@@ -109,6 +109,42 @@ const SUPABASE_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSI
 const db=supabase.createClient(SUPABASE_URL,SUPABASE_KEY)
 
 /* ====================================================
+001A – LOGIN / SESSÃO (CORRIGIDO)
+==================================================== */
+async function loginSistema(){
+const email=prompt("Email:")
+const senha=prompt("Senha:")
+if(!email||!senha)return
+
+const {error}=await db.auth.signInWithPassword({
+email,
+password:senha
+})
+
+if(error){
+alert("Login inválido")
+return
+}
+
+await carregar()
+}
+
+async function verificarSessao(){
+const {data}=await db.auth.getSession()
+
+if(!data?.session){
+await loginSistema()
+}else{
+await carregar()
+}
+}
+
+async function logout(){
+await db.auth.signOut()
+location.reload()
+}
+
+/* ====================================================
 002 – ESTADO
 ==================================================== */
 let dados=[]
@@ -123,18 +159,30 @@ let graficoMensal=null
 ==================================================== */
 function getMesBase(x){
 let mes=new Date(x.data).getMonth()
-if(x.tipo==="RECEITA"){mes++;if(mes>11)mes=0}
+if(x.tipo==="RECEITA"){
+mes++
+if(mes>11)mes=0
+}
 return mes
 }
 
 /* ====================================================
-004 – CARREGAR
+004 – CARREGAR (PROTEGIDO)
 ==================================================== */
 async function carregar(){
-const{data,error}=await db.from("lancamentos").select("*").order("data",{ascending:true})
-if(error)return alert("Erro")
+
+const {data,error}=await db
+.from("lancamentos")
+.select("*")
+.order("data",{ascending:true})
+
+if(error){
+alert("Erro ao carregar")
+return
+}
+
 dados=data||[]
-await gerarRecorrentes()
+
 render()
 }
 
@@ -142,9 +190,14 @@ render()
 005 – SALVAR
 ==================================================== */
 async function salvarRegistro(obj){
-if(obj.id)await db.from("lancamentos").update(obj).eq("id",obj.id)
-else await db.from("lancamentos").insert(obj)
-carregar()
+
+if(obj.id){
+await db.from("lancamentos").update(obj).eq("id",obj.id)
+}else{
+await db.from("lancamentos").insert(obj)
+}
+
+await carregar()
 }
 
 /* ====================================================
@@ -152,126 +205,174 @@ carregar()
 ==================================================== */
 async function del(id){
 await db.from("lancamentos").delete().eq("id",id)
-carregar()
+await carregar()
 }
+
 /* ====================================================
-007A – MARCAR COMO PAGO
+007 – MARCAR COMO PAGO (ÚNICA FUNÇÃO)
 ==================================================== */
 async function marcarPago(id){
 
-const hoje=new Date().toISOString().slice(0,10)
-
-await db.from("lancamentos").update({
-pago:true,
-data_pagamento:hoje
-}).eq("id",id)
-
-carregar()
-}
-/* ====================================================
-007 – EDITAR
-==================================================== */
-function editarPorId(id){
-const x=dados.find(d=>String(d.id)===String(id))
-if(!x)return
-editando=x.id
-data.value=x.data
-desc.value=x.descricao
-tipo.value=x.tipo
-categoria.value=x.categoria
-valor.value=x.valor
-}
-
-/* ====================================================
-008 – ADD
-==================================================== */
-async function add(){
-const obj={
-data:data.value,
-descricao:desc.value.trim(),
-tipo:tipo.value,
-categoria:categoria.value,
-valor:parseFloat(valor.value),
-recorrente:recorrente.checked,
-dia_padrao:parseInt(diaPadrao.value)||null,
-
-dia_vencimento:new Date(data.value).getDate(), // 🔥 NOVO
-pago:false,
-data_pagamento:null
-}
-if(!obj.data||!obj.descricao)return alert("Preencha")
-if(!obj.valor||obj.valor===0)return alert("Valor inválido")
-if(editando){obj.id=editando;editando=null;await salvarRegistro(obj);return}
-await salvarRegistro(obj)
-}
-
-/* ====================================================
-009 – IMPORTADOR
-==================================================== */
-async function importarTexto(){
-const txt=importarTexto.value
-if(!txt)return
-const linhas=txt.split("\n")
-for(const l of linhas){
-const m=l.match(/(\d{2}\/\d{2})\s+(.+?)\s+([\d\.,]+)/)
-if(!m)continue
-let[dia,mes]=m[1].split("/")
-let valor=parseFloat(m[3].replace(/\./g,"").replace(",","."))
-let tipo=m[2].toUpperCase().includes("REMUNERA")?"RECEITA":"DESPESA"
-await db.from("lancamentos").insert({
-data:`2026-${mes}-${dia}`,
-descricao:m[2],
-tipo,categoria:"GERAL",valor
-})
-}
-carregar()
-}
-/* ====================================================
-009A – MARCAR COMO PAGO (CLIQUE NA LINHA)
-==================================================== */
-async function marcarPago(id){
-
-const item = dados.find(x=>String(x.id)===String(id))
+const item=dados.find(x=>String(x.id)===String(id))
 if(!item)return
 
-const novoStatus = !item.pago
+const novoStatus=!item.pago
 
 await db.from("lancamentos")
 .update({
 pago:novoStatus,
-data_pagamento:novoStatus ? new Date().toISOString() : null
+data_pagamento:novoStatus ? new Date().toISOString().slice(0,10) : null
 })
 .eq("id",id)
 
-carregar()
+await carregar()
+}
+
+/* ====================================================
+008 – EDITAR
+==================================================== */
+function editarPorId(id){
+
+const x=dados.find(d=>String(d.id)===String(id))
+if(!x)return
+
+editando=x.id
+
+document.getElementById("data").value=x.data||""
+document.getElementById("desc").value=x.descricao||""
+document.getElementById("tipo").value=x.tipo||"DESPESA"
+document.getElementById("categoria").value=x.categoria||"GERAL"
+document.getElementById("valor").value=x.valor||0
+
+}
+
+/* ====================================================
+009 – ADD (ROBUSTO)
+==================================================== */
+async function add(){
+
+const dataEl=document.getElementById("data")
+const descEl=document.getElementById("desc")
+const tipoEl=document.getElementById("tipo")
+const categoriaEl=document.getElementById("categoria")
+const valorEl=document.getElementById("valor")
+const recorrenteEl=document.getElementById("recorrente")
+const diaEl=document.getElementById("diaPadrao")
+
+const obj={
+data:dataEl.value,
+descricao:descEl.value.trim(),
+tipo:tipoEl.value,
+categoria:categoriaEl.value,
+valor:parseFloat(valorEl.value||0),
+recorrente:recorrenteEl?.checked||false,
+dia_padrao:parseInt(diaEl?.value)||null,
+dia_vencimento:new Date(dataEl.value).getDate(),
+pago:false,
+data_pagamento:null
+}
+
+if(!obj.data||!obj.descricao){
+alert("Preencha data e descrição")
+return
+}
+
+if(!obj.valor||obj.valor===0){
+alert("Valor inválido")
+return
+}
+
+if(editando){
+obj.id=editando
+editando=null
+await salvarRegistro(obj)
+return
+}
+
+await salvarRegistro(obj)
+}
+
+/* ====================================================
+010 – IMPORTADOR (CORRIGIDO)
+==================================================== */
+async function importarTexto(){
+
+const txt=document.getElementById("importarTexto").value
+if(!txt)return
+
+const linhas=txt.split("\n")
+
+for(const l of linhas){
+
+const m=l.match(/(\d{2}\/\d{2})\s+(.+?)\s+([\d\.,]+)/)
+if(!m)continue
+
+let[dia,mes]=m[1].split("/")
+let valor=parseFloat(m[3].replace(/\./g,"").replace(",","."))
+let tipo=m[2].toUpperCase().includes("REMUNERA")?"RECEITA":"DESPESA"
+
+await db.from("lancamentos").insert({
+data:`2026-${mes}-${dia}`,
+descricao:m[2],
+tipo,
+categoria:"GERAL",
+valor,
+pago:false
+})
+
+}
+
+await carregar()
 }
 /* ====================================================
-010 – RENDER
+010 – RENDER (CORRIGIDO PROFISSIONAL)
 ==================================================== */
 function render(){
+
+const lista=document.getElementById("lista")
+const totalEl=document.getElementById("total")
+const resumoEl=document.getElementById("resumo")
+
 const filtroPago=document.getElementById("filtroPago")?.value
-
-if(filtroPago!==""){
-dadosFiltrados=dadosFiltrados.filter(x=>String(x.pago)===filtroPago)
-}
-
-const fMes=filtroMes.value
-const fAno=filtroAno.value
-const fTipo=filtroTipo.value
+const fMes=document.getElementById("filtroMes")?.value
+const fAno=document.getElementById("filtroAno")?.value
+const fTipo=document.getElementById("filtroTipo")?.value
 
 let listaFiltrada=[...dados]
 
-if(fMes!=="")listaFiltrada=listaFiltrada.filter(x=>getMesBase(x)==fMes)
-if(fAno!=="")listaFiltrada=listaFiltrada.filter(x=>new Date(x.data).getFullYear()==fAno)
-if(fTipo!=="")listaFiltrada=listaFiltrada.filter(x=>x.tipo===fTipo)
+/* 🔹 FILTROS */
+if(filtroPago!==""){
+listaFiltrada=listaFiltrada.filter(x=>String(x.pago)===filtroPago)
+}
+
+if(fMes!==""){
+listaFiltrada=listaFiltrada.filter(x=>getMesBase(x)==fMes)
+}
+
+if(fAno!==""){
+listaFiltrada=listaFiltrada.filter(x=>new Date(x.data).getFullYear()==fAno)
+}
+
+if(fTipo!==""){
+listaFiltrada=listaFiltrada.filter(x=>x.tipo===fTipo)
+}
+
+/* 🔹 ORDENAÇÃO */
+listaFiltrada.sort((a,b)=>(a.dia_vencimento||0)-(b.dia_vencimento||0))
 
 let saldo=0,r=0,d=0
 lista.innerHTML=""
-listaFiltrada.sort((a,b)=>{
-return (a.dia_vencimento||0)-(b.dia_vencimento||0)
-})
+
+/* 🔹 LOOP */
 listaFiltrada.forEach(x=>{
-if(x.tipo==="RECEITA"){saldo+=x.valor;r+=x.valor}else{saldo-=x.valor;d+=x.valor}
+
+if(x.tipo==="RECEITA"){
+saldo+=x.valor
+r+=x.valor
+}else{
+saldo-=x.valor
+d+=x.valor
+}
 
 lista.innerHTML+=`
 <div onclick="marcarPago('${x.id}')" style="
@@ -293,9 +394,7 @@ transition:0.2s;
 ${formatarDataBR(x.data)}
 </div>
 
-<div>
-${x.descricao}
-</div>
+<div>${x.descricao}</div>
 
 <div style="font-size:12px;color:#94a3b8">
 ${x.categoria}
@@ -317,8 +416,9 @@ ${visibilidade[x.id]===false?"••••":"R$ "+formatarMoeda(x.valor)}
 `
 })
 
-total.innerText="Saldo: R$ "+formatarMoeda(saldo)
-resumo.innerText=`Receitas: R$ ${formatarMoeda(r)} | Despesas: R$ ${formatarMoeda(d)}`
+/* 🔹 TOTAIS */
+totalEl.innerText="Saldo: R$ "+formatarMoeda(saldo)
+resumoEl.innerText=`Receitas: R$ ${formatarMoeda(r)} | Despesas: R$ ${formatarMoeda(d)}`
 
 atualizarDashboard()
 }
@@ -326,16 +426,26 @@ atualizarDashboard()
 /* ====================================================
 011 – FORMATADORES
 ==================================================== */
-function formatarMoeda(v){return Number(v).toLocaleString("pt-BR",{minimumFractionDigits:2})}
-function formatarDataBR(d){const x=new Date(d);return x.toLocaleDateString("pt-BR")}
+function formatarMoeda(v){
+return Number(v||0).toLocaleString("pt-BR",{minimumFractionDigits:2})
+}
+
+function formatarDataBR(d){
+if(!d)return ""
+const x=new Date(d)
+return x.toLocaleDateString("pt-BR")
+}
 
 /* ====================================================
 012 – TOGGLE ITEM
 ==================================================== */
-function toggleValor(id){visibilidade[id]=!visibilidade[id];render()}
+function toggleValor(id){
+visibilidade[id]=!visibilidade[id]
+render()
+}
 
 /* ====================================================
-013 – DASHBOARD
+013 – DASHBOARD (CORRIGIDO)
 ==================================================== */
 function atualizarDashboard(){
 
@@ -346,87 +456,195 @@ let r=0,d=0,meses={}
 
 dados.forEach(x=>{
 let m=getMesBase(x)
+
 if(!meses[m])meses[m]={r:0,d:0}
-if(x.tipo==="RECEITA"){r+=x.valor;meses[m].r+=x.valor}else{d+=x.valor;meses[m].d+=x.valor}
+
+if(x.tipo==="RECEITA"){
+r+=x.valor
+meses[m].r+=x.valor
+}else{
+d+=x.valor
+meses[m].d+=x.valor
+}
 })
 
-graficoResumo=new Chart(graficoResumo=document.getElementById("graficoResumo"),{
+/* 🔹 RESUMO */
+graficoResumo=new Chart(
+document.getElementById("graficoResumo"),
+{
 type:"doughnut",
-data:{labels:["Receitas","Despesas"],datasets:[{data:[r,d],backgroundColor:["#22c55e","#ef4444"]}]}
-})
+data:{
+labels:["Receitas","Despesas"],
+datasets:[{
+data:[r,d],
+backgroundColor:["#22c55e","#ef4444"]
+}]
+},
+options:{
+responsive:true,
+maintainAspectRatio:false
+}
+}
+)
 
-graficoMensal=new Chart(document.getElementById("graficoMensal"),{
+/* 🔹 MENSAL */
+graficoMensal=new Chart(
+document.getElementById("graficoMensal"),
+{
 type:"bar",
 data:{
 labels:["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"],
 datasets:[
-{label:"Receitas",data:Array.from({length:12},(_,i)=>meses[i]?.r||0),backgroundColor:"#22c55e"},
-{label:"Despesas",data:Array.from({length:12},(_,i)=>meses[i]?.d||0),backgroundColor:"#ef4444"}
-]
+{
+label:"Receitas",
+data:Array.from({length:12},(_,i)=>meses[i]?.r||0),
+backgroundColor:"#22c55e"
+},
+{
+label:"Despesas",
+data:Array.from({length:12},(_,i)=>meses[i]?.d||0),
+backgroundColor:"#ef4444"
 }
-})
+]
+},
+options:{
+responsive:true,
+maintainAspectRatio:false
+}
+}
+)
 
 }
 
 /* ====================================================
-014 – COPIAR MÊS
+014 – COPIAR MÊS (SEM DUPLICAR)
 ==================================================== */
 async function copiarMesAnterior(){
-const ano=new Date().getFullYear()
-const mes=parseInt(mesBase.value)-1
-const mesAnterior=mes-1
-if(mesAnterior<0)return alert("Sem mês anterior")
 
+const ano=new Date().getFullYear()
+const mes=parseInt(document.getElementById("mesBase").value)-1
+const mesAnterior=mes-1
+
+if(mesAnterior<0){
+alert("Sem mês anterior")
+return
+}
+
+/* 🔹 BUSCA */
 const {data:anteriores}=await db.from("lancamentos").select("*")
 .gte("data",`${ano}-${String(mesAnterior+1).padStart(2,"0")}-01`)
 .lte("data",`${ano}-${String(mesAnterior+1).padStart(2,"0")}-31`)
 
+/* 🔹 EXISTENTES */
+const {data:atuais}=await db.from("lancamentos").select("*")
+.gte("data",`${ano}-${String(mes+1).padStart(2,"0")}-01`)
+.lte("data",`${ano}-${String(mes+1).padStart(2,"0")}-31`)
+
+const existentes=new Set((atuais||[]).map(x=>x.descricao))
+
 for(const x of (anteriores||[])){
+
+if(!existentes.has(x.descricao)){
+
 await db.from("lancamentos").insert({
 data:`${ano}-${String(mes+1).padStart(2,"0")}-${String(new Date(x.data).getDate()).padStart(2,"0")}`,
 descricao:x.descricao,
 tipo:x.tipo,
 categoria:x.categoria,
-valor:x.valor
+valor:x.valor,
+pago:false
 })
+
 }
 
-carregar()
 }
 
+alert("Mês criado com sucesso")
+await carregar()
+}
 /* ====================================================
-015 – RECORRÊNCIA
+015 – RECORRÊNCIA (ANTI-DUPLICAÇÃO PROFISSIONAL)
 ==================================================== */
 async function gerarRecorrentes(){
+
 const hoje=new Date()
 const ano=hoje.getFullYear()
 const mes=hoje.getMonth()+1
-const {data:rec}=await db.from("lancamentos").select("*").eq("recorrente",true)
+
+const {data:rec,error}=await db
+.from("lancamentos")
+.select("*")
+.eq("recorrente",true)
+
+if(error)return
 
 for(const r of (rec||[])){
+
 let dia=r.dia_padrao||1
-let nova=`${ano}-${String(mes).padStart(2,"0")}-${String(dia).padStart(2,"0")}`
-const existe=dados.find(x=>x.descricao===r.descricao && x.data===nova)
+
+let novaData=`${ano}-${String(mes).padStart(2,"0")}-${String(dia).padStart(2,"0")}`
+
+/* 🔹 VERIFICA EXISTÊNCIA COMPLETA */
+const existe=dados.find(x=>
+x.descricao===r.descricao &&
+x.tipo===r.tipo &&
+x.categoria===r.categoria &&
+x.data===novaData
+)
+
 if(!existe){
+
 await db.from("lancamentos").insert({
-data:nova,descricao:r.descricao,tipo:r.tipo,categoria:r.categoria,valor:r.valor,recorrente:true,dia_padrao:dia
+data:novaData,
+descricao:r.descricao,
+tipo:r.tipo,
+categoria:r.categoria,
+valor:r.valor,
+recorrente:true,
+dia_padrao:dia,
+pago:false,
+data_pagamento:null,
+dia_vencimento:dia
 })
+
 }
+
 }
+
 }
 
 /* ====================================================
 016 – TOGGLE GLOBAL
 ==================================================== */
-function toggleValores(){mostrarValores=!mostrarValores;render()}
+function toggleValores(){
+mostrarValores=!mostrarValores
+render()
+}
 
 /* ====================================================
-017 – LOGOUT
+017 – LOGOUT (UNIFICADO)
 ==================================================== */
-function logout(){localStorage.clear();location.reload()}
+async function logout(){
 
-carregar()
+try{
+await db.auth.signOut()
+}catch(e){}
 
+localStorage.clear()
+location.reload()
+}
+
+/* ====================================================
+018 – START SISTEMA
+==================================================== */
+async function iniciarSistema(){
+
+await verificarSessao()   // 🔥 garante login
+await gerarRecorrentes()  // 🔥 gera automáticos
+await carregar()          // 🔥 carrega dados UMA VEZ
+}
+/* 🔥 INICIALIZAÇÃO */
+document.addEventListener("DOMContentLoaded", iniciarSistema)
 </script>
 
 </body>
