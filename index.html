@@ -271,6 +271,24 @@ let visibilidade={}
 ==================================================== */
 function render(){
 
+const filtroMes=document.getElementById("filtroMes")?.value
+const filtroAno=document.getElementById("filtroAno")?.value
+const filtroTipo=document.getElementById("filtroTipo")?.value
+
+let dadosFiltrados=[...dados]
+
+if(filtroMes!==""){
+dadosFiltrados=dadosFiltrados.filter(x=>new Date(x.data).getMonth()==filtroMes)
+}
+
+if(filtroAno!==""){
+dadosFiltrados=dadosFiltrados.filter(x=>new Date(x.data).getFullYear()==filtroAno)
+}
+
+if(filtroTipo!==""){
+dadosFiltrados=dadosFiltrados.filter(x=>x.tipo===filtroTipo)
+}
+
 let saldo=0,receitas=0,despesas=0
 lista.innerHTML=""
 
