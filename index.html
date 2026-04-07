@@ -41,6 +41,8 @@ button{cursor:pointer;background:#22c55e;color:#000}
 <button onclick="toggleModoEdicao()" style="background:#f59e0b;color:#000">✏️ Modo Edição</button>
 </div>
 <button onclick="toggleInsercao()" style="margin:10px 0">➕ Inserir lançamento</button>
+<button onclick="toggleModoEdicao()" id="btnEditar" style="background:#f59e0b">✏️ Editar</button>
+<button onclick="salvarTudo()" id="btnSalvar" style="background:#22c55e;display:none">💾 Salvar</button>
 <div id="boxInsercao" class="topo" style="display:none">
 <input type="date" id="data">
 <input type="text" id="desc" placeholder="Descrição">
@@ -116,9 +118,11 @@ let graficoResumo=null
 let graficoMensal=null
 let modoEdicao=false
 let edicoesTemp={}
-/* ===============================================002A MODOEDICAO EDIT TEMP SALVAREDICAO======================================= */
+/* ===============================================002A MODO EDICAO EDIT TEMP SALVAREDICAO======================================= */
 function toggleModoEdicao(){
 modoEdicao=!modoEdicao
+document.getElementById("btnSalvar").style.display=modoEdicao?"inline-block":"none"
+document.getElementById("btnEditar").innerText=modoEdicao?"❌ Cancelar":"✏️ Editar"
 render()
 }
 function editTemp(id,campo,valor){
@@ -291,7 +295,9 @@ ${modoEdicao?`
 <input value="${x.descricao}" onchange="editTemp('${x.id}','descricao',this.value)">
 <input value="${x.categoria}" onchange="editTemp('${x.id}','categoria',this.value)">
 <input type="number" step="0.01" value="${Number(x.valor).toFixed(2)}" onchange="editTemp('${x.id}','valor',this.value)">
-<button onclick="salvarEdicao('${x.id}')">💾</button>
+<div style="display:flex;gap:5px;justify-content:flex-end">
+<button onclick="del('${x.id}')" style="background:#ef4444;color:#fff;padding:4px 6px;border-radius:4px">🗑️</button>
+</div>
 `:
 `
 <div>${formatarDataBR(x.data)}</div>
@@ -306,12 +312,8 @@ ${mostrarValores?"R$ "+formatarMoeda(x.valor):"••••"}
 <button onclick="marcarPago('${x.id}')" style="background:${x.pago?"#22c55e":"#ef4444"};color:#000;padding:4px 6px;border-radius:4px">
 ${x.pago?"OK":"PEND"}
 </button>
-<button onclick="toggleModoEdicao()" style="background:#f59e0b;padding:4px 6px;border-radius:4px">
-✏️
-</button>
-<button onclick="del('${x.id}')" style="background:#ef4444;color:#fff;padding:4px 6px;border-radius:4px">
-🗑️
-</button>
+${modoEdicao?`<button onclick="del('${x.id}')" style="background:#ef4444;color:#fff;padding:4px 6px;border-radius:4px">🗑️</button>`:""}
+</div>
 </div>
 `
 }
@@ -483,7 +485,25 @@ filtroInicio=data.toISOString().slice(0,7)+"-01"
 filtroFim=new Date(data.getFullYear(),data.getMonth()+1,0).toISOString().slice(0,10)
 render()
 }
-
+/* ======================================030 SALVAR TUDO=================================================== */
+async function salvarTudo(){
+for(const id in edicoesTemp){
+const original=dados.find(x=>String(x.id)===String(id))
+if(!original)continue
+const alteracoes=edicoesTemp[id]
+const atualizado={
+...original,
+...alteracoes,
+valor:parseFloat(alteracoes.valor??original.valor)
+}
+await db.from("lancamentos").update(atualizado).eq("id",id)
+}
+edicoesTemp={}
+modoEdicao=false
+document.getElementById("btnSalvar").style.display="none"
+document.getElementById("btnEditar").innerText="✏️ Editar"
+await carregar()
+}
 /* ====================================================041 – TOGGLE ESTIMATIVA==================================================== */
 async function toggleEstimativa(id){
 const item=dados.find(x=>String(x.id)===String(id))
