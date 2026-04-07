@@ -115,14 +115,36 @@ let mostrarValores=true
 let visibilidade={}
 let graficoResumo=null
 let graficoMensal=null
-
+let modoEdicao=false
+let edicoesTemp={}
+/* ===============================================002A MODOEDICAO EDIT TEMP SALVAREDICAO======================================= */
+function toggleModoEdicao(){
+modoEdicao=!modoEdicao
+render()
+}
+function editTemp(id,campo,valor){
+if(!edicoesTemp[id])edicoesTemp[id]={}
+edicoesTemp[id][campo]=valor
+}
+async function salvarEdicao(id){
+const original=dados.find(x=>String(x.id)===String(id))
+if(!original)return
+const alteracoes=edicoesTemp[id]||{}
+const atualizado={
+...original,
+...alteracoes,
+valor:parseFloat(alteracoes.valor??original.valor)
+}
+await db.from("lancamentos").update(atualizado).eq("id",id)
+delete edicoesTemp[id]
+await carregar()
+}
 /* ====================================================003 – MÊS FINANCEIRO (CORRIGIDO SEM DATE)==================================================== */
 function getMesBase(x){
-if(!x.data)return 0
+if(!x.data)return
 const[ano,mes]=x.data.split("-")
 return Number(mes)-1
 }
-
 /* ====================================================004 – CARREGAR==================================================== */
 async function carregar(){
 const {data,error}=await db.from("lancamentos").select("*").order("data",{ascending:true})
@@ -130,7 +152,6 @@ if(error){alert("Erro ao carregar");return}
 dados=data||[]
 render()
 }
-
 /* ====================================================005 – SALVAR==================================================== */
 async function salvarRegistro(obj){
 if(obj.id){
@@ -140,13 +161,11 @@ await db.from("lancamentos").insert(obj)
 }
 await carregar()
 }
-
 /* ====================================================006 – EXCLUIR==================================================== */
 async function del(id){
 await db.from("lancamentos").delete().eq("id",id)
 await carregar()
 }
-
 /* ====================================================007 – MARCAR PAGO (DATA CORRETA)==================================================== */
 async function marcarPago(id){
 const item=dados.find(x=>String(x.id)===String(id))
@@ -451,30 +470,7 @@ filtroInicio=data.toISOString().slice(0,7)+"-01"
 filtroFim=new Date(data.getFullYear(),data.getMonth()+1,0).toISOString().slice(0,10)
 render()
 }
-/* ====================================================030 – edit tempo ==================================================== */
-let edicoesTemp={}
-function editTemp(id,campo,valor){
-if(!edicoesTemp[id])edicoesTemp[id]={}
-edicoesTemp[id][campo]=valor
-}
-async function salvarEdicao(id){
-const original=dados.find(x=>String(x.id)===String(id))
-if(!original)return
-const alteracoes=edicoesTemp[id]||{}
-const atualizado={
-...original,
-...alteracoes,
-valor:parseFloat(alteracoes.valor??original.valor)
-}
-await db.from("lancamentos").update(atualizado).eq("id",id)
-delete edicoesTemp[id]
-await carregar()
-}
-/* ====================================================040 – TOGGLE MODO EDIÇÃO ==================================================== */
-function toggleModoEdicao(){
-modoEdicao=!modoEdicao
-render()
-}
+
 /* ====================================================041 – TOGGLE ESTIMATIVA==================================================== */
 async function toggleEstimativa(id){
 const item=dados.find(x=>String(x.id)===String(id))
