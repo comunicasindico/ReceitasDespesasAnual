@@ -625,6 +625,40 @@ document.getElementById("dataInicio").value=""
 document.getElementById("dataFim").value=""
 render()
 }
+/* ====================================================023 – RESUMO PERÍODO COMPLETO==================================================== */
+function calcularResumoPeriodo(){
+let listaFiltrada=[...dados]
+if(filtroInicio){
+listaFiltrada=listaFiltrada.filter(x=>x.data>=filtroInicio)
+}
+if(filtroFim){
+listaFiltrada=listaFiltrada.filter(x=>x.data<=filtroFim)
+}
+let r=0,d=0
+listaFiltrada.forEach(x=>{
+if(x.tipo==="RECEITA"){r+=x.valor}else{d+=x.valor}
+})
+return{receitas:r,despesas:d,saldo:r-d}
+}
+
+/* ====================================================024 – MOSTRAR TODOS OS PERÍODOS (CORRIGIDO)==================================================== */
+function limparFiltros(){
+document.getElementById("filtroMes").value=""
+document.getElementById("filtroAno").value=""
+filtroInicio=null
+filtroFim=null
+document.getElementById("dataInicio").value=""
+document.getElementById("dataFim").value=""
+const resumoEl=document.getElementById("resumo")
+const r=calcularResumoPeriodo()
+resumoEl.innerHTML=`
+<div style="font-size:18px;font-weight:bold">📊 Todos os Períodos</div>
+<div>💰 Receitas: R$ ${formatarMoeda(r.receitas)}</div>
+<div>💸 Despesas: R$ ${formatarMoeda(r.despesas)}</div>
+<div>📉 Saldo: R$ ${formatarMoeda(r.saldo)}</div>
+`
+render()
+}
 
 
 </script>
