@@ -260,7 +260,7 @@ const recorrenteEl=document.getElementById("recorrente")
 const diaEl=document.getElementById("diaPadrao")
 
 const obj={
-data:dataEl.value,
+data:normalizarDataLocal(dataEl.value),
 descricao:descEl.value.trim(),
 tipo:tipoEl.value,
 categoria:categoriaEl.value,
@@ -312,7 +312,7 @@ let valor=parseFloat(m[3].replace(/\./g,"").replace(",","."))
 let tipo=m[2].toUpperCase().includes("REMUNERA")?"RECEITA":"DESPESA"
 
 await db.from("lancamentos").insert({
-data:`2026-${mes}-${dia}`,
+data:normalizarDataLocal(`2026-${mes}-${dia}`),
 descricao:m[2],
 tipo,
 categoria:"GERAL",
@@ -450,8 +450,8 @@ return Number(v||0).toLocaleString("pt-BR",{minimumFractionDigits:2})
 
 function formatarDataBR(d){
 if(!d)return ""
-const x=new Date(d)
-return x.toLocaleDateString("pt-BR")
+const [ano,mes,dia]=d.split("-")
+return `${dia}/${mes}/${ano}`
 }
 
 /* ====================================================
@@ -662,6 +662,12 @@ function limparFiltros(){
 document.getElementById("filtroMes").value=""
 document.getElementById("filtroAno").value=""
 render()
+}
+/* ====================================================021 – NORMALIZAR DATA LOCAL==================================================== */
+function normalizarDataLocal(dataStr){
+if(!dataStr)return null
+const [ano,mes,dia]=dataStr.split("-")
+return `${ano}-${mes}-${dia}`
 }
 /* 🔥 INICIALIZAÇÃO */
 document.addEventListener("DOMContentLoaded", iniciarSistema)
