@@ -446,38 +446,56 @@ grid:{color:"#1e293b"}
 }
 
 /* ====================================================
-014 – COPIAR MÊS ANTERIOR
+014 – GERAR MÊS COM VALORES (PROFISSIONAL)
 ==================================================== */
 async function copiarMesAnterior(){
 
 const ano=new Date().getFullYear()
+
 const mes=parseInt(document.getElementById("mesBase").value)-1
 const mesAnterior=mes-1
 
-const {data:anteriores}=await db.from("lancamentos").select("*")
+if(mesAnterior<0){
+alert("Não há mês anterior")
+return
+}
+
+/* 🔹 BUSCA MÊS ANTERIOR */
+const {data:anteriores}=await db.from("lancamentos")
+.select("*")
 .gte("data",`${ano}-${String(mesAnterior+1).padStart(2,"0")}-01`)
 .lte("data",`${ano}-${String(mesAnterior+1).padStart(2,"0")}-31`)
 
-const {data:atuais}=await db.from("lancamentos").select("*")
+/* 🔹 BUSCA MÊS ATUAL */
+const {data:atuais}=await db.from("lancamentos")
+.select("*")
 .gte("data",`${ano}-${String(mes+1).padStart(2,"0")}-01`)
 .lte("data",`${ano}-${String(mes+1).padStart(2,"0")}-31`)
 
-let set=new Set((atuais||[]).map(x=>x.descricao))
+/* 🔹 EVITA DUPLICAÇÃO */
+let existentes=new Set((atuais||[]).map(x=>x.descricao))
 
 for(const x of (anteriores||[])){
-if(!set.has(x.descricao)){
+
+if(!existentes.has(x.descricao)){
+
 await db.from("lancamentos").insert({
-data:`${ano}-${String(mes+1).padStart(2,"0")}-01`,
+data:`${ano}-${String(mes+1).padStart(2,"0")}-${String(new Date(x.data).getDate()).padStart(2,"0")}`,
 descricao:x.descricao,
 tipo:x.tipo,
 categoria:x.categoria,
-valor:0
+valor:x.valor, // 🔥 AQUI ESTÁ A DIFERENÇA
+recorrente:x.recorrente||false,
+dia_padrao:x.dia_padrao||null
 })
-}
+
 }
 
-alert("Base criada")
+}
+
+alert("Mês criado com valores do mês anterior")
 carregar()
+
 }
 
 /* ====================================================
