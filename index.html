@@ -285,13 +285,13 @@ lista.innerHTML+=`
 }
 if(x.tipo==="RECEITA"){saldo+=x.valor;r+=x.valor}else{saldo-=x.valor;d+=x.valor}
 lista.innerHTML+=`
-<div style="display:grid;grid-template-columns:90px 1fr 100px 110px ${modoEdicao?"120px":"0px"};gap:6px;background:${x.pago?"#052e16":"#1e293b"};padding:5px;margin:2px 0;border-radius:6px;align-items:center;border-left:3px solid ${x.tipo==="RECEITA"?"#22c55e":"#ef4444"};font-size:12px">
+<div style="display:grid;grid-template-columns:90px 1fr 100px 110px ${modoEdicao?"120px":"0px"};gap:6px;background:${x.pago?"#052e16":"#1e293b"};padding:4px;margin:2px 0;border-radius:6px;align-items:center;border-left:3px solid ${x.tipo==="RECEITA"?"#22c55e":"#ef4444"};font-size:12px">
 
 ${modoEdicao?`
-<input value="${x.data}" onchange="editTemp('${x.id}','data',this.value)">
-<input value="${x.descricao}" onchange="editTemp('${x.id}','descricao',this.value)">
-<input value="${x.categoria}" onchange="editTemp('${x.id}','categoria',this.value)">
-<input value="${x.valor}" onchange="editTemp('${x.id}','valor',this.value)">
+<input type="date" value="${x.data}" style="padding:4px;font-size:11px" onchange="editTemp('${x.id}','data',this.value)">
+<input value="${x.descricao}" style="padding:4px;font-size:11px">
+<input value="${x.categoria}" style="padding:4px;font-size:11px">
+<input type="number" step="0.01" value="${Number(x.valor).toFixed(2)}" style="padding:4px;font-size:11px;text-align:right" onchange="editTemp('${x.id}','valor',this.value)">
 <button onclick="salvarEdicao('${x.id}')">💾</button>
 `:
 `
