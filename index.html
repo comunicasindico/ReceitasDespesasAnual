@@ -239,6 +239,9 @@ const fMes=document.getElementById("filtroMes")?.value
 const fAno=document.getElementById("filtroAno")?.value
 const fTipo=document.getElementById("filtroTipo")?.value
 let listaFiltrada=[...dados]
+if(modoAnoCompleto){
+listaFiltrada=[...dados]
+}
 const hoje=new Date()
 const mesAtual=hoje.getMonth()
 const anoAtual=hoje.getFullYear()
