@@ -276,7 +276,7 @@ lista.innerHTML+=`
 const titulo=(filtroInicio||filtroFim)?"📊 Período Selecionado":(modoAnoCompleto?"📊 Ano Completo":"📊 Mês Atual")
 totalEl.innerText="Saldo: R$ "+formatarMoeda(saldo)
 resumoEl.innerHTML=`<div style="font-size:18px;font-weight:bold">${titulo}</div><div>💰 Receitas: R$ ${formatarMoeda(r)}</div><div>💸 Despesas: R$ ${formatarMoeda(d)}</div><div>📉 Saldo: R$ ${formatarMoeda(saldo)}</div>`
-atualizarDashboard()
+try{atualizarDashboard()}catch(e){}
 }
 /* ====================================================011 – FORMATADORES==================================================== */
 function formatarMoeda(v){return Number(v||0).toLocaleString("pt-BR",{minimumFractionDigits:2})}
@@ -285,6 +285,7 @@ function formatarDataBR(d){if(!d)return"";const[ano,mes,dia]=d.split("-");return
 function toggleValor(id){visibilidade[id]=!visibilidade[id];render()}
 /* ====================================================013 – DASHBOARD==================================================== */
 function atualizarDashboard(){
+if(typeof Chart==="undefined")return
 if(graficoResumo)graficoResumo.destroy()
 if(graficoMensal)graficoMensal.destroy()
 let r=0,d=0,meses={}
