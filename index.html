@@ -34,14 +34,13 @@ button{cursor:pointer;background:#22c55e;color:#000}
 <input type="date" id="dataInicio">
 <input type="date" id="dataFim">
 <button onclick="modoMesAtual()">📅 Mês Atual</button>
-<button onclick="mesAnterior()" style="background:#64748b">◀ Mês Anterior</button>
+<button onclick="mesAnterior()">◀ Mês Anterior</button>
 <button onclick="filtrarPeriodo()">📅 Filtrar</button>
 <button onclick="limparPeriodo()">❌ Limpar</button>
 <button onclick="limparFiltros()">📊 Ano Completo</button>
+<button onclick="toggleModoEdicao()" style="background:#f59e0b;color:#000">✏️ Modo Edição</button>
 </div>
-
 <button onclick="toggleInsercao()" style="margin:10px 0">➕ Inserir lançamento</button>
-<button onclick="toggleModoEdicao()" style="background:#f59e0b">✏️ Modo Edição</button>
 <div id="boxInsercao" class="topo" style="display:none">
 <input type="date" id="data">
 <input type="text" id="desc" placeholder="Descrição">
