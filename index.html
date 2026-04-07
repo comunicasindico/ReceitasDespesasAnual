@@ -276,10 +276,10 @@ if(x.tipo==="RECEITA"){saldo+=x.valor;r+=x.valor}else{saldo-=x.valor;d+=x.valor}
 lista.innerHTML+=`
 <div onclick="marcarPago('${x.id}')" style="
 display:grid;
-grid-template-columns:90px 1fr 100px 130px auto;
+grid-template-columns:70px 1fr 90px 140px auto;
 gap:6px;
-background:${x.pago ? "#14532d" : "#1e293b"};
-padding:6px 8px;
+background:${x.pago ? "#052e16" : "#1e293b"};
+padding:6px;
 margin:3px 0;
 border-radius:6px;
 align-items:center;
@@ -288,44 +288,29 @@ font-size:13px;
 cursor:pointer;
 transition:0.2s;
 ">
-grid-template-columns:70px 1fr 90px 140px auto;
-gap:6px;
-background:${x.pago?"#052e16":"#1e293b"};
-padding:6px;
-margin:3px 0;
-border-radius:6px;
-border-left:3px solid ${x.pago?"#22c55e":"#ef4444"};
-font-size:13px;
-">
 
-<div>${formatarDataBR(x.data)}</div>
+<div style="font-size:12px;color:#94a3b8">
+${formatarDataBR(x.data)}
+</div>
 
 <div>
-<div>${x.descricao}</div>
-<div style="font-size:11px;color:#94a3b8">
-Venc: ${x.dia_vencimento||"--"}
-${x.pago?` | Pago em: ${formatarDataBR(x.data_pagamento)}`:""}
-</div>
+${x.descricao}
 </div>
 
-<div>${x.categoria}</div>
+<div style="font-size:12px;color:#94a3b8">
+${x.categoria}
+</div>
 
 <div style="display:flex;justify-content:flex-end;gap:6px">
-<span style="min-width:100px;text-align:right">
+<span style="min-width:90px;text-align:right">
 ${visibilidade[x.id]===false?"••••":"R$ "+formatarMoeda(x.valor)}
 </span>
-<button onclick="toggleValor('${x.id}')">👁</button>
+<button onclick="event.stopPropagation();toggleValor('${x.id}')">👁</button>
 </div>
 
 <div style="display:flex;gap:4px">
-
-${!x.pago?`
-<button style="background:#22c55e" onclick="marcarPago('${x.id}')">✔</button>
-`:`<span style="color:#22c55e;font-weight:bold">OK</span>`}
-
-<button class="edit" onclick="editarPorId('${x.id}')">✏️</button>
-<button class="delete" onclick="del('${x.id}')">🗑️</button>
-
+<button class="edit" onclick="event.stopPropagation();editarPorId('${x.id}')">✏️</button>
+<button class="delete" onclick="event.stopPropagation();del('${x.id}')">🗑️</button>
 </div>
 
 </div>
