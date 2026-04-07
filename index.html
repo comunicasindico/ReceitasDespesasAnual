@@ -24,20 +24,14 @@ button{cursor:pointer;background:#22c55e;color:#000}
 <div class="topo">
 <input type="date" id="data">
 <input type="text" id="desc" placeholder="Descrição">
+
 <select id="mesBase">
-<option value="1">Jan</option>
-<option value="2">Fev</option>
-<option value="3">Mar</option>
-<option value="4">Abr</option>
-<option value="5">Mai</option>
-<option value="6">Jun</option>
-<option value="7">Jul</option>
-<option value="8">Ago</option>
-<option value="9">Set</option>
-<option value="10">Out</option>
-<option value="11">Nov</option>
-<option value="12">Dez</option>
+<option value="1">Jan</option><option value="2">Fev</option><option value="3">Mar</option>
+<option value="4">Abr</option><option value="5">Mai</option><option value="6">Jun</option>
+<option value="7">Jul</option><option value="8">Ago</option><option value="9">Set</option>
+<option value="10">Out</option><option value="11">Nov</option><option value="12">Dez</option>
 </select>
+
 <select id="tipo">
 <option>DESPESA</option>
 <option>RECEITA</option>
@@ -53,26 +47,25 @@ button{cursor:pointer;background:#22c55e;color:#000}
 
 <input type="number" id="valor" placeholder="Valor">
 <button onclick="add()">Adicionar</button>
-<label style="margin-left:10px">
-<input type="checkbox" id="recorrente"> Recorrente
-</label>
 
+<label><input type="checkbox" id="recorrente"> Recorrente</label>
 <input type="number" id="diaPadrao" placeholder="Dia" style="width:70px">
-<textarea id="importarTexto" placeholder="Cole aqui suas despesas e receitas..." style="width:100%;height:120px;margin-top:10px"></textarea>
+
+<textarea id="importarTexto" placeholder="Cole aqui..." style="width:100%;height:120px;margin-top:10px"></textarea>
+
 <button onclick="importarTexto()">Importar automático</button>
 <button onclick="copiarMesAnterior()">Gerar base mês</button>
+
 <select id="filtroMes" onchange="render()">
 <option value="">Todos Meses</option>
-<option value="0">Jan</option><option value="1">Fev</option>
-<option value="2">Mar</option><option value="3">Abr</option>
-<option value="4">Mai</option><option value="5">Jun</option>
-<option value="6">Jul</option><option value="7">Ago</option>
-<option value="8">Set</option><option value="9">Out</option>
-<option value="10">Nov</option><option value="11">Dez</option>
+<option value="0">Jan</option><option value="1">Fev</option><option value="2">Mar</option>
+<option value="3">Abr</option><option value="4">Mai</option><option value="5">Jun</option>
+<option value="6">Jul</option><option value="7">Ago</option><option value="8">Set</option>
+<option value="9">Out</option><option value="10">Nov</option><option value="11">Dez</option>
 </select>
 
 <select id="filtroAno" onchange="render()">
-<option value="">Todos Anos</option>
+<option value="">Todos</option>
 <option>2026</option>
 <option>2027</option>
 </select>
@@ -82,21 +75,19 @@ button{cursor:pointer;background:#22c55e;color:#000}
 <option>RECEITA</option>
 <option>DESPESA</option>
 </select>
+
 </div>
 
-<div class="resumo" id="resumo"></div>
+<div id="resumo" class="resumo"></div>
 
-<canvas id="graficoResumo" style="max-height:180px"></canvas>
-<canvas id="graficoMensal" style="max-height:220px;margin-top:10px"></canvas>
+<canvas id="graficoResumo" style="max-height:160px"></canvas>
+<canvas id="graficoMensal" style="max-height:200px"></canvas>
 
 <h2 id="total"></h2>
 <button onclick="toggleValores()">👁 Mostrar/Ocultar valores</button>
 
-<div style="display:grid;grid-template-columns:120px 1fr 120px 120px;gap:10px;font-weight:bold;margin-top:20px">
-<div>Data</div>
-<div>Descrição</div>
-<div>Categoria</div>
-<div>Valor</div>
+<div style="display:grid;grid-template-columns:100px 1fr 120px 120px;gap:10px;margin-top:20px;font-weight:bold">
+<div>Data</div><div>Descrição</div><div>Categoria</div><div>Valor</div>
 </div>
 
 <div id="lista"></div>
@@ -107,35 +98,37 @@ button{cursor:pointer;background:#22c55e;color:#000}
 <script>
 
 /* ====================================================
-001 – CONFIG SUPABASE
+001 – CONFIG
 ==================================================== */
 const SUPABASE_URL="https://gspdlrenyrzbkxlvyugc.supabase.co"
-const SUPABASE_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdzcGRscmVueXJ6Ymt4bHZ5dWdjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ4ODU0NzAsImV4cCI6MjA5MDQ2MTQ3MH0.UWfkWvOh4qMDEcByVL-KZ6ejJ80V7wJlDOFH76TywaI"
+const SUPABASE_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
 const db=supabase.createClient(SUPABASE_URL,SUPABASE_KEY)
 
 /* ====================================================
-002 – ESTADO GLOBAL
+002 – ESTADO
 ==================================================== */
 let dados=[]
 let editando=null
 let mostrarValores=true
+let visibilidade={}
 let graficoResumo=null
 let graficoMensal=null
 
 /* ====================================================
-003 – TOGGLE VALORES
+003 – MÊS FINANCEIRO
 ==================================================== */
-function toggleValores(){
-mostrarValores=!mostrarValores
-render()
+function getMesBase(x){
+let mes=new Date(x.data).getMonth()
+if(x.tipo==="RECEITA"){mes++;if(mes>11)mes=0}
+return mes
 }
 
 /* ====================================================
-004 – CARREGAR DADOS
+004 – CARREGAR
 ==================================================== */
 async function carregar(){
 const{data,error}=await db.from("lancamentos").select("*").order("data",{ascending:true})
-if(error)return alert("Erro ao carregar")
+if(error)return alert("Erro")
 dados=data||[]
 await gerarRecorrentes()
 render()
@@ -145,11 +138,8 @@ render()
 005 – SALVAR
 ==================================================== */
 async function salvarRegistro(obj){
-if(obj.id){
-await db.from("lancamentos").update(obj).eq("id",obj.id)
-}else{
-await db.from("lancamentos").insert(obj)
-}
+if(obj.id)await db.from("lancamentos").update(obj).eq("id",obj.id)
+else await db.from("lancamentos").insert(obj)
 carregar()
 }
 
@@ -160,187 +150,95 @@ async function del(id){
 await db.from("lancamentos").delete().eq("id",id)
 carregar()
 }
+
 /* ====================================================
-007 – EDITAR POR ID
+007 – EDITAR
 ==================================================== */
 function editarPorId(id){
-
-const x = dados.find(d => String(d.id) === String(id))
-
-if(!x){
-alert("Registro não encontrado")
-return
+const x=dados.find(d=>String(d.id)===String(id))
+if(!x)return
+editando=x.id
+data.value=x.data
+desc.value=x.descricao
+tipo.value=x.tipo
+categoria.value=x.categoria
+valor.value=x.valor
 }
 
-editando = x.id
-
-document.getElementById("data").value = x.data || ""
-document.getElementById("desc").value = x.descricao || ""
-document.getElementById("tipo").value = x.tipo || "DESPESA"
-document.getElementById("categoria").value = x.categoria || "GERAL"
-document.getElementById("valor").value = x.valor || 0
-
-// foco automático
-document.getElementById("desc").focus()
-
-}
 /* ====================================================
-008 – ADICIONAR (INTELIGENTE)
+008 – ADD
 ==================================================== */
 async function add(){
-
 const obj={
 data:data.value,
 descricao:desc.value.trim(),
 tipo:tipo.value,
 categoria:categoria.value,
 valor:parseFloat(valor.value),
-recorrente:document.getElementById("recorrente")?.checked||false,
-dia_padrao:parseInt(document.getElementById("diaPadrao")?.value)||null
+recorrente:recorrente.checked,
+dia_padrao:parseInt(diaPadrao.value)||null
 }
-
-if(!obj.data||!obj.descricao)return alert("Preencha data e descrição")
+if(!obj.data||!obj.descricao)return alert("Preencha")
 if(!obj.valor||obj.valor===0)return alert("Valor inválido")
-
-if(editando){
-obj.id=editando
-editando=null
-await salvarRegistro(obj)
-return
-}
-
-const mesAtual=obj.data.slice(0,7)
-
-const existente=dados.find(x=>
-x.descricao.toLowerCase()===obj.descricao.toLowerCase() &&
-x.data.slice(0,7)===mesAtual
-)
-
-if(existente){
-obj.id=existente.id
-await salvarRegistro(obj)
-alert("Atualizado")
-return
-}
-
+if(editando){obj.id=editando;editando=null;await salvarRegistro(obj);return}
 await salvarRegistro(obj)
 }
 
 /* ====================================================
-009 – IMPORTADOR (CORRIGIDO)
+009 – IMPORTADOR
 ==================================================== */
 async function importarTexto(){
-
-const txt=document.getElementById("importarTexto").value
-if(!txt)return alert("Cole o texto")
-
+const txt=importarTexto.value
+if(!txt)return
 const linhas=txt.split("\n")
-
 for(const l of linhas){
-
 const m=l.match(/(\d{2}\/\d{2})\s+(.+?)\s+([\d\.,]+)/)
 if(!m)continue
-
 let[dia,mes]=m[1].split("/")
-
-let valor=parseFloat(m[3].replace(/\./g,"").replace(/,/g,"."))
-
+let valor=parseFloat(m[3].replace(/\./g,"").replace(",","."))
 let tipo=m[2].toUpperCase().includes("REMUNERA")?"RECEITA":"DESPESA"
-
 await db.from("lancamentos").insert({
 data:`2026-${mes}-${dia}`,
 descricao:m[2],
-tipo:tipo,
-categoria:"GERAL",
-valor:valor
+tipo,categoria:"GERAL",valor
 })
-
 }
-
-alert("Importado com sucesso")
 carregar()
 }
 
 /* ====================================================
-010 – CONTROLE VISUAL POR ITEM
-==================================================== */
-let visibilidade={}
-
-/* ====================================================
-011 – RENDER (PROFISSIONAL)
+010 – RENDER
 ==================================================== */
 function render(){
 
-const filtroMes=document.getElementById("filtroMes")?.value
-const filtroAno=document.getElementById("filtroAno")?.value
-const filtroTipo=document.getElementById("filtroTipo")?.value
+const fMes=filtroMes.value
+const fAno=filtroAno.value
+const fTipo=filtroTipo.value
 
-let dadosFiltrados=[...dados]
+let listaFiltrada=[...dados]
 
-if(filtroMes!==""){
-dadosFiltrados=dadosFiltrados.filter(x=>new Date(x.data).getMonth()==filtroMes)
-}
+if(fMes!=="")listaFiltrada=listaFiltrada.filter(x=>getMesBase(x)==fMes)
+if(fAno!=="")listaFiltrada=listaFiltrada.filter(x=>new Date(x.data).getFullYear()==fAno)
+if(fTipo!=="")listaFiltrada=listaFiltrada.filter(x=>x.tipo===fTipo)
 
-if(filtroAno!==""){
-dadosFiltrados=dadosFiltrados.filter(x=>new Date(x.data).getFullYear()==filtroAno)
-}
-
-if(filtroTipo!==""){
-dadosFiltrados=dadosFiltrados.filter(x=>x.tipo===filtroTipo)
-}
-
-let saldo=0,receitas=0,despesas=0
+let saldo=0,r=0,d=0
 lista.innerHTML=""
 
-const dadosFiltrados=dados.filter(x=>x.valor!==0)
-
-dadosFiltrados.forEach(x=>{
-
-if(x.tipo==="RECEITA"){saldo+=x.valor;receitas+=x.valor}
-else{saldo-=x.valor;despesas+=x.valor}
+listaFiltrada.forEach(x=>{
+if(x.tipo==="RECEITA"){saldo+=x.valor;r+=x.valor}else{saldo-=x.valor;d+=x.valor}
 
 lista.innerHTML+=`
-<div style="
-display:grid;
-grid-template-columns:90px 1fr 100px 130px auto;
-gap:6px;
-background:#1e293b;
-padding:6px 8px;
-margin:3px 0;
-border-radius:6px;
-align-items:center;
-border-left:3px solid ${x.tipo==="RECEITA"?"#22c55e":"#ef4444"};
-font-size:13px;
-">
+<div style="display:grid;grid-template-columns:90px 1fr 100px 140px auto;gap:6px;background:#1e293b;padding:6px;margin:3px;border-radius:6px;border-left:3px solid ${x.tipo==="RECEITA"?"#22c55e":"#ef4444"}">
 
-<div style="font-size:12px;color:#94a3b8">
-${formatarDataBR(x.data)}
-</div>
+<div style="font-size:12px">${formatarDataBR(x.data)}</div>
+<div>${x.descricao}</div>
+<div style="font-size:12px">${x.categoria}</div>
 
-<div style="font-weight:600">
-${x.descricao}
-</div>
-
-<div style="font-size:12px;color:#94a3b8">
-${x.categoria}
-</div>
-
-<div style="display:flex;justify-content:flex-end;align-items:center;gap:6px">
-
-<span style="min-width:90px;text-align:right;font-variant-numeric:tabular-nums">
+<div style="display:flex;justify-content:flex-end;gap:6px">
+<span style="min-width:100px;text-align:right">
 ${visibilidade[x.id]===false?"••••":"R$ "+formatarMoeda(x.valor)}
 </span>
-
-<button onclick="toggleValor('${x.id}')" style="
-background:#22c55e;
-border:none;
-border-radius:6px;
-padding:4px 6px;
-cursor:pointer;
-">
-👁
-</button>
-
+<button onclick="toggleValor('${x.id}')">👁</button>
 </div>
 
 <div style="display:flex;gap:4px">
@@ -348,34 +246,28 @@ cursor:pointer;
 <button class="delete" onclick="del('${x.id}')">🗑️</button>
 </div>
 
-</div>
-`
+</div>`
 })
 
-document.getElementById("total").innerText=
-"Saldo: "+(mostrarValores ? "R$ "+formatarMoeda(saldo) : "••••")
-
-document.getElementById("resumo").innerText=
-`Receitas: ${mostrarValores ? "R$ "+formatarMoeda(receitas) : "••••"} | Despesas: ${mostrarValores ? "R$ "+formatarMoeda(despesas) : "••••"}`
+total.innerText="Saldo: R$ "+formatarMoeda(saldo)
+resumo.innerText=`Receitas: R$ ${formatarMoeda(r)} | Despesas: R$ ${formatarMoeda(d)}`
 
 atualizarDashboard()
 }
-/* ====================================================
-011 – FORMATAR MOEDA
-==================================================== */
-function formatarMoeda(v){
-return Number(v).toLocaleString("pt-BR",{minimumFractionDigits:2})
-}
-/* ====================================================
-012 – TOGGLE INDIVIDUAL
-==================================================== */
-function toggleValor(id){
-visibilidade[id]=!visibilidade[id]
-render()
-}
 
 /* ====================================================
-013 – DASHBOARD (CORRIGIDO)
+011 – FORMATADORES
+==================================================== */
+function formatarMoeda(v){return Number(v).toLocaleString("pt-BR",{minimumFractionDigits:2})}
+function formatarDataBR(d){const x=new Date(d);return x.toLocaleDateString("pt-BR")}
+
+/* ====================================================
+012 – TOGGLE ITEM
+==================================================== */
+function toggleValor(id){visibilidade[id]=!visibilidade[id];render()}
+
+/* ====================================================
+013 – DASHBOARD
 ==================================================== */
 function atualizarDashboard(){
 
@@ -385,188 +277,87 @@ if(graficoMensal)graficoMensal.destroy()
 let r=0,d=0,meses={}
 
 dados.forEach(x=>{
-let m=new Date(x.data).getMonth()
+let m=getMesBase(x)
 if(!meses[m])meses[m]={r:0,d:0}
-if(x.tipo==="RECEITA"){r+=x.valor;meses[m].r+=x.valor}
-else{d+=x.valor;meses[m].d+=x.valor}
+if(x.tipo==="RECEITA"){r+=x.valor;meses[m].r+=x.valor}else{d+=x.valor;meses[m].d+=x.valor}
 })
 
-graficoResumo=new Chart(document.getElementById("graficoResumo"),{
+graficoResumo=new Chart(graficoResumo=document.getElementById("graficoResumo"),{
 type:"doughnut",
-data:{
-labels:["Receitas","Despesas"],
-datasets:[{
-data:[r,d],
-backgroundColor:["#22c55e","#ef4444"],
-borderWidth:0
-}]
-},
-options:{
-responsive:true,
-maintainAspectRatio:false,
-plugins:{
-legend:{
-position:"bottom",
-labels:{
-color:"#fff",
-boxWidth:12,
-padding:15
-}
-}
-}
-}
+data:{labels:["Receitas","Despesas"],datasets:[{data:[r,d],backgroundColor:["#22c55e","#ef4444"]}]}
 })
-
-const labels=["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"]
 
 graficoMensal=new Chart(document.getElementById("graficoMensal"),{
 type:"bar",
 data:{
-labels:labels,
+labels:["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"],
 datasets:[
-{
-label:"Receitas",
-data:labels.map((_,i)=>meses[i]?.r||0),
-backgroundColor:"#22c55e",
-borderRadius:6
-},
-{
-label:"Despesas",
-data:labels.map((_,i)=>meses[i]?.d||0),
-backgroundColor:"#ef4444",
-borderRadius:6
-}
+{label:"Receitas",data:Array.from({length:12},(_,i)=>meses[i]?.r||0),backgroundColor:"#22c55e"},
+{label:"Despesas",data:Array.from({length:12},(_,i)=>meses[i]?.d||0),backgroundColor:"#ef4444"}
 ]
-},
-options:{
-responsive:true,
-maintainAspectRatio:false,
-plugins:{
-legend:{
-position:"bottom",
-labels:{
-color:"#fff"
-}
-}
-},
-scales:{
-x:{
-ticks:{color:"#94a3b8"},
-grid:{display:false}
-},
-y:{
-ticks:{color:"#94a3b8"},
-grid:{color:"#1e293b"}
-}
-}
 }
 })
+
 }
 
 /* ====================================================
-014 – GERAR MÊS COM VALORES (PROFISSIONAL)
+014 – COPIAR MÊS
 ==================================================== */
 async function copiarMesAnterior(){
-
 const ano=new Date().getFullYear()
-
-const mes=parseInt(document.getElementById("mesBase").value)-1
+const mes=parseInt(mesBase.value)-1
 const mesAnterior=mes-1
+if(mesAnterior<0)return alert("Sem mês anterior")
 
-if(mesAnterior<0){
-alert("Não há mês anterior")
-return
-}
-
-/* 🔹 BUSCA MÊS ANTERIOR */
-const {data:anteriores}=await db.from("lancamentos")
-.select("*")
+const {data:anteriores}=await db.from("lancamentos").select("*")
 .gte("data",`${ano}-${String(mesAnterior+1).padStart(2,"0")}-01`)
 .lte("data",`${ano}-${String(mesAnterior+1).padStart(2,"0")}-31`)
 
-/* 🔹 BUSCA MÊS ATUAL */
-const {data:atuais}=await db.from("lancamentos")
-.select("*")
-.gte("data",`${ano}-${String(mes+1).padStart(2,"0")}-01`)
-.lte("data",`${ano}-${String(mes+1).padStart(2,"0")}-31`)
-
-/* 🔹 EVITA DUPLICAÇÃO */
-let existentes=new Set((atuais||[]).map(x=>x.descricao))
-
 for(const x of (anteriores||[])){
-
-if(!existentes.has(x.descricao)){
-
 await db.from("lancamentos").insert({
 data:`${ano}-${String(mes+1).padStart(2,"0")}-${String(new Date(x.data).getDate()).padStart(2,"0")}`,
 descricao:x.descricao,
 tipo:x.tipo,
 categoria:x.categoria,
-valor:x.valor, // 🔥 AQUI ESTÁ A DIFERENÇA
-recorrente:x.recorrente||false,
-dia_padrao:x.dia_padrao||null
+valor:x.valor
 })
-
 }
 
-}
-
-alert("Mês criado com valores do mês anterior")
 carregar()
-
 }
 
 /* ====================================================
-015 – RECORRÊNCIA AUTOMÁTICA
+015 – RECORRÊNCIA
 ==================================================== */
 async function gerarRecorrentes(){
-
 const hoje=new Date()
 const ano=hoje.getFullYear()
 const mes=hoje.getMonth()+1
-
 const {data:rec}=await db.from("lancamentos").select("*").eq("recorrente",true)
 
 for(const r of (rec||[])){
-
 let dia=r.dia_padrao||1
-let dataNova=`${ano}-${String(mes).padStart(2,"0")}-${String(dia).padStart(2,"0")}`
-
-const existe=dados.find(x=>x.descricao===r.descricao && x.data===dataNova)
-
+let nova=`${ano}-${String(mes).padStart(2,"0")}-${String(dia).padStart(2,"0")}`
+const existe=dados.find(x=>x.descricao===r.descricao && x.data===nova)
 if(!existe){
 await db.from("lancamentos").insert({
-data:dataNova,
-descricao:r.descricao,
-tipo:r.tipo,
-categoria:r.categoria,
-valor:r.valor,
-recorrente:true,
-dia_padrao:dia
+data:nova,descricao:r.descricao,tipo:r.tipo,categoria:r.categoria,valor:r.valor,recorrente:true,dia_padrao:dia
 })
 }
 }
 }
+
 /* ====================================================
-016 – FORMATAR DATABR
+016 – TOGGLE GLOBAL
 ==================================================== */
-  function formatarDataBR(data){
-if(!data)return ""
-const d=new Date(data)
-return String(d.getDate()).padStart(2,"0")+"/"+
-String(d.getMonth()+1).padStart(2,"0")+"/"+
-d.getFullYear()
-}
+function toggleValores(){mostrarValores=!mostrarValores;render()}
+
 /* ====================================================
 017 – LOGOUT
 ==================================================== */
-function logout(){
-localStorage.clear()
-location.reload()
-}
+function logout(){localStorage.clear();location.reload()}
 
 carregar()
-
 
 </script>
 
