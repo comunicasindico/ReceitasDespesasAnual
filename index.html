@@ -12,6 +12,8 @@ button{cursor:pointer;background:#22c55e;color:#000}
 .edit{background:#3b82f6;color:#fff}
 .topo{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
 .resumo{margin-top:20px;padding:10px;background:#111827;border-radius:10px}
+<button onclick="limparFiltros()" style="margin-top:10px">🔍 Ver todos os períodos</button>
+
 </style>
 </head>
 <body>
@@ -28,7 +30,8 @@ button{cursor:pointer;background:#22c55e;color:#000}
 <button onclick="logout()" style="background:#ef4444;color:#fff">Sair</button>
 </div>
 
-<div class="topo">
+<button onclick="toggleInsercao()" style="margin:10px 0">➕ Inserir / Ocultar</button>
+<div id="boxInsercao" class="topo" style="display:none">
 <input type="date" id="data">
 <input type="text" id="desc" placeholder="Descrição">
 
@@ -336,7 +339,16 @@ const fAno=document.getElementById("filtroAno")?.value
 const fTipo=document.getElementById("filtroTipo")?.value
 
 let listaFiltrada=[...dados]
-
+const hoje=new Date()
+const mesAtual=hoje.getMonth()
+const anoAtual=hoje.getFullYear()
+/* 🔹 PADRÃO: MÊS ATUAL */
+if(!document.getElementById("filtroMes")?.value){
+listaFiltrada=listaFiltrada.filter(x=>{
+const d=new Date(x.data)
+return d.getMonth()===mesAtual && d.getFullYear()===anoAtual
+})
+}
 /* 🔹 FILTROS */
 if(filtroPago!==""){
 listaFiltrada=listaFiltrada.filter(x=>String(x.pago)===filtroPago)
@@ -415,8 +427,17 @@ ${visibilidade[x.id]===false?"••••":"R$ "+formatarMoeda(x.valor)}
 
 /* 🔹 TOTAIS */
 totalEl.innerText="Saldo: R$ "+formatarMoeda(saldo)
-resumoEl.innerText=`Receitas: R$ ${formatarMoeda(r)} | Despesas: R$ ${formatarMoeda(d)}`
-
+resumoEl.innerHTML=`
+<div style="font-size:18px;font-weight:bold">
+📊 Mês Atual
+</div>
+<div style="margin-top:5px">
+💰 Receitas: R$ ${formatarMoeda(r)}
+</div>
+<div>
+💸 Despesas: R$ ${formatarMoeda(d)}
+</div>
+`
 atualizarDashboard()
 }
 
@@ -627,13 +648,24 @@ location.reload()
 018 – START SISTEMA
 ==================================================== */
 async function iniciarSistema(){
-
 await verificarSessao()   // 🔥 garante login
 await gerarRecorrentes()  // 🔥 gera automáticos
-await carregar()          // 🔥 carrega dados UMA VEZ
+}
+/* ====================================================019 – TOGGLE INSERÇÃO==================================================== */
+function toggleInsercao(){
+const el=document.getElementById("boxInsercao")
+if(!el)return
+el.style.display=el.style.display==="none"?"flex":"none"
+}
+/* ====================================================020 – LIMPAR FILTROS==================================================== */
+function limparFiltros(){
+document.getElementById("filtroMes").value=""
+document.getElementById("filtroAno").value=""
+render()
 }
 /* 🔥 INICIALIZAÇÃO */
 document.addEventListener("DOMContentLoaded", iniciarSistema)
+
 </script>
 
 </body>
