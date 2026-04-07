@@ -306,9 +306,7 @@ pago:false
 
 await carregar()
 }
-/* ====================================================
-010 – RENDER (CORRIGIDO PROFISSIONAL)
-==================================================== */
+/* ====================================================010 – RENDER (AGRUPADO POR MÊS – FINAL)==================================================== */
 function render(){
 const lista=document.getElementById("lista")
 const totalEl=document.getElementById("total")
@@ -321,21 +319,18 @@ let listaFiltrada=[...dados]
 const hoje=new Date()
 const mesAtual=hoje.getMonth()
 const anoAtual=hoje.getFullYear()
-/* 🔹 PADRÃO: MÊS ATUAL */
-if(!fMes && !modoAnoCompleto && !filtroInicio && !filtroFim){
+if(!fMes&&!modoAnoCompleto&&!filtroInicio&&!filtroFim){
 listaFiltrada=listaFiltrada.filter(x=>{
-const [ano,mes]=x.data.split("-")
-return Number(mes)-1===mesAtual && Number(ano)===anoAtual
+const[ano,mes]=x.data.split("-")
+return Number(mes)-1===mesAtual&&Number(ano)===anoAtual
 })
 }
-/* 🔹 FILTRO POR PERÍODO */
 if(filtroInicio){
 listaFiltrada=listaFiltrada.filter(x=>x.data>=filtroInicio)
 }
 if(filtroFim){
 listaFiltrada=listaFiltrada.filter(x=>x.data<=filtroFim)
 }
-/* 🔹 FILTROS */
 if(filtroPago!==""){
 listaFiltrada=listaFiltrada.filter(x=>String(x.pago)===filtroPago)
 }
@@ -348,12 +343,21 @@ listaFiltrada=listaFiltrada.filter(x=>x.data.startsWith(fAno))
 if(fTipo!==""){
 listaFiltrada=listaFiltrada.filter(x=>x.tipo===fTipo)
 }
-/* 🔹 ORDENAÇÃO */
 listaFiltrada.sort((a,b)=>(a.data||"").localeCompare(b.data||""))
 let saldo=0,r=0,d=0
 lista.innerHTML=""
-/* 🔹 LOOP */
+let grupoAtual=""
 listaFiltrada.forEach(x=>{
+const[ano,mes]=x.data.split("-")
+const chaveGrupo=`${mes}/${ano}`
+if(grupoAtual!==chaveGrupo){
+grupoAtual=chaveGrupo
+lista.innerHTML+=`
+<div style="margin-top:15px;font-weight:bold;background:#020617;padding:8px;border-radius:6px;border-left:4px solid #38bdf8">
+📅 ${formatarMesNome(mes)}/${ano}
+</div>
+`
+}
 if(x.tipo==="RECEITA"){saldo+=x.valor;r+=x.valor}else{saldo-=x.valor;d+=x.valor}
 lista.innerHTML+=`
 <div onclick="marcarPago('${x.id}')" style="display:grid;grid-template-columns:70px 1fr 90px 140px auto;gap:6px;background:${x.tipo==="RECEITA"?"#052e16":"#1e293b"};padding:6px;margin:3px 0;border-radius:6px;align-items:center;border-left:4px solid ${x.tipo==="RECEITA"?"#22c55e":"#ef4444"};font-size:13px;cursor:pointer;transition:0.2s">
@@ -368,10 +372,10 @@ lista.innerHTML+=`
 <button class="edit" onclick="event.stopPropagation();editarPorId('${x.id}')">✏️</button>
 <button class="delete" onclick="event.stopPropagation();del('${x.id}')">🗑️</button>
 </div>
-</div>`
+</div>
+`
 })
-/* 🔹 RESUMO */
-const titulo=(filtroInicio||filtroFim)?"📊 Período Selecionado":"📊 Mês Atual"
+const titulo=(filtroInicio||filtroFim)?"📊 Período Selecionado":(modoAnoCompleto?"📊 Ano Completo":"📊 Mês Atual")
 totalEl.innerText="Saldo: R$ "+formatarMoeda(saldo)
 resumoEl.innerHTML=`
 <div style="font-size:18px;font-weight:bold">${titulo}</div>
@@ -660,7 +664,11 @@ function modoMesAtual(){
 modoAnoCompleto=false
 render()
 }
-
+/* ====================================================027 MEES NOME==================================================== */
+function formatarMesNome(m){
+const meses=["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"]
+return meses[Number(m)-1]||m
+}
 
   
 </script>
