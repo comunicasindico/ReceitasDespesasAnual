@@ -244,6 +244,7 @@ const mesAtual=hoje.getMonth()
 const anoAtual=hoje.getFullYear()
 if(!fMes&&!modoAnoCompleto&&!filtroInicio&&!filtroFim){
 listaFiltrada=listaFiltrada.filter(x=>{
+if(!x.data)return false
 const[ano,mes]=x.data.split("-")
 return Number(mes)-1===mesAtual&&Number(ano)===anoAtual
 })
@@ -256,8 +257,14 @@ if(fAno!==""){listaFiltrada=listaFiltrada.filter(x=>x.data.startsWith(fAno))}
 if(fTipo!==""){listaFiltrada=listaFiltrada.filter(x=>x.tipo===fTipo)}
 listaFiltrada.sort((a,b)=>(a.data||"").localeCompare(b.data||""))
 let saldo=0,r=0,d=0
+if(modoAnoCompleto){
+listaFiltrada=[...dados]
+}
 lista.innerHTML=""
 let grupoAtual=""
+if(!listaFiltrada.length){
+lista.innerHTML="<div style='padding:20px;color:#94a3b8'>Nenhum registro encontrado</div>"
+}
 listaFiltrada.forEach(x=>{
 const[ano,mes]=x.data.split("-")
 const chaveGrupo=`${mes}/${ano}`
