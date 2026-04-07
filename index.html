@@ -44,7 +44,11 @@ button{cursor:pointer;background:#22c55e;color:#000}
 <option>EDUCAÇÃO</option>
 <option>LAZER</option>
 </select>
-
+<select id="filtroPago" onchange="render()">
+<option value="">Todos</option>
+<option value="false">Pendentes</option>
+<option value="true">Pagos</option>
+</select>
 <input type="number" id="valor" placeholder="Valor">
 <button onclick="add()">Adicionar</button>
 
@@ -150,7 +154,20 @@ async function del(id){
 await db.from("lancamentos").delete().eq("id",id)
 carregar()
 }
+/* ====================================================
+007A – MARCAR COMO PAGO
+==================================================== */
+async function marcarPago(id){
 
+const hoje=new Date().toISOString().slice(0,10)
+
+await db.from("lancamentos").update({
+pago:true,
+data_pagamento:hoje
+}).eq("id",id)
+
+carregar()
+}
 /* ====================================================
 007 – EDITAR
 ==================================================== */
@@ -176,7 +193,11 @@ tipo:tipo.value,
 categoria:categoria.value,
 valor:parseFloat(valor.value),
 recorrente:recorrente.checked,
-dia_padrao:parseInt(diaPadrao.value)||null
+dia_padrao:parseInt(diaPadrao.value)||null,
+
+dia_vencimento:new Date(data.value).getDate(), // 🔥 NOVO
+pago:false,
+data_pagamento:null
 }
 if(!obj.data||!obj.descricao)return alert("Preencha")
 if(!obj.valor||obj.valor===0)return alert("Valor inválido")
@@ -210,6 +231,11 @@ carregar()
 010 – RENDER
 ==================================================== */
 function render(){
+const filtroPago=document.getElementById("filtroPago")?.value
+
+if(filtroPago!==""){
+dadosFiltrados=dadosFiltrados.filter(x=>String(x.pago)===filtroPago)
+}
 
 const fMes=filtroMes.value
 const fAno=filtroAno.value
@@ -223,16 +249,36 @@ if(fTipo!=="")listaFiltrada=listaFiltrada.filter(x=>x.tipo===fTipo)
 
 let saldo=0,r=0,d=0
 lista.innerHTML=""
-
+listaFiltrada.sort((a,b)=>{
+return (a.dia_vencimento||0)-(b.dia_vencimento||0)
+})
 listaFiltrada.forEach(x=>{
 if(x.tipo==="RECEITA"){saldo+=x.valor;r+=x.valor}else{saldo-=x.valor;d+=x.valor}
 
 lista.innerHTML+=`
-<div style="display:grid;grid-template-columns:90px 1fr 100px 140px auto;gap:6px;background:#1e293b;padding:6px;margin:3px;border-radius:6px;border-left:3px solid ${x.tipo==="RECEITA"?"#22c55e":"#ef4444"}">
+<div style="
+display:grid;
+grid-template-columns:70px 1fr 90px 140px auto;
+gap:6px;
+background:${x.pago?"#052e16":"#1e293b"};
+padding:6px;
+margin:3px 0;
+border-radius:6px;
+border-left:3px solid ${x.pago?"#22c55e":"#ef4444"};
+font-size:13px;
+">
 
-<div style="font-size:12px">${formatarDataBR(x.data)}</div>
+<div>${formatarDataBR(x.data)}</div>
+
+<div>
 <div>${x.descricao}</div>
-<div style="font-size:12px">${x.categoria}</div>
+<div style="font-size:11px;color:#94a3b8">
+Venc: ${x.dia_vencimento||"--"}
+${x.pago?` | Pago em: ${formatarDataBR(x.data_pagamento)}`:""}
+</div>
+</div>
+
+<div>${x.categoria}</div>
 
 <div style="display:flex;justify-content:flex-end;gap:6px">
 <span style="min-width:100px;text-align:right">
@@ -242,11 +288,18 @@ ${visibilidade[x.id]===false?"••••":"R$ "+formatarMoeda(x.valor)}
 </div>
 
 <div style="display:flex;gap:4px">
+
+${!x.pago?`
+<button style="background:#22c55e" onclick="marcarPago('${x.id}')">✔</button>
+`:`<span style="color:#22c55e;font-weight:bold">OK</span>`}
+
 <button class="edit" onclick="editarPorId('${x.id}')">✏️</button>
 <button class="delete" onclick="del('${x.id}')">🗑️</button>
+
 </div>
 
-</div>`
+</div>
+`
 })
 
 total.innerText="Saldo: R$ "+formatarMoeda(saldo)
