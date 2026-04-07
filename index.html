@@ -34,6 +34,7 @@ button{cursor:pointer;background:#22c55e;color:#000}
 <input type="date" id="dataInicio">
 <input type="date" id="dataFim">
 <button onclick="modoMesAtual()">📅 Mês Atual</button>
+<button onclick="mesAnterior()" style="background:#64748b">◀ Mês Anterior</button>
 <button onclick="filtrarPeriodo()">📅 Filtrar</button>
 <button onclick="limparPeriodo()">❌ Limpar</button>
 <button onclick="limparFiltros()">📊 Ano Completo</button>
@@ -266,19 +267,36 @@ lista.innerHTML+=`
 }
 if(x.tipo==="RECEITA"){saldo+=x.valor;r+=x.valor}else{saldo-=x.valor;d+=x.valor}
 lista.innerHTML+=`
-<div onclick="${modoEdicao?`editarPorId('${x.id}')`:''}" style="display:grid;grid-template-columns:70px 1fr 80px 90px;gap:6px;background:${x.pago?"#052e16":"#1e293b"};padding:5px;margin:2px 0;border-radius:6px;align-items:center;border-left:3px solid ${x.tipo==="RECEITA"?"#22c55e":"#ef4444"};font-size:12px">
+<div style="display:grid;grid-template-columns:90px 1fr 100px 110px ${modoEdicao?"120px":"0px"};gap:6px;background:${x.pago?"#052e16":"#1e293b"};padding:5px;margin:2px 0;border-radius:6px;align-items:center;border-left:3px solid ${x.tipo==="RECEITA"?"#22c55e":"#ef4444"};font-size:12px">
+
+${modoEdicao?`
+<input value="${x.data}" onchange="editTemp('${x.id}','data',this.value)">
+<input value="${x.descricao}" onchange="editTemp('${x.id}','descricao',this.value)">
+<input value="${x.categoria}" onchange="editTemp('${x.id}','categoria',this.value)">
+<input value="${x.valor}" onchange="editTemp('${x.id}','valor',this.value)">
+<button onclick="salvarEdicao('${x.id}')">💾</button>
+`:
+`
 <div>${formatarDataBR(x.data)}</div>
 <div>${x.descricao}</div>
 <div>${x.categoria}</div>
 <div style="text-align:right">${mostrarValores?"R$ "+formatarMoeda(x.valor):"••••"}</div>
-</div>`
+`
+}
+</div>
+`
 })
 totalEl.innerText="Saldo: R$ "+formatarMoeda(saldo)
+const nomeMesAtual=formatarMesNome((new Date().getMonth()+1))
+const anoAtualTxt=new Date().getFullYear()
 resumoEl.innerHTML=`
-<div style="font-size:16px;font-weight:bold">${modoAnoCompleto?"📊 Ano Completo":"📊 Mês Atual"}</div>
+<div style="font-size:18px;font-weight:bold">
+📅 ${modoAnoCompleto?"Ano Completo":nomeMesAtual+"/"+anoAtualTxt}
+</div>
 <div>💰 ${formatarMoeda(r)}</div>
 <div>💸 ${formatarMoeda(d)}</div>
-<div>📉 ${formatarMoeda(saldo)}</div>`
+<div>📉 ${formatarMoeda(saldo)}</div>
+`
 try{atualizarDashboard()}catch(e){}
 }
 /* ====================================================012 – FORMATADORES==================================================== */
@@ -415,17 +433,49 @@ if(campo==="valor")valor=parseFloat(valor||0)
 await db.from("lancamentos").update({[campo]:valor}).eq("id",id)
 await carregar()
 }
-/* ====================================================029 – MODO EDIÇÃO ==================================================== */
-let modoEdicao=false
+/* ============================================029 – MES ANTERIOR E MES ATUAL MES OFFSET==================================================== */
+let mesOffset=0
+function mesAnterior(){
+mesOffset--
+aplicarMesOffset()
+}
+function modoMesAtual(){
+mesOffset=0
+modoAnoCompleto=false
+aplicarMesOffset()
+}
+function aplicarMesOffset(){
+const hoje=new Date()
+const data=new Date(hoje.getFullYear(),hoje.getMonth()+mesOffset,1)
+filtroInicio=data.toISOString().slice(0,7)+"-01"
+filtroFim=new Date(data.getFullYear(),data.getMonth()+1,0).toISOString().slice(0,10)
+render()
+}
+/* ====================================================030 – edit tempo ==================================================== */
+let edicoesTemp={}
+function editTemp(id,campo,valor){
+if(!edicoesTemp[id])edicoesTemp[id]={}
+edicoesTemp[id][campo]=valor
+}
+async function salvarEdicao(id){
+const original=dados.find(x=>String(x.id)===String(id))
+if(!original)return
+const alteracoes=edicoesTemp[id]||{}
+const atualizado={
+...original,
+...alteracoes,
+valor:parseFloat(alteracoes.valor??original.valor)
+}
+await db.from("lancamentos").update(atualizado).eq("id",id)
+delete edicoesTemp[id]
+await carregar()
+}
+/* ====================================================040 – TOGGLE MODO EDIÇÃO ==================================================== */
 function toggleModoEdicao(){
 modoEdicao=!modoEdicao
-if(modoEdicao){
-alert("Modo edição ativado. Clique em um item para editar.")
-}else{
-alert("Modo edição desativado.")
+render()
 }
-}
-/* ====================================================030 – ESTIMATIVA==================================================== */
+/* ====================================================041 – TOGGLE ESTIMATIVA==================================================== */
 async function toggleEstimativa(id){
 const item=dados.find(x=>String(x.id)===String(id))
 if(!item)return
