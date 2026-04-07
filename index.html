@@ -15,6 +15,7 @@ button{cursor:pointer;background:#22c55e;color:#000}
 </style>
 </head>
 <body>
+
 <div id="telaLogin" style="position:fixed;top:0;left:0;width:100%;height:100%;background:#020617;display:flex;align-items:center;justify-content:center;z-index:9999">
 <div style="background:#111827;padding:30px;border-radius:10px;width:300px;display:flex;flex-direction:column;gap:10px">
 <h2 style="text-align:center">Acesso</h2>
@@ -23,81 +24,48 @@ button{cursor:pointer;background:#22c55e;color:#000}
 <button onclick="loginSistema()">Entrar</button>
 </div>
 </div>
+
 <div style="display:flex;justify-content:space-between;align-items:center">
 <h1>ReceitasDespesasAnual PRO</h1>
 <button onclick="logout()" style="background:#ef4444;color:#fff">Sair</button>
 </div>
+
 <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:10px">
 <input type="date" id="dataInicio">
 <input type="date" id="dataFim">
-<button onclick="modoMesAtual()">📅 Voltar para mês atual</button>
+<button onclick="modoMesAtual()">📅 Mês Atual</button>
 <button onclick="filtrarPeriodo()">📅 Filtrar</button>
 <button onclick="limparPeriodo()">❌ Limpar</button>
+<button onclick="limparFiltros()">📊 Ano Completo</button>
 </div>
+
 <button onclick="toggleInsercao()" style="margin:10px 0">➕ Inserir lançamento</button>
+
 <div id="boxInsercao" class="topo" style="display:none">
 <input type="date" id="data">
 <input type="text" id="desc" placeholder="Descrição">
-<select id="mesBase">
-<option value="1">Jan</option><option value="2">Fev</option><option value="3">Mar</option>
-<option value="4">Abr</option><option value="5">Mai</option><option value="6">Jun</option>
-<option value="7">Jul</option><option value="8">Ago</option><option value="9">Set</option>
-<option value="10">Out</option><option value="11">Nov</option><option value="12">Dez</option>
-</select>
-<select id="tipo">
-<option>DESPESA</option>
-<option>RECEITA</option>
-</select>
-<select id="categoria">
-<option>GERAL</option>
-<option>CASA</option>
-<option>SAÚDE</option>
-<option>EDUCAÇÃO</option>
-<option>LAZER</option>
-</select>
-<select id="filtroPago" onchange="render()">
-<option value="">Todos</option>
-<option value="false">Pendentes</option>
-<option value="true">Pagos</option>
-</select>
+<select id="tipo"><option>DESPESA</option><option>RECEITA</option></select>
+<select id="categoria"><option>GERAL</option><option>CASA</option><option>SAÚDE</option><option>EDUCAÇÃO</option><option>LAZER</option></select>
 <input type="number" id="valor" placeholder="Valor">
 <button onclick="add()">Adicionar</button>
 <label><input type="checkbox" id="recorrente"> Recorrente</label>
 <input type="number" id="diaPadrao" placeholder="Dia" style="width:70px">
-<textarea id="importarTexto" placeholder="Cole aqui..." style="width:100%;height:120px;margin-top:10px"></textarea>
-<button onclick="importarTexto()">Importar automático</button>
-<button onclick="copiarMesAnterior()">Gerar base mês</button>
-<select id="filtroMes" onchange="render()">
-<option value="">Todos Meses</option>
-<option value="0">Jan</option><option value="1">Fev</option><option value="2">Mar</option>
-<option value="3">Abr</option><option value="4">Mai</option><option value="5">Jun</option>
-<option value="6">Jul</option><option value="7">Ago</option><option value="8">Set</option>
-<option value="9">Out</option><option value="10">Nov</option><option value="11">Dez</option>
-</select>
-<select id="filtroAno" onchange="render()">
-<option value="">Todos</option>
-<option>2026</option>
-<option>2027</option>
-</select>
-<select id="filtroTipo" onchange="render()">
-<option value="">Todos</option>
-<option>RECEITA</option>
-<option>DESPESA</option>
-</select>
 </div>
+
 <div id="resumo" class="resumo"></div>
-<button onclick="limparFiltros()" style="margin-top:10px">🔍 Ver todos os períodos</button>
-<canvas id="graficoResumo" style="max-height:160px"></canvas>
-<canvas id="graficoMensal" style="max-height:200px"></canvas>
+
 <h2 id="total"></h2>
-<button onclick="toggleValores()">👁 Mostrar/Ocultar valores</button>
-<div style="display:grid;grid-template-columns:100px 1fr 120px 120px;gap:10px;margin-top:20px;font-weight:bold">
-<div>Data</div><div>Descrição</div><div>Categoria</div><div>Valor</div>
+
+<div style="display:grid;grid-template-columns:100px 1fr 120px 140px 200px;gap:10px;margin-top:20px;font-weight:bold">
+<div>Data</div><div>Descrição</div><div>Categoria</div><div>Valor</div><div>Ações</div>
 </div>
+
 <div id="lista"></div>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <script>
+
 /* ====================================================000 – USUÁRIO FIXO==================================================== */
 const USUARIO_FIXO="admin"
 const SENHA_FIXA="123456"
@@ -132,9 +100,8 @@ function logout(){
 localStorage.removeItem("logado")
 location.reload()
 }
-/* ====================================================
-002 – ESTADO
-==================================================== */
+
+/* ====================================================002 – ESTADO==================================================== */
 let dados=[]
 let editando=null
 let mostrarValores=true
@@ -142,97 +109,65 @@ let visibilidade={}
 let graficoResumo=null
 let graficoMensal=null
 
-/* ====================================================
-003 – MÊS FINANCEIRO
-==================================================== */
+/* ====================================================003 – MÊS FINANCEIRO (CORRIGIDO SEM DATE)==================================================== */
 function getMesBase(x){
-return new Date(x.data).getMonth()
+if(!x.data)return 0
+const[ano,mes]=x.data.split("-")
+return Number(mes)-1
 }
-/* ====================================================
-004 – CARREGAR (PROTEGIDO)
-==================================================== */
+
+/* ====================================================004 – CARREGAR==================================================== */
 async function carregar(){
-
-const {data,error}=await db
-.from("lancamentos")
-.select("*")
-.order("data",{ascending:true})
-
-if(error){
-alert("Erro ao carregar")
-return
-}
-
+const {data,error}=await db.from("lancamentos").select("*").order("data",{ascending:true})
+if(error){alert("Erro ao carregar");return}
 dados=data||[]
-
 render()
 }
 
-/* ====================================================
-005 – SALVAR
-==================================================== */
+/* ====================================================005 – SALVAR==================================================== */
 async function salvarRegistro(obj){
-
 if(obj.id){
 await db.from("lancamentos").update(obj).eq("id",obj.id)
 }else{
 await db.from("lancamentos").insert(obj)
 }
-
 await carregar()
 }
 
-/* ====================================================
-006 – EXCLUIR
-==================================================== */
+/* ====================================================006 – EXCLUIR==================================================== */
 async function del(id){
 await db.from("lancamentos").delete().eq("id",id)
 await carregar()
 }
 
-/* ====================================================
-007 – MARCAR COMO PAGO (ÚNICA FUNÇÃO)
-==================================================== */
+/* ====================================================007 – MARCAR PAGO (DATA CORRETA)==================================================== */
 async function marcarPago(id){
-
 const item=dados.find(x=>String(x.id)===String(id))
 if(!item)return
-
 const novoStatus=!item.pago
-
-await db.from("lancamentos")
-.update({
+const hoje=new Date()
+const dataLocal=`${hoje.getFullYear()}-${String(hoje.getMonth()+1).padStart(2,"0")}-${String(hoje.getDate()).padStart(2,"0")}`
+await db.from("lancamentos").update({
 pago:novoStatus,
-data_pagamento:novoStatus ? new Date().toISOString().slice(0,10) : null
-})
-.eq("id",id)
-
+data_pagamento:novoStatus?dataLocal:null
+}).eq("id",id)
 await carregar()
 }
 
-/* ====================================================
-008 – EDITAR
-==================================================== */
+/* ====================================================008 – EDITAR==================================================== */
 function editarPorId(id){
-
 const x=dados.find(d=>String(d.id)===String(id))
 if(!x)return
-
 editando=x.id
-
 document.getElementById("data").value=x.data||""
 document.getElementById("desc").value=x.descricao||""
 document.getElementById("tipo").value=x.tipo||"DESPESA"
 document.getElementById("categoria").value=x.categoria||"GERAL"
 document.getElementById("valor").value=x.valor||0
-
 }
 
-/* ====================================================
-009 – ADD (ROBUSTO)
-==================================================== */
+/* ====================================================009 – ADD (SEM BUG DE DATA)==================================================== */
 async function add(){
-
 const dataEl=document.getElementById("data")
 const descEl=document.getElementById("desc")
 const tipoEl=document.getElementById("tipo")
@@ -240,70 +175,52 @@ const categoriaEl=document.getElementById("categoria")
 const valorEl=document.getElementById("valor")
 const recorrenteEl=document.getElementById("recorrente")
 const diaEl=document.getElementById("diaPadrao")
-
+const dataStr=normalizarDataLocal(dataEl.value)
 const obj={
-data:normalizarDataLocal(dataEl.value),
+data:dataStr,
 descricao:descEl.value.trim(),
 tipo:tipoEl.value,
 categoria:categoriaEl.value,
 valor:parseFloat(valorEl.value||0),
 recorrente:recorrenteEl?.checked||false,
 dia_padrao:parseInt(diaEl?.value)||null,
-dia_vencimento:new Date(dataEl.value).getDate(),
+dia_vencimento:dataStr?Number(dataStr.split("-")[2]):null,
 pago:false,
+estimativa:false,
 data_pagamento:null
 }
-
-if(!obj.data||!obj.descricao){
-alert("Preencha data e descrição")
-return
-}
-
-if(!obj.valor||obj.valor===0){
-alert("Valor inválido")
-return
-}
-
+if(!obj.data||!obj.descricao){alert("Preencha data e descrição");return}
+if(!obj.valor||obj.valor===0){alert("Valor inválido");return}
 if(editando){
 obj.id=editando
 editando=null
 await salvarRegistro(obj)
 return
 }
-
 await salvarRegistro(obj)
 }
 
-/* ====================================================
-010 – IMPORTADOR (CORRIGIDO)
-==================================================== */
+/* ====================================================010 – IMPORTADOR (SEM BUG DE DATA)==================================================== */
 async function importarTexto(){
-
 const txt=document.getElementById("importarTexto").value
 if(!txt)return
-
 const linhas=txt.split("\n")
-
 for(const l of linhas){
-
 const m=l.match(/(\d{2}\/\d{2})\s+(.+?)\s+([\d\.,]+)/)
 if(!m)continue
-
 let[dia,mes]=m[1].split("/")
 let valor=parseFloat(m[3].replace(/\./g,"").replace(",","."))
 let tipo=m[2].toUpperCase().includes("REMUNERA")?"RECEITA":"DESPESA"
-
 await db.from("lancamentos").insert({
 data:normalizarDataLocal(`2026-${mes}-${dia}`),
 descricao:m[2],
 tipo,
 categoria:"GERAL",
 valor,
-pago:false
+pago:false,
+estimativa:false
 })
-
 }
-
 await carregar()
 }
 /* ====================================================010 – RENDER (AGRUPADO POR MÊS – FINAL)==================================================== */
@@ -325,24 +242,12 @@ const[ano,mes]=x.data.split("-")
 return Number(mes)-1===mesAtual&&Number(ano)===anoAtual
 })
 }
-if(filtroInicio){
-listaFiltrada=listaFiltrada.filter(x=>x.data>=filtroInicio)
-}
-if(filtroFim){
-listaFiltrada=listaFiltrada.filter(x=>x.data<=filtroFim)
-}
-if(filtroPago!==""){
-listaFiltrada=listaFiltrada.filter(x=>String(x.pago)===filtroPago)
-}
-if(fMes!==""){
-listaFiltrada=listaFiltrada.filter(x=>getMesBase(x)==fMes)
-}
-if(fAno!==""){
-listaFiltrada=listaFiltrada.filter(x=>x.data.startsWith(fAno))
-}
-if(fTipo!==""){
-listaFiltrada=listaFiltrada.filter(x=>x.tipo===fTipo)
-}
+if(filtroInicio){listaFiltrada=listaFiltrada.filter(x=>x.data>=filtroInicio)}
+if(filtroFim){listaFiltrada=listaFiltrada.filter(x=>x.data<=filtroFim)}
+if(filtroPago!==""){listaFiltrada=listaFiltrada.filter(x=>String(x.pago)===filtroPago)}
+if(fMes!==""){listaFiltrada=listaFiltrada.filter(x=>getMesBase(x)==fMes)}
+if(fAno!==""){listaFiltrada=listaFiltrada.filter(x=>x.data.startsWith(fAno))}
+if(fTipo!==""){listaFiltrada=listaFiltrada.filter(x=>x.tipo===fTipo)}
 listaFiltrada.sort((a,b)=>(a.data||"").localeCompare(b.data||""))
 let saldo=0,r=0,d=0
 lista.innerHTML=""
@@ -352,324 +257,132 @@ const[ano,mes]=x.data.split("-")
 const chaveGrupo=`${mes}/${ano}`
 if(grupoAtual!==chaveGrupo){
 grupoAtual=chaveGrupo
-lista.innerHTML+=`
-<div style="margin-top:15px;font-weight:bold;background:#020617;padding:8px;border-radius:6px;border-left:4px solid #38bdf8">
-📅 ${formatarMesNome(mes)}/${ano}
-</div>
-`
+lista.innerHTML+=`<div style="margin-top:15px;font-weight:bold;background:#020617;padding:8px;border-radius:6px;border-left:4px solid #38bdf8">📅 ${formatarMesNome(mes)}/${ano}</div>`
 }
 if(x.tipo==="RECEITA"){saldo+=x.valor;r+=x.valor}else{saldo-=x.valor;d+=x.valor}
 lista.innerHTML+=`
-<div onclick="marcarPago('${x.id}')" style="display:grid;grid-template-columns:70px 1fr 90px 140px auto;gap:6px;background:${x.tipo==="RECEITA"?"#052e16":"#1e293b"};padding:6px;margin:3px 0;border-radius:6px;align-items:center;border-left:4px solid ${x.tipo==="RECEITA"?"#22c55e":"#ef4444"};font-size:13px;cursor:pointer;transition:0.2s">
-<div style="font-size:12px;color:#94a3b8">${formatarDataBR(x.data)}</div>
-<div>${x.descricao}</div>
+<div onclick="marcarPago('${x.id}')" style="display:grid;grid-template-columns:70px 1fr 90px 140px auto;gap:6px;background:${x.pago?"#052e16":"#1e293b"};padding:6px;margin:3px 0;border-radius:6px;align-items:center;border-left:4px solid ${x.tipo==="RECEITA"?"#22c55e":"#ef4444"};font-size:13px;cursor:pointer">
+<div style="font-size:12px;color:#94a3b8">${formatarDataBR(x.data)}<br>${x.pago?"🟢 Pago":"🔴 Pendente"} ${x.estimativa?"🟡 Estimativa":""}</div>
+<input value="${x.descricao}" onchange="event.stopPropagation();editarCampo('${x.id}','descricao',this.value)">
 <div style="font-size:12px;color:#94a3b8">${x.categoria}</div>
-<div style="display:flex;justify-content:flex-end;gap:6px">
-<span style="min-width:90px;text-align:right">${visibilidade[x.id]===false?"••••":"R$ "+formatarMoeda(x.valor)}</span>
-<button onclick="event.stopPropagation();toggleValor('${x.id}')">👁</button>
-</div>
+<input type="number" value="${x.valor}" onchange="event.stopPropagation();editarCampo('${x.id}','valor',this.value)" style="width:90px;background:#020617;color:#fff">
 <div style="display:flex;gap:4px">
+<button onclick="event.stopPropagation();toggleEstimativa('${x.id}')" style="background:#eab308">E</button>
 <button class="edit" onclick="event.stopPropagation();editarPorId('${x.id}')">✏️</button>
 <button class="delete" onclick="event.stopPropagation();del('${x.id}')">🗑️</button>
 </div>
-</div>
-`
+</div>`
 })
 const titulo=(filtroInicio||filtroFim)?"📊 Período Selecionado":(modoAnoCompleto?"📊 Ano Completo":"📊 Mês Atual")
 totalEl.innerText="Saldo: R$ "+formatarMoeda(saldo)
-resumoEl.innerHTML=`
-<div style="font-size:18px;font-weight:bold">${titulo}</div>
-<div>💰 Receitas: R$ ${formatarMoeda(r)}</div>
-<div>💸 Despesas: R$ ${formatarMoeda(d)}</div>
-<div>📉 Saldo: R$ ${formatarMoeda(saldo)}</div>
-`
+resumoEl.innerHTML=`<div style="font-size:18px;font-weight:bold">${titulo}</div><div>💰 Receitas: R$ ${formatarMoeda(r)}</div><div>💸 Despesas: R$ ${formatarMoeda(d)}</div><div>📉 Saldo: R$ ${formatarMoeda(saldo)}</div>`
 atualizarDashboard()
 }
-/* ====================================================
-011 – FORMATADORES
-==================================================== */
-function formatarMoeda(v){
-return Number(v||0).toLocaleString("pt-BR",{minimumFractionDigits:2})
-}
-
-function formatarDataBR(d){
-if(!d)return ""
-const [ano,mes,dia]=d.split("-")
-return `${dia}/${mes}/${ano}`
-}
-
-/* ====================================================
-012 – TOGGLE ITEM
-==================================================== */
-function toggleValor(id){
-visibilidade[id]=!visibilidade[id]
-render()
-}
-
-/* ====================================================
-013 – DASHBOARD (CORRIGIDO)
-==================================================== */
+/* ====================================================011 – FORMATADORES==================================================== */
+function formatarMoeda(v){return Number(v||0).toLocaleString("pt-BR",{minimumFractionDigits:2})}
+function formatarDataBR(d){if(!d)return"";const[ano,mes,dia]=d.split("-");return`${dia}/${mes}/${ano}`}
+/* ====================================================012 – TOGGLE ITEM==================================================== */
+function toggleValor(id){visibilidade[id]=!visibilidade[id];render()}
+/* ====================================================013 – DASHBOARD==================================================== */
 function atualizarDashboard(){
-
 if(graficoResumo)graficoResumo.destroy()
 if(graficoMensal)graficoMensal.destroy()
-
 let r=0,d=0,meses={}
-
 dados.forEach(x=>{
 let m=getMesBase(x)
-
 if(!meses[m])meses[m]={r:0,d:0}
-
-if(x.tipo==="RECEITA"){
-r+=x.valor
-meses[m].r+=x.valor
-}else{
-d+=x.valor
-meses[m].d+=x.valor
-}
+if(x.tipo==="RECEITA"){r+=x.valor;meses[m].r+=x.valor}else{d+=x.valor;meses[m].d+=x.valor}
 })
-
-/* 🔹 RESUMO */
-graficoResumo=new Chart(
-document.getElementById("graficoResumo"),
-{
-type:"doughnut",
-data:{
-labels:["Receitas","Despesas"],
-datasets:[{
-data:[r,d],
-backgroundColor:["#22c55e","#ef4444"]
-}]
-},
-options:{
-responsive:true,
-maintainAspectRatio:false
+graficoResumo=new Chart(document.getElementById("graficoResumo"),{type:"doughnut",data:{labels:["Receitas","Despesas"],datasets:[{data:[r,d],backgroundColor:["#22c55e","#ef4444"]}]},options:{responsive:true,maintainAspectRatio:false}})
+graficoMensal=new Chart(document.getElementById("graficoMensal"),{type:"bar",data:{labels:["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"],datasets:[{label:"Receitas",data:Array.from({length:12},(_,i)=>meses[i]?.r||0),backgroundColor:"#22c55e"},{label:"Despesas",data:Array.from({length:12},(_,i)=>meses[i]?.d||0),backgroundColor:"#ef4444"}]},options:{responsive:true,maintainAspectRatio:false}})
 }
-}
-)
-
-/* 🔹 MENSAL */
-graficoMensal=new Chart(
-document.getElementById("graficoMensal"),
-{
-type:"bar",
-data:{
-labels:["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"],
-datasets:[
-{
-label:"Receitas",
-data:Array.from({length:12},(_,i)=>meses[i]?.r||0),
-backgroundColor:"#22c55e"
-},
-{
-label:"Despesas",
-data:Array.from({length:12},(_,i)=>meses[i]?.d||0),
-backgroundColor:"#ef4444"
-}
-]
-},
-options:{
-responsive:true,
-maintainAspectRatio:false
-}
-}
-)
-
-}
-
-/* ====================================================
-014 – COPIAR MÊS (SEM DUPLICAR)
-==================================================== */
+/* ====================================================014 – COPIAR MÊS==================================================== */
 async function copiarMesAnterior(){
-
 const ano=new Date().getFullYear()
 const mes=parseInt(document.getElementById("mesBase").value)-1
 const mesAnterior=mes-1
-
-if(mesAnterior<0){
-alert("Sem mês anterior")
-return
-}
-
-/* 🔹 BUSCA */
-const {data:anteriores}=await db.from("lancamentos").select("*")
-.gte("data",`${ano}-${String(mesAnterior+1).padStart(2,"0")}-01`)
-.lte("data",`${ano}-${String(mesAnterior+1).padStart(2,"0")}-31`)
-
-/* 🔹 EXISTENTES */
-const {data:atuais}=await db.from("lancamentos").select("*")
-.gte("data",`${ano}-${String(mes+1).padStart(2,"0")}-01`)
-.lte("data",`${ano}-${String(mes+1).padStart(2,"0")}-31`)
-
+if(mesAnterior<0){alert("Sem mês anterior");return}
+const {data:anteriores}=await db.from("lancamentos").select("*").gte("data",`${ano}-${String(mesAnterior+1).padStart(2,"0")}-01`).lte("data",`${ano}-${String(mesAnterior+1).padStart(2,"0")}-31`)
+const {data:atuais}=await db.from("lancamentos").select("*").gte("data",`${ano}-${String(mes+1).padStart(2,"0")}-01`).lte("data",`${ano}-${String(mes+1).padStart(2,"0")}-31`)
 const existentes=new Set((atuais||[]).map(x=>x.descricao))
-
 for(const x of (anteriores||[])){
-
 if(!existentes.has(x.descricao)){
-
-await db.from("lancamentos").insert({
-data:`${ano}-${String(mes+1).padStart(2,"0")}-${String(new Date(x.data).getDate()).padStart(2,"0")}`,
-descricao:x.descricao,
-tipo:x.tipo,
-categoria:x.categoria,
-valor:x.valor,
-pago:false
-})
-
+const dia=x.data.split("-")[2]
+await db.from("lancamentos").insert({data:`${ano}-${String(mes+1).padStart(2,"0")}-${dia}`,descricao:x.descricao,tipo:x.tipo,categoria:x.categoria,valor:x.valor,pago:false})
 }
-
 }
-
 alert("Mês criado com sucesso")
 await carregar()
 }
-/* ====================================================
-015 – RECORRÊNCIA (ANTI-DUPLICAÇÃO PROFISSIONAL)
-==================================================== */
+/* ====================================================015 – RECORRÊNCIA==================================================== */
 async function gerarRecorrentes(){
-
 const hoje=new Date()
 const ano=hoje.getFullYear()
 const mes=hoje.getMonth()+1
-
-const {data:rec,error}=await db
-.from("lancamentos")
-.select("*")
-.eq("recorrente",true)
-
+const {data:rec,error}=await db.from("lancamentos").select("*").eq("recorrente",true)
 if(error)return
-
 for(const r of (rec||[])){
-
 let dia=r.dia_padrao||1
-
 let novaData=`${ano}-${String(mes).padStart(2,"0")}-${String(dia).padStart(2,"0")}`
-
-/* 🔹 VERIFICA EXISTÊNCIA COMPLETA */
-const existe=dados.find(x=>
-x.descricao===r.descricao &&
-x.tipo===r.tipo &&
-x.categoria===r.categoria &&
-x.data===novaData
-)
-
+const existe=dados.find(x=>x.descricao===r.descricao&&x.tipo===r.tipo&&x.categoria===r.categoria&&x.data===novaData)
 if(!existe){
-
-await db.from("lancamentos").insert({
-data:novaData,
-descricao:r.descricao,
-tipo:r.tipo,
-categoria:r.categoria,
-valor:r.valor,
-recorrente:true,
-dia_padrao:dia,
-pago:false,
-data_pagamento:null,
-dia_vencimento:dia
-})
-
+await db.from("lancamentos").insert({data:novaData,descricao:r.descricao,tipo:r.tipo,categoria:r.categoria,valor:r.valor,recorrente:true,dia_padrao:dia,pago:false,estimativa:false,data_pagamento:null,dia_vencimento:dia})
+}
+}
 }
 
-}
+/* ====================================================016 – TOGGLE GLOBAL==================================================== */
+function toggleValores(){mostrarValores=!mostrarValores;render()}
 
-}
+/* ====================================================017 – LOGOUT==================================================== */
+function logout(){localStorage.removeItem("logado");location.reload()}
 
-/* ====================================================
-016 – TOGGLE GLOBAL
-==================================================== */
-function toggleValores(){
-mostrarValores=!mostrarValores
-render()
-}
+/* ====================================================018 – START==================================================== */
+async function iniciarSistema(){await verificarSessao();await gerarRecorrentes()}
 
-/* ====================================================017 – LOGOUT (SIMPLES 1 USUÁRIO)==================================================== */
-function logout(){
-localStorage.removeItem("logado")
-location.reload()
-}
-/* ====================================================
-018 – START SISTEMA
-==================================================== */
-async function iniciarSistema(){
-await verificarSessao()   // 🔥 garante login
-await gerarRecorrentes()  // 🔥 gera automáticos
-}
 /* ====================================================019 – TOGGLE INSERÇÃO==================================================== */
-function toggleInsercao(){
-const el=document.getElementById("boxInsercao")
-if(!el)return
-el.style.display=el.style.display==="none"?"flex":"none"
-}
-/* ====================================================020 – LIMPAR FILTROS==================================================== */
-function limparFiltros(){
-document.getElementById("filtroMes").value=""
-document.getElementById("filtroAno").value=""
-render()
-}
-/* ====================================================021 – NORMALIZAR DATA LOCAL==================================================== */
-function normalizarDataLocal(dataStr){
-if(!dataStr)return null
-const [ano,mes,dia]=dataStr.split("-")
-return `${ano}-${mes}-${dia}`
-}
-/* 🔥 INICIALIZAÇÃO */
-document.addEventListener("DOMContentLoaded", iniciarSistema)
-/* ====================================================22 – FILTRO PERÍODO==================================================== */
+function toggleInsercao(){const el=document.getElementById("boxInsercao");if(!el)return;el.style.display=el.style.display==="none"?"flex":"none"}
+
+/* ====================================================020 – LIMPAR FILTROS (ANO COMPLETO)==================================================== */
+function limparFiltros(){modoAnoCompleto=true;document.getElementById("filtroMes").value="";document.getElementById("filtroAno").value="";filtroInicio=null;filtroFim=null;document.getElementById("dataInicio").value="";document.getElementById("dataFim").value="";render()}
+/* ====================================================021 – NORMALIZAR DATA==================================================== */
+function normalizarDataLocal(dataStr){if(!dataStr)return null;const[ano,mes,dia]=dataStr.split("-");return`${ano}-${mes}-${dia}`}
+/* ====================================================022 – FILTRO PERÍODO==================================================== */
 let filtroInicio=null
 let filtroFim=null
-function filtrarPeriodo(){
-filtroInicio=document.getElementById("dataInicio").value||null
-filtroFim=document.getElementById("dataFim").value||null
-render()
-}
-function limparPeriodo(){
-filtroInicio=null
-filtroFim=null
-document.getElementById("dataInicio").value=""
-document.getElementById("dataFim").value=""
-render()
-}
-/* ====================================================023 – RESUMO PERÍODO COMPLETO==================================================== */
+function filtrarPeriodo(){filtroInicio=document.getElementById("dataInicio").value||null;filtroFim=document.getElementById("dataFim").value||null;modoAnoCompleto=false;render()}
+function limparPeriodo(){filtroInicio=null;filtroFim=null;document.getElementById("dataInicio").value="";document.getElementById("dataFim").value="";render()}
+/* ====================================================023 – RESUMO PERÍODO==================================================== */
 function calcularResumoPeriodo(){
 let listaFiltrada=[...dados]
-if(filtroInicio){
-listaFiltrada=listaFiltrada.filter(x=>x.data>=filtroInicio)
-}
-if(filtroFim){
-listaFiltrada=listaFiltrada.filter(x=>x.data<=filtroFim)
-}
+if(filtroInicio){listaFiltrada=listaFiltrada.filter(x=>x.data>=filtroInicio)}
+if(filtroFim){listaFiltrada=listaFiltrada.filter(x=>x.data<=filtroFim)}
 let r=0,d=0
-listaFiltrada.forEach(x=>{
-if(x.tipo==="RECEITA"){r+=x.valor}else{d+=x.valor}
-})
+listaFiltrada.forEach(x=>{if(x.tipo==="RECEITA"){r+=x.valor}else{d+=x.valor}})
 return{receitas:r,despesas:d,saldo:r-d}
 }
-
-/* ====================================================024 – MOSTRAR TODOS OS PERÍODOS (CORRIGIDO)==================================================== */
-function limparFiltros(){
-modoAnoCompleto=true
-document.getElementById("filtroMes").value=""
-document.getElementById("filtroAno").value=""
-filtroInicio=null
-filtroFim=null
-document.getElementById("dataInicio").value=""
-document.getElementById("dataFim").value=""
-render()
-}
-/* ====================================================025 – MODO VISUALIZAÇÃO==================================================== */
+/* ====================================================024 – MODO VISUAL==================================================== */
 let modoAnoCompleto=false
-/* ====================================================026 – MODO MES ATUAL==================================================== */
-function modoMesAtual(){
-modoAnoCompleto=false
-render()
+/* ====================================================025 – MÊS ATUAL==================================================== */
+function modoMesAtual(){modoAnoCompleto=false;filtroInicio=null;filtroFim=null;render()}
+/* ====================================================026 – NOME MÊS==================================================== */
+function formatarMesNome(m){const meses=["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"];return meses[Number(m)-1]||m}
+/* ====================================================027 – EDITAR CAMPO==================================================== */
+async function editarCampo(id,campo,valor){
+if(campo==="valor")valor=parseFloat(valor||0)
+await db.from("lancamentos").update({[campo]:valor}).eq("id",id)
+await carregar()
 }
-/* ====================================================027 MEES NOME==================================================== */
-function formatarMesNome(m){
-const meses=["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"]
-return meses[Number(m)-1]||m
+/* ====================================================028 – ESTIMATIVA==================================================== */
+async function toggleEstimativa(id){
+const item=dados.find(x=>String(x.id)===String(id))
+if(!item)return
+await db.from("lancamentos").update({estimativa:!item.estimativa}).eq("id",id)
+await carregar()
 }
 
+/* 🔥 INICIALIZAÇÃO */
+document.addEventListener("DOMContentLoaded",iniciarSistema)
   
 </script>
 
