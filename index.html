@@ -30,6 +30,7 @@ button{cursor:pointer;background:#22c55e;color:#000}
 <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:10px">
 <input type="date" id="dataInicio">
 <input type="date" id="dataFim">
+<button onclick="modoMesAtual()">📅 Voltar para mês atual</button>
 <button onclick="filtrarPeriodo()">📅 Filtrar</button>
 <button onclick="limparPeriodo()">❌ Limpar</button>
 </div>
@@ -321,7 +322,7 @@ const hoje=new Date()
 const mesAtual=hoje.getMonth()
 const anoAtual=hoje.getFullYear()
 /* 🔹 PADRÃO: MÊS ATUAL */
-if(!fMes){
+if(!fMes && !modoAnoCompleto && !filtroInicio && !filtroFim){
 listaFiltrada=listaFiltrada.filter(x=>{
 const [ano,mes]=x.data.split("-")
 return Number(mes)-1===mesAtual && Number(ano)===anoAtual
@@ -643,24 +644,25 @@ return{receitas:r,despesas:d,saldo:r-d}
 
 /* ====================================================024 – MOSTRAR TODOS OS PERÍODOS (CORRIGIDO)==================================================== */
 function limparFiltros(){
+modoAnoCompleto=true
 document.getElementById("filtroMes").value=""
 document.getElementById("filtroAno").value=""
 filtroInicio=null
 filtroFim=null
 document.getElementById("dataInicio").value=""
 document.getElementById("dataFim").value=""
-const resumoEl=document.getElementById("resumo")
-const r=calcularResumoPeriodo()
-resumoEl.innerHTML=`
-<div style="font-size:18px;font-weight:bold">📊 Todos os Períodos</div>
-<div>💰 Receitas: R$ ${formatarMoeda(r.receitas)}</div>
-<div>💸 Despesas: R$ ${formatarMoeda(r.despesas)}</div>
-<div>📉 Saldo: R$ ${formatarMoeda(r.saldo)}</div>
-`
+render()
+}
+/* ====================================================025 – MODO VISUALIZAÇÃO==================================================== */
+let modoAnoCompleto=false
+/* ====================================================026 – MODO MES ATUAL==================================================== */
+function modoMesAtual(){
+modoAnoCompleto=false
 render()
 }
 
 
+  
 </script>
 
 </body>
