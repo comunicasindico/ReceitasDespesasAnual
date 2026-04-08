@@ -85,13 +85,6 @@ const SENHA_FIXA="123456"
 const SUPABASE_URL="https://gspdlrenyrzbkxlvyugc.supabase.co"
 const SUPABASE_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdzcGRscmVueXJ6Ymt4bHZ5dWdjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ4ODU0NzAsImV4cCI6MjA5MDQ2MTQ3MH0.UWfkWvOh4qMDEcByVL-KZ6ejJ80V7wJlDOFH76TywaI"
 const db=supabase.createClient(SUPABASE_URL,SUPABASE_KEY)
-/* ====================================================000 – USUÁRIO FIXO==================================================== */
-const USUARIO_FIXO="admin"
-const SENHA_FIXA="123456"
-/* ====================================================001 – CONFIG==================================================== */
-const SUPABASE_URL="https://gspdlrenyrzbkxlvyugc.supabase.co"
-const SUPABASE_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdzcGRscmVueXJ6Ymt4bHZ5dWdjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ4ODU0NzAsImV4cCI6MjA5MDQ2MTQ3MH0.UWfkWvOh4qMDEcByVL-KZ6ejJ80V7wJlDOFH76TywaI"
-const db=supabase.createClient(SUPABASE_URL,SUPABASE_KEY)
 /* ====================================================002 – ESTADO==================================================== */
 let dados=[]
 let editando=null
@@ -126,8 +119,6 @@ carregar()
 document.getElementById("telaLogin").style.display="flex"
 }
 }
-
-
 /* ====================================================005 – LOGOUT==================================================== */
 function logout(){localStorage.removeItem("logado");location.reload()}
 /* ====================================================006 – CARREGAR==================================================== */
@@ -161,14 +152,14 @@ const dataLocal=`${hoje.getFullYear()}-${String(hoje.getMonth()+1).padStart(2,"0
 await db.from("lancamentos").update({pago:novoStatus,data_pagamento:novoStatus?dataLocal:null}).eq("id",id)
 await carregar()
 }
-/* ====================================================009A – TOGGLE ESTIMATIVA==================================================== */
+/* ====================================================010 – TOGGLE ESTIMATIVA==================================================== */
 async function toggleEstimativa(id){
 const item=dados.find(x=>String(x.id)===String(id))
 if(!item)return
 await db.from("lancamentos").update({estimativa:!item.estimativa}).eq("id",id)
 await carregar()
 }
-/* ====================================================010 – EDITAR==================================================== */
+/* ====================================================011 – EDITAR==================================================== */
 function editarPorId(id){
 const x=dados.find(d=>String(d.id)===String(id))
 if(!x)return
@@ -179,7 +170,7 @@ document.getElementById("tipo").value=x.tipo||"DESPESA"
 document.getElementById("categoria").value=x.categoria||"GERAL"
 document.getElementById("valor").value=x.valor||0
 }
-/* ====================================================011 – ADD==================================================== */
+/* ====================================================012 – ADD==================================================== */
 async function add(){
 const dataEl=document.getElementById("data")
 const descEl=document.getElementById("desc")
@@ -207,30 +198,30 @@ if(!obj.valor||obj.valor===0){alert("Valor inválido");return}
 if(editando){obj.id=editando;editando=null;await salvarRegistro(obj);return}
 await salvarRegistro(obj)
 }
-/* ====================================================012 – NORMALIZAR DATA==================================================== */
+/* ====================================================013 – NORMALIZAR DATA==================================================== */
 function normalizarDataLocal(dataStr){if(!dataStr)return null;const[ano,mes,dia]=dataStr.split("-");return`${ano}-${mes}-${dia}`}
-/* ====================================================013 – FORMATADORES==================================================== */
+/* ====================================================014 – FORMATADORES==================================================== */
 function formatarMoeda(v){return Number(v||0).toLocaleString("pt-BR",{minimumFractionDigits:2})}
 function formatarDataBR(d){if(!d)return"";const[ano,mes,dia]=d.split("-");return`${dia}/${mes}/${ano}`}
-/* ====================================================014 – MÊS BASE==================================================== */
+/* ====================================================015 – MÊS BASE==================================================== */
 function getMesBase(x){
 if(!x.data)return
 const[ano,mes]=x.data.split("-")
 return Number(mes)-1
 }
-/* ====================================================015 – MODO EDIÇÃO==================================================== */
+/* ====================================================016 – MODO EDIÇÃO==================================================== */
 function toggleModoEdicao(){
 modoEdicao=!modoEdicao
 document.getElementById("btnSalvar").style.display=modoEdicao?"inline-block":"none"
 document.getElementById("btnEditar").innerText=modoEdicao?"❌ Cancelar":"✏️ Editar"
 render()
 }
-/* ====================================================016 – EDIT TEMP==================================================== */
+/* ====================================================017 – EDIT TEMP==================================================== */
 function editTemp(id,campo,valor){
 if(!edicoesTemp[id])edicoesTemp[id]={}
 edicoesTemp[id][campo]=valor
 }
-/* ====================================================017 – SALVAR EDIÇÃO==================================================== */
+/* ====================================================018 – SALVAR EDIÇÃO==================================================== */
 async function salvarEdicao(id){
 const original=dados.find(x=>String(x.id)===String(id))
 if(!original)return
@@ -240,9 +231,9 @@ await db.from("lancamentos").update(atualizado).eq("id",id)
 delete edicoesTemp[id]
 await carregar()
 }
-/* ====================================================018 – TOGGLE ITEM==================================================== */
+/* ====================================================019 – TOGGLE ITEM==================================================== */
 function toggleValor(id){visibilidade[id]=!visibilidade[id];render()}
-/* ====================================================019 – APLICAR OFFSET==================================================== */
+/* ====================================================020 – APLICAR OFFSET==================================================== */
 function aplicarMesOffset(){
 const hoje=new Date()
 const data=new Date(hoje.getFullYear(),hoje.getMonth()+mesOffset,1)
@@ -251,7 +242,7 @@ filtroFim=new Date(data.getFullYear(),data.getMonth()+1,0).toISOString().slice(0
 modoAnoCompleto=false
 render()
 }
-/* ====================================================020 – RENDER==================================================== */
+/* ====================================================021 – RENDER==================================================== */
 function render(){
 const lista=document.getElementById("lista")
 const totalEl=document.getElementById("total")
@@ -302,7 +293,7 @@ totalEl.innerText=""
 resumoEl.innerHTML=`<div style="font-size:16px;font-weight:bold">📅 ${modoAnoCompleto?"Ano Completo":formatarMesNome((new Date().getMonth()+1))+"/"+new Date().getFullYear()}</div>`
 if(mostrarGrafico){atualizarDashboard()}
 }
-/* ====================================================021 – DASHBOARD==================================================== */
+/* ====================================================022 – DASHBOARD==================================================== */
 function atualizarDashboard(){
 if(typeof Chart==="undefined")return
 const ctxResumo=document.getElementById("graficoResumo").getContext("2d")
@@ -318,7 +309,7 @@ if(x.tipo==="RECEITA"){r+=x.valor;meses[m].r+=x.valor}else{d+=x.valor;meses[m].d
 graficoResumo=new Chart(ctxResumo,{type:"doughnut",data:{labels:["Receitas","Despesas"],datasets:[{data:[r,d]}]}})
 graficoMensal=new Chart(ctxMensal,{type:"bar",data:{labels:["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"],datasets:[{label:"Receitas",data:Array.from({length:12},(_,i)=>meses[i]?.r||0)},{label:"Despesas",data:Array.from({length:12},(_,i)=>meses[i]?.d||0)}]}})
 }
-/* ====================================================022 – COPIAR MÊS==================================================== */
+/* ====================================================023 – COPIAR MÊS==================================================== */
 async function copiarMesAnterior(){
 const ano=new Date().getFullYear()
 const mes=parseInt(document.getElementById("mesBase")?.value||new Date().getMonth()+1)-1
@@ -336,14 +327,14 @@ await db.from("lancamentos").insert({data:`${ano}-${String(mes+1).padStart(2,"0"
 alert("Mês criado com sucesso")
 await carregar()
 }
-/* ====================================================023 – FILTRO PERÍODO==================================================== */
+/* ====================================================024 – FILTRO PERÍODO==================================================== */
 function filtrarPeriodo(){
 filtroInicio=document.getElementById("dataInicio").value||null
 filtroFim=document.getElementById("dataFim").value||null
 modoAnoCompleto=false
 render()
 }
-/* ====================================================024 – LIMPAR PERÍODO==================================================== */
+/* ====================================================025 – LIMPAR PERÍODO==================================================== */
 function limparPeriodo(){
 filtroInicio=null
 filtroFim=null
@@ -351,7 +342,7 @@ document.getElementById("dataInicio").value=""
 document.getElementById("dataFim").value=""
 render()
 }
-/* ====================================================025 – LIMPAR FILTROS==================================================== */
+/* ====================================================026 – LIMPAR FILTROS==================================================== */
 function limparFiltros(){
 modoAnoCompleto=true
 filtroInicio=null
@@ -360,13 +351,13 @@ document.getElementById("dataInicio").value=""
 document.getElementById("dataFim").value=""
 render()
 }
-/* ====================================================026 – TOGGLE INSERÇÃO==================================================== */
+/* ====================================================027 – TOGGLE INSERÇÃO==================================================== */
 function toggleInsercao(){
 const el=document.getElementById("boxInsercao")
 if(!el)return
 el.style.display=el.style.display==="none"?"flex":"none"
 }
-/* ====================================================027 – TOGGLE GRAFICO==================================================== */
+/* ====================================================028 – TOGGLE GRAFICO==================================================== */
 function toggleGrafico(){
 mostrarGrafico=!mostrarGrafico
 const g1=document.getElementById("graficoResumo")
@@ -374,7 +365,7 @@ const g2=document.getElementById("graficoMensal")
 if(g1)g1.style.display=mostrarGrafico?"block":"none"
 if(g2)g2.style.display=mostrarGrafico?"block":"none"
 }
-/* ====================================================028 – MODO MÊS ATUAL==================================================== */
+/* ====================================================029 – MODO MÊS ATUAL==================================================== */
 function modoMesAtual(){
 mesOffset=0
 modoAnoCompleto=false
@@ -382,7 +373,7 @@ filtroInicio=null
 filtroFim=null
 render()
 }
-/* ====================================================029 – MÊS ANTERIOR==================================================== */
+/* ====================================================030 – MÊS ANTERIOR==================================================== */
 function mesAnterior(){
 mesOffset--
 const hoje=new Date()
@@ -392,7 +383,7 @@ filtroFim=new Date(data.getFullYear(),data.getMonth()+1,0).toISOString().slice(0
 modoAnoCompleto=false
 render()
 }
-/* ====================================================030 – SALVAR TUDO==================================================== */
+/* ====================================================031 – SALVAR TUDO==================================================== */
 async function salvarTudo(){
 for(const id in edicoesTemp){
 const original=dados.find(x=>String(x.id)===String(id))
@@ -407,12 +398,12 @@ document.getElementById("btnSalvar").style.display="none"
 document.getElementById("btnEditar").innerText="✏️ Editar"
 await carregar()
 }
-/* ====================================================031 – NOME DO MÊS==================================================== */
+/* ====================================================032 – NOME DO MÊS==================================================== */
 function formatarMesNome(m){
 const meses=["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"]
 return meses[Number(m)-1]||m
 }
-/* ====================================================032 – RESUMO PERÍODO==================================================== */
+/* ====================================================033 – RESUMO PERÍODO==================================================== */
 function calcularResumoPeriodo(){
 let listaFiltrada=[...dados]
 if(filtroInicio){listaFiltrada=listaFiltrada.filter(x=>x.data>=filtroInicio)}
@@ -421,18 +412,18 @@ let r=0,d=0
 listaFiltrada.forEach(x=>{if(x.tipo==="RECEITA"){r+=x.valor}else{d+=x.valor}})
 return{receitas:r,despesas:d,saldo:r-d}
 }
-/* ====================================================033 – TOGGLE VALORES==================================================== */
+/* ====================================================034 – TOGGLE VALORES==================================================== */
 function toggleValores(){
 mostrarValores=!mostrarValores
 render()
 }
-/* ====================================================034 – EDITAR CAMPO==================================================== */
+/* ====================================================035 – EDITAR CAMPO==================================================== */
 async function editarCampo(id,campo,valor){
 if(campo==="valor")valor=parseFloat(valor||0)
 await db.from("lancamentos").update({[campo]:valor}).eq("id",id)
 await carregar()
 }
-/* ====================================================035 – RECORRÊNCIA==================================================== */
+/* ====================================================036 – RECORRÊNCIA==================================================== */
 async function gerarRecorrentes(){
 const hoje=new Date()
 const ano=hoje.getFullYear()
@@ -448,7 +439,7 @@ await db.from("lancamentos").insert({data:nova,descricao:r.descricao,tipo:r.tipo
 }
 }
 }
-/* ====================================================036 – INICIAR SISTEMA==================================================== */
+/* ====================================================037 – INICIAR SISTEMA==================================================== */
 async function iniciarSistema(){
 await verificarSessao()
 await gerarRecorrentes()
@@ -456,7 +447,7 @@ await carregar()
 const dataInput=document.getElementById("data")
 if(dataInput)dataInput.value=new Date().toISOString().slice(0,10)
 }
-/* ====================================================037 – EVENTO START==================================================== */
+/* ====================================================038 – EVENTO START==================================================== */
 document.addEventListener("DOMContentLoaded",iniciarSistema)
 
   
