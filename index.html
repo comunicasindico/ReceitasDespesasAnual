@@ -85,32 +85,13 @@ const SENHA_FIXA="123456"
 const SUPABASE_URL="https://gspdlrenyrzbkxlvyugc.supabase.co"
 const SUPABASE_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdzcGRscmVueXJ6Ymt4bHZ5dWdjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ4ODU0NzAsImV4cCI6MjA5MDQ2MTQ3MH0.UWfkWvOh4qMDEcByVL-KZ6ejJ80V7wJlDOFH76TywaI"
 const db=supabase.createClient(SUPABASE_URL,SUPABASE_KEY)
-/* ====================================================001A – LOGIN SIMPLES 1 USUÁRIO==================================================== */
-function loginSistema(){
-const user=document.getElementById("loginUser").value.trim()
-const pass=document.getElementById("loginPass").value.trim()
-if(user===USUARIO_FIXO&&pass===SENHA_FIXA){
-localStorage.setItem("logado","sim")
-document.getElementById("telaLogin").style.display="none"
-carregar()
-}else{
-alert("Login inválido")
-}
-}
-function verificarSessao(){
-const ok=localStorage.getItem("logado")
-if(ok==="sim"){
-document.getElementById("telaLogin").style.display="none"
-carregar()
-}else{
-document.getElementById("telaLogin").style.display="flex"
-}
-}
-function logout(){
-localStorage.removeItem("logado")
-location.reload()
-}
-
+/* ====================================================000 – USUÁRIO FIXO==================================================== */
+const USUARIO_FIXO="admin"
+const SENHA_FIXA="123456"
+/* ====================================================001 – CONFIG==================================================== */
+const SUPABASE_URL="https://gspdlrenyrzbkxlvyugc.supabase.co"
+const SUPABASE_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdzcGRscmVueXJ6Ymt4bHZ5dWdjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ4ODU0NzAsImV4cCI6MjA5MDQ2MTQ3MH0.UWfkWvOh4qMDEcByVL-KZ6ejJ80V7wJlDOFH76TywaI"
+const db=supabase.createClient(SUPABASE_URL,SUPABASE_KEY)
 /* ====================================================002 – ESTADO==================================================== */
 let dados=[]
 let editando=null
@@ -120,44 +101,43 @@ let graficoResumo=null
 let graficoMensal=null
 let modoEdicao=false
 let edicoesTemp={}
-/* ===============================================002A MODO EDICAO EDIT TEMP SALVAREDICAO======================================= */
-function toggleModoEdicao(){
-modoEdicao=!modoEdicao
-document.getElementById("btnSalvar").style.display=modoEdicao?"inline-block":"none"
-document.getElementById("btnEditar").innerText=modoEdicao?"❌ Cancelar":"✏️ Editar"
-render()
+let filtroInicio=null
+let filtroFim=null
+let modoAnoCompleto=false
+let mesOffset=0
+let mostrarGrafico=true
+/* ====================================================003 – LOGIN==================================================== */
+function loginSistema(){
+const user=document.getElementById("loginUser").value.trim()
+const pass=document.getElementById("loginPass").value.trim()
+if(user===USUARIO_FIXO&&pass===SENHA_FIXA){
+localStorage.setItem("logado","sim")
+document.getElementById("telaLogin").style.display="none"
+carregar()
+}else{alert("Login inválido")}
 }
-function editTemp(id,campo,valor){
-if(!edicoesTemp[id])edicoesTemp[id]={}
-edicoesTemp[id][campo]=valor
+/* ====================================================004 – SESSÃO==================================================== */
+function verificarSessao(){
+const ok=localStorage.getItem("logado")
+if(ok==="sim"){
+document.getElementById("telaLogin").style.display="none"
+carregar()
+}else{
+document.getElementById("telaLogin").style.display="flex"
 }
-async function salvarEdicao(id){
-const original=dados.find(x=>String(x.id)===String(id))
-if(!original)return
-const alteracoes=edicoesTemp[id]||{}
-const atualizado={
-...original,
-...alteracoes,
-valor:parseFloat(alteracoes.valor??original.valor)
 }
-await db.from("lancamentos").update(atualizado).eq("id",id)
-delete edicoesTemp[id]
-await carregar()
-}
-/* ====================================================003 – MÊS FINANCEIRO (CORRIGIDO SEM DATE)==================================================== */
-function getMesBase(x){
-if(!x.data)return
-const[ano,mes]=x.data.split("-")
-return Number(mes)-1
-}
-/* ====================================================004 – CARREGAR==================================================== */
+
+
+/* ====================================================005 – LOGOUT==================================================== */
+function logout(){localStorage.removeItem("logado");location.reload()}
+/* ====================================================006 – CARREGAR==================================================== */
 async function carregar(){
 const {data,error}=await db.from("lancamentos").select("*").order("data",{ascending:true})
 if(error){alert("Erro ao carregar");return}
 dados=data||[]
 render()
 }
-/* ====================================================005 – SALVAR==================================================== */
+/* ====================================================007 – SALVAR==================================================== */
 async function salvarRegistro(obj){
 if(obj.id){
 await db.from("lancamentos").update(obj).eq("id",obj.id)
@@ -166,26 +146,29 @@ await db.from("lancamentos").insert(obj)
 }
 await carregar()
 }
-/* ====================================================006 – EXCLUIR==================================================== */
+/* ====================================================008 – EXCLUIR==================================================== */
 async function del(id){
 await db.from("lancamentos").delete().eq("id",id)
 await carregar()
 }
-/* ====================================================007 – MARCAR PAGO (DATA CORRETA)==================================================== */
+/* ====================================================009 – MARCAR PAGO==================================================== */
 async function marcarPago(id){
 const item=dados.find(x=>String(x.id)===String(id))
 if(!item)return
 const novoStatus=!item.pago
 const hoje=new Date()
 const dataLocal=`${hoje.getFullYear()}-${String(hoje.getMonth()+1).padStart(2,"0")}-${String(hoje.getDate()).padStart(2,"0")}`
-await db.from("lancamentos").update({
-pago:novoStatus,
-data_pagamento:novoStatus?dataLocal:null
-}).eq("id",id)
+await db.from("lancamentos").update({pago:novoStatus,data_pagamento:novoStatus?dataLocal:null}).eq("id",id)
 await carregar()
 }
-
-/* ====================================================008 – EDITAR==================================================== */
+/* ====================================================009A – TOGGLE ESTIMATIVA==================================================== */
+async function toggleEstimativa(id){
+const item=dados.find(x=>String(x.id)===String(id))
+if(!item)return
+await db.from("lancamentos").update({estimativa:!item.estimativa}).eq("id",id)
+await carregar()
+}
+/* ====================================================010 – EDITAR==================================================== */
 function editarPorId(id){
 const x=dados.find(d=>String(d.id)===String(id))
 if(!x)return
@@ -196,8 +179,7 @@ document.getElementById("tipo").value=x.tipo||"DESPESA"
 document.getElementById("categoria").value=x.categoria||"GERAL"
 document.getElementById("valor").value=x.valor||0
 }
-
-/* ====================================================009 – ADD (SEM BUG DE DATA)==================================================== */
+/* ====================================================011 – ADD==================================================== */
 async function add(){
 const dataEl=document.getElementById("data")
 const descEl=document.getElementById("desc")
@@ -222,51 +204,63 @@ data_pagamento:null
 }
 if(!obj.data||!obj.descricao){alert("Preencha data e descrição");return}
 if(!obj.valor||obj.valor===0){alert("Valor inválido");return}
-if(editando){
-obj.id=editando
-editando=null
-await salvarRegistro(obj)
-return
-}
+if(editando){obj.id=editando;editando=null;await salvarRegistro(obj);return}
 await salvarRegistro(obj)
 }
-
-/* ====================================================010 – IMPORTADOR (SEM BUG DE DATA)==================================================== */
-async function importarTexto(){
-const txt=document.getElementById("importarTexto").value
-if(!txt)return
-const linhas=txt.split("\n")
-for(const l of linhas){
-const m=l.match(/(\d{2}\/\d{2})\s+(.+?)\s+([\d\.,]+)/)
-if(!m)continue
-let[dia,mes]=m[1].split("/")
-let valor=parseFloat(m[3].replace(/\./g,"").replace(",","."))
-let tipo=m[2].toUpperCase().includes("REMUNERA")?"RECEITA":"DESPESA"
-await db.from("lancamentos").insert({
-data:normalizarDataLocal(`2026-${mes}-${dia}`),
-descricao:m[2],
-tipo,
-categoria:"GERAL",
-valor,
-pago:false,
-estimativa:false
-})
+/* ====================================================012 – NORMALIZAR DATA==================================================== */
+function normalizarDataLocal(dataStr){if(!dataStr)return null;const[ano,mes,dia]=dataStr.split("-");return`${ano}-${mes}-${dia}`}
+/* ====================================================013 – FORMATADORES==================================================== */
+function formatarMoeda(v){return Number(v||0).toLocaleString("pt-BR",{minimumFractionDigits:2})}
+function formatarDataBR(d){if(!d)return"";const[ano,mes,dia]=d.split("-");return`${dia}/${mes}/${ano}`}
+/* ====================================================014 – MÊS BASE==================================================== */
+function getMesBase(x){
+if(!x.data)return
+const[ano,mes]=x.data.split("-")
+return Number(mes)-1
 }
+/* ====================================================015 – MODO EDIÇÃO==================================================== */
+function toggleModoEdicao(){
+modoEdicao=!modoEdicao
+document.getElementById("btnSalvar").style.display=modoEdicao?"inline-block":"none"
+document.getElementById("btnEditar").innerText=modoEdicao?"❌ Cancelar":"✏️ Editar"
+render()
+}
+/* ====================================================016 – EDIT TEMP==================================================== */
+function editTemp(id,campo,valor){
+if(!edicoesTemp[id])edicoesTemp[id]={}
+edicoesTemp[id][campo]=valor
+}
+/* ====================================================017 – SALVAR EDIÇÃO==================================================== */
+async function salvarEdicao(id){
+const original=dados.find(x=>String(x.id)===String(id))
+if(!original)return
+const alteracoes=edicoesTemp[id]||{}
+const atualizado={...original,...alteracoes,valor:parseFloat(alteracoes.valor??original.valor)}
+await db.from("lancamentos").update(atualizado).eq("id",id)
+delete edicoesTemp[id]
 await carregar()
 }
-/* ====================================================011 FUNCAO RENDER==================================================== */
+/* ====================================================018 – TOGGLE ITEM==================================================== */
+function toggleValor(id){visibilidade[id]=!visibilidade[id];render()}
+/* ====================================================019 – APLICAR OFFSET==================================================== */
+function aplicarMesOffset(){
+const hoje=new Date()
+const data=new Date(hoje.getFullYear(),hoje.getMonth()+mesOffset,1)
+filtroInicio=data.toISOString().slice(0,7)+"-01"
+filtroFim=new Date(data.getFullYear(),data.getMonth()+1,0).toISOString().slice(0,10)
+modoAnoCompleto=false
+render()
+}
+/* ====================================================020 – RENDER==================================================== */
 function render(){
 const lista=document.getElementById("lista")
 const totalEl=document.getElementById("total")
 const resumoEl=document.getElementById("resumo")
-const fMes=document.getElementById("filtroMes")?.value
-const fAno=document.getElementById("filtroAno")?.value
 let listaFiltrada=[...dados]
-if(modoAnoCompleto){listaFiltrada=[...dados]}
 const hoje=new Date()
 const mesAtual=hoje.getMonth()
 const anoAtual=hoje.getFullYear()
-if(!fMes&&!modoAnoCompleto&&!filtroInicio&&!filtroFim){
+if(!modoAnoCompleto&&!filtroInicio&&!filtroFim){
 listaFiltrada=listaFiltrada.filter(x=>{
 if(!x.data)return false
 const[ano,mes]=x.data.split("-")
@@ -290,54 +284,29 @@ lista.innerHTML+=`<div style="font-size:12px;color:#94a3b8;margin-bottom:6px">�
 grupoAtual=chaveGrupo
 totalMesR=0
 totalMesD=0
-lista.innerHTML+=`<div style="margin-top:10px;font-weight:bold;background:#020617;padding:6px;border-radius:6px;border-left:3px solid #38bdf8;font-size:13px">📅 ${formatarMesNome(mes)}/${ano}</div>`
+lista.innerHTML+=`<div style="margin-top:10px;font-weight:bold;background:#020617;padding:6px;border-radius:6px;border-left:3px solid #38bdf8;font-size:13px;display:flex;justify-content:space-between"><span>📅 ${formatarMesNome(mes)}/${ano}</span><span>💰 ${formatarMoeda(totalMesR)} | 💸 ${formatarMoeda(totalMesD)}</span></div>`
 }
 if(x.tipo==="RECEITA"){totalMesR+=x.valor}else{totalMesD+=x.valor}
 lista.innerHTML+=`
 <div style="display:grid;grid-template-columns:90px 1fr 100px 110px 120px;gap:6px;background:${x.pago?"#052e16":"#1e293b"};padding:4px;margin:2px 0;border-radius:6px;align-items:center;border-left:3px solid ${x.tipo==="RECEITA"?"#22c55e":"#ef4444"};font-size:12px">
-${modoEdicao?`
-<input type="date" value="${x.data}" onchange="editTemp('${x.id}','data',this.value)">
-<input value="${x.descricao}" onchange="editTemp('${x.id}','descricao',this.value)">
-<input value="${x.categoria}" onchange="editTemp('${x.id}','categoria',this.value)">
-<input type="number" step="0.01" value="${Number(x.valor).toFixed(2)}" onchange="editTemp('${x.id}','valor',this.value)">
-<div style="display:flex;gap:5px;justify-content:flex-end">
-<button onclick="del('${x.id}')" style="background:#ef4444;color:#fff;padding:4px 6px;border-radius:4px">🗑️</button>
-</div>
-`:
-`
 <div>${formatarDataBR(x.data)}</div>
 <div onclick="marcarPago('${x.id}')" style="cursor:pointer">${x.tipo==="RECEITA"?"+ ":"- "}${x.descricao}</div>
 <div>${x.categoria}</div>
 <div style="text-align:right">${mostrarValores?"R$ "+formatarMoeda(x.valor):"••••"}</div>
 <div style="display:flex;gap:5px;justify-content:flex-end">
 <button onclick="marcarPago('${x.id}')" style="background:${x.pago?"#22c55e":"#ef4444"};color:#000;padding:4px 6px;border-radius:4px">${x.pago?"OK":"PEND"}</button>
-${modoEdicao?`<button onclick="del('${x.id}')" style="background:#ef4444;color:#fff;padding:4px 6px;border-radius:4px">🗑️</button>`:""}
 </div>
-`}
-</div>
-`
+</div>`
 })
-if(grupoAtual!==""){
-lista.innerHTML+=`<div style="font-size:12px;color:#94a3b8;margin-bottom:10px">💰 ${formatarMoeda(totalMesR)} | 💸 ${formatarMoeda(totalMesD)} | 📉 ${formatarMoeda(totalMesR-totalMesD)}</div>`
-}
 totalEl.innerText=""
 resumoEl.innerHTML=`<div style="font-size:16px;font-weight:bold">📅 ${modoAnoCompleto?"Ano Completo":formatarMesNome((new Date().getMonth()+1))+"/"+new Date().getFullYear()}</div>`
-try{if(mostrarGrafico)atualizarDashboard()}catch(e){}
+if(mostrarGrafico){atualizarDashboard()}
 }
-/* ====================================================012 – FORMATADORES==================================================== */
-function formatarMoeda(v){return Number(v||0).toLocaleString("pt-BR",{minimumFractionDigits:2})}
-function formatarDataBR(d){if(!d)return"";const[ano,mes,dia]=d.split("-");return`${dia}/${mes}/${ano}`}
-/* ====================================================013 – TOGGLE ITEM==================================================== */
-function toggleValor(id){visibilidade[id]=!visibilidade[id];render()}
-/* ====================================================014 – DASHBOARD==================================================== */
+/* ====================================================021 – DASHBOARD==================================================== */
 function atualizarDashboard(){
 if(typeof Chart==="undefined")return
-const canvasResumo=document.getElementById("graficoResumo")
-const canvasMensal=document.getElementById("graficoMensal")
-if(!canvasResumo||!canvasMensal)return
-const ctxResumo=canvasResumo.getContext("2d")
-const ctxMensal=canvasMensal.getContext("2d")
-if(!ctxResumo||!ctxMensal)return
+const ctxResumo=document.getElementById("graficoResumo").getContext("2d")
+const ctxMensal=document.getElementById("graficoMensal").getContext("2d")
 if(graficoResumo)graficoResumo.destroy()
 if(graficoMensal)graficoMensal.destroy()
 let r=0,d=0,meses={}
@@ -346,33 +315,13 @@ let m=getMesBase(x)
 if(!meses[m])meses[m]={r:0,d:0}
 if(x.tipo==="RECEITA"){r+=x.valor;meses[m].r+=x.valor}else{d+=x.valor;meses[m].d+=x.valor}
 })
-graficoResumo=new Chart(ctxResumo,{
-type:"doughnut",
-data:{
-labels:["Receitas","Despesas"],
-datasets:[{
-data:[r,d],
-backgroundColor:["#22c55e","#ef4444"]
-}]
-},
-options:{responsive:true,maintainAspectRatio:false}
-})
-graficoMensal=new Chart(ctxMensal,{
-type:"bar",
-data:{
-labels:["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"],
-datasets:[
-{label:"Receitas",data:Array.from({length:12},(_,i)=>meses[i]?.r||0),backgroundColor:"#22c55e"},
-{label:"Despesas",data:Array.from({length:12},(_,i)=>meses[i]?.d||0),backgroundColor:"#ef4444"}
-]
-},
-options:{responsive:true,maintainAspectRatio:false}
-})
+graficoResumo=new Chart(ctxResumo,{type:"doughnut",data:{labels:["Receitas","Despesas"],datasets:[{data:[r,d]}]}})
+graficoMensal=new Chart(ctxMensal,{type:"bar",data:{labels:["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"],datasets:[{label:"Receitas",data:Array.from({length:12},(_,i)=>meses[i]?.r||0)},{label:"Despesas",data:Array.from({length:12},(_,i)=>meses[i]?.d||0)}]}})
 }
-/* ====================================================015 – COPIAR MÊS==================================================== */
+/* ====================================================022 – COPIAR MÊS==================================================== */
 async function copiarMesAnterior(){
 const ano=new Date().getFullYear()
-const mes=parseInt(document.getElementById("mesBase").value)-1
+const mes=parseInt(document.getElementById("mesBase")?.value||new Date().getMonth()+1)-1
 const mesAnterior=mes-1
 if(mesAnterior<0){alert("Sem mês anterior");return}
 const {data:anteriores}=await db.from("lancamentos").select("*").gte("data",`${ano}-${String(mesAnterior+1).padStart(2,"0")}-01`).lte("data",`${ano}-${String(mesAnterior+1).padStart(2,"0")}-31`)
@@ -387,107 +336,69 @@ await db.from("lancamentos").insert({data:`${ano}-${String(mes+1).padStart(2,"0"
 alert("Mês criado com sucesso")
 await carregar()
 }
-/* ====================================================016 – RECORRÊNCIA==================================================== */
-async function gerarRecorrentes(){
-const hoje=new Date()
-const ano=hoje.getFullYear()
-const mes=hoje.getMonth()+1
-const {data:rec,error}=await db.from("lancamentos").select("*").eq("recorrente",true)
-if(error)return
-for(const r of (rec||[])){
-let dia=r.dia_padrao||1
-let novaData=`${ano}-${String(mes).padStart(2,"0")}-${String(dia).padStart(2,"0")}`
-const existe=dados.find(x=>x.descricao===r.descricao&&x.tipo===r.tipo&&x.categoria===r.categoria&&x.data===novaData)
-if(!existe){
-await db.from("lancamentos").insert({data:novaData,descricao:r.descricao,tipo:r.tipo,categoria:r.categoria,valor:r.valor,recorrente:true,dia_padrao:dia,pago:false,estimativa:false,data_pagamento:null,dia_vencimento:dia})
+/* ====================================================023 – FILTRO PERÍODO==================================================== */
+function filtrarPeriodo(){
+filtroInicio=document.getElementById("dataInicio").value||null
+filtroFim=document.getElementById("dataFim").value||null
+modoAnoCompleto=false
+render()
 }
-}
-}
-/* ====================================================017 – TOGGLE GLOBAL==================================================== */
-function toggleValores(){mostrarValores=!mostrarValores;render()}
-/* ====================================================018 – LOGOUT==================================================== */
-function logout(){localStorage.removeItem("logado");location.reload()}
-/* ====================================================019 – START==================================================== */
-async function iniciarSistema(){
-await verificarSessao()
-await gerarRecorrentes()
-await carregar()
-document.getElementById("data").value=new Date().toISOString().slice(0,10)
-}
-/* ====================================================020 – TOGGLE INSERÇÃO==================================================== */
-function toggleInsercao(){const el=document.getElementById("boxInsercao");if(!el)return;el.style.display=el.style.display==="none"?"flex":"none"}
-
-/* ====================================================021 – LIMPAR FILTROS==================================================== */
-function limparFiltros(){
-modoAnoCompleto=true
-const fMes=document.getElementById("filtroMes")
-const fAno=document.getElementById("filtroAno")
-const dIni=document.getElementById("dataInicio")
-const dFim=document.getElementById("dataFim")
-if(fMes)fMes.value=""
-if(fAno)fAno.value=""
-if(dIni)dIni.value=""
-if(dFim)dFim.value=""
+/* ====================================================024 – LIMPAR PERÍODO==================================================== */
+function limparPeriodo(){
 filtroInicio=null
 filtroFim=null
+document.getElementById("dataInicio").value=""
+document.getElementById("dataFim").value=""
 render()
-}/* ====================================================022 – NORMALIZAR DATA==================================================== */
-function normalizarDataLocal(dataStr){if(!dataStr)return null;const[ano,mes,dia]=dataStr.split("-");return`${ano}-${mes}-${dia}`}
-/* ====================================================023 – FILTRO PERÍODO==================================================== */
-let filtroInicio=null
-let filtroFim=null
-function filtrarPeriodo(){filtroInicio=document.getElementById("dataInicio").value||null;filtroFim=document.getElementById("dataFim").value||null;modoAnoCompleto=false;render()}
-function limparPeriodo(){filtroInicio=null;filtroFim=null;document.getElementById("dataInicio").value="";document.getElementById("dataFim").value="";render()}
-/* ====================================================024 – RESUMO PERÍODO==================================================== */
-function calcularResumoPeriodo(){
-let listaFiltrada=[...dados]
-if(filtroInicio){listaFiltrada=listaFiltrada.filter(x=>x.data>=filtroInicio)}
-if(filtroFim){listaFiltrada=listaFiltrada.filter(x=>x.data<=filtroFim)}
-let r=0,d=0
-listaFiltrada.forEach(x=>{if(x.tipo==="RECEITA"){r+=x.valor}else{d+=x.valor}})
-return{receitas:r,despesas:d,saldo:r-d}
 }
-/* ====================================================025 – MODO VISUAL==================================================== */
-let modoAnoCompleto=false
-/* ====================================================026 – MÊS ATUAL==================================================== */
-function modoMesAtual(){modoAnoCompleto=false;filtroInicio=null;filtroFim=null;render()}
-/* ====================================================027 – NOME MÊS==================================================== */
-function formatarMesNome(m){const meses=["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"];return meses[Number(m)-1]||m}
-/* ====================================================028 – EDITAR CAMPO==================================================== */
-async function editarCampo(id,campo,valor){
-if(campo==="valor")valor=parseFloat(valor||0)
-await db.from("lancamentos").update({[campo]:valor}).eq("id",id)
-await carregar()
+/* ====================================================025 – LIMPAR FILTROS==================================================== */
+function limparFiltros(){
+modoAnoCompleto=true
+filtroInicio=null
+filtroFim=null
+document.getElementById("dataInicio").value=""
+document.getElementById("dataFim").value=""
+render()
 }
-/* ============================================029 – MES ANTERIOR E MES ATUAL MES OFFSET==================================================== */
-let mesOffset=0
-function mesAnterior(){
-mesOffset--
-aplicarMesOffset()
+/* ====================================================026 – TOGGLE INSERÇÃO==================================================== */
+function toggleInsercao(){
+const el=document.getElementById("boxInsercao")
+if(!el)return
+el.style.display=el.style.display==="none"?"flex":"none"
 }
+/* ====================================================027 – TOGGLE GRAFICO==================================================== */
+function toggleGrafico(){
+mostrarGrafico=!mostrarGrafico
+const g1=document.getElementById("graficoResumo")
+const g2=document.getElementById("graficoMensal")
+if(g1)g1.style.display=mostrarGrafico?"block":"none"
+if(g2)g2.style.display=mostrarGrafico?"block":"none"
+}
+/* ====================================================028 – MODO MÊS ATUAL==================================================== */
 function modoMesAtual(){
 mesOffset=0
 modoAnoCompleto=false
-aplicarMesOffset()
+filtroInicio=null
+filtroFim=null
+render()
 }
-function aplicarMesOffset(){
+/* ====================================================029 – MÊS ANTERIOR==================================================== */
+function mesAnterior(){
+mesOffset--
 const hoje=new Date()
 const data=new Date(hoje.getFullYear(),hoje.getMonth()+mesOffset,1)
 filtroInicio=data.toISOString().slice(0,7)+"-01"
 filtroFim=new Date(data.getFullYear(),data.getMonth()+1,0).toISOString().slice(0,10)
+modoAnoCompleto=false
 render()
 }
-/* ======================================030 SALVAR TUDO=================================================== */
+/* ====================================================030 – SALVAR TUDO==================================================== */
 async function salvarTudo(){
 for(const id in edicoesTemp){
 const original=dados.find(x=>String(x.id)===String(id))
 if(!original)continue
 const alteracoes=edicoesTemp[id]
-const atualizado={
-...original,
-...alteracoes,
-valor:parseFloat(alteracoes.valor??original.valor)
-}
+const atualizado={...original,...alteracoes,valor:parseFloat(alteracoes.valor??original.valor)}
 await db.from("lancamentos").update(atualizado).eq("id",id)
 }
 edicoesTemp={}
@@ -496,23 +407,59 @@ document.getElementById("btnSalvar").style.display="none"
 document.getElementById("btnEditar").innerText="✏️ Editar"
 await carregar()
 }
-/* ====================================================031 – TOGGLE GRAFICO==================================================== */
-let mostrarGrafico=true
-function toggleGrafico(){
-mostrarGrafico=!mostrarGrafico
-document.getElementById("graficoResumo").style.display=mostrarGrafico?"block":"none"
-document.getElementById("graficoMensal").style.display=mostrarGrafico?"block":"none"
+/* ====================================================031 – NOME DO MÊS==================================================== */
+function formatarMesNome(m){
+const meses=["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"]
+return meses[Number(m)-1]||m
 }
-/* ====================================================041 – TOGGLE ESTIMATIVA==================================================== */
-async function toggleEstimativa(id){
-const item=dados.find(x=>String(x.id)===String(id))
-if(!item)return
-await db.from("lancamentos").update({estimativa:!item.estimativa}).eq("id",id)
+/* ====================================================032 – RESUMO PERÍODO==================================================== */
+function calcularResumoPeriodo(){
+let listaFiltrada=[...dados]
+if(filtroInicio){listaFiltrada=listaFiltrada.filter(x=>x.data>=filtroInicio)}
+if(filtroFim){listaFiltrada=listaFiltrada.filter(x=>x.data<=filtroFim)}
+let r=0,d=0
+listaFiltrada.forEach(x=>{if(x.tipo==="RECEITA"){r+=x.valor}else{d+=x.valor}})
+return{receitas:r,despesas:d,saldo:r-d}
+}
+/* ====================================================033 – TOGGLE VALORES==================================================== */
+function toggleValores(){
+mostrarValores=!mostrarValores
+render()
+}
+/* ====================================================034 – EDITAR CAMPO==================================================== */
+async function editarCampo(id,campo,valor){
+if(campo==="valor")valor=parseFloat(valor||0)
+await db.from("lancamentos").update({[campo]:valor}).eq("id",id)
 await carregar()
 }
-
-/* 🔥 INICIALIZAÇÃO */
+/* ====================================================035 – RECORRÊNCIA==================================================== */
+async function gerarRecorrentes(){
+const hoje=new Date()
+const ano=hoje.getFullYear()
+const mes=hoje.getMonth()+1
+const {data:rec,error}=await db.from("lancamentos").select("*").eq("recorrente",true)
+if(error)return
+for(const r of (rec||[])){
+let dia=r.dia_padrao||1
+let nova=`${ano}-${String(mes).padStart(2,"0")}-${String(dia).padStart(2,"0")}`
+const existe=dados.find(x=>x.descricao===r.descricao&&x.tipo===r.tipo&&x.categoria===r.categoria&&x.data===nova)
+if(!existe){
+await db.from("lancamentos").insert({data:nova,descricao:r.descricao,tipo:r.tipo,categoria:r.categoria,valor:r.valor,recorrente:true,dia_padrao:dia,pago:false,estimativa:false,data_pagamento:null,dia_vencimento:dia})
+}
+}
+}
+/* ====================================================036 – INICIAR SISTEMA==================================================== */
+async function iniciarSistema(){
+await verificarSessao()
+await gerarRecorrentes()
+await carregar()
+const dataInput=document.getElementById("data")
+if(dataInput)dataInput.value=new Date().toISOString().slice(0,10)
+}
+/* ====================================================037 – EVENTO START==================================================== */
 document.addEventListener("DOMContentLoaded",iniciarSistema)
+
+  
   
 </script>
 </body>
