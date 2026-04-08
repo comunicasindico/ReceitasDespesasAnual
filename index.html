@@ -276,11 +276,8 @@ const[ano,mes]=x.data.split("-")
 const chaveGrupo=`${mes}/${ano}`
 if(grupoAtual!==chaveGrupo){
 if(grupoAtual!==""){
-lista.innerHTML+=`<div style="font-size:12px;margin-bottom:6px;display:flex;gap:12px;justify-content:flex-end">
-<span style="color:#22c55e">RCT: R$ ${formatarMoeda(totalMesR)}</span>
-<span style="color:#ef4444">DSP: R$ ${formatarMoeda(totalMesD)}</span>
-<span style="color:${(totalMesR-totalMesD)>=0?"#22c55e":"#ef4444"}">SALDO: R$ ${formatarMoeda(totalMesR-totalMesD)}</span>
-</div>`}
+lista.innerHTML+=`<div style="font-size:12px;margin-bottom:6px;display:flex;gap:12px;justify-content:flex-end"><span style="color:#22c55e">💰 ${formatarMoeda(totalMesR)}</span><span style="color:#ef4444">💸 ${formatarMoeda(totalMesD)}</span><span style="color:${(totalMesR-totalMesD)>=0?"#22c55e":"#ef4444"}">${(totalMesR-totalMesD)>=0?"📈":"📉"} ${formatarMoeda(totalMesR-totalMesD)}</span></div>`
+}
 grupoAtual=chaveGrupo
 totalMesR=0
 totalMesD=0
