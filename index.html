@@ -12,6 +12,7 @@ button{cursor:pointer;background:#22c55e;color:#000}
 .edit{background:#3b82f6;color:#fff}
 .topo{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
 .resumo{margin-top:20px;padding:10px;background:#111827;border-radius:10px}
+.topo{display:flex;gap:6px;flex-wrap:wrap}
 </style>
 </head>
 <body>
@@ -38,6 +39,7 @@ button{cursor:pointer;background:#22c55e;color:#000}
 <button onclick="filtrarPeriodo()">📅 Filtrar</button>
 <button onclick="limparPeriodo()">❌ Limpar</button>
 <button onclick="limparFiltros()">📊 Ano Completo</button>
+<button onclick="toggleGrafico()">📊 Gráfico</button>
 <button onclick="toggleModoEdicao()" style="background:#f59e0b;color:#000">✏️ Modo Edição</button>
 </div>
 <button onclick="toggleInsercao()" style="margin:10px 0">➕ Inserir lançamento</button>
@@ -274,22 +276,25 @@ return Number(mes)-1===mesAtual&&Number(ano)===anoAtual
 if(filtroInicio){listaFiltrada=listaFiltrada.filter(x=>x.data>=filtroInicio)}
 if(filtroFim){listaFiltrada=listaFiltrada.filter(x=>x.data<=filtroFim)}
 listaFiltrada.sort((a,b)=>(a.data||"").localeCompare(b.data||""))
-let saldo=0,r=0,d=0
 lista.innerHTML=""
 let grupoAtual=""
+let totalMesR=0
+let totalMesD=0
 listaFiltrada.forEach(x=>{
 const[ano,mes]=x.data.split("-")
 const chaveGrupo=`${mes}/${ano}`
 if(grupoAtual!==chaveGrupo){
-grupoAtual=chaveGrupo
-lista.innerHTML+=`
-<div style="margin-top:10px;font-weight:bold;background:#020617;padding:6px;border-radius:6px;border-left:3px solid #38bdf8;font-size:13px">
-📅 ${formatarMesNome(mes)}/${ano}
-</div>`
+if(grupoAtual!==""){
+lista.innerHTML+=`<div style="font-size:12px;color:#94a3b8;margin-bottom:6px">💰 ${formatarMoeda(totalMesR)} | 💸 ${formatarMoeda(totalMesD)} | 📉 ${formatarMoeda(totalMesR-totalMesD)}</div>`
 }
-if(x.tipo==="RECEITA"){saldo+=x.valor;r+=x.valor}else{saldo-=x.valor;d+=x.valor}
+grupoAtual=chaveGrupo
+totalMesR=0
+totalMesD=0
+lista.innerHTML+=`<div style="margin-top:10px;font-weight:bold;background:#020617;padding:6px;border-radius:6px;border-left:3px solid #38bdf8;font-size:13px">📅 ${formatarMesNome(mes)}/${ano}</div>`
+}
+if(x.tipo==="RECEITA"){totalMesR+=x.valor}else{totalMesD+=x.valor}
 lista.innerHTML+=`
-<div style="display:grid;grid-template-columns:90px 1fr 100px 110px 140px;gap:6px;background:${x.pago?"#052e16":"#1e293b"};padding:4px;margin:2px 0;border-radius:6px;align-items:center;border-left:3px solid ${x.tipo==="RECEITA"?"#22c55e":"#ef4444"};font-size:12px">
+<div style="display:grid;grid-template-columns:90px 1fr 100px 110px 120px;gap:6px;background:${x.pago?"#052e16":"#1e293b"};padding:4px;margin:2px 0;border-radius:6px;align-items:center;border-left:3px solid ${x.tipo==="RECEITA"?"#22c55e":"#ef4444"};font-size:12px">
 ${modoEdicao?`
 <input type="date" value="${x.data}" onchange="editTemp('${x.id}','data',this.value)">
 <input value="${x.descricao}" onchange="editTemp('${x.id}','descricao',this.value)">
@@ -301,37 +306,23 @@ ${modoEdicao?`
 `:
 `
 <div>${formatarDataBR(x.data)}</div>
-<div onclick="marcarPago('${x.id}')" style="cursor:pointer">
-${x.descricao}
-</div>
+<div onclick="marcarPago('${x.id}')" style="cursor:pointer">${x.tipo==="RECEITA"?"+ ":"- "}${x.descricao}</div>
 <div>${x.categoria}</div>
-<div style="text-align:right">
-${mostrarValores?"R$ "+formatarMoeda(x.valor):"••••"}
-</div>
+<div style="text-align:right">${mostrarValores?"R$ "+formatarMoeda(x.valor):"••••"}</div>
 <div style="display:flex;gap:5px;justify-content:flex-end">
-<button onclick="marcarPago('${x.id}')" style="background:${x.pago?"#22c55e":"#ef4444"};color:#000;padding:4px 6px;border-radius:4px">
-${x.pago?"OK":"PEND"}
-</button>
+<button onclick="marcarPago('${x.id}')" style="background:${x.pago?"#22c55e":"#ef4444"};color:#000;padding:4px 6px;border-radius:4px">${x.pago?"OK":"PEND"}</button>
 ${modoEdicao?`<button onclick="del('${x.id}')" style="background:#ef4444;color:#fff;padding:4px 6px;border-radius:4px">🗑️</button>`:""}
 </div>
-</div>
-`
-}
+`}
 </div>
 `
 })
-totalEl.innerText="Saldo: R$ "+formatarMoeda(saldo)
-const nomeMesAtual=formatarMesNome((new Date().getMonth()+1))
-const anoAtualTxt=new Date().getFullYear()
-resumoEl.innerHTML=`
-<div style="font-size:18px;font-weight:bold">
-📅 ${modoAnoCompleto?"Ano Completo":nomeMesAtual+"/"+anoAtualTxt}
-</div>
-<div>💰 ${formatarMoeda(r)}</div>
-<div>💸 ${formatarMoeda(d)}</div>
-<div>📉 ${formatarMoeda(saldo)}</div>
-`
-try{atualizarDashboard()}catch(e){}
+if(grupoAtual!==""){
+lista.innerHTML+=`<div style="font-size:12px;color:#94a3b8;margin-bottom:10px">💰 ${formatarMoeda(totalMesR)} | 💸 ${formatarMoeda(totalMesD)} | 📉 ${formatarMoeda(totalMesR-totalMesD)}</div>`
+}
+totalEl.innerText=""
+resumoEl.innerHTML=`<div style="font-size:16px;font-weight:bold">📅 ${modoAnoCompleto?"Ano Completo":formatarMesNome((new Date().getMonth()+1))+"/"+new Date().getFullYear()}</div>`
+try{if(mostrarGrafico)atualizarDashboard()}catch(e){}
 }
 /* ====================================================012 – FORMATADORES==================================================== */
 function formatarMoeda(v){return Number(v||0).toLocaleString("pt-BR",{minimumFractionDigits:2})}
@@ -421,6 +412,7 @@ async function iniciarSistema(){
 await verificarSessao()
 await gerarRecorrentes()
 await carregar()
+document.getElementById("data").value=new Date().toISOString().slice(0,10)
 }
 /* ====================================================020 – TOGGLE INSERÇÃO==================================================== */
 function toggleInsercao(){const el=document.getElementById("boxInsercao");if(!el)return;el.style.display=el.style.display==="none"?"flex":"none"}
@@ -503,6 +495,13 @@ modoEdicao=false
 document.getElementById("btnSalvar").style.display="none"
 document.getElementById("btnEditar").innerText="✏️ Editar"
 await carregar()
+}
+/* ====================================================031 – TOGGLE GRAFICO==================================================== */
+let mostrarGrafico=true
+function toggleGrafico(){
+mostrarGrafico=!mostrarGrafico
+document.getElementById("graficoResumo").style.display=mostrarGrafico?"block":"none"
+document.getElementById("graficoMensal").style.display=mostrarGrafico?"block":"none"
 }
 /* ====================================================041 – TOGGLE ESTIMATIVA==================================================== */
 async function toggleEstimativa(id){
