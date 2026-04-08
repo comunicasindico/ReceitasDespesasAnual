@@ -13,6 +13,10 @@ button{cursor:pointer;background:#22c55e;color:#000}
 .topo{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
 .resumo{margin-top:20px;padding:10px;background:#111827;border-radius:10px}
 .topo{display:flex;gap:6px;flex-wrap:wrap}
+#areaGraficos{transition:all .3s ease}
+.oculto{display:none!important}
+.linha-receita{background:#052e16!important;border-left:4px solid #22c55e}
+.linha-receita-topo{background:#064e3b!important;border-left:4px solid #4ade80;font-weight:bold}
 </style>
 </head>
 <body>
@@ -266,52 +270,21 @@ return Number(mes)-1===mesAtual&&Number(ano)===anoAtual
 }
 if(filtroInicio){listaFiltrada=listaFiltrada.filter(x=>x.data>=filtroInicio)}
 if(filtroFim){listaFiltrada=listaFiltrada.filter(x=>x.data<=filtroFim)}
-listaFiltrada.sort((a,b)=>(a.data||"").localeCompare(b.data||""))
+/* 🔥 ORDENAÇÃO: RECEITA PRIMEIRO */
+listaFiltrada.sort((a,b)=>{
+if(a.tipo==="RECEITA"&&b.tipo!=="RECEITA")return-1
+if(a.tipo!=="RECEITA"&&b.tipo==="RECEITA")return 1
+return(a.data||"").localeCompare(b.data||"")
+})
 lista.innerHTML=""
-let grupoAtual=""
-let totalMesR=0
-let totalMesDPago=0
-let totalMesDPendente=0
+let totalR=0
+let totalDPago=0
+let totalDPendente=0
 listaFiltrada.forEach((x,i)=>{
-const[ano,mes]=x.data.split("-")
-const chaveGrupo=`${mes}/${ano}`
-if(grupoAtual!==chaveGrupo){
-if(grupoAtual!==""){
-const totalDSP=totalMesDPago+totalMesDPendente
-const saldo=totalMesR-totalDSP
-lista.innerHTML+=`<div style="font-size:12px;margin-bottom:10px;display:flex;gap:12px;justify-content:flex-end">
-<span style="color:#22c55e">💰 ${formatarMoeda(totalMesR)}</span>
-<span style="color:#22c55e">✔ ${formatarMoeda(totalMesDPago)}</span>
-<span style="color:#ef4444">⏳ ${formatarMoeda(totalMesDPendente)}</span>
-<span style="color:#f59e0b">💸 ${formatarMoeda(totalDSP)}</span>
-<span style="color:${saldo>=0?"#22c55e":"#ef4444"}">${saldo>=0?"📈":"📉"} ${formatarMoeda(saldo)}</span>
-</div>`
-}
-grupoAtual=chaveGrupo
-totalMesR=0
-totalMesDPago=0
-totalMesDPendente=0
-}
-if(x.tipo==="RECEITA"){
-totalMesR+=x.valor
-}else{
-if(x.pago){totalMesDPago+=x.valor}else{totalMesDPendente+=x.valor}
-}
-const totalDSP=totalMesDPago+totalMesDPendente
-const saldo=totalMesR-totalDSP
-if(i===0||listaFiltrada[i-1].data.split("-")[1]!==mes){
-lista.innerHTML+=`<div style="margin-top:10px;font-weight:bold;background:#020617;padding:6px;border-radius:6px;border-left:3px solid #38bdf8;font-size:13px;display:flex;justify-content:space-between">
-<span>📅 ${formatarMesNome(mes)}/${ano}</span>
-<span style="display:flex;gap:10px">
-<span style="color:#22c55e">💰 ${formatarMoeda(totalMesR)}</span>
-<span style="color:#22c55e">✔ ${formatarMoeda(totalMesDPago)}</span>
-<span style="color:#ef4444">⏳ ${formatarMoeda(totalMesDPendente)}</span>
-<span style="color:#f59e0b">💸 ${formatarMoeda(totalDSP)}</span>
-<span style="color:${saldo>=0?"#22c55e":"#ef4444"}">${saldo>=0?"📈":"📉"} ${formatarMoeda(saldo)}</span>
-</span>
-</div>`
-}
-lista.innerHTML+=`<div style="display:grid;grid-template-columns:100px 1fr 120px 140px 200px;gap:6px;background:${x.pago?"#052e16":"#1e293b"};padding:4px;margin:2px 0;border-radius:6px;align-items:center;border-left:3px solid ${x.tipo==="RECEITA"?"#22c55e":"#ef4444"};font-size:12px">
+if(x.tipo==="RECEITA"){totalR+=x.valor}else{if(x.pago){totalDPago+=x.valor}else{totalDPendente+=x.valor}}
+const classeReceita=x.tipo==="RECEITA"?"linha-receita":""
+const destaqueTopo=i<3&&x.tipo==="RECEITA"?"linha-receita-topo":""
+lista.innerHTML+=`<div class="${classeReceita} ${destaqueTopo}" style="display:grid;grid-template-columns:100px 1fr 120px 140px 200px;gap:6px;padding:4px;margin:2px 0;border-radius:6px;align-items:center;font-size:12px">
 <div>${formatarDataBR(x.data)}</div>
 <div onclick="marcarPago('${x.id}')" style="cursor:pointer">${x.tipo==="RECEITA"?"+ ":"- "}${x.descricao}</div>
 <div>${x.categoria}</div>
@@ -320,20 +293,18 @@ lista.innerHTML+=`<div style="display:grid;grid-template-columns:100px 1fr 120px
 <button onclick="marcarPago('${x.id}')" style="background:${x.pago?"#22c55e":"#ef4444"};color:#000;padding:4px 6px;border-radius:4px">${x.pago?"OK":"PEND"}</button>
 </div>
 </div>`
-if(i===listaFiltrada.length-1){
-const totalDSP=totalMesDPago+totalMesDPendente
-const saldo=totalMesR-totalDSP
-lista.innerHTML+=`<div style="font-size:12px;margin-bottom:10px;display:flex;gap:12px;justify-content:flex-end">
-<span style="color:#22c55e">💰 ${formatarMoeda(totalMesR)}</span>
-<span style="color:#22c55e">✔ ${formatarMoeda(totalMesDPago)}</span>
-<span style="color:#ef4444">⏳ ${formatarMoeda(totalMesDPendente)}</span>
-<span style="color:#f59e0b">💸 ${formatarMoeda(totalDSP)}</span>
-<span style="color:${saldo>=0?"#22c55e":"#ef4444"}">${saldo>=0?"📈":"📉"} ${formatarMoeda(saldo)}</span>
-</div>`
-}
 })
+const totalDSP=totalDPago+totalDPendente
+const saldo=totalR-totalDSP
+resumoEl.innerHTML=`
+<div style="display:flex;gap:20px;justify-content:center;font-size:14px;font-weight:bold;flex-wrap:wrap">
+<span style="color:#22c55e">💰 Receitas: ${formatarMoeda(totalR)}</span>
+<span style="color:#22c55e">✔ Pagas: ${formatarMoeda(totalDPago)}</span>
+<span style="color:#ef4444">⏳ Pendentes: ${formatarMoeda(totalDPendente)}</span>
+<span style="color:#f59e0b">💸 Total Despesas: ${formatarMoeda(totalDSP)}</span>
+<span style="color:${saldo>=0?"#22c55e":"#ef4444"}">${saldo>=0?"📈":"📉"} Saldo: ${formatarMoeda(saldo)}</span>
+</div>`
 totalEl.innerText=""
-resumoEl.innerHTML=`<div style="font-size:16px;font-weight:bold">📅 ${modoAnoCompleto?"Ano Completo":formatarMesNome((new Date().getMonth()+1))+"/"+new Date().getFullYear()}</div>`
 if(mostrarGrafico){atualizarDashboard()}
 }
 /* ====================================================022 – DASHBOARD==================================================== */
@@ -416,8 +387,11 @@ function toggleGrafico(){
 mostrarGrafico=!mostrarGrafico
 const g1=document.getElementById("graficoResumo")
 const g2=document.getElementById("graficoMensal")
-if(g1)g1.style.display=mostrarGrafico?"block":"none"
-if(g2)g2.style.display=mostrarGrafico?"block":"none"
+const lista=document.getElementById("lista")
+if(g1)g1.parentElement.classList.toggle("oculto",!mostrarGrafico)
+if(g2)g2.parentElement.classList.toggle("oculto",!mostrarGrafico)
+if(lista)lista.style.marginTop=mostrarGrafico?"20px":"0px"
+window.scrollTo({top:0,behavior:"smooth"})
 }
 /* ====================================================029 – MODO MÊS ATUAL==================================================== */
 function modoMesAtual(){
