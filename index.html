@@ -443,14 +443,18 @@ await db.from("lancamentos").insert({data:nova,descricao:r.descricao,tipo:r.tipo
 }
 }
 }
-/* ====================================================034 – INICIAR SISTEMA==================================================== */
+/* ====================================================034 – INICIAR SISTEMA (DATA PADRÃO GLOBAL)==================================================== */
 async function iniciarSistema(){
 await verificarSessao()
 await carregar()
 await gerarRecorrentes()
 await carregar()
-const dataInput=document.getElementById("data")
-if(dataInput)dataInput.value=new Date().toISOString().slice(0,10)
+const hoje=new Date().toISOString().slice(0,10)
+const campos=["data","dataInicio","dataFim"]
+campos.forEach(id=>{
+const el=document.getElementById(id)
+if(el&&!el.value){el.value=hoje}
+})
 }
 /* ====================================================035 – EVENTO START==================================================== */
 document.addEventListener("DOMContentLoaded",iniciarSistema)
