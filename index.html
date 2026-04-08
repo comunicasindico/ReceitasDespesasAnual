@@ -126,7 +126,13 @@ async function carregar(){
 const {data,error}=await db.from("lancamentos").select("*").order("data",{ascending:true})
 if(error){alert("Erro ao carregar");return}
 dados=data||[]
+if(!window._renderLock){
+window._renderLock=true
+requestAnimationFrame(()=>{
 render()
+window._renderLock=false
+})
+}
 }
 /* ====================================================007 – SALVAR==================================================== */
 async function salvarRegistro(obj){
@@ -275,7 +281,7 @@ lista.innerHTML+=`<div style="font-size:12px;color:#94a3b8;margin-bottom:6px">�
 grupoAtual=chaveGrupo
 totalMesR=0
 totalMesD=0
-lista.innerHTML+=`<div style="margin-top:10px;font-weight:bold;background:#020617;padding:6px;border-radius:6px;border-left:3px solid #38bdf8;font-size:13px;display:flex;justify-content:space-between"><span>📅 ${formatarMesNome(mes)}/${ano}</span><span>💰 ${formatarMoeda(totalMesR)} | 💸 ${formatarMoeda(totalMesD)}</span></div>`
+lista.innerHTML+=`<div style="margin-top:10px;font-weight:bold;background:#020617;padding:6px;border-radius:6px;border-left:3px solid #38bdf8;font-size:13px;display:flex;justify-content:space-between"><span>📅 ${formatarMesNome(mes)}/${ano}</span><span>💰 ${formatarMoeda(totalMesR)} | 💸 ${formatarMoeda(totalMesD)} | 📉 ${formatarMoeda(totalMesR-totalMesD)}</span></div>`
 }
 if(x.tipo==="RECEITA"){totalMesR+=x.valor}else{totalMesD+=x.valor}
 lista.innerHTML+=`
@@ -417,6 +423,7 @@ await db.from("lancamentos").insert({data:nova,descricao:r.descricao,tipo:r.tipo
 /* ====================================================034 – INICIAR SISTEMA==================================================== */
 async function iniciarSistema(){
 await verificarSessao()
+await carregar()
 await gerarRecorrentes()
 await carregar()
 const dataInput=document.getElementById("data")
