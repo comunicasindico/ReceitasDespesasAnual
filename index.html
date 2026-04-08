@@ -376,12 +376,7 @@ render()
 /* ====================================================030 – MÊS ANTERIOR==================================================== */
 function mesAnterior(){
 mesOffset--
-const hoje=new Date()
-const data=new Date(hoje.getFullYear(),hoje.getMonth()+mesOffset,1)
-filtroInicio=data.toISOString().slice(0,7)+"-01"
-filtroFim=new Date(data.getFullYear(),data.getMonth()+1,0).toISOString().slice(0,10)
-modoAnoCompleto=false
-render()
+aplicarMesOffset()
 }
 /* ====================================================031 – SALVAR TUDO==================================================== */
 async function salvarTudo(){
@@ -403,27 +398,7 @@ function formatarMesNome(m){
 const meses=["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"]
 return meses[Number(m)-1]||m
 }
-/* ====================================================033 – RESUMO PERÍODO==================================================== */
-function calcularResumoPeriodo(){
-let listaFiltrada=[...dados]
-if(filtroInicio){listaFiltrada=listaFiltrada.filter(x=>x.data>=filtroInicio)}
-if(filtroFim){listaFiltrada=listaFiltrada.filter(x=>x.data<=filtroFim)}
-let r=0,d=0
-listaFiltrada.forEach(x=>{if(x.tipo==="RECEITA"){r+=x.valor}else{d+=x.valor}})
-return{receitas:r,despesas:d,saldo:r-d}
-}
-/* ====================================================034 – TOGGLE VALORES==================================================== */
-function toggleValores(){
-mostrarValores=!mostrarValores
-render()
-}
-/* ====================================================035 – EDITAR CAMPO==================================================== */
-async function editarCampo(id,campo,valor){
-if(campo==="valor")valor=parseFloat(valor||0)
-await db.from("lancamentos").update({[campo]:valor}).eq("id",id)
-await carregar()
-}
-/* ====================================================036 – RECORRÊNCIA==================================================== */
+/* ====================================================033 – RECORRÊNCIA==================================================== */
 async function gerarRecorrentes(){
 const hoje=new Date()
 const ano=hoje.getFullYear()
@@ -439,7 +414,7 @@ await db.from("lancamentos").insert({data:nova,descricao:r.descricao,tipo:r.tipo
 }
 }
 }
-/* ====================================================037 – INICIAR SISTEMA==================================================== */
+/* ====================================================034 – INICIAR SISTEMA==================================================== */
 async function iniciarSistema(){
 await verificarSessao()
 await gerarRecorrentes()
@@ -447,7 +422,7 @@ await carregar()
 const dataInput=document.getElementById("data")
 if(dataInput)dataInput.value=new Date().toISOString().slice(0,10)
 }
-/* ====================================================038 – EVENTO START==================================================== */
+/* ====================================================035 – EVENTO START==================================================== */
 document.addEventListener("DOMContentLoaded",iniciarSistema)
 
   
