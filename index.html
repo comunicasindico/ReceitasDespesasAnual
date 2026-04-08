@@ -362,10 +362,8 @@ ${modoEdicao?`<select onchange="editTemp('${x.id}','categoria',this.value)">
 </div>
 <div style="text-align:right">${modoEdicao?`<input type="number" value="${valVal}" onchange="editTemp('${x.id}','valor',this.value)" style="width:90px">`:(mostrarValores?"R$ "+formatarMoeda(x.valor):"••••")}</div>
 <div style="display:flex;gap:5px;justify-content:flex-end">
-<button onclick="marcarPago('${x.id}')" 
-style="background:${x.pago?"#22c55e":"#ef4444"};color:#000;padding:4px 6px;border-radius:4px;${x.pago&&!modoEdicao?"opacity:0.5;pointer-events:none":""}">
-${x.pago?"Pago":"Pendente"}
-</button><button onclick="del('${x.id}')" style="background:#ef4444;color:#fff;padding:4px 6px;border-radius:4px">🗑</button>
+<button onclick="marcarPago('${x.id}')" style="background:${x.pago?"#22c55e":"#ef4444"};color:#000;padding:4px 6px;border-radius:4px">${x.pago?"OK":"PEND"}</button>
+${modoEdicao?`<button onclick="del('${x.id}')" style="background:#ef4444;color:#fff;padding:4px 6px;border-radius:4px">🗑</button>`:""}
 </div>
 </div>
 </div>`
