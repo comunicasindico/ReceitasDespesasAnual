@@ -55,7 +55,7 @@ button{cursor:pointer;background:#22c55e;color:#000}
 <input type="text" id="desc" placeholder="Descrição">
 <select id="tipo"><option>DESPESA</option><option>RECEITA</option></select>
 <select id="categoria"></select><option>GERAL</option><option>TCERO/Cripto</option><option>CASA</option><option>SAÚDE</option><option>EDUCAÇÃO</option><option>LAZER</option></select>
-<input type="number" id="valor" placeholder="Valor">
+<input type="text" id="valor" placeholder="Valor">
 <button onclick="add()">Adicionar</button>
 <label><input type="checkbox" id="recorrente"> Recorrente</label>
 <input type="number" id="diaPadrao" placeholder="Dia" style="width:70px">
@@ -209,7 +209,7 @@ data:dataStr,
 descricao:descEl.value.trim(),
 tipo:tipoEl.value,
 categoria:categoriaEl.value,
-valor:parseFloat(valorEl.value||0),
+valor:parseFloat((valorEl.value||"0").replace(".","").replace(",",".")),
 recorrente:recorrenteEl?.checked||false,
 dia_padrao:parseInt(diaEl?.value)||null,
 dia_vencimento:dataStr?Number(dataStr.split("-")[2]):null,
