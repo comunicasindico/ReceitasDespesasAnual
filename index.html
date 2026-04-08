@@ -58,10 +58,10 @@ button{cursor:pointer;background:#22c55e;color:#000}
 
 <div id="resumo" class="resumo"></div>
 <button onclick="limparFiltros()">🔍 Ver todos os períodos</button>
-<div>
+<div style="max-width:500px;height:300px;margin:20px auto">
 <canvas id="graficoResumo"></canvas>
 </div>
-<div>
+<div style="max-width:700px;height:300px;margin:20px auto">
 <canvas id="graficoMensal"></canvas>
 </div>
 <h2 id="total"></h2>
@@ -313,8 +313,19 @@ let m=getMesBase(x)
 if(!meses[m])meses[m]={r:0,d:0}
 if(x.tipo==="RECEITA"){r+=x.valor;meses[m].r+=x.valor}else{d+=x.valor;meses[m].d+=x.valor}
 })
-graficoResumo=new Chart(ctxResumo,{type:"doughnut",data:{labels:["Receitas","Despesas"],datasets:[{data:[r,d]}]}})
-graficoMensal=new Chart(ctxMensal,{type:"bar",data:{labels:["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"],datasets:[{label:"Receitas",data:Array.from({length:12},(_,i)=>meses[i]?.r||0)},{label:"Despesas",data:Array.from({length:12},(_,i)=>meses[i]?.d||0)}]}})
+graficoResumo=new Chart(ctxResumo,{
+type:"doughnut",
+data:{labels:["Receitas","Despesas"],datasets:[{data:[r,d]}]},
+options:{responsive:true,maintainAspectRatio:false}
+})
+graficoMensal=new Chart(ctxMensal,{
+type:"bar",
+data:{labels:["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"],datasets:[
+{label:"Receitas",data:Array.from({length:12},(_,i)=>meses[i]?.r||0)},
+{label:"Despesas",data:Array.from({length:12},(_,i)=>meses[i]?.d||0)}
+]},
+options:{responsive:true,maintainAspectRatio:false}
+})
 }
 /* ====================================================023 – COPIAR MÊS==================================================== */
 async function copiarMesAnterior(){
