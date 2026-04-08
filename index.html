@@ -54,7 +54,7 @@ button{cursor:pointer;background:#22c55e;color:#000}
 <input type="date" id="data">
 <input type="text" id="desc" placeholder="Descrição">
 <select id="tipo"><option>DESPESA</option><option>RECEITA</option></select>
-<select id="categoria"><option>GERAL</option><option>TCERO/Cripto</option><option>CASA</option><option>SAÚDE</option><option>EDUCAÇÃO</option><option>LAZER</option></select>
+<select id="categoria"></select><option>GERAL</option><option>TCERO/Cripto</option><option>CASA</option><option>SAÚDE</option><option>EDUCAÇÃO</option><option>LAZER</option></select>
 <input type="number" id="valor" placeholder="Valor">
 <button onclick="add()">Adicionar</button>
 <label><input type="checkbox" id="recorrente"> Recorrente</label>
@@ -104,6 +104,14 @@ let filtroFim=null
 let modoAnoCompleto=false
 let mesOffset=0
 let mostrarGrafico=true
+/* ====================================================000A – CATEGORIAS PADRÃO==================================================== */
+const CATEGORIAS=["GERAL","TCERO/Cripto","CASA","SAÚDE","EDUCAÇÃO","LAZER"]
+/* ====================================================000B – CARREGAR CATEGORIAS==================================================== */
+function carregarCategorias(){
+const sel=document.getElementById("categoria")
+if(!sel)return
+sel.innerHTML=CATEGORIAS.map(c=>`<option>${c}</option>`).join("")
+}
 /* ====================================================003 – LOGIN==================================================== */
 function loginSistema(){
 const user=document.getElementById("loginUser").value.trim()
@@ -253,8 +261,7 @@ filtroFim=new Date(data.getFullYear(),data.getMonth()+1,0).toISOString().slice(0
 modoAnoCompleto=false
 render()
 }
-/* ====================================================021 – RENDER (NÍVEL BANCO)==================================================== */
-/* ====================================================021 – RENDER (EDIÇÃO INLINE + CABEÇALHO REAL)==================================================== */
+/* ====================================================021 – RENDER (AGRUPADO POR PERÍODO PROFISSIONAL)==================================================== */
 function render(){
 const lista=document.getElementById("lista")
 const totalEl=document.getElementById("total")
@@ -272,60 +279,96 @@ return Number(mes)-1===mesAtual&&Number(ano)===anoAtual
 }
 if(filtroInicio){listaFiltrada=listaFiltrada.filter(x=>x.data>=filtroInicio)}
 if(filtroFim){listaFiltrada=listaFiltrada.filter(x=>x.data<=filtroFim)}
-/* 🔥 RECEITAS PRIMEIRO */
-listaFiltrada.sort((a,b)=>{
+/* 🔥 AGRUPAR POR MÊS */
+const grupos={}
+listaFiltrada.forEach(x=>{
+if(!x.data)return
+const[ano,mes]=x.data.split("-")
+const chave=`${ano}-${mes}`
+if(!grupos[chave])grupos[chave]=[]
+grupos[chave].push(x)
+})
+const chaves=Object.keys(grupos).sort()
+lista.innerHTML=""
+let totalGeralR=0
+let totalGeralDPago=0
+let totalGeralDPendente=0
+chaves.forEach(chave=>{
+let listaMes=grupos[chave]
+/* 🔥 RECEITA PRIMEIRO DENTRO DO MÊS */
+listaMes.sort((a,b)=>{
 if(a.tipo==="RECEITA"&&b.tipo!=="RECEITA")return-1
 if(a.tipo!=="RECEITA"&&b.tipo==="RECEITA")return 1
 return(a.data||"").localeCompare(b.data||"")
 })
-lista.innerHTML=""
 let totalR=0
 let totalDPago=0
 let totalDPendente=0
-listaFiltrada.forEach((x,i)=>{
+listaMes.forEach(x=>{
 if(x.tipo==="RECEITA"){totalR+=x.valor}else{if(x.pago){totalDPago+=x.valor}else{totalDPendente+=x.valor}}
+})
+totalGeralR+=totalR
+totalGeralDPago+=totalDPago
+totalGeralDPendente+=totalDPendente
+const totalDSP=totalDPago+totalDPendente
+const saldo=totalR-totalDSP
+const[ano,mes]=chave.split("-")
+/* 🔥 CABEÇALHO DO MÊS */
+lista.innerHTML+=`
+<div style="margin-top:15px;font-weight:bold;background:#020617;padding:8px;border-radius:6px;border-left:4px solid #38bdf8">
+📅 ${formatarMesNome(mes)}/${ano}
+</div>
+`
+/* 🔥 RECEITAS NO TOPO */
+listaMes.forEach(x=>{
 const ed=edicoesTemp[x.id]||{}
 const dataVal=ed.data??x.data
 const descVal=ed.descricao??x.descricao
 const catVal=ed.categoria??x.categoria
 const valVal=ed.valor??x.valor
-const linhaReceita=x.tipo==="RECEITA"?"#052e16":"#1e293b"
+const isReceita=x.tipo==="RECEITA"
 lista.innerHTML+=`
-<div style="display:grid;grid-template-columns:100px 1fr 120px 140px 200px;gap:6px;background:${linhaReceita};padding:4px;margin:2px 0;border-radius:6px;align-items:center;font-size:12px;border-left:3px solid ${x.tipo==="RECEITA"?"#22c55e":"#ef4444"}">
-<div>
-${modoEdicao?`<input type="date" value="${dataVal}" onchange="editTemp('${x.id}','data',this.value)">`:formatarDataBR(x.data)}
-</div>
-<div>
-${modoEdicao?`<input type="text" value="${descVal}" onchange="editTemp('${x.id}','descricao',this.value)">`:`${x.tipo==="RECEITA"?"+ ":"- "}${x.descricao}`}
-</div>
+<div style="display:grid;grid-template-columns:100px 1fr 120px 140px 200px;gap:6px;background:${isReceita?"#052e16":"#1e293b"};padding:4px;margin:2px 0;border-radius:6px;align-items:center;font-size:12px;border-left:3px solid ${isReceita?"#22c55e":"#ef4444"}">
+<div>${modoEdicao?`<input type="date" value="${dataVal}" onchange="editTemp('${x.id}','data',this.value)">`:formatarDataBR(x.data)}</div>
+<div>${modoEdicao?`<input type="text" value="${descVal}" onchange="editTemp('${x.id}','descricao',this.value)">`:`${x.tipo==="RECEITA"?"+ ":"- "}${x.descricao}`}</div>
 <div>
 ${modoEdicao?`<select onchange="editTemp('${x.id}','categoria',this.value)">
 <option ${catVal==="GERAL"?"selected":""}>GERAL</option>
-<option ${catVal==="TCERO/Cripto"?"selected":""}>TCERO/Cripto</option>
 <option ${catVal==="CASA"?"selected":""}>CASA</option>
 <option ${catVal==="SAÚDE"?"selected":""}>SAÚDE</option>
 <option ${catVal==="EDUCAÇÃO"?"selected":""}>EDUCAÇÃO</option>
 <option ${catVal==="LAZER"?"selected":""}>LAZER</option>
+<option ${catVal==="TCERO/Cripto"?"selected":""}>TCERO/Cripto</option>
 </select>`:x.categoria}
 </div>
-<div style="text-align:right">
-${modoEdicao?`<input type="number" value="${valVal}" onchange="editTemp('${x.id}','valor',this.value)" style="width:90px">`:(mostrarValores?"R$ "+formatarMoeda(x.valor):"••••")}
-</div>
+<div style="text-align:right">${modoEdicao?`<input type="number" value="${valVal}" onchange="editTemp('${x.id}','valor',this.value)" style="width:90px">`:(mostrarValores?"R$ "+formatarMoeda(x.valor):"••••")}</div>
 <div style="display:flex;gap:5px;justify-content:flex-end">
 <button onclick="marcarPago('${x.id}')" style="background:${x.pago?"#22c55e":"#ef4444"};color:#000;padding:4px 6px;border-radius:4px">${x.pago?"OK":"PEND"}</button>
 ${modoEdicao?`<button onclick="salvarEdicao('${x.id}')" style="background:#3b82f6;color:#fff;padding:4px 6px;border-radius:4px">💾</button>`:""}
 </div>
 </div>`
 })
-const totalDSP=totalDPago+totalDPendente
-const saldo=totalR-totalDSP
+/* 🔥 TOTAIS DO MÊS */
+lista.innerHTML+=`
+<div style="margin:5px 0 15px 0;padding:6px;background:#111827;border-radius:6px;display:flex;gap:12px;justify-content:flex-end;font-size:12px">
+<span style="color:#22c55e">💰 ${formatarMoeda(totalR)}</span>
+<span style="color:#22c55e">✔ ${formatarMoeda(totalDPago)}</span>
+<span style="color:#ef4444">⏳ ${formatarMoeda(totalDPendente)}</span>
+<span style="color:#f59e0b">💸 ${formatarMoeda(totalDSP)}</span>
+<span style="color:${saldo>=0?"#22c55e":"#ef4444"}">${saldo>=0?"📈":"📉"} ${formatarMoeda(saldo)}</span>
+</div>
+`
+})
+/* 🔥 RESUMO GERAL */
+const totalGeralDSP=totalGeralDPago+totalGeralDPendente
+const saldoGeral=totalGeralR-totalGeralDSP
 resumoEl.innerHTML=`
 <div style="display:flex;gap:20px;justify-content:center;font-size:14px;font-weight:bold;flex-wrap:wrap">
-<span style="color:#22c55e">💰 Receitas: ${formatarMoeda(totalR)}</span>
-<span style="color:#22c55e">✔ Pagas: ${formatarMoeda(totalDPago)}</span>
-<span style="color:#ef4444">⏳ Pendentes: ${formatarMoeda(totalDPendente)}</span>
-<span style="color:#f59e0b">💸 Total: ${formatarMoeda(totalDSP)}</span>
-<span style="color:${saldo>=0?"#22c55e":"#ef4444"}">${saldo>=0?"📈":"📉"} Saldo: ${formatarMoeda(saldo)}</span>
+<span style="color:#22c55e">💰 Receitas: ${formatarMoeda(totalGeralR)}</span>
+<span style="color:#22c55e">✔ Pagas: ${formatarMoeda(totalGeralDPago)}</span>
+<span style="color:#ef4444">⏳ Pendentes: ${formatarMoeda(totalGeralDPendente)}</span>
+<span style="color:#f59e0b">💸 Total: ${formatarMoeda(totalGeralDSP)}</span>
+<span style="color:${saldoGeral>=0?"#22c55e":"#ef4444"}">${saldoGeral>=0?"📈":"📉"} Saldo: ${formatarMoeda(saldoGeral)}</span>
 </div>`
 totalEl.innerText=""
 if(mostrarGrafico){atualizarDashboard()}
@@ -478,6 +521,7 @@ const el=document.getElementById(id)
 if(el&&!el.value){el.value=hoje}
 })
 }
+carregarCategorias()
 /* ====================================================035 – EVENTO START==================================================== */
 document.addEventListener("DOMContentLoaded",iniciarSistema)
 
