@@ -281,10 +281,15 @@ lista.innerHTML+=`<div style="font-size:12px;margin-bottom:6px;display:flex;gap:
 grupoAtual=chaveGrupo
 totalMesR=0
 totalMesD=0
+if(x.tipo==="RECEITA"){totalMesR+=x.valor}else{totalMesD+=x.valor}
 lista.innerHTML+=`<div style="margin-top:10px;font-weight:bold;background:#020617;padding:6px;border-radius:6px;border-left:3px solid #38bdf8;font-size:13px;display:flex;justify-content:space-between"><span>📅 ${formatarMesNome(mes)}/${ano}</span><span><span style="color:#22c55e">💰 ${formatarMoeda(totalMesR)}</span> | <span style="color:#ef4444">💸 ${formatarMoeda(totalMesD)}</span> | <span style="color:${(totalMesR-totalMesD)>=0?"#22c55e":"#ef4444"}">${(totalMesR-totalMesD)>=0?"📈":"📉"} ${formatarMoeda(totalMesR-totalMesD)}</span></span></div>`;
 }
-if(x.tipo==="RECEITA"){totalMesR+=x.valor}else{totalMesD+=x.valor}
-lista.innerHTML+=`<div style="display:grid;grid-template-columns:90px 1fr 100px 110px 120px;gap:6px;background:${x.pago?"#052e16":"#1e293b"};padding:4px;margin:2px 0;border-radius:6px;align-items:center;border-left:3px solid ${x.tipo==="RECEITA"?"#22c55e":"#ef4444"};font-size:12px"><div>${formatarDataBR(x.data)}</div><div onclick="marcarPago('${x.id}')" style="cursor:pointer">${x.tipo==="RECEITA"?"+ ":"- "}${x.descricao}</div><div>${x.categoria}</div><div style="text-align:right">${mostrarValores?"R$ "+formatarMoeda(x.valor):"••••"}</div><div style="display:flex;gap:5px;justify-content:flex-end"><button onclick="marcarPago('${x.id}')" style="background:${x.pago?"#22c55e":"#ef4444"};color:#000;padding:4px 6px;border-radius:4px">${x.pago?"OK":"PEND"}</button></div></div>`;
+
+lista.innerHTML+=`<div style="display:grid;grid-template-columns:100px 1fr 120px 140px 200px;gap:6px;background:${x.pago?"#052e16":"#1e293b"};padding:4px;margin:2px 0;border-radius:6px;align-items:center;border-left:3px solid ${x.tipo==="RECEITA"?"#22c55e":"#ef4444"};font-size:12px"><div>${formatarDataBR(x.data)}</div><div onclick="marcarPago('${x.id}')" style="cursor:pointer">${x.tipo==="RECEITA"?"+ ":"- "}${x.descricao}</div><div>${x.categoria}</div><div style="text-align:right">${mostrarValores?"R$ "+formatarMoeda(x.valor):"••••"}</div><div style="display:flex;gap:5px;justify-content:flex-end"><button onclick="marcarPago('${x.id}')" style="background:${x.pago?"#22c55e":"#ef4444"};color:#000;padding:4px 6px;border-radius:4px">${x.pago?"OK":"PEND"}</button></div></div>`;
+/* 🔥 FECHAMENTO DO ÚLTIMO MÊS */
+if(x===listaFiltrada[listaFiltrada.length-1]){
+lista.innerHTML+=`<div style="font-size:12px;margin-bottom:10px;display:flex;gap:12px;justify-content:flex-end"><span style="color:#22c55e">💰 ${formatarMoeda(totalMesR)}</span><span style="color:#ef4444">💸 ${formatarMoeda(totalMesD)}</span><span style="color:${(totalMesR-totalMesD)>=0?"#22c55e":"#ef4444"}">${(totalMesR-totalMesD)>=0?"📈":"📉"} ${formatarMoeda(totalMesR-totalMesD)}</span></div>`;
+}
 });
 totalEl.innerText=""
 resumoEl.innerHTML=`<div style="font-size:16px;font-weight:bold">📅 ${modoAnoCompleto?"Ano Completo":formatarMesNome((new Date().getMonth()+1))+"/"+new Date().getFullYear()}</div>`
