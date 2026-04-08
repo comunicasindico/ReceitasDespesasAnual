@@ -313,10 +313,16 @@ totalGeralDPendente+=totalDPendente
 const totalDSP=totalDPago+totalDPendente
 const saldo=totalR-totalDSP
 const[ano,mes]=chave.split("-")
-/* 🔥 CABEÇALHO DO MÊS */
 lista.innerHTML+=`
 <div style="margin-top:15px;font-weight:bold;background:#020617;padding:8px;border-radius:6px;border-left:4px solid #38bdf8">
-📅 ${formatarMesNome(mes)}/${ano}
+<div>📅 ${formatarMesNome(mes)}/${ano}</div>
+<div style="margin-top:6px;display:flex;gap:12px;flex-wrap:wrap;font-size:12px">
+<span style="color:#22c55e">💰 ${formatarMoeda(totalR)}</span>
+<span style="color:#22c55e">✔ ${formatarMoeda(totalDPago)}</span>
+<span style="color:#ef4444">⏳ ${formatarMoeda(totalDPendente)}</span>
+<span style="color:#f59e0b">💸 ${formatarMoeda(totalDSP)}</span>
+<span style="color:${saldo>=0?"#22c55e":"#ef4444"}">${saldo>=0?"📈":"📉"} ${formatarMoeda(saldo)}</span>
+</div>
 </div>
 `
 /* 🔥 RECEITAS NO TOPO */
@@ -343,8 +349,7 @@ ${modoEdicao?`<select onchange="editTemp('${x.id}','categoria',this.value)">
 </div>
 <div style="text-align:right">${modoEdicao?`<input type="number" value="${valVal}" onchange="editTemp('${x.id}','valor',this.value)" style="width:90px">`:(mostrarValores?"R$ "+formatarMoeda(x.valor):"••••")}</div>
 <div style="display:flex;gap:5px;justify-content:flex-end">
-<button onclick="marcarPago('${x.id}')" style="background:${x.pago?"#22c55e":"#ef4444"};color:#000;padding:4px 6px;border-radius:4px">${x.pago?"OK":"PEND"}</button>
-${modoEdicao?`<button onclick="salvarEdicao('${x.id}')" style="background:#3b82f6;color:#fff;padding:4px 6px;border-radius:4px">💾</button>`:""}
+<button onclick="marcarPago('${x.id}')" style="background:${x.pago?"#22c55e":"#ef4444"};color:#000;padding:4px 6px;border-radius:4px">${x.pago?"OK":"Pendente"}</button>
 </div>
 </div>`
 })
