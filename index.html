@@ -156,11 +156,18 @@ window._renderLock=false
 }
 /* ====================================================007 – SALVAR==================================================== */
 async function salvarRegistro(obj){
+let response
 if(obj.id){
-await db.from("lancamentos").update(obj).eq("id",obj.id)
+response=await db.from("lancamentos").update(obj).eq("id",obj.id)
 }else{
-await db.from("lancamentos").insert(obj)
+response=await db.from("lancamentos").insert(obj)
 }
+if(response.error){
+console.error("ERRO AO SALVAR:",response.error)
+alert("Erro ao salvar: "+response.error.message)
+return
+}
+console.log("SALVO COM SUCESSO:",response.data)
 await carregar()
 }
 /* ====================================================008 – EXCLUIR==================================================== */
@@ -216,7 +223,7 @@ data:dataStr,
 descricao:descEl.value.trim(),
 tipo:tipoEl.value,
 categoria:categoriaEl.value||"GERAL",
-valor:parseFloat((valorEl.value||"0").replace(".","").replace(",",".")),
+valor:Number((valorEl.value||"0").replace(/\./g,"").replace(",","."))
 recorrente:recorrenteEl?.checked||false,
 dia_padrao:parseInt(diaEl?.value)||null,
 dia_vencimento:dataStr?Number(dataStr.split("-")[2]):null,
@@ -228,6 +235,7 @@ if(!obj.data||!obj.descricao){alert("Preencha data e descrição");return}
 if(!obj.valor||obj.valor===0){alert("Valor inválido");return}
 if(editando){obj.id=editando;editando=null;await salvarRegistro(obj);return}
 console.log("SALVANDO:",obj)
+console.log("OBJETO FINAL:",obj)
 await salvarRegistro(obj)
 }
 /* ====================================================013 – NORMALIZAR DATA==================================================== */
