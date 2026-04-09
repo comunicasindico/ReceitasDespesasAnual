@@ -26,7 +26,18 @@ button{cursor:pointer;background:#22c55e;color:#000}
 .shooting-star{position:fixed;top:-10px;width:2px;height:120px;background:linear-gradient(-45deg,#fff,transparent);opacity:0.8;transform:rotate(45deg);animation:shoot 2.5s linear infinite}
 @keyframes shoot{0%{transform:translate(0,0) rotate(45deg);opacity:0}10%{opacity:1}100%{transform:translate(800px,800px) rotate(45deg);opacity:0}}
 /* ====================================================018 – NEBULOSA==================================================== */
-.nebula{position:fixed;top:0;left:0;width:100%;height:100%;background:radial-gradient(circle at 30% 40%,rgba(139,92,246,0.25),transparent 50%),radial-gradient(circle at 70% 60%,rgba(236,72,153,0.2),transparent 50%),radial-gradient(circle at 50% 50%,rgba(59,130,246,0.2),transparent 60%);filter:blur(80px);animation:nebulaMove 25s ease-in-out infinite alternate}
+.nebula{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:radial-gradient(circle at 30% 40%,rgba(139,92,246,0.15),transparent 50%),radial-gradient(circle at 70% 60%,rgba(236,72,153,0.12),transparent 50%),radial-gradient(circle at 50% 50%,rgba(59,130,246,0.12),transparent 60%);
+filter:blur(20px);
+opacity:0.5;
+animation:nebulaMove 25s ease-in-out infinite alternate;
+pointer-events:none
+}
 @keyframes nebulaMove{0%{transform:scale(1) translate(0,0)}100%{transform:scale(1.2) translate(-50px,50px)}}
 /* ====================================================020 – VIA LÁCTEA BASE==================================================== */
 .vialactea{position:fixed;top:0;left:0;width:100%;height:100%;background:linear-gradient(120deg,transparent 20%,rgba(255,255,255,0.15) 40%,rgba(168,85,247,0.25) 50%,rgba(59,130,246,0.25) 60%,transparent 80%),radial-gradient(circle at 30% 60%,rgba(255,255,255,0.12),transparent 60%),radial-gradient(circle at 70% 40%,rgba(168,85,247,0.18),transparent 60%);filter:blur(30px);opacity:0.9;transform:rotate(-25deg) scale(1.5);animation:galaxyMove 35s ease-in-out infinite alternate;pointer-events:none}
@@ -50,7 +61,16 @@ z-index:-1;
 }
 body.login .nebula{display:none!important}
 body.login .shooting-star{display:none!important}
-
+body.login::after{
+content:"";
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,0.35);
+z-index:-1;
+}
 
 
 </style>
