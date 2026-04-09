@@ -192,12 +192,7 @@ await db.from("lancamentos").update({pago:novoStatus,data_pagamento:novoStatus?d
 await carregar()
 }
 /* ====================================================010 – TOGGLE ESTIMATIVA==================================================== */
-async function toggleEstimativa(id){
-const item=dados.find(x=>String(x.id)===String(id))
-if(!item)return
-await db.from("lancamentos").update({estimativa:!item.estimativa}).eq("id",id)
-await carregar()
-}
+
 /* ====================================================011 – EDITAR==================================================== */
 function editarPorId(id){
 const x=dados.find(d=>String(d.id)===String(id))
@@ -229,7 +224,6 @@ recorrente:(recorrenteEl&&recorrenteEl.checked)||false,
 dia_padrao:parseInt((diaEl&&diaEl.value)||0),
 dia_vencimento:dataStr?Number(dataStr.split("-")[2]):null,
 pago:false,
-estimativa:false,
 data_pagamento:null
 }
 if(!obj.data||!obj.descricao){alert("Preencha data e descrição");return}
