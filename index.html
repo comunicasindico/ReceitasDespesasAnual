@@ -57,6 +57,7 @@ body.login .shooting-star{display:none!important}
 </head>
 <body class="login">
 <div class="vialactea"></div>
+<div id="appSistema" style="display:none">
 <div class="nebula"></div>
  
 <div id="telaLogin" style="position:fixed;top:0;left:0;width:100%;height:100%;display:flex;align-items:center;justify-content:center;z-index:9999">
@@ -174,6 +175,7 @@ const pass=document.getElementById("loginPass").value.trim()
 if(user===USUARIO_FIXO&&pass===SENHA_FIXA){
 localStorage.setItem("logado","sim")
 document.getElementById("telaLogin").style.display="none"
+document.getElementById("appSistema").style.display="block"
 /* 🔥 TROCA FUNDO */
 document.body.classList.remove("login")
 document.body.classList.add("app")
@@ -185,12 +187,14 @@ function verificarSessao(){
 const ok=localStorage.getItem("logado")
 if(ok==="sim"){
 document.getElementById("telaLogin").style.display="none"
+document.getElementById("appSistema").style.display="block"
 document.body.classList.remove("login")
 document.body.classList.add("app")
 carregar()
 }else{
 document.getElementById("telaLogin").style.display="flex"
 document.body.classList.add("login")
+document.getElementById("appSistema").style.display="none"
 document.body.classList.remove("app")
 }
 }
@@ -260,6 +264,8 @@ document.getElementById("valor").value=x.valor||0
 }
 /* ====================================================012 – ADD==================================================== */
 async function add(){
+const user = await supabase.auth.getUser()
+obj.user_id = user.data.user.id
 const dataEl=document.getElementById("data")
 const descEl=document.getElementById("desc")
 const tipoEl=document.getElementById("tipo")
@@ -596,9 +602,12 @@ await db.from("lancamentos").insert({data:nova,descricao:r.descricao,tipo:r.tipo
 /* ====================================================034 – INICIAR SISTEMA (DATA PADRÃO GLOBAL)==================================================== */
 async function iniciarSistema(){
 await verificarSessao()
+const logado=localStorage.getItem("logado")
+if(logado==="sim"){
 await carregar()
 await gerarRecorrentes()
 await carregar()
+}
 const hoje=new Date().toISOString().slice(0,10)
 const campos=["data","dataInicio","dataFim"]
 campos.forEach(id=>{
@@ -606,7 +615,6 @@ const el=document.getElementById(id)
 if(el&&!el.value){el.value=hoje}
 })
 }
-carregarCategorias()
 /* ====================================================035 – DELETE CONFIRM)==================================================== */
 function delConfirm(id){
 if(confirm("Deseja realmente excluir este lançamento?")){
