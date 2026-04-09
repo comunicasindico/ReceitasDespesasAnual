@@ -54,7 +54,14 @@ button{cursor:pointer;background:#22c55e;color:#000}
 <input type="date" id="data">
 <input type="text" id="desc" placeholder="Descrição">
 <select id="tipo"><option>DESPESA</option><option>RECEITA</option></select>
-<select id="categoria"></select><option>GERAL</option><option>TCERO/Cripto</option><option>CASA</option><option>SAÚDE</option><option>EDUCAÇÃO</option><option>LAZER</option></select>
+<select id="categoria">
+<option>GERAL</option>
+<option>TCERO/Cripto</option>
+<option>CASA</option>
+<option>SAÚDE</option>
+<option>EDUCAÇÃO</option>
+<option>LAZER</option>
+</select>
 <input type="text" id="valor" placeholder="Valor">
 <button onclick="add()">Adicionar</button>
 <label><input type="checkbox" id="recorrente"> Recorrente</label>
@@ -208,7 +215,7 @@ const obj={
 data:dataStr,
 descricao:descEl.value.trim(),
 tipo:tipoEl.value,
-categoria:categoriaEl.value,
+categoria:categoriaEl.value||"GERAL",
 valor:parseFloat((valorEl.value||"0").replace(".","").replace(",",".")),
 recorrente:recorrenteEl?.checked||false,
 dia_padrao:parseInt(diaEl?.value)||null,
@@ -220,6 +227,7 @@ data_pagamento:null
 if(!obj.data||!obj.descricao){alert("Preencha data e descrição");return}
 if(!obj.valor||obj.valor===0){alert("Valor inválido");return}
 if(editando){obj.id=editando;editando=null;await salvarRegistro(obj);return}
+console.log("SALVANDO:",obj)
 await salvarRegistro(obj)
 }
 /* ====================================================013 – NORMALIZAR DATA==================================================== */
