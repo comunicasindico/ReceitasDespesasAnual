@@ -121,6 +121,7 @@ sel.innerHTML=CATEGORIAS.map(c=>`<option>${c}</option>`).join("")
 }
 /* ====================================================003 – LOGIN==================================================== */
 function loginSistema(){
+console.log("LOGIN CHAMADO")
 const user=document.getElementById("loginUser").value.trim()
 const pass=document.getElementById("loginPass").value.trim()
 if(user===USUARIO_FIXO&&pass===SENHA_FIXA){
@@ -224,7 +225,7 @@ descricao:descEl.value.trim(),
 tipo:tipoEl.value,
 categoria:categoriaEl.value||"GERAL",
 valor:Number((valorEl.value||"0").replace(/\./g,"").replace(",","."))
-recorrente:recorrenteEl?.checked||false,
+recorrente:(recorrenteEl&&recorrenteEl.checked)||false,
 dia_padrao:parseInt(diaEl?.value)||null,
 dia_vencimento:dataStr?Number(dataStr.split("-")[2]):null,
 pago:false,
@@ -565,10 +566,10 @@ del(id)
 }
 }
 /* ====================================================036 – EVENTO START==================================================== */
+ 
+</script>
+<script>
 document.addEventListener("DOMContentLoaded",iniciarSistema)
-
-  
-  
 </script>
 </body>
 </html>
