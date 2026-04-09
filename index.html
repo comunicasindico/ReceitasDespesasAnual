@@ -22,64 +22,23 @@ button{cursor:pointer;background:#22c55e;color:#000}
 .oculto{display:none!important}
 .linha-receita{background:#052e16!important;border-left:4px solid #22c55e}
 .linha-receita-topo{background:#064e3b!important;border-left:4px solid #4ade80;font-weight:bold}
-/* ====================================================017 – ESTRELAS CADENTES==================================================== */
 .shooting-star{position:fixed;top:-10px;width:2px;height:120px;background:linear-gradient(-45deg,#fff,transparent);opacity:0.8;transform:rotate(45deg);animation:shoot 2.5s linear infinite}
 @keyframes shoot{0%{transform:translate(0,0) rotate(45deg);opacity:0}10%{opacity:1}100%{transform:translate(800px,800px) rotate(45deg);opacity:0}}
-/* ====================================================018 – NEBULOSA==================================================== */
-.nebula{
-position:fixed;
-top:0;
-left:0;
-width:100%;
-height:100%;
-background:radial-gradient(circle at 30% 40%,rgba(139,92,246,0.15),transparent 50%),radial-gradient(circle at 70% 60%,rgba(236,72,153,0.12),transparent 50%),radial-gradient(circle at 50% 50%,rgba(59,130,246,0.12),transparent 60%);
-filter:blur(20px);
-opacity:0.5;
-animation:nebulaMove 25s ease-in-out infinite alternate;
-pointer-events:none
-}
+.nebula{position:fixed;top:0;left:0;width:100%;height:100%;background:radial-gradient(circle at 30% 40%,rgba(139,92,246,0.15),transparent 50%),radial-gradient(circle at 70% 60%,rgba(236,72,153,0.12),transparent 50%),radial-gradient(circle at 50% 50%,rgba(59,130,246,0.12),transparent 60%);filter:blur(20px);opacity:0.5;animation:nebulaMove 25s ease-in-out infinite alternate;pointer-events:none}
 @keyframes nebulaMove{0%{transform:scale(1) translate(0,0)}100%{transform:scale(1.2) translate(-50px,50px)}}
-/* ====================================================020 – VIA LÁCTEA BASE==================================================== */
-.vialactea{position:fixed;top:0;left:0;width:100%;height:100%;background:linear-gradient(120deg,transparent 20%,rgba(255,255,255,0.15) 40%,rgba(168,85,247,0.25) 50%,rgba(59,130,246,0.25) 60%,transparent 80%),radial-gradient(circle at 30% 60%,rgba(255,255,255,0.12),transparent 60%),radial-gradient(circle at 70% 40%,rgba(168,85,247,0.18),transparent 60%);filter:blur(30px);opacity:0.9;transform:rotate(-25deg) scale(1.5);animation:galaxyMove 35s ease-in-out infinite alternate;pointer-events:none}
+body.app .vialactea{position:fixed;top:0;left:0;width:100%;height:100%;background:linear-gradient(120deg,transparent 20%,rgba(255,255,255,0.15) 40%,rgba(168,85,247,0.25) 50%,rgba(59,130,246,0.25) 60%,transparent 80%),radial-gradient(circle at 30% 60%,rgba(255,255,255,0.12),transparent 60%),radial-gradient(circle at 70% 40%,rgba(168,85,247,0.18),transparent 60%);filter:blur(30px);opacity:0.9;transform:rotate(-25deg) scale(1.5);animation:galaxyMove 35s ease-in-out infinite alternate;pointer-events:none}
 @keyframes galaxyMove{0%{transform:rotate(-25deg) scale(1.4) translate(0,0)}100%{transform:rotate(-20deg) scale(1.6) translate(-80px,60px)}}
-/* ====================================================APP – FUNDO SISTEMA==================================================== */
-body.app .vialactea{display:none}
-/* ====================================================LOGIN – FUNDO REAL==================================================== */
 body.login{background:#000!important}
 body.login::before{display:none!important}
-body.login .vialactea{
-position:fixed;
-top:0;
-left:0;
-width:100vw;
-height:100vh;
-background-image:url("https://images-assets.nasa.gov/image/iss040e008244/iss040e008244~orig.jpg");
-background-size:contain;
-background-position:center;
-background-repeat:no-repeat;
-z-index:-1;
-}
+body.login .vialactea{position:fixed;top:0;left:0;width:100vw;height:100vh;background-image:url("https://images-assets.nasa.gov/image/iss040e008244/iss040e008244~orig.jpg");background-size:contain;background-position:center;background-repeat:no-repeat;z-index:-1;filter:none!important;opacity:1!important;transform:none!important}
 body.login .nebula{display:none!important}
 body.login .shooting-star{display:none!important}
-body.login::after{
-content:"";
-position:fixed;
-top:0;
-left:0;
-width:100%;
-height:100%;
-background:rgba(0,0,0,0.15);
-z-index:-1;
-}
-
-
+body.login::after{content:"";position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.05);z-index:-1}
 </style>
 </head>
 <body class="login">
 <div class="vialactea"></div>
 <div class="nebula"></div>
-
-<!-- 🔐 LOGIN (FORA DO SISTEMA) -->
 <div id="telaLogin" style="position:fixed;top:0;left:0;width:100%;height:100%;display:flex;align-items:center;justify-content:center;z-index:9999">
 <div style="background:rgba(17,24,39,0.85);backdrop-filter:blur(12px);padding:30px;border-radius:16px;width:320px;display:flex;flex-direction:column;gap:12px;box-shadow:0 0 40px rgba(0,0,0,0.6);border:1px solid rgba(255,255,255,0.1)">
 <h2 style="text-align:center">Acesso</h2>
@@ -88,15 +47,11 @@ z-index:-1;
 <button onclick="loginSistema()">Entrar</button>
 </div>
 </div>
-
-<!-- 🚀 SISTEMA -->
 <div id="appSistema" style="display:none">
-
 <div style="display:flex;justify-content:space-between;align-items:center">
 <h1>ReceitasDespesasAnual PRO</h1>
 <button onclick="logout()" style="background:#ef4444;color:#fff">Sair</button>
 </div>
-
 <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:10px">
 <input type="date" id="dataInicio">
 <input type="date" id="dataFim">
@@ -108,11 +63,9 @@ z-index:-1;
 <button onclick="toggleGrafico()">📊 Gráfico</button>
 <button onclick="toggleModoEdicao()" style="background:#f59e0b;color:#000">✏️ Modo Edição</button>
 </div>
-
 <button onclick="toggleInsercao()" style="margin:10px 0">➕ Inserir lançamento</button>
 <button onclick="toggleModoEdicao()" id="btnEditar" style="background:#f59e0b">✏️ Editar</button>
 <button onclick="salvarTudo()" id="btnSalvar" style="background:#22c55e;display:none">💾 Salvar</button>
-
 <div id="boxInsercao" class="topo" style="display:none">
 <input type="date" id="data">
 <input type="text" id="desc" placeholder="Descrição">
@@ -130,32 +83,19 @@ z-index:-1;
 <label><input type="checkbox" id="recorrente"> Recorrente</label>
 <input type="number" id="diaPadrao" placeholder="Dia" style="width:70px">
 </div>
-
 <div id="resumo" class="resumo"></div>
 <button onclick="limparFiltros()">🔍 Ver todos os períodos</button>
-
-<div style="max-width:500px;height:300px;margin:20px auto">
-<canvas id="graficoResumo"></canvas>
-</div>
-
-<div style="max-width:700px;height:300px;margin:20px auto">
-<canvas id="graficoMensal"></canvas>
-</div>
-
+<div style="max-width:500px;height:300px;margin:20px auto"><canvas id="graficoResumo"></canvas></div>
+<div style="max-width:700px;height:300px;margin:20px auto"><canvas id="graficoMensal"></canvas></div>
 <h2 id="total"></h2>
-
 <div style="display:grid;grid-template-columns:100px 1fr 120px 140px 200px;gap:10px;margin-top:20px;font-weight:bold">
 <div>Data</div><div>Descrição</div><div>Categoria</div><div>Valor</div><div>Ações</div>
 </div>
-
 <div id="lista"></div>
-
-</div> <!-- 🔴 FECHAMENTO CORRETO DO appSistema -->
-
+</div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-
 /* ====================================================000 – USUÁRIO FIXO==================================================== */
 const USUARIO_FIXO="admin"
 const SENHA_FIXA="123456"
