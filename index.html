@@ -4,10 +4,12 @@
 <meta charset="UTF-8">
 <title>ReceitasDespesasAnual PRO</title>
 <link rel="icon" href="data:,">
+
 <style>
 body{font-family:Arial;color:#fff;padding:20px;background:radial-gradient(circle at 20% 30%,rgba(99,102,241,0.25),transparent 40%),radial-gradient(circle at 80% 70%,rgba(236,72,153,0.25),transparent 40%),radial-gradient(circle at 50% 50%,#020617,#020617 60%,#000 100%);overflow-x:hidden;position:relative}
 body::before{content:"";position:fixed;top:0;left:0;width:100%;height:100%;background-image:radial-gradient(2px 2px at 20px 30px,#fff,transparent),radial-gradient(2px 2px at 100px 150px,#fff,transparent),radial-gradient(1px 1px at 200px 80px,#fff,transparent),radial-gradient(2px 2px at 300px 200px,#fff,transparent),radial-gradient(1px 1px at 400px 120px,#fff,transparent);background-repeat:repeat;animation:starsMove 60s linear infinite;opacity:0.4;z-index:0}
 body>*{position:relative;z-index:1}
+.vialactea,.nebula,.shooting-star{z-index:0}
 @keyframes starsMove{from{transform:translateY(0)}to{transform:translateY(-1000px)}}
 h1{text-align:center}
 input,select,button{padding:8px;margin:5px;border-radius:6px;border:none}
@@ -21,32 +23,31 @@ button{cursor:pointer;background:#22c55e;color:#000}
 .linha-receita{background:#052e16!important;border-left:4px solid #22c55e}
 .linha-receita-topo{background:#064e3b!important;border-left:4px solid #4ade80;font-weight:bold}
 /* ====================================================017 – ESTRELAS CADENTES==================================================== */
-.shooting-star{position:fixed;top:-10px;width:2px;height:120px;background:linear-gradient(-45deg,#fff,transparent);opacity:0.8;transform:rotate(45deg);animation:shoot 2.5s linear infinite;z-index:0}
+.shooting-star{position:fixed;top:-10px;width:2px;height:120px;background:linear-gradient(-45deg,#fff,transparent);opacity:0.8;transform:rotate(45deg);animation:shoot 2.5s linear infinite}
 @keyframes shoot{0%{transform:translate(0,0) rotate(45deg);opacity:0}10%{opacity:1}100%{transform:translate(800px,800px) rotate(45deg);opacity:0}}
 /* ====================================================018 – NEBULOSA==================================================== */
-.nebula{position:fixed;top:0;left:0;width:100%;height:100%;background:radial-gradient(circle at 30% 40%,rgba(139,92,246,0.25),transparent 50%),radial-gradient(circle at 70% 60%,rgba(236,72,153,0.2),transparent 50%),radial-gradient(circle at 50% 50%,rgba(59,130,246,0.2),transparent 60%);filter:blur(80px);animation:nebulaMove 25s ease-in-out infinite alternate;z-index:0}
+.nebula{position:fixed;top:0;left:0;width:100%;height:100%;background:radial-gradient(circle at 30% 40%,rgba(139,92,246,0.25),transparent 50%),radial-gradient(circle at 70% 60%,rgba(236,72,153,0.2),transparent 50%),radial-gradient(circle at 50% 50%,rgba(59,130,246,0.2),transparent 60%);filter:blur(80px);animation:nebulaMove 25s ease-in-out infinite alternate}
 @keyframes nebulaMove{0%{transform:scale(1) translate(0,0)}100%{transform:scale(1.2) translate(-50px,50px)}}
-/* ====================================================020 – VIA LÁCTEA==================================================== */
-.vialactea{position:fixed;top:0;left:0;width:100%;height:100%;background:linear-gradient(120deg,transparent 20%,rgba(255,255,255,0.15) 40%,rgba(168,85,247,0.25) 50%,rgba(59,130,246,0.25) 60%,transparent 80%),radial-gradient(circle at 30% 60%,rgba(255,255,255,0.12),transparent 60%),radial-gradient(circle at 70% 40%,rgba(168,85,247,0.18),transparent 60%);filter:blur(30px);opacity:0.9;transform:rotate(-25deg) scale(1.5);animation:galaxyMove 35s ease-in-out infinite alternate;z-index:0;pointer-events:none}
+/* ====================================================020 – VIA LÁCTEA BASE==================================================== */
+.vialactea{position:fixed;top:0;left:0;width:100%;height:100%;background:linear-gradient(120deg,transparent 20%,rgba(255,255,255,0.15) 40%,rgba(168,85,247,0.25) 50%,rgba(59,130,246,0.25) 60%,transparent 80%),radial-gradient(circle at 30% 60%,rgba(255,255,255,0.12),transparent 60%),radial-gradient(circle at 70% 40%,rgba(168,85,247,0.18),transparent 60%);filter:blur(30px);opacity:0.9;transform:rotate(-25deg) scale(1.5);animation:galaxyMove 35s ease-in-out infinite alternate;pointer-events:none}
 @keyframes galaxyMove{0%{transform:rotate(-25deg) scale(1.4) translate(0,0)}100%{transform:rotate(-20deg) scale(1.6) translate(-80px,60px)}}
+/* ====================================================APP – FUNDO SISTEMA==================================================== */
 body.app .vialactea{display:none}
 /* ====================================================LOGIN – FUNDO REAL==================================================== */
-body.login{background:#000!important;}
-body.login::before{display:none!important;}
-body.login .vialactea{position:fixed;top:0;left:0;width:100%;height:100%;background:
-linear-gradient(rgba(2,6,23,0.75),rgba(2,6,23,0.9)),
-url("https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?q=80&w=1920&auto=format&fit=crop");
-background-size:cover;background-position:center;background-repeat:no-repeat;filter:none;opacity:1;z-index:0;}
+body.login{background:#000!important}
+body.login::before{display:none!important}
+body.login .vialactea{position:fixed;top:0;left:0;width:100vw;height:100vh;background-image:url("https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?q=80&w=1920&auto=format&fit=crop");background-size:cover;background-position:center;background-repeat:no-repeat;filter:none;opacity:1;z-index:-1}
 body.login .nebula{display:none!important}
 body.login .shooting-star{display:none!important}
 
- 
+
+
 </style>
 </head>
 <body class="login">
- 
-<div class="vialactea"></div>
+ <div class="vialactea"></div>
 <div class="nebula"></div>
+ 
 <div id="telaLogin" style="position:fixed;top:0;left:0;width:100%;height:100%;background:#020617;display:flex;align-items:center;justify-content:center;z-index:9999">
 <div style="background:#111827;padding:30px;border-radius:10px;width:300px;display:flex;flex-direction:column;gap:10px">
 <h2 style="text-align:center">Acesso</h2>
