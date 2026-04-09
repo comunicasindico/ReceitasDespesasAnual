@@ -79,11 +79,33 @@ z-index:0;
 body > *{position:relative;z-index:1;}
 .nebula{z-index:0;}
 .shooting-star{z-index:0;}
-
+.vialactea{z-index:0;}
+/* ====================================================020 – VIA LÁCTEA==================================================== */
+.vialactea{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:
+radial-gradient(ellipse at 50% 50%, rgba(255,255,255,0.12), transparent 60%),
+radial-gradient(ellipse at 40% 60%, rgba(99,102,241,0.15), transparent 60%),
+radial-gradient(ellipse at 60% 40%, rgba(236,72,153,0.12), transparent 60%);
+filter:blur(60px);
+opacity:0.6;
+transform:rotate(-20deg) scale(1.4);
+animation:galaxyMove 40s ease-in-out infinite alternate;
+z-index:0;
+}
+@keyframes galaxyMove{
+0%{transform:rotate(-20deg) scale(1.3) translate(0,0)}
+100%{transform:rotate(-15deg) scale(1.5) translate(-50px,30px)}
+}
  
 </style>
 </head>
 <body>
+<div class="vialactea"></div>
 <div class="nebula"></div>
 <div id="telaLogin" style="position:fixed;top:0;left:0;width:100%;height:100%;background:#020617;display:flex;align-items:center;justify-content:center;z-index:9999">
 <div style="background:#111827;padding:30px;border-radius:10px;width:300px;display:flex;flex-direction:column;gap:10px">
