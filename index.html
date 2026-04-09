@@ -207,8 +207,11 @@ document.body.classList.remove("app")
 }
 }
 /* ====================================================005 – LOGOUT==================================================== */
-function logout(){localStorage.removeItem("logado");location.reload()}
-/* ====================================================006 – CARREGAR==================================================== */
+async function logout(){
+await supabaseClient.auth.signOut()
+location.reload()
+}
+ /* ====================================================006 – CARREGAR==================================================== */
 async function carregar(){
 const {data,error}=await supabaseClient.from("lancamentos").select("*").order("data",{ascending:true})
 if(error){alert("Erro ao carregar");return}
