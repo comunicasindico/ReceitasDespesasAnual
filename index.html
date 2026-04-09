@@ -57,28 +57,20 @@ body.login .shooting-star{display:none!important}
 </head>
 <body class="login">
 <div class="vialactea"></div>
-<div id="appSistema" style="display:none">
 <div class="nebula"></div>
- 
+
+<!-- 🔐 LOGIN (FORA DO SISTEMA) -->
 <div id="telaLogin" style="position:fixed;top:0;left:0;width:100%;height:100%;display:flex;align-items:center;justify-content:center;z-index:9999">
-<div style="
-background:rgba(17,24,39,0.75);
-backdrop-filter:blur(12px);
-padding:30px;
-border-radius:16px;
-width:320px;
-display:flex;
-flex-direction:column;
-gap:12px;
-box-shadow:0 0 40px rgba(0,0,0,0.6);
-border:1px solid rgba(255,255,255,0.1)
-">
+<div style="background:rgba(17,24,39,0.75);backdrop-filter:blur(12px);padding:30px;border-radius:16px;width:320px;display:flex;flex-direction:column;gap:12px;box-shadow:0 0 40px rgba(0,0,0,0.6);border:1px solid rgba(255,255,255,0.1)">
 <h2 style="text-align:center">Acesso</h2>
 <input id="loginUser" placeholder="Usuário">
 <input id="loginPass" type="password" placeholder="Senha">
 <button onclick="loginSistema()">Entrar</button>
 </div>
 </div>
+
+<!-- 🚀 SISTEMA -->
+<div id="appSistema" style="display:none">
 
 <div style="display:flex;justify-content:space-between;align-items:center">
 <h1>ReceitasDespesasAnual PRO</h1>
@@ -96,9 +88,11 @@ border:1px solid rgba(255,255,255,0.1)
 <button onclick="toggleGrafico()">📊 Gráfico</button>
 <button onclick="toggleModoEdicao()" style="background:#f59e0b;color:#000">✏️ Modo Edição</button>
 </div>
+
 <button onclick="toggleInsercao()" style="margin:10px 0">➕ Inserir lançamento</button>
 <button onclick="toggleModoEdicao()" id="btnEditar" style="background:#f59e0b">✏️ Editar</button>
 <button onclick="salvarTudo()" id="btnSalvar" style="background:#22c55e;display:none">💾 Salvar</button>
+
 <div id="boxInsercao" class="topo" style="display:none">
 <input type="date" id="data">
 <input type="text" id="desc" placeholder="Descrição">
@@ -119,12 +113,15 @@ border:1px solid rgba(255,255,255,0.1)
 
 <div id="resumo" class="resumo"></div>
 <button onclick="limparFiltros()">🔍 Ver todos os períodos</button>
+
 <div style="max-width:500px;height:300px;margin:20px auto">
 <canvas id="graficoResumo"></canvas>
 </div>
+
 <div style="max-width:700px;height:300px;margin:20px auto">
 <canvas id="graficoMensal"></canvas>
 </div>
+
 <h2 id="total"></h2>
 
 <div style="display:grid;grid-template-columns:100px 1fr 120px 140px 200px;gap:10px;margin-top:20px;font-weight:bold">
@@ -132,6 +129,8 @@ border:1px solid rgba(255,255,255,0.1)
 </div>
 
 <div id="lista"></div>
+
+</div> <!-- 🔴 FECHAMENTO CORRETO DO appSistema -->
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -145,7 +144,7 @@ const SENHA_FIXA="123456"
 ==================================================== */
 const SUPABASE_URL="https://gspdlrenyrzbkxlvyugc.supabase.co"
 const SUPABASE_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdzcGRscmVueXJ6Ymt4bHZ5dWdjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ4ODU0NzAsImV4cCI6MjA5MDQ2MTQ3MH0.UWfkWvOh4qMDEcByVL-KZ6ejJ80V7wJlDOFH76TywaI"
-const db=supabase.createClient(SUPABASE_URL,SUPABASE_KEY)
+const supabaseClient=supabase.createClient(SUPABASE_URL,SUPABASE_KEY)
 /* ====================================================002 – ESTADO==================================================== */
 let dados=[]
 let editando=null
@@ -172,23 +171,27 @@ sel.innerHTML=CATEGORIAS.map(c=>`<option>${c}</option>`).join("")
 async function loginSistema(){
 const email=document.getElementById("loginUser").value.trim()
 const senha=document.getElementById("loginPass").value.trim()
-const {data,error}=await supabase.auth.signInWithPassword({
+
+const {data,error}=await supabaseClient.auth.signInWithPassword({
 email:email,
 password:senha
 })
+
 if(error){
 alert("Login inválido")
 return
 }
+
 document.getElementById("telaLogin").style.display="none"
 document.getElementById("appSistema").style.display="block"
 document.body.classList.remove("login")
 document.body.classList.add("app")
+
 carregar()
 }
 /* ====================================================004 – SESSÃO REAL==================================================== */
 async function verificarSessao(){
-const {data}=await supabase.auth.getSession()
+const {data}=await supabaseClient.auth.getSession()
 
 if(data.session){
 document.getElementById("telaLogin").style.display="none"
@@ -207,7 +210,7 @@ document.body.classList.remove("app")
 function logout(){localStorage.removeItem("logado");location.reload()}
 /* ====================================================006 – CARREGAR==================================================== */
 async function carregar(){
-const {data,error}=await db.from("lancamentos").select("*").order("data",{ascending:true})
+const {data,error}=await supabaseClient.from("lancamentos").select("*").order("data",{ascending:true})
 if(error){alert("Erro ao carregar");return}
 dados=data||[]
 if(!window._renderLock){
@@ -222,9 +225,9 @@ window._renderLock=false
 async function salvarRegistro(obj){
 let response
 if(obj.id){
-response=await db.from("lancamentos").update(obj).eq("id",obj.id)
+response=await supabaseClient.from("lancamentos").update(obj).eq("id",obj.id)
 }else{
-response=await db.from("lancamentos").insert(obj)
+response=await supabaseClient.from("lancamentos").insert(obj)
 }
 if(response.error){
 console.error("ERRO AO SALVAR:",response.error)
@@ -236,7 +239,7 @@ await carregar()
 }
 /* ====================================================008 – EXCLUIR==================================================== */
 async function del(id){
-await db.from("lancamentos").delete().eq("id",id)
+await supabaseClient.from("lancamentos").delete().eq("id",id)
 await carregar()
 }
 /* ====================================================009 – MARCAR PAGO (COM BLOQUEIO)==================================================== */
@@ -251,7 +254,7 @@ return
 const novoStatus=!item.pago
 const hoje=new Date()
 const dataLocal=`${hoje.getFullYear()}-${String(hoje.getMonth()+1).padStart(2,"0")}-${String(hoje.getDate()).padStart(2,"0")}`
-await db.from("lancamentos").update({pago:novoStatus,data_pagamento:novoStatus?dataLocal:null}).eq("id",id)
+await supabaseClient.from("lancamentos").update({pago:novoStatus,data_pagamento:novoStatus?dataLocal:null}).eq("id",id)
 await carregar()
 }
 /* ====================================================010 – TOGGLE ESTIMATIVA==================================================== */
@@ -335,7 +338,7 @@ const original=dados.find(x=>String(x.id)===String(id))
 if(!original)return
 const alteracoes=edicoesTemp[id]||{}
 const atualizado={...original,...alteracoes,valor:parseFloat(alteracoes.valor??original.valor)}
-await db.from("lancamentos").update(atualizado).eq("id",id)
+await supabaseClient.from("lancamentos").update(atualizado).eq("id",id)
 delete edicoesTemp[id]
 await carregar()
 }
@@ -510,13 +513,13 @@ const ano=new Date().getFullYear()
 const mes=parseInt(document.getElementById("mesBase")?.value||new Date().getMonth()+1)-1
 const mesAnterior=mes-1
 if(mesAnterior<0){alert("Sem mês anterior");return}
-const {data:anteriores}=await db.from("lancamentos").select("*").gte("data",`${ano}-${String(mesAnterior+1).padStart(2,"0")}-01`).lte("data",`${ano}-${String(mesAnterior+1).padStart(2,"0")}-31`)
-const {data:atuais}=await db.from("lancamentos").select("*").gte("data",`${ano}-${String(mes+1).padStart(2,"0")}-01`).lte("data",`${ano}-${String(mes+1).padStart(2,"0")}-31`)
+const {data:anteriores}=await supabaseClient.from("lancamentos").select("*").gte("data",`${ano}-${String(mesAnterior+1).padStart(2,"0")}-01`).lte("data",`${ano}-${String(mesAnterior+1).padStart(2,"0")}-31`)
+const {data:atuais}=await supabaseClient.from("lancamentos").select("*").gte("data",`${ano}-${String(mes+1).padStart(2,"0")}-01`).lte("data",`${ano}-${String(mes+1).padStart(2,"0")}-31`)
 const existentes=new Set((atuais||[]).map(x=>x.descricao))
 for(const x of (anteriores||[])){
 if(!existentes.has(x.descricao)){
 const dia=x.data.split("-")[2]
-await db.from("lancamentos").insert({data:`${ano}-${String(mes+1).padStart(2,"0")}-${dia}`,descricao:x.descricao,tipo:x.tipo,categoria:x.categoria,valor:x.valor,pago:false})
+await supabaseClient.from("lancamentos").insert({data:`${ano}-${String(mes+1).padStart(2,"0")}-${dia}`,descricao:x.descricao,tipo:x.tipo,categoria:x.categoria,valor:x.valor,pago:false})
 }
 }
 alert("Mês criado com sucesso")
@@ -583,7 +586,7 @@ const original=dados.find(x=>String(x.id)===String(id))
 if(!original)continue
 const alteracoes=edicoesTemp[id]
 const atualizado={...original,...alteracoes,valor:parseFloat(alteracoes.valor??original.valor)}
-await db.from("lancamentos").update(atualizado).eq("id",id)
+await supabaseClient.from("lancamentos").update(atualizado).eq("id",id)
 }
 edicoesTemp={}
 modoEdicao=false
@@ -601,14 +604,14 @@ async function gerarRecorrentes(){
 const hoje=new Date()
 const ano=hoje.getFullYear()
 const mes=hoje.getMonth()+1
-const {data:rec,error}=await db.from("lancamentos").select("*").eq("recorrente",true)
+const {data:rec,error}=await supabaseClient.from("lancamentos").select("*").eq("recorrente",true)
 if(error)return
 for(const r of (rec||[])){
 let dia=r.dia_padrao||1
 let nova=`${ano}-${String(mes).padStart(2,"0")}-${String(dia).padStart(2,"0")}`
 const existe=dados.find(x=>x.descricao===r.descricao&&x.tipo===r.tipo&&x.categoria===r.categoria&&x.data===nova)
 if(!existe){
-await db.from("lancamentos").insert({data:nova,descricao:r.descricao,tipo:r.tipo,categoria:r.categoria,valor:r.valor,recorrente:true,dia_padrao:dia,pago:false,estimativa:false,data_pagamento:null,dia_vencimento:dia})
+await supabaseClient.from("lancamentos").insert({data:nova,descricao:r.descricao,tipo:r.tipo,categoria:r.categoria,valor:r.valor,recorrente:true,dia_padrao:dia,pago:false,estimativa:false,data_pagamento:null,dia_vencimento:dia})
 }
 }
 }
