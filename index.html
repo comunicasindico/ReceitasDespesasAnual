@@ -456,18 +456,41 @@ let m=getMesBase(x)
 if(!meses[m])meses[m]={r:0,d:0}
 if(x.tipo==="RECEITA"){r+=x.valor;meses[m].r+=x.valor}else{d+=x.valor;meses[m].d+=x.valor}
 })
+const gradReceita=ctxResumo.createLinearGradient(0,0,0,300)
+gradReceita.addColorStop(0,"#22c55e")
+gradReceita.addColorStop(1,"#14532d")
+
+const gradDespesa=ctxResumo.createLinearGradient(0,0,0,300)
+gradDespesa.addColorStop(0,"#ef4444")
+gradDespesa.addColorStop(1,"#7f1d1d")
 graficoResumo=new Chart(ctxResumo,{
 type:"doughnut",
-data:{labels:["Receitas","Despesas"],datasets:[{data:[r,d]}]},
-options:{responsive:true,maintainAspectRatio:false}
-})
-graficoMensal=new Chart(ctxMensal,{
-type:"bar",
-data:{labels:["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"],datasets:[
-{label:"Receitas",data:Array.from({length:12},(_,i)=>meses[i]?.r||0)},
-{label:"Despesas",data:Array.from({length:12},(_,i)=>meses[i]?.d||0)}
-]},
-options:{responsive:true,maintainAspectRatio:false}
+data:{
+labels:["Receitas","Despesas"],
+datasets:[{
+data:[r,d],
+backgroundColor:[gradReceita,gradDespesa],
+borderColor:"#111",
+borderWidth:2,
+hoverOffset:20
+}]
+},
+options:{
+responsive:true,
+maintainAspectRatio:false,
+cutout:"60%",
+plugins:[{
+id:"shadow",
+beforeDraw(chart){
+const ctx=chart.ctx
+ctx.save()
+ctx.shadowColor="rgba(0,0,0,0.5)"
+ctx.shadowBlur=20
+ctx.shadowOffsetX=0
+ctx.shadowOffsetY=10
+}
+}]
+}
 })
 }
 /* ====================================================023 – COPIAR MÊS==================================================== */
