@@ -168,24 +168,29 @@ const sel=document.getElementById("categoria")
 if(!sel)return
 sel.innerHTML=CATEGORIAS.map(c=>`<option>${c}</option>`).join("")
 }
-/* ====================================================003 – LOGIN==================================================== */
-function loginSistema(){
-const user=document.getElementById("loginUser").value.trim()
-const pass=document.getElementById("loginPass").value.trim()
-if(user===USUARIO_FIXO&&pass===SENHA_FIXA){
-localStorage.setItem("logado","sim")
+//* ====================================================003 – LOGIN REAL==================================================== */
+async function loginSistema(){
+const email=document.getElementById("loginUser").value.trim()
+const senha=document.getElementById("loginPass").value.trim()
+const {data,error}=await supabase.auth.signInWithPassword({
+email:email,
+password:senha
+})
+if(error){
+alert("Login inválido")
+return
+}
 document.getElementById("telaLogin").style.display="none"
 document.getElementById("appSistema").style.display="block"
-/* 🔥 TROCA FUNDO */
 document.body.classList.remove("login")
 document.body.classList.add("app")
 carregar()
-}else{alert("Login inválido")}
 }
-/* ====================================================004 – SESSÃO==================================================== */
-function verificarSessao(){
-const ok=localStorage.getItem("logado")
-if(ok==="sim"){
+/* ====================================================004 – SESSÃO REAL==================================================== */
+async function verificarSessao(){
+const {data}=await supabase.auth.getSession()
+
+if(data.session){
 document.getElementById("telaLogin").style.display="none"
 document.getElementById("appSistema").style.display="block"
 document.body.classList.remove("login")
@@ -193,8 +198,8 @@ document.body.classList.add("app")
 carregar()
 }else{
 document.getElementById("telaLogin").style.display="flex"
-document.body.classList.add("login")
 document.getElementById("appSistema").style.display="none"
+document.body.classList.add("login")
 document.body.classList.remove("app")
 }
 }
@@ -262,10 +267,16 @@ document.getElementById("tipo").value=x.tipo||"DESPESA"
 document.getElementById("categoria").value=x.categoria||"GERAL"
 document.getElementById("valor").value=x.valor||0
 }
-/* ====================================================012 – ADD==================================================== */
+/* ====================================================012 – ADD (REAL)==================================================== */
 async function add(){
-const user = await supabase.auth.getUser()
-obj.user_id = user.data.user.id
+const {data:userData}=await supabase.auth.getUser()
+const user=userData.user
+
+if(!user){
+alert("Usuário não autenticado")
+return
+}
+
 const dataEl=document.getElementById("data")
 const descEl=document.getElementById("desc")
 const tipoEl=document.getElementById("tipo")
@@ -273,7 +284,9 @@ const categoriaEl=document.getElementById("categoria")
 const valorEl=document.getElementById("valor")
 const recorrenteEl=document.getElementById("recorrente")
 const diaEl=document.getElementById("diaPadrao")
+
 const dataStr=normalizarDataLocal(dataEl.value)
+
 const obj={
 data:dataStr,
 descricao:descEl.value.trim(),
@@ -284,13 +297,13 @@ recorrente:(recorrenteEl&&recorrenteEl.checked)||false,
 dia_padrao:parseInt((diaEl&&diaEl.value)||0),
 dia_vencimento:dataStr?Number(dataStr.split("-")[2]):null,
 pago:false,
-data_pagamento:null
+data_pagamento:null,
+user_id:user.id
 }
+
 if(!obj.data||!obj.descricao){alert("Preencha data e descrição");return}
 if(!obj.valor||obj.valor===0){alert("Valor inválido");return}
-if(editando){obj.id=editando;editando=null;await salvarRegistro(obj);return}
-console.log("SALVANDO:",obj)
-console.log("OBJETO FINAL:",obj)
+
 await salvarRegistro(obj)
 }
 /* ====================================================013 – NORMALIZAR DATA==================================================== */
