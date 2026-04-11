@@ -224,8 +224,7 @@ alert("Item já está pago. Para alterar, ative o modo edição.")
 return
 }
 const novoStatus=!item.pago
-const hoje=new Date()
-const dataLocal=`${hoje.getFullYear()}-${String(hoje.getMonth()+1).padStart(2,"0")}-${String(hoje.getDate()).padStart(2,"0")}`
+const dataLocal=hojeLocal()
 await supabaseClient.from("lancamentos").update({pago:novoStatus,data_pagamento:novoStatus?dataLocal:null}).eq("id",id)
 await carregar()
 }
@@ -283,6 +282,14 @@ return `${ano}-${mes}-${dia}`
 /* ====================================================014 – FORMATADORES==================================================== */
 function formatarMoeda(v){return Number(v||0).toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2})}
 function formatarDataBR(d){if(!d)return"";const [ano,mes,dia]=d.split("-");return`${dia}/${mes}/${ano}`}
+/* ====================================================000C – DATA LOCAL BRASIL==================================================== */
+function hojeLocal(){
+const d=new Date()
+const ano=d.getFullYear()
+const mes=String(d.getMonth()+1).padStart(2,"0")
+const dia=String(d.getDate()).padStart(2,"0")
+return `${ano}-${mes}-${dia}`
+}
 /* ====================================================015 – MÊS BASE==================================================== */
 function getMesBase(x){
 if(!x.data)return
@@ -321,8 +328,11 @@ render()
 function aplicarMesOffset(){
 const hoje=new Date()
 const data=new Date(hoje.getFullYear(),hoje.getMonth()+mesOffset,1)
-filtroInicio=data.toISOString().slice(0,7)+"-01"
-filtroFim=new Date(data.getFullYear(),data.getMonth()+1,0).toISOString().slice(0,10)
+const ano=data.getFullYear()
+const mes=String(data.getMonth()+1).padStart(2,"0")
+const ultimoDia=new Date(data.getFullYear(),data.getMonth()+1,0).getDate()
+filtroInicio=`${ano}-${mes}-01`
+filtroFim=`${ano}-${mes}-${String(ultimoDia).padStart(2,"0")}`
 modoAnoCompleto=false
 render()
 }
@@ -567,7 +577,6 @@ const meses=["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","
 return meses[Number(m)-1]||m
 }
 /* ====================================================033 – RECORRÊNCIA==================================================== */
-/* ====================================================033 – RECORRÊNCIA==================================================== */
 async function gerarRecorrentes(){
 const {data:userData,error:userError}=await supabaseClient.auth.getUser()
 if(userError||!userData.user){
@@ -615,7 +624,7 @@ console.error("ERRO INSERT:",insertError,payload)
 async function iniciarSistema(){
 carregarCategorias()
 await verificarSessao()
-const hoje=new Date().toISOString().slice(0,10)
+const hoje=hojeLocal()
 const campos=["data","dataInicio","dataFim"]
 campos.forEach(id=>{
 const el=document.getElementById(id)
