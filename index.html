@@ -140,13 +140,21 @@ sel.innerHTML=CATEGORIAS.map(c=>`<option>${c}</option>`).join("")
 async function loginSistema(){
 const email=document.getElementById("loginUser").value.trim()
 const senha=document.getElementById("loginPass").value.trim()
+if(!email||!senha){
+alert("Preencha e-mail e senha")
+return
+}
 const {error}=await supabaseClient.auth.signInWithPassword({email:email,password:senha})
-if(error){alert("Login inválido");return}
+if(error){
+alert("Login inválido")
+return
+}
 localStorage.setItem("logado","sim")
 document.getElementById("telaLogin").style.display="none"
 document.getElementById("appSistema").style.display="block"
 document.body.classList.remove("login")
 document.body.classList.add("app")
+await carregar()
 await gerarRecorrentes()
 await carregar()
 }
@@ -158,6 +166,7 @@ document.getElementById("telaLogin").style.display="none"
 document.getElementById("appSistema").style.display="block"
 document.body.classList.remove("login")
 document.body.classList.add("app")
+await carregar()
 await gerarRecorrentes()
 await carregar()
 }else{
@@ -558,6 +567,7 @@ const meses=["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","
 return meses[Number(m)-1]||m
 }
 /* ====================================================033 – RECORRÊNCIA==================================================== */
+/* ====================================================033 – RECORRÊNCIA==================================================== */
 async function gerarRecorrentes(){
 const {data:userData,error:userError}=await supabaseClient.auth.getUser()
 if(userError||!userData.user){
@@ -568,43 +578,36 @@ const user=userData.user
 const hoje=new Date()
 const ano=hoje.getFullYear()
 const mes=hoje.getMonth()+1
-const {data:rec,error}=await supabaseClient
-.from("lancamentos")
-.select("*")
-.eq("recorrente",true)
+const primeiroDiaMes=`${ano}-${String(mes).padStart(2,"0")}-01`
+const {data:rec,error}=await supabaseClient.from("lancamentos").select("*").eq("recorrente",true).eq("user_id",user.id).lt("data",primeiroDiaMes).order("data",{ascending:true})
 if(error){
 console.error("Erro ao buscar recorrentes:",error)
 return
 }
+const modelosMap=new Map()
 for(const r of (rec||[])){
-let dia=r.dia_padrao||1
-let nova=`${ano}-${String(mes).padStart(2,"0")}-${String(dia).padStart(2,"0")}`
-const existe=dados.find(x=>
-x.descricao===r.descricao &&
-x.tipo===r.tipo &&
-x.categoria===r.categoria &&
-x.data===nova
-)
-if(!existe){
-const payload={
-data:nova,
-descricao:r.descricao,
-tipo:r.tipo,
-categoria:r.categoria,
-valor:r.valor,
-recorrente:true,
-dia_padrao:dia,
-pago:false,
-data_pagamento:null,
-dia_vencimento:dia,
-user_id:user.id
+const dia=Number(r.dia_padrao||r.dia_vencimento||1)
+const chaveModelo=[r.descricao||"",r.tipo||"",r.categoria||"",Number(r.valor||0),dia,String(r.user_id||"")].join("|")
+if(!modelosMap.has(chaveModelo)){
+modelosMap.set(chaveModelo,{descricao:r.descricao,tipo:r.tipo,categoria:r.categoria,valor:r.valor,dia_padrao:dia,user_id:r.user_id})
 }
-const {error:insertError}=await supabaseClient
-.from("lancamentos")
-.insert(payload)
+}
+const modelos=[...modelosMap.values()]
+for(const r of modelos){
+const dia=Number(r.dia_padrao||1)
+const nova=`${ano}-${String(mes).padStart(2,"0")}-${String(dia).padStart(2,"0")}`
+const {data:existente,error:erroExistente}=await supabaseClient.from("lancamentos").select("id").eq("user_id",user.id).eq("data",nova).eq("descricao",r.descricao).eq("tipo",r.tipo).eq("categoria",r.categoria).eq("valor",r.valor).limit(1)
+if(erroExistente){
+console.error("Erro ao verificar duplicidade:",erroExistente)
+continue
+}
+if(existente&&existente.length>0){
+continue
+}
+const payload={data:nova,descricao:r.descricao,tipo:r.tipo,categoria:r.categoria,valor:r.valor,recorrente:true,dia_padrao:dia,pago:false,data_pagamento:null,dia_vencimento:dia,user_id:user.id}
+const {error:insertError}=await supabaseClient.from("lancamentos").insert(payload)
 if(insertError){
-console.error("ERRO INSERT:",insertError)
-}
+console.error("ERRO INSERT:",insertError,payload)
 }
 }
 }
