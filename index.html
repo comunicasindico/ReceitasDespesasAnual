@@ -2,12 +2,13 @@
 <html lang="pt-br">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>ReceitasDespesasAnual PRO</title>
 <link rel="icon" href="data:,">
-
 <style>
-body{font-family:Arial;color:#fff;padding:20px;background:radial-gradient(circle at 20% 30%,rgba(99,102,241,0.25),transparent 40%),radial-gradient(circle at 80% 70%,rgba(236,72,153,0.25),transparent 40%),radial-gradient(circle at 50% 50%,#020617,#020617 60%,#000 100%);overflow-x:hidden;position:relative}
-body::before{content:"";position:fixed;top:0;left:0;width:100%;height:100%;background-image:radial-gradient(2px 2px at 20px 30px,#fff,transparent),radial-gradient(2px 2px at 100px 150px,#fff,transparent),radial-gradient(1px 1px at 200px 80px,#fff,transparent),radial-gradient(2px 2px at 300px 200px,#fff,transparent),radial-gradient(1px 1px at 400px 120px,#fff,transparent);background-repeat:repeat;animation:starsMove 60s linear infinite;opacity:0.4;z-index:0}
+html,body{margin:0;padding:0;min-height:100%;overflow-x:hidden}
+body{font-family:Arial;color:#fff;padding:20px;background:radial-gradient(circle at 20% 30%,rgba(99,102,241,0.25),transparent 40%),radial-gradient(circle at 80% 70%,rgba(236,72,153,0.25),transparent 40%),radial-gradient(circle at 50% 50%,#020617,#020617 60%,#000 100%);position:relative}
+body::before{content:"";position:fixed;top:0;left:0;width:100%;height:100%;background-image:radial-gradient(2px 2px at 20px 30px,#fff,transparent),radial-gradient(2px 2px at 100px 150px,#fff,transparent),radial-gradient(1px 1px at 200px 80px,#fff,transparent),radial-gradient(2px 2px at 300px 200px,#fff,transparent),radial-gradient(1px 1px at 400px 120px,#fff,transparent);background-repeat:repeat;animation:starsMove 60s linear infinite;opacity:.4;z-index:0;pointer-events:none}
 body>*{position:relative;z-index:1}
 .vialactea,.nebula,.shooting-star{z-index:0}
 @keyframes starsMove{from{transform:translateY(0)}to{transform:translateY(-1000px)}}
@@ -22,33 +23,39 @@ button{cursor:pointer;background:#22c55e;color:#000}
 .oculto{display:none!important}
 .linha-receita{background:#052e16!important;border-left:4px solid #22c55e}
 .linha-receita-topo{background:#064e3b!important;border-left:4px solid #4ade80;font-weight:bold}
-.shooting-star{position:fixed;top:-10px;width:2px;height:120px;background:linear-gradient(-45deg,#fff,transparent);opacity:0.8;transform:rotate(45deg);animation:shoot 2.5s linear infinite}
+.shooting-star{position:fixed;top:-10px;width:2px;height:120px;background:linear-gradient(-45deg,#fff,transparent);opacity:.8;transform:rotate(45deg);animation:shoot 2.5s linear infinite;pointer-events:none}
 @keyframes shoot{0%{transform:translate(0,0) rotate(45deg);opacity:0}10%{opacity:1}100%{transform:translate(800px,800px) rotate(45deg);opacity:0}}
-.nebula{position:fixed;top:0;left:0;width:100%;height:100%;background:radial-gradient(circle at 30% 40%,rgba(139,92,246,0.15),transparent 50%),radial-gradient(circle at 70% 60%,rgba(236,72,153,0.12),transparent 50%),radial-gradient(circle at 50% 50%,rgba(59,130,246,0.12),transparent 60%);filter:blur(20px);opacity:0.5;animation:nebulaMove 25s ease-in-out infinite alternate;pointer-events:none}
+.nebula{position:fixed;top:0;left:0;width:100%;height:100%;background:radial-gradient(circle at 30% 40%,rgba(139,92,246,0.15),transparent 50%),radial-gradient(circle at 70% 60%,rgba(236,72,153,0.12),transparent 50%),radial-gradient(circle at 50% 50%,rgba(59,130,246,0.12),transparent 60%);filter:blur(20px);opacity:.5;animation:nebulaMove 25s ease-in-out infinite alternate;pointer-events:none}
 @keyframes nebulaMove{0%{transform:scale(1) translate(0,0)}100%{transform:scale(1.2) translate(-50px,50px)}}
-body.app .vialactea{position:fixed;top:0;left:0;width:100%;height:100%;background:linear-gradient(120deg,transparent 20%,rgba(255,255,255,0.15) 40%,rgba(168,85,247,0.25) 50%,rgba(59,130,246,0.25) 60%,transparent 80%),radial-gradient(circle at 30% 60%,rgba(255,255,255,0.12),transparent 60%),radial-gradient(circle at 70% 40%,rgba(168,85,247,0.18),transparent 60%);filter:blur(30px);opacity:0.9;transform:rotate(-25deg) scale(1.5);animation:galaxyMove 35s ease-in-out infinite alternate;pointer-events:none}
+body.app .vialactea{position:fixed;top:0;left:0;width:100%;height:100%;background:linear-gradient(120deg,transparent 20%,rgba(255,255,255,0.15) 40%,rgba(168,85,247,0.25) 50%,rgba(59,130,246,0.25) 60%,transparent 80%),radial-gradient(circle at 30% 60%,rgba(255,255,255,0.12),transparent 60%),radial-gradient(circle at 70% 40%,rgba(168,85,247,0.18),transparent 60%);filter:blur(30px);opacity:.9;transform:rotate(-25deg) scale(1.5);animation:galaxyMove 35s ease-in-out infinite alternate;pointer-events:none}
 @keyframes galaxyMove{0%{transform:rotate(-25deg) scale(1.4) translate(0,0)}100%{transform:rotate(-20deg) scale(1.6) translate(-80px,60px)}}
-body.login{background:#000!important}
+body.login{background:#000!important;padding:0}
 body.login::before{display:none!important}
-body.login .vialactea{position:fixed;top:0;left:0;width:100vw;height:100vh;background-image:url("https://images-assets.nasa.gov/image/iss040e008244/iss040e008244~orig.jpg");background-size:contain;background-position:center;background-repeat:no-repeat;z-index:-1;filter:none!important;opacity:1!important;transform:none!important}
+body.login .vialactea{display:none!important}
 body.login .nebula{display:none!important}
 body.login .shooting-star{display:none!important}
-body.login::after{content:"";position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.05);z-index:-1}
+#telaLogin{position:fixed;top:0;left:0;width:100%;height:100%;display:flex;align-items:center;justify-content:center;z-index:9999;overflow:hidden}
+#loginBg{position:absolute;top:-40px;left:-40px;width:calc(100% + 80px);height:calc(100% + 80px);background:url("img/lua.jpeg") no-repeat center center;background-size:cover;transform:translate3d(0,0,0) scale(1.08);will-change:transform;transition:transform .08s linear;z-index:0}
+#loginBg::after{content:"";position:absolute;inset:0;background:rgba(0,0,0,.28)}
+#loginCard{position:relative;background:rgba(17,24,39,.82);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);padding:30px;border-radius:16px;width:320px;display:flex;flex-direction:column;gap:12px;box-shadow:0 0 40px rgba(0,0,0,.6);border:1px solid rgba(255,255,255,.1);z-index:1}
+#loginCard h2{text-align:center;margin:0 0 6px 0}
+#appSistema{position:relative;z-index:2}
 </style>
 </head>
 <body class="login">
 <div class="vialactea"></div>
 <div class="nebula"></div>
-<div id="telaLogin" style="position:fixed;top:0;left:0;width:100%;height:100%;display:flex;align-items:center;justify-content:center;z-index:9999">
-<div style="background:rgba(17,24,39,0.85);backdrop-filter:blur(12px);padding:30px;border-radius:16px;width:320px;display:flex;flex-direction:column;gap:12px;box-shadow:0 0 40px rgba(0,0,0,0.6);border:1px solid rgba(255,255,255,0.1)">
-<h2 style="text-align:center">Acesso</h2>
+<div id="telaLogin">
+<div id="loginBg"></div>
+<div id="loginCard">
+<h2>Acesso</h2>
 <input id="loginUser" placeholder="Usuário">
 <input id="loginPass" type="password" placeholder="Senha">
 <button onclick="loginSistema()">Entrar</button>
 </div>
 </div>
 <div id="appSistema" style="display:none">
-<div style="display:flex;justify-content:space-between;align-items:center">
+<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
 <h1>ReceitasDespesasAnual PRO</h1>
 <button onclick="logout()" style="background:#ef4444;color:#fff">Sair</button>
 </div>
@@ -63,9 +70,11 @@ body.login::after{content:"";position:fixed;top:0;left:0;width:100%;height:100%;
 <button onclick="toggleGrafico()">📊 Gráfico</button>
 <button onclick="toggleModoEdicao()" style="background:#f59e0b;color:#000">✏️ Modo Edição</button>
 </div>
-<button onclick="toggleInsercao()" style="margin:10px 0">➕ Inserir lançamento</button>
+<div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:10px 0">
+<button onclick="toggleInsercao()">➕ Inserir lançamento</button>
 <button onclick="toggleModoEdicao()" id="btnEditar" style="background:#f59e0b">✏️ Editar</button>
 <button onclick="salvarTudo()" id="btnSalvar" style="background:#22c55e;display:none">💾 Salvar</button>
+</div>
 <div id="boxInsercao" class="topo" style="display:none">
 <input type="date" id="data">
 <input type="text" id="desc" placeholder="Descrição">
@@ -84,24 +93,25 @@ body.login::after{content:"";position:fixed;top:0;left:0;width:100%;height:100%;
 <input type="number" id="diaPadrao" placeholder="Dia" style="width:70px">
 </div>
 <div id="resumo" class="resumo"></div>
+<div style="margin-top:10px">
 <button onclick="limparFiltros()">🔍 Ver todos os períodos</button>
+</div>
 <div style="max-width:500px;height:300px;margin:20px auto"><canvas id="graficoResumo"></canvas></div>
 <div style="max-width:700px;height:300px;margin:20px auto"><canvas id="graficoMensal"></canvas></div>
 <h2 id="total"></h2>
 <div style="display:grid;grid-template-columns:100px 1fr 120px 140px 200px;gap:10px;margin-top:20px;font-weight:bold">
-<div>Data</div><div>Descrição</div><div>Categoria</div><div>Valor</div><div>Ações</div>
+<div>Data</div>
+<div>Descrição</div>
+<div>Categoria</div>
+<div style="text-align:right">Valor</div>
+<div style="text-align:right">Ações</div>
 </div>
 <div id="lista"></div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-/* ====================================================000 – USUÁRIO FIXO==================================================== */
-const USUARIO_FIXO="admin"
-const SENHA_FIXA="123456"
-/* ====================================================
-001 – CONFIG
-==================================================== */
+/* ====================================================001 – CONFIG==================================================== */
 const SUPABASE_URL="https://gspdlrenyrzbkxlvyugc.supabase.co"
 const SUPABASE_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdzcGRscmVueXJ6Ymt4bHZ5dWdjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ4ODU0NzAsImV4cCI6MjA5MDQ2MTQ3MH0.UWfkWvOh4qMDEcByVL-KZ6ejJ80V7wJlDOFH76TywaI"
 const supabaseClient=supabase.createClient(SUPABASE_URL,SUPABASE_KEY)
@@ -119,46 +129,37 @@ let filtroFim=null
 let modoAnoCompleto=false
 let mesOffset=0
 let mostrarGrafico=true
-/* ====================================================000A – CATEGORIAS PADRÃO==================================================== */
+/* ====================================================003 – CATEGORIAS==================================================== */
 const CATEGORIAS=["GERAL","TCERO/Cripto","CASA","SAÚDE","EDUCAÇÃO","LAZER"]
-/* ====================================================000B – CARREGAR CATEGORIAS==================================================== */
 function carregarCategorias(){
 const sel=document.getElementById("categoria")
 if(!sel)return
 sel.innerHTML=CATEGORIAS.map(c=>`<option>${c}</option>`).join("")
 }
-//* ====================================================003 – LOGIN REAL==================================================== */
+/* ====================================================004 – LOGIN==================================================== */
 async function loginSistema(){
 const email=document.getElementById("loginUser").value.trim()
 const senha=document.getElementById("loginPass").value.trim()
-
-const {data,error}=await supabaseClient.auth.signInWithPassword({
-email:email,
-password:senha
-})
-
-if(error){
-alert("Login inválido")
-return
-}
-
+const {error}=await supabaseClient.auth.signInWithPassword({email:email,password:senha})
+if(error){alert("Login inválido");return}
+localStorage.setItem("logado","sim")
 document.getElementById("telaLogin").style.display="none"
 document.getElementById("appSistema").style.display="block"
 document.body.classList.remove("login")
 document.body.classList.add("app")
-
-carregar()
+await gerarRecorrentes()
+await carregar()
 }
-/* ====================================================004 – SESSÃO REAL==================================================== */
+/* ====================================================005 – SESSÃO==================================================== */
 async function verificarSessao(){
 const {data}=await supabaseClient.auth.getSession()
-
 if(data.session){
 document.getElementById("telaLogin").style.display="none"
 document.getElementById("appSistema").style.display="block"
 document.body.classList.remove("login")
 document.body.classList.add("app")
-carregar()
+await gerarRecorrentes()
+await carregar()
 }else{
 document.getElementById("telaLogin").style.display="flex"
 document.getElementById("appSistema").style.display="none"
@@ -166,12 +167,13 @@ document.body.classList.add("login")
 document.body.classList.remove("app")
 }
 }
-/* ====================================================005 – LOGOUT==================================================== */
+/* ====================================================006 – LOGOUT==================================================== */
 async function logout(){
+localStorage.removeItem("logado")
 await supabaseClient.auth.signOut()
 location.reload()
 }
- /* ====================================================006 – CARREGAR==================================================== */
+/* ====================================================007 – CARREGAR==================================================== */
 async function carregar(){
 const {data,error}=await supabaseClient.from("lancamentos").select("*").order("data",{ascending:true})
 if(error){alert("Erro ao carregar");return}
@@ -184,7 +186,7 @@ window._renderLock=false
 })
 }
 }
-/* ====================================================007 – SALVAR==================================================== */
+/* ====================================================008 – SALVAR==================================================== */
 async function salvarRegistro(obj){
 let response
 if(obj.id){
@@ -197,19 +199,17 @@ console.error("ERRO AO SALVAR:",response.error)
 alert("Erro ao salvar: "+response.error.message)
 return
 }
-console.log("SALVO COM SUCESSO:",response.data)
 await carregar()
 }
-/* ====================================================008 – EXCLUIR==================================================== */
+/* ====================================================009 – EXCLUIR==================================================== */
 async function del(id){
 await supabaseClient.from("lancamentos").delete().eq("id",id)
 await carregar()
 }
-/* ====================================================009 – MARCAR PAGO (COM BLOQUEIO)==================================================== */
+/* ====================================================010 – MARCAR PAGO==================================================== */
 async function marcarPago(id){
 const item=dados.find(x=>String(x.id)===String(id))
 if(!item)return
-/* 🔒 BLOQUEIO: não permite voltar para pendente fora do modo edição */
 if(item.pago&&!modoEdicao){
 alert("Item já está pago. Para alterar, ative o modo edição.")
 return
@@ -220,8 +220,6 @@ const dataLocal=`${hoje.getFullYear()}-${String(hoje.getMonth()+1).padStart(2,"0
 await supabaseClient.from("lancamentos").update({pago:novoStatus,data_pagamento:novoStatus?dataLocal:null}).eq("id",id)
 await carregar()
 }
-/* ====================================================010 – TOGGLE ESTIMATIVA==================================================== */
-
 /* ====================================================011 – EDITAR==================================================== */
 function editarPorId(id){
 const x=dados.find(d=>String(d.id)===String(id))
@@ -253,7 +251,7 @@ tipo:tipoEl.value,
 categoria:categoriaEl.value||"GERAL",
 valor:Number((valorEl.value||"0").replace(/\./g,"").replace(",",".")),
 recorrente:(recorrenteEl&&recorrenteEl.checked)||false,
-dia_padrao:parseInt((diaEl&&diaEl.value)||0),
+dia_padrao:parseInt((diaEl&&diaEl.value)||0)||null,
 dia_vencimento:dataStr?Number(dataStr.split("-")[2]):null,
 pago:false,
 data_pagamento:null,
@@ -264,16 +262,22 @@ if(!obj.valor||obj.valor===0){alert("Valor inválido");return}
 await salvarRegistro(obj)
 document.getElementById("desc").value=""
 document.getElementById("valor").value=""
+document.getElementById("recorrente").checked=false
+document.getElementById("diaPadrao").value=""
 }
 /* ====================================================013 – NORMALIZAR DATA==================================================== */
-function normalizarDataLocal(dataStr){if(!dataStr)return null;const[ano,mes,dia]=dataStr.split("-");return`${ano}-${mes}-${dia}`}
+function normalizarDataLocal(dataStr){
+if(!dataStr)return null
+const [ano,mes,dia]=dataStr.split("-")
+return `${ano}-${mes}-${dia}`
+}
 /* ====================================================014 – FORMATADORES==================================================== */
-function formatarMoeda(v){return Number(v||0).toLocaleString("pt-BR",{minimumFractionDigits:2})}
-function formatarDataBR(d){if(!d)return"";const[ano,mes,dia]=d.split("-");return`${dia}/${mes}/${ano}`}
+function formatarMoeda(v){return Number(v||0).toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2})}
+function formatarDataBR(d){if(!d)return"";const [ano,mes,dia]=d.split("-");return`${dia}/${mes}/${ano}`}
 /* ====================================================015 – MÊS BASE==================================================== */
 function getMesBase(x){
 if(!x.data)return
-const[ano,mes]=x.data.split("-")
+const [ano,mes]=x.data.split("-")
 return Number(mes)-1
 }
 /* ====================================================016 – MODO EDIÇÃO==================================================== */
@@ -281,6 +285,7 @@ function toggleModoEdicao(){
 modoEdicao=!modoEdicao
 document.getElementById("btnSalvar").style.display=modoEdicao?"inline-block":"none"
 document.getElementById("btnEditar").innerText=modoEdicao?"❌ Cancelar":"✏️ Editar"
+if(!modoEdicao)edicoesTemp={}
 render()
 }
 /* ====================================================017 – EDIT TEMP==================================================== */
@@ -299,7 +304,10 @@ delete edicoesTemp[id]
 await carregar()
 }
 /* ====================================================019 – TOGGLE ITEM==================================================== */
-function toggleValor(id){visibilidade[id]=!visibilidade[id];render()}
+function toggleValor(id){
+visibilidade[id]=!visibilidade[id]
+render()
+}
 /* ====================================================020 – APLICAR OFFSET==================================================== */
 function aplicarMesOffset(){
 const hoje=new Date()
@@ -309,7 +317,7 @@ filtroFim=new Date(data.getFullYear(),data.getMonth()+1,0).toISOString().slice(0
 modoAnoCompleto=false
 render()
 }
-/* ====================================================021 – RENDER (AGRUPADO POR PERÍODO PROFISSIONAL)==================================================== */
+/* ====================================================021 – RENDER==================================================== */
 function render(){
 const lista=document.getElementById("lista")
 const totalEl=document.getElementById("total")
@@ -321,17 +329,16 @@ const anoAtual=hoje.getFullYear()
 if(!modoAnoCompleto&&!filtroInicio&&!filtroFim){
 listaFiltrada=listaFiltrada.filter(x=>{
 if(!x.data)return false
-const[ano,mes]=x.data.split("-")
+const [ano,mes]=x.data.split("-")
 return Number(mes)-1===mesAtual&&Number(ano)===anoAtual
 })
 }
-if(filtroInicio){listaFiltrada=listaFiltrada.filter(x=>x.data>=filtroInicio)}
-if(filtroFim){listaFiltrada=listaFiltrada.filter(x=>x.data<=filtroFim)}
-/* 🔥 AGRUPAR POR MÊS */
+if(filtroInicio)listaFiltrada=listaFiltrada.filter(x=>x.data>=filtroInicio)
+if(filtroFim)listaFiltrada=listaFiltrada.filter(x=>x.data<=filtroFim)
 const grupos={}
 listaFiltrada.forEach(x=>{
 if(!x.data)return
-const[ano,mes]=x.data.split("-")
+const [ano,mes]=x.data.split("-")
 const chave=`${ano}-${mes}`
 if(!grupos[chave])grupos[chave]=[]
 grupos[chave].push(x)
@@ -343,7 +350,6 @@ let totalGeralDPago=0
 let totalGeralDPendente=0
 chaves.forEach(chave=>{
 let listaMes=grupos[chave]
-/* 🔥 RECEITA PRIMEIRO DENTRO DO MÊS */
 listaMes.sort((a,b)=>{
 if(a.tipo==="RECEITA"&&b.tipo!=="RECEITA")return-1
 if(a.tipo!=="RECEITA"&&b.tipo==="RECEITA")return 1
@@ -353,26 +359,18 @@ let totalR=0
 let totalDPago=0
 let totalDPendente=0
 listaMes.forEach(x=>{
-if(x.tipo==="RECEITA"){totalR+=x.valor}else{if(x.pago){totalDPago+=x.valor}else{totalDPendente+=x.valor}}
+if(x.tipo==="RECEITA"){totalR+=Number(x.valor||0)}else{if(x.pago){totalDPago+=Number(x.valor||0)}else{totalDPendente+=Number(x.valor||0)}}
 })
 totalGeralR+=totalR
 totalGeralDPago+=totalDPago
 totalGeralDPendente+=totalDPendente
 const totalDSP=totalDPago+totalDPendente
 const saldo=totalR-totalDSP
-const[ano,mes]=chave.split("-")
+const [ano,mes]=chave.split("-")
 lista.innerHTML+=`
-<div style="margin-top:15px;background:#020617;padding:8px;border-radius:6px;border-left:4px solid #38bdf8;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap">
+<div style="margin-top:15px;background:#020617;padding:8px;border-radius:6px;border-left:4px solid #38bdf8;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
 <div style="font-weight:bold">📅 ${formatarMesNome(mes)}/${ano}</div>
-<div style="display:flex;gap:12px;font-size:12px">
-<span style="color:#22c55e">💰 ${formatarMoeda(totalR)}</span>
-<span style="color:#22c55e">✔ ${formatarMoeda(totalDPago)}</span>
-<span style="color:#ef4444">⏳ ${formatarMoeda(totalDPendente)}</span>
-<span style="color:#f59e0b">💸 ${formatarMoeda(totalDSP)}</span>
-<span style="color:${saldo>=0?"#22c55e":"#ef4444"}">${saldo>=0?"📈":"📉"} ${formatarMoeda(saldo)}</span>
-</div>
-</div>
-<div style="margin-top:6px;display:flex;gap:12px;flex-wrap:wrap;font-size:12px">
+<div style="display:flex;gap:12px;flex-wrap:wrap;font-size:12px">
 <span style="color:#22c55e">💰 ${formatarMoeda(totalR)}</span>
 <span style="color:#22c55e">✔ ${formatarMoeda(totalDPago)}</span>
 <span style="color:#ef4444">⏳ ${formatarMoeda(totalDPendente)}</span>
@@ -381,7 +379,6 @@ lista.innerHTML+=`
 </div>
 </div>
 `
-/* 🔥 RECEITAS NO TOPO */
 listaMes.forEach(x=>{
 const ed=edicoesTemp[x.id]||{}
 const dataVal=ed.data??x.data
@@ -391,29 +388,19 @@ const valVal=ed.valor??x.valor
 const isReceita=x.tipo==="RECEITA"
 lista.innerHTML+=`
 <div style="display:grid;grid-template-columns:100px 1fr 120px 140px 200px;gap:6px;background:${isReceita?"#052e16":"#1e293b"};padding:4px;margin:2px 0;border-radius:6px;align-items:center;font-size:12px;border-left:3px solid ${isReceita?"#22c55e":"#ef4444"}">
-<div>${modoEdicao?`<input type="date" value="${dataVal}" onchange="editTemp('${x.id}','data',this.value)">`:formatarDataBR(x.data)}</div>
-<div>${modoEdicao?`<input type="text" value="${descVal}" onchange="editTemp('${x.id}','descricao',this.value)">`:`${x.tipo==="RECEITA"?"+ ":"- "}${x.descricao}`}</div>
-<div>
-${modoEdicao?`<select onchange="editTemp('${x.id}','categoria',this.value)">
-<option ${catVal==="GERAL"?"selected":""}>GERAL</option>
-<option ${catVal==="CASA"?"selected":""}>CASA</option>
-<option ${catVal==="SAÚDE"?"selected":""}>SAÚDE</option>
-<option ${catVal==="EDUCAÇÃO"?"selected":""}>EDUCAÇÃO</option>
-<option ${catVal==="LAZER"?"selected":""}>LAZER</option>
-<option ${catVal==="TCERO/Cripto"?"selected":""}>TCERO/Cripto</option>
-</select>`:x.categoria}
-</div>
+<div>${modoEdicao?`<input type="date" value="${dataVal||""}" onchange="editTemp('${x.id}','data',this.value)">`:formatarDataBR(x.data)}</div>
+<div>${modoEdicao?`<input type="text" value="${String(descVal||"").replace(/"/g,"&quot;")}" onchange="editTemp('${x.id}','descricao',this.value)">`:`${x.tipo==="RECEITA"?"+ ":"- "}${x.descricao||""}`}</div>
+<div>${modoEdicao?`<select onchange="editTemp('${x.id}','categoria',this.value)"><option ${catVal==="GERAL"?"selected":""}>GERAL</option><option ${catVal==="CASA"?"selected":""}>CASA</option><option ${catVal==="SAÚDE"?"selected":""}>SAÚDE</option><option ${catVal==="EDUCAÇÃO"?"selected":""}>EDUCAÇÃO</option><option ${catVal==="LAZER"?"selected":""}>LAZER</option><option ${catVal==="TCERO/Cripto"?"selected":""}>TCERO/Cripto</option></select>`:(x.categoria||"")}</div>
 <div style="text-align:right">${modoEdicao?`<input type="number" value="${valVal}" onchange="editTemp('${x.id}','valor',this.value)" style="width:90px">`:(mostrarValores?"R$ "+formatarMoeda(x.valor):"••••")}</div>
-<div style="display:flex;gap:5px;justify-content:flex-end">
+<div style="display:flex;gap:5px;justify-content:flex-end;flex-wrap:wrap">
 <button onclick="marcarPago('${x.id}')" style="background:${x.pago?"#22c55e":"#ef4444"};color:#000;padding:4px 6px;border-radius:4px">${x.pago?"OK":"PEND"}</button>
 ${modoEdicao?`<button onclick="delConfirm('${x.id}')" style="background:#ef4444;color:#fff;padding:4px 6px;border-radius:4px">🗑</button>`:""}
 </div>
 </div>
-</div>`
+`
 })
-/* 🔥 TOTAIS DO MÊS */
 lista.innerHTML+=`
-<div style="margin:5px 0 15px 0;padding:6px;background:#111827;border-radius:6px;display:flex;gap:12px;justify-content:flex-end;font-size:12px">
+<div style="margin:5px 0 15px 0;padding:6px;background:#111827;border-radius:6px;display:flex;gap:12px;justify-content:flex-end;flex-wrap:wrap;font-size:12px">
 <span style="color:#22c55e">💰 ${formatarMoeda(totalR)}</span>
 <span style="color:#22c55e">✔ ${formatarMoeda(totalDPago)}</span>
 <span style="color:#ef4444">⏳ ${formatarMoeda(totalDPendente)}</span>
@@ -422,7 +409,6 @@ lista.innerHTML+=`
 </div>
 `
 })
-/* 🔥 RESUMO GERAL */
 const totalGeralDSP=totalGeralDPago+totalGeralDPendente
 const saldoGeral=totalGeralR-totalGeralDSP
 resumoEl.innerHTML=`
@@ -432,15 +418,19 @@ resumoEl.innerHTML=`
 <span style="color:#ef4444">⏳ Pendentes: ${formatarMoeda(totalGeralDPendente)}</span>
 <span style="color:#f59e0b">💸 Total: ${formatarMoeda(totalGeralDSP)}</span>
 <span style="color:${saldoGeral>=0?"#22c55e":"#ef4444"}">${saldoGeral>=0?"📈":"📉"} Saldo: ${formatarMoeda(saldoGeral)}</span>
-</div>`
+</div>
+`
 totalEl.innerText=""
-if(mostrarGrafico){atualizarDashboard()}
+if(mostrarGrafico)atualizarDashboard()
 }
 /* ====================================================022 – DASHBOARD==================================================== */
 function atualizarDashboard(){
 if(typeof Chart==="undefined")return
-const ctxResumo=document.getElementById("graficoResumo").getContext("2d")
-const ctxMensal=document.getElementById("graficoMensal").getContext("2d")
+const elResumo=document.getElementById("graficoResumo")
+const elMensal=document.getElementById("graficoMensal")
+if(!elResumo||!elMensal)return
+const ctxResumo=elResumo.getContext("2d")
+const ctxMensal=elMensal.getContext("2d")
 if(graficoResumo)graficoResumo.destroy()
 if(graficoMensal)graficoMensal.destroy()
 let listaFiltrada=[...dados]
@@ -450,17 +440,18 @@ const anoAtual=hoje.getFullYear()
 if(!modoAnoCompleto&&!filtroInicio&&!filtroFim){
 listaFiltrada=listaFiltrada.filter(x=>{
 if(!x.data)return false
-const[ano,mes]=x.data.split("-")
+const [ano,mes]=x.data.split("-")
 return Number(mes)-1===mesAtual&&Number(ano)===anoAtual
 })
 }
-if(filtroInicio){listaFiltrada=listaFiltrada.filter(x=>x.data>=filtroInicio)}
-if(filtroFim){listaFiltrada=listaFiltrada.filter(x=>x.data<=filtroFim)}
+if(filtroInicio)listaFiltrada=listaFiltrada.filter(x=>x.data>=filtroInicio)
+if(filtroFim)listaFiltrada=listaFiltrada.filter(x=>x.data<=filtroFim)
 let r=0,d=0,meses={}
 listaFiltrada.forEach(x=>{
 let m=getMesBase(x)
+if(m===undefined)return
 if(!meses[m])meses[m]={r:0,d:0}
-if(x.tipo==="RECEITA"){r+=x.valor;meses[m].r+=x.valor}else{d+=x.valor;meses[m].d+=x.valor}
+if(x.tipo==="RECEITA"){r+=Number(x.valor||0);meses[m].r+=Number(x.valor||0)}else{d+=Number(x.valor||0);meses[m].d+=Number(x.valor||0)}
 })
 const gradReceita=ctxResumo.createLinearGradient(0,0,0,300)
 gradReceita.addColorStop(0,"#22c55e")
@@ -468,19 +459,8 @@ gradReceita.addColorStop(1,"#14532d")
 const gradDespesa=ctxResumo.createLinearGradient(0,0,0,300)
 gradDespesa.addColorStop(0,"#ef4444")
 gradDespesa.addColorStop(1,"#7f1d1d")
-graficoResumo=new Chart(ctxResumo,{
-type:"doughnut",
-data:{labels:["Receitas","Despesas"],datasets:[{data:[r,d],backgroundColor:[gradReceita,gradDespesa],borderColor:"#111",borderWidth:2,hoverOffset:20}]},
-options:{responsive:true,maintainAspectRatio:false,cutout:"60%",plugins:{legend:{labels:{color:"#fff"}}}}
-})
-graficoMensal=new Chart(ctxMensal,{
-type:"bar",
-data:{labels:["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"],datasets:[
-{label:"Receitas",data:Array.from({length:12},(_,i)=>meses[i]?.r||0)},
-{label:"Despesas",data:Array.from({length:12},(_,i)=>meses[i]?.d||0)}
-]},
-options:{responsive:true,maintainAspectRatio:false}
-})
+graficoResumo=new Chart(ctxResumo,{type:"doughnut",data:{labels:["Receitas","Despesas"],datasets:[{data:[r,d],backgroundColor:[gradReceita,gradDespesa],borderColor:"#111",borderWidth:2,hoverOffset:20}]},options:{responsive:true,maintainAspectRatio:false,cutout:"60%",plugins:{legend:{labels:{color:"#fff"}}}}})
+graficoMensal=new Chart(ctxMensal,{type:"bar",data:{labels:["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"],datasets:[{label:"Receitas",data:Array.from({length:12},(_,i)=>meses[i]?.r||0)},{label:"Despesas",data:Array.from({length:12},(_,i)=>meses[i]?.d||0)}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:"#fff"}}},scales:{x:{ticks:{color:"#fff"}},y:{ticks:{color:"#fff"}}}}})
 }
 /* ====================================================023 – COPIAR MÊS==================================================== */
 async function copiarMesAnterior(){
@@ -500,7 +480,7 @@ await supabaseClient.from("lancamentos").insert({data:`${ano}-${String(mes+1).pa
 alert("Mês criado com sucesso")
 await carregar()
 }
-/* ====================================================024 – FILTRO PERÍODO==================================================== */
+/* ====================================================024 – FILTRAR==================================================== */
 function filtrarPeriodo(){
 filtroInicio=document.getElementById("dataInicio").value||null
 filtroFim=document.getElementById("dataFim").value||null
@@ -530,7 +510,7 @@ const el=document.getElementById("boxInsercao")
 if(!el)return
 el.style.display=el.style.display==="none"?"flex":"none"
 }
-/* ====================================================028 – TOGGLE GRAFICO==================================================== */
+/* ====================================================028 – TOGGLE GRÁFICO==================================================== */
 function toggleGrafico(){
 mostrarGrafico=!mostrarGrafico
 const g1=document.getElementById("graficoResumo")
@@ -541,12 +521,14 @@ if(g2)g2.parentElement.classList.toggle("oculto",!mostrarGrafico)
 if(lista)lista.style.marginTop=mostrarGrafico?"20px":"0px"
 window.scrollTo({top:0,behavior:"smooth"})
 }
-/* ====================================================029 – MODO MÊS ATUAL==================================================== */
+/* ====================================================029 – MÊS ATUAL==================================================== */
 function modoMesAtual(){
 mesOffset=0
 modoAnoCompleto=false
 filtroInicio=null
 filtroFim=null
+document.getElementById("dataInicio").value=""
+document.getElementById("dataFim").value=""
 render()
 }
 /* ====================================================030 – MÊS ANTERIOR==================================================== */
@@ -590,37 +572,56 @@ await supabaseClient.from("lancamentos").insert({data:nova,descricao:r.descricao
 }
 }
 }
-/* ====================================================034 – INICIAR SISTEMA (DATA PADRÃO GLOBAL)==================================================== */
+/* ====================================================034 – INICIAR==================================================== */
 async function iniciarSistema(){
+carregarCategorias()
 await verificarSessao()
-const logado=localStorage.getItem("logado")
-if(logado==="sim"){
-await carregar()
-await gerarRecorrentes()
-await carregar()
-}
 const hoje=new Date().toISOString().slice(0,10)
 const campos=["data","dataInicio","dataFim"]
 campos.forEach(id=>{
 const el=document.getElementById(id)
-if(el&&!el.value){el.value=hoje}
+if(el&&!el.value)el.value=hoje
 })
 }
-/* ====================================================035 – DELETE CONFIRM)==================================================== */
+/* ====================================================035 – DELETE CONFIRM==================================================== */
 function delConfirm(id){
-if(confirm("Deseja realmente excluir este lançamento?")){
-del(id)
+if(confirm("Deseja realmente excluir este lançamento?"))del(id)
 }
+/* ====================================================036 – PARALLAX LOGIN==================================================== */
+function iniciarParallaxLogin(){
+const bg=document.getElementById("loginBg")
+if(!bg)return
+function mover(clientX,clientY){
+if(!document.body.classList.contains("login"))return
+const x=(clientX/window.innerWidth-.5)*24
+const y=(clientY/window.innerHeight-.5)*24
+bg.style.transform=`translate3d(${x}px,${y}px,0) scale(1.08)`
 }
-/* ====================================================036 – EVENTO START==================================================== */
- 
+document.addEventListener("mousemove",e=>mover(e.clientX,e.clientY))
+document.addEventListener("touchmove",e=>{
+if(!e.touches||!e.touches[0])return
+mover(e.touches[0].clientX,e.touches[0].clientY)
+},{passive:true})
+window.addEventListener("deviceorientation",e=>{
+if(!document.body.classList.contains("login"))return
+const gamma=typeof e.gamma==="number"?e.gamma:0
+const beta=typeof e.beta==="number"?e.beta:0
+const x=Math.max(-12,Math.min(12,gamma))*1.2
+const y=Math.max(-12,Math.min(12,beta))*1.2
+bg.style.transform=`translate3d(${x}px,${y}px,0) scale(1.08)`
+})
+}
 </script>
 <script>
-document.addEventListener("DOMContentLoaded",iniciarSistema)
+document.addEventListener("DOMContentLoaded",async()=>{
+await iniciarSistema()
+iniciarParallaxLogin()
+})
 </script>
 <script>
-/* ====================================================017A – GERAR ESTRELAS CADENTES==================================================== */
+/* ====================================================037 – ESTRELAS CADENTES==================================================== */
 function criarEstrela(){
+if(!document.body.classList.contains("app"))return
 const star=document.createElement("div")
 star.className="shooting-star"
 star.style.left=Math.random()*window.innerWidth+"px"
