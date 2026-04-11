@@ -558,17 +558,52 @@ return meses[Number(m)-1]||m
 }
 /* ====================================================033 – RECORRÊNCIA==================================================== */
 async function gerarRecorrentes(){
+const {data:userData,error:userError}=await supabaseClient.auth.getUser()
+if(userError||!userData.user){
+console.error("Usuário não autenticado")
+return
+}
+const user=userData.user
 const hoje=new Date()
 const ano=hoje.getFullYear()
 const mes=hoje.getMonth()+1
-const {data:rec,error}=await supabaseClient.from("lancamentos").select("*").eq("recorrente",true)
-if(error)return
+const {data:rec,error}=await supabaseClient
+.from("lancamentos")
+.select("*")
+.eq("recorrente",true)
+if(error){
+console.error("Erro ao buscar recorrentes:",error)
+return
+}
 for(const r of (rec||[])){
 let dia=r.dia_padrao||1
 let nova=`${ano}-${String(mes).padStart(2,"0")}-${String(dia).padStart(2,"0")}`
-const existe=dados.find(x=>x.descricao===r.descricao&&x.tipo===r.tipo&&x.categoria===r.categoria&&x.data===nova)
+const existe=dados.find(x=>
+x.descricao===r.descricao &&
+x.tipo===r.tipo &&
+x.categoria===r.categoria &&
+x.data===nova
+)
 if(!existe){
-await supabaseClient.from("lancamentos").insert({data:nova,descricao:r.descricao,tipo:r.tipo,categoria:r.categoria,valor:r.valor,recorrente:true,dia_padrao:dia,pago:false,estimativa:false,data_pagamento:null,dia_vencimento:dia})
+const payload={
+data:nova,
+descricao:r.descricao,
+tipo:r.tipo,
+categoria:r.categoria,
+valor:r.valor,
+recorrente:true,
+dia_padrao:dia,
+pago:false,
+data_pagamento:null,
+dia_vencimento:dia,
+user_id:user.id
+}
+const {error:insertError}=await supabaseClient
+.from("lancamentos")
+.insert(payload)
+if(insertError){
+console.error("ERRO INSERT:",insertError)
+}
 }
 }
 }
