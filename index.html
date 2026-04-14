@@ -100,6 +100,9 @@ backdrop-filter:blur(8px);
 <button onclick="gerarPix()" style="background:#22c55e;color:#000;padding:10px 16px;border-radius:10px;font-weight:bold;box-shadow:0 0 10px rgba(34,197,94,.5)">
 💰 Assinar PRO
 </button>
+<button onclick="confirmarPagamento()" style="margin-top:10px;background:#f59e0b;color:#000;padding:8px;border-radius:8px;font-weight:bold">
+✅ Já paguei
+</button>
 </div>
 
 <!-- 🚪 BOTÃO SAIR (FIXO DIREITA) -->
@@ -114,7 +117,7 @@ backdrop-filter:blur(8px);
 <h3>Escaneie para pagar</h3>
 <img id="qrPix" style="width:250px">
 <p>Ou copie a chave PIX:</p>
-<input value="SUA_CHAVE_PIX_AQUI" readonly style="width:250px;text-align:center">
+<input value="69984311978 - Celular" readonly style="width:250px;text-align:center">
 </div>
 
 <!-- ADMIN -->
@@ -886,41 +889,47 @@ fecharCadastro()
 
 /* ====================================================031 – ADMIN==================================================== */
 async function carregarUsuarios(){
-const {data}=await supabaseClient.from("usuarios_lancamentos").select("*").order("criado_em")
-const lista=document.getElementById("listaUsuarios")
-if(!lista)return
 
+const {data}=await supabaseClient
+.from("usuarios_lancamentos")
+.select("*")
+.order("criado_em")
+
+const lista=document.getElementById("listaUsuarios")
 lista.innerHTML=""
 
 data.forEach(u=>{
-const plano=u.plano==="pro"?"🚀 PRO":"💎 FREE"
-const status=u.status==="aprovado"?"✅":"⏳"
+
+let cor="#f59e0b"
+let status="💎 FREE"
+
+if(u.status_pagamento==="aguardando"){
+cor="#eab308"
+status="⏳ AGUARDANDO"
+}
+
+if(u.status_pagamento==="pro"){
+cor="#22c55e"
+status="🚀 PRO"
+}
 
 lista.innerHTML+=`
-<div style="background:#111827;padding:12px;margin:6px 0;border-radius:10px">
+<div style="background:#111827;padding:12px;margin:6px 0;border-radius:10px;border-left:4px solid ${cor}">
 
-<div style="display:flex;justify-content:space-between;align-items:center">
+<div style="display:flex;justify-content:space-between">
 
 <div>
 <b>${u.nome}</b><br>
-<small>${u.email}</small><br>
-<small>${status} • ${plano}</small>
+${u.email}<br>
+<span style="color:${cor}">${status}</span>
 </div>
 
-<div style="position:relative">
-<button onclick="toggleAdminMenu('${u.id}')" style="background:#020617;color:#fff;padding:6px 10px;border-radius:8px">
-⚙️
-</button>
+<div style="display:flex;gap:5px">
 
-<div id="menu_${u.id}" style="display:none;position:absolute;right:0;top:30px;background:#020617;border-radius:8px;padding:8px;border:1px solid rgba(255,255,255,.1)">
-
-${u.status==="pendente"?`<button onclick="aprovarUsuario('${u.id}')" style="width:100%;margin-bottom:5px">✅ Aprovar</button>`:""}
-
-<button onclick="tornarPro('${u.id}')" style="width:100%;margin-bottom:5px">🚀 PRO</button>
-
-<button onclick="rebaixarFree('${u.id}')" style="width:100%;background:#ef4444;color:#fff">⬇️ FREE</button>
-
-</div>
+${u.status_pagamento==="aguardando" ? `
+<button onclick="aprovarPagamento('${u.id}')" style="background:#22c55e;color:#000;padding:5px 8px;border-radius:6px">✔</button>
+<button onclick="recusarPagamento('${u.id}')" style="background:#ef4444;color:#fff;padding:5px 8px;border-radius:6px">✖</button>
+` : ""}
 
 </div>
 
@@ -929,6 +938,7 @@ ${u.status==="pendente"?`<button onclick="aprovarUsuario('${u.id}')" style="widt
 </div>
 `
 })
+
 }
 /* ==========================031A APROVAR USUARIO========================================= */
 async function aprovarUsuario(id){
@@ -976,25 +986,43 @@ usuario_id:usuarioId
 
 /* ====================================================033 – USER UI==================================================== */
 function setUserUI(){
+
 const nome=localStorage.getItem("usuario_nome_lancamentos")||"Usuário"
-const tipo=localStorage.getItem("tipo_usuario_lancamentos")||"user"
-const plano=localStorage.getItem("usuario_plano")||"free"
 
 const elNome=document.getElementById("userNome")
 const elMeta=document.getElementById("userMeta")
 const avatar=document.getElementById("userAvatar")
 
-if(!elNome||!elMeta||!avatar)return
+const userId=localStorage.getItem("usuario_id_lancamentos")
+
+supabaseClient
+.from("usuarios_lancamentos")
+.select("*")
+.eq("id",userId)
+.single()
+.then(({data})=>{
+
+if(!data)return
 
 elNome.innerText=nome
 
-if(plano==="pro"){
+if(data.status_pagamento==="pro"){
 elMeta.innerHTML="🚀 PRO"
-avatar.style.background="#f59e0b"
-}else{
-elMeta.innerHTML="💎 FREE"
 avatar.style.background="#22c55e"
 }
+
+else if(data.status_pagamento==="aguardando"){
+elMeta.innerHTML="⏳ Em análise"
+avatar.style.background="#eab308"
+}
+
+else{
+elMeta.innerHTML="💎 FREE"
+avatar.style.background="#f59e0b"
+}
+
+})
+
 }
 /* ===============033A toggleadmin e rebaixarfree ================================================ */
 function toggleAdminMenu(id){
@@ -1145,17 +1173,60 @@ box.innerHTML=`
 `
 document.body.appendChild(box)
 }
-/* ====================================================040 – GERAR PIX==================================================== */
-async function gerarPix(){
-const usuario_id=localStorage.getItem("usuario_id_lancamentos")
-const nome=localStorage.getItem("usuario_nome_lancamentos")
+/* ====================================================040 – PIX COMPLETO PADRÃO BANCO==================================================== */
+function gerarPix(){
 
-/* 📧 ABRE EMAIL AUTOMÁTICO */
-window.location.href=`mailto:SEUEMAIL@gmail.com?subject=Pagamento PIX PRO&body=Usuário: ${nome}%0AID: ${usuario_id}%0AValor: 19,90`
+const usuario_id=localStorage.getItem("usuario_id_lancamentos")||"000"
+const nome=localStorage.getItem("usuario_nome_lancamentos")||"Cliente"
 
-/* 🔥 MOSTRAR QR */
+/* 🔑 SUA CHAVE PIX */
+const chavePIX="69984311978"
+
+/* 💰 VALOR */
+const valor="19.90"
+
+/* 🧾 IDENTIFICADOR */
+const txid="USER"+usuario_id
+
+/* 🏦 GERAR PIX PADRÃO */
+const payload =
+"000201"+
+"26"+"54"+
+"0014br.gov.bcb.pix"+
+"01"+String(chavePIX.length).padStart(2,"0")+chavePIX+
+"52040000"+
+"5303986"+
+"54"+String(valor.length).padStart(2,"0")+valor+
+"5802BR"+
+"59"+"13"+"MANOEL F NETO"+
+"60"+"08"+"Brasil - SC"+
+"62"+"05"+
+"05"+String(txid.length).padStart(2,"0")+txid+
+"6304"
+/* 🔢 CRC16 */
+function crc16(str){
+let crc=0xFFFF
+for(let c=0;c<str.length;c++){
+crc^=str.charCodeAt(c)<<8
+for(let i=0;i<8;i++){
+if(crc&0x8000){crc=(crc<<1)^0x1021}else{crc<<=1}
+}
+}
+return (crc&0xFFFF).toString(16).toUpperCase().padStart(4,"0")
+}
+
+const pixFinal=payload+crc16(payload)
+/* 📷 QR CODE */
 const img=document.getElementById("qrPix")
-img.src="data:image/png;base64,SEU_BASE64_AQUI"
+img.src=`https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(pixFinal)}`
+/* 🔑 MOSTRAR COPIA E COLA */
+const inputPix=document.getElementById("chavePix")
+if(inputPix){
+inputPix.value=pixFinal
+}
+/* 📧 EMAIL AUTOMÁTICO */
+window.location.href=`mailto:phdbr68@gmail.com?subject=Pagamento PIX PRO&body=Usuário: ${nome}%0AID: ${usuario_id}%0AValor: R$19,90%0ATXID: ${txid}%0A%0AEnviei o comprovante.`
+/* 👁️ MOSTRAR BOX */
 document.getElementById("boxPix").style.display="block"
 }
 /* ==============================041 parallax  lua=================================================== */
@@ -1169,6 +1240,40 @@ const y=(e.clientY/window.innerHeight-0.5)*20
 bg.style.transform=`translate(${x}px,${y}px) scale(1.08)`
 })
 }
+/* ======================042 CONFIRMAR PAGAMENTO=================================================== */
+async function confirmarPagamento(){
+const usuario_id=localStorage.getItem("usuario_id_lancamentos")
+await supabaseClient
+.from("usuarios_lancamentos")
+.update({status_pagamento:"aguardando"})
+.eq("id",usuario_id)
+alert("Pagamento enviado para análise!")
+}
+/* ======================043 APROVAR OU RECUSAR PAGAMENTO=================================================== */
+async function aprovarPagamento(id){
+await supabaseClient
+.from("usuarios_lancamentos")
+.update({
+status_pagamento:"pro",
+plano:"pro",
+limite:999999
+})
+.eq("id",id)
+alert("Usuário liberado como PRO 💰")
+carregarUsuarios()
+}
+
+async function recusarPagamento(id){
+await supabaseClient
+.from("usuarios_lancamentos")
+.update({
+status_pagamento:"free"
+})
+.eq("id",id)
+alert("Pagamento recusado")
+carregarUsuarios()
+}
+
   
 </script>
 </body>
