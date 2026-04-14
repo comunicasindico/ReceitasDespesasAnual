@@ -99,7 +99,6 @@ button:hover{transform:scale(1.05)}
 
 <!-- APP -->
 <div id="appSistema" style="display:none;margin-top:80px">
-
 <!-- 🔝 TOPO FIXO PROFISSIONAL -->
 <div id="topoSaaS" style="position:fixed;top:0;left:0;width:100%;height:64px;display:flex;justify-content:space-between;align-items:center;padding:0 18px;background:rgba(2,6,23,.95);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,.08);z-index:9999">
 <div style="display:flex;align-items:center;gap:14px">
@@ -114,6 +113,16 @@ button:hover{transform:scale(1.05)}
 <div style="display:flex;flex-direction:column;font-size:10px;line-height:1.2">
 <span id="userNome"></span>
 <span id="userMeta" style="opacity:.7"></span>
+<!-- CONTEÚDO DO APP -->
+<div id="conteudoApp" style="margin-top:90px;padding:15px">
+<div id="resumo" style="margin-bottom:15px"></div>
+<div id="lista"></div>
+<div id="areaGraficos" style="margin-top:20px">
+<canvas id="graficoResumo"></canvas>
+<canvas id="graficoMensal"></canvas>
+</div>
+
+</div>
 </div>
 </div>
 <div id="menuUsuario" style="display:none;position:absolute;top:58px;right:0;background:#020617;border-radius:12px;padding:10px;width:200px;box-shadow:0 0 30px rgba(0,0,0,.7);border:1px solid rgba(255,255,255,.08)">
