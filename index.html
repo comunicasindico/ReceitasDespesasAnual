@@ -40,20 +40,39 @@ body.login .shooting-star{display:none!important}
 #loginCard{position:relative;background:rgba(17,24,39,.82);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);padding:30px;border-radius:16px;width:320px;display:flex;flex-direction:column;gap:12px;box-shadow:0 0 40px rgba(0,0,0,.6);border:1px solid rgba(255,255,255,.1);z-index:1}
 #loginCard h2{text-align:center;margin:0 0 6px 0}
 #appSistema{position:relative;z-index:2}
+/* ====================================================MENU USUÁRIO PREMIUM==================================================== */
+#menuUsuario{
+display:none;
+opacity:0;
+transform:translateY(-10px);
+transition:opacity .15s ease, transform .15s ease;
+position:absolute;
+top:55px;
+right:0;
+background:#020617;
+border-radius:10px;
+padding:10px;
+width:180px;
+box-shadow:0 10px 30px rgba(0,0,0,.6);
+border:1px solid rgba(255,255,255,.1);
+backdrop-filter:blur(8px);
+}
+
 </style>
 </head>
 <body class="login">
 <div class="vialactea"></div>
 <div class="nebula"></div>
+
+<!-- BOTÃO DISCRETO -->
+<div style="position:fixed;top:10px;left:10px;z-index:10000">
+<button onclick="abrirCadastro()" style="background:transparent;color:#fff;border:1px solid rgba(255,255,255,.2);padding:5px 10px;font-size:11px;border-radius:6px">Criar conta</button>
+</div>
+
+<!-- LOGIN -->
 <div id="telaLogin">
 <div id="loginBg"></div>
 <div id="loginCard">
-<hr>
-<h3>Criar conta</h3>
-<input id="cad_nome" placeholder="Nome">
-<input id="cad_email" placeholder="Email">
-<input id="cad_senha" placeholder="Senha">
-<button onclick="cadastrar()">Cadastrar</button>
 <h2>Acesso</h2>
 <input id="loginUser" placeholder="Usuário">
 <input id="loginPass" type="password" placeholder="Senha">
@@ -61,14 +80,33 @@ body.login .shooting-star{display:none!important}
 </div>
 </div>
 
+<!-- MODAL CADASTRO (ESCONDIDO) -->
+<div id="modalCadastro" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.7);z-index:10001;align-items:center;justify-content:center">
+<div style="background:#111827;padding:25px;border-radius:12px;width:300px;display:flex;flex-direction:column;gap:10px">
+<h3 style="margin:0;text-align:center">Criar conta</h3>
+<input id="cad_nome" placeholder="Nome">
+<input id="cad_email" placeholder="Email">
+<input id="cad_senha" placeholder="Senha">
+<button onclick="cadastrar()">Cadastrar</button>
+<button onclick="fecharCadastro()" style="background:#ef4444;color:#fff">Cancelar</button>
+</div>
+</div>
+
+<!-- APP -->
 <div id="appSistema" style="display:none">
+
+<!-- ADMIN -->
 <div id="painelAdmin" style="display:none;margin-top:10px">
 <h2>Admin</h2>
 <div id="listaUsuarios"></div>
 </div>
+
+<!-- TOPO SAAS -->
 <div id="topoSaaS" style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px">
 <h1 style="margin:0">ReceitasDespesasAnual PRO</h1>
+
 <div style="display:flex;align-items:center;gap:10px;position:relative">
+
 <div id="userBox" onclick="toggleMenuUsuario()" style="display:flex;align-items:center;gap:10px;background:#111827;padding:8px 12px;border-radius:10px;cursor:pointer;border:1px solid rgba(255,255,255,.1)">
 <div id="userAvatar" style="width:32px;height:32px;border-radius:50%;background:#22c55e;display:flex;align-items:center;justify-content:center;font-weight:bold;color:#000">U</div>
 <div style="display:flex;flex-direction:column;font-size:11px;line-height:1.2">
@@ -76,60 +114,13 @@ body.login .shooting-star{display:none!important}
 <span id="userMeta" style="opacity:.7"></span>
 </div>
 </div>
+
 <div id="menuUsuario" style="display:none;position:absolute;top:55px;right:0;background:#020617;border-radius:10px;padding:10px;width:180px;box-shadow:0 0 20px rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.1)">
 <div style="font-size:12px;margin-bottom:8px">👤 Conta</div>
 <button onclick="logout()" style="width:100%;background:#ef4444;color:#fff;padding:6px;border-radius:6px">Sair</button>
 </div>
+
 </div>
-</div>
-<div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:10px">
-<input type="date" id="dataInicio">
-<input type="date" id="dataFim">
-<button onclick="modoMesAtual()">📅 Mês Atual</button>
-<button onclick="mesAnterior()">◀ Mês Anterior</button>
-<button onclick="filtrarPeriodo()">📅 Filtrar</button>
-<button onclick="limparPeriodo()">❌ Limpar</button>
-<button onclick="limparFiltros()">📊 Ano Completo</button>
-<button onclick="toggleGrafico()">📊 Gráfico</button>
-<button onclick="toggleModoEdicao()" style="background:#f59e0b;color:#000">✏️ Modo Edição</button>
-</div>
-<div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:10px 0">
-<button onclick="toggleInsercao()">➕ Inserir lançamento</button>
-<button onclick="toggleModoEdicao()" id="btnEditar" style="background:#f59e0b">✏️ Editar</button>
-<button onclick="salvarTudo()" id="btnSalvar" style="background:#22c55e;display:none">💾 Salvar</button>
-</div>
-<div id="boxInsercao" class="topo" style="display:none">
-<input type="date" id="data">
-<input type="text" id="desc" placeholder="Descrição">
-<select id="tipo"><option>DESPESA</option><option>RECEITA</option></select>
-<select id="categoria">
-<option>GERAL</option>
-<option>TCERO/Cripto</option>
-<option>CASA</option>
-<option>SAÚDE</option>
-<option>EDUCAÇÃO</option>
-<option>LAZER</option>
-</select>
-<input type="text" id="valor" placeholder="Valor">
-<button onclick="add()">Adicionar</button>
-<label><input type="checkbox" id="recorrente"> Recorrente</label>
-<input type="number" id="diaPadrao" placeholder="Dia" style="width:70px">
-</div>
-<div id="resumo" class="resumo"></div>
-<div style="margin-top:10px">
-<button onclick="limparFiltros()">🔍 Ver todos os períodos</button>
-</div>
-<div style="max-width:500px;height:300px;margin:20px auto"><canvas id="graficoResumo"></canvas></div>
-<div style="max-width:700px;height:300px;margin:20px auto"><canvas id="graficoMensal"></canvas></div>
-<h2 id="total"></h2>
-<div style="display:grid;grid-template-columns:100px 1fr 120px 140px 200px;gap:10px;margin-top:20px;font-weight:bold">
-<div>Data</div>
-<div>Descrição</div>
-<div>Categoria</div>
-<div style="text-align:right">Valor</div>
-<div style="text-align:right">Ações</div>
-</div>
-<div id="lista"></div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -152,6 +143,9 @@ let filtroFim=null
 let modoAnoCompleto=false
 let mesOffset=0
 let mostrarGrafico=true
+let LIMITE_USUARIO=20
+let PLANO_USUARIO="FREE"
+
 /* ====================================================003 – CATEGORIAS==================================================== */
 const CATEGORIAS=["GERAL","TCERO/Cripto","CASA","SAÚDE","EDUCAÇÃO","LAZER"]
 function carregarCategorias(){
@@ -159,6 +153,7 @@ const sel=document.getElementById("categoria")
 if(!sel)return
 sel.innerHTML=CATEGORIAS.map(c=>`<option>${c}</option>`).join("")
 }
+
 /* ====================================================004 – LOGIN==================================================== */
 async function loginSistema(){
 const email=document.getElementById("loginUser").value.trim()
@@ -167,15 +162,26 @@ if(!email||!senha){alert("Preencha e-mail e senha");return}
 const {data,error}=await supabaseClient.from("usuarios_lancamentos").select("*").eq("email",email).eq("senha",senha).limit(1)
 if(error||!data||data.length===0){alert("Usuário inválido");return}
 const user=data[0]
+LIMITE_USUARIO=user.limite||20
+PLANO_USUARIO=user.plano||"FREE"
 if(user.status!=="aprovado"){alert("Aguardando aprovação do administrador");return}
+
+/* 🔐 SALVA SESSÃO */
 localStorage.setItem("usuario_id_lancamentos",user.id)
 localStorage.setItem("usuario_nome_lancamentos",user.nome)
-document.getElementById("usuarioLogado").innerText="👤 "+user.nome
 localStorage.setItem("tipo_usuario_lancamentos",user.tipo)
+localStorage.setItem("usuario_plano",user.plano)
+
+/* 🔥 UI */
 document.getElementById("telaLogin").style.display="none"
 document.getElementById("appSistema").style.display="block"
 document.body.classList.remove("login")
 document.body.classList.add("app")
+
+/* 👤 TOPO */
+setUserUI()
+
+/* 👑 ADMIN */
 if(user.tipo==="admin"){
 document.getElementById("painelAdmin").style.display="block"
 await carregarUsuarios()
@@ -183,22 +189,23 @@ await carregarUsuarios()
 await carregar()
 await gerarRecorrentes()
 await carregar()
-setTimeout(()=>setUserUI(),100)
 }
 }
+
 /* ====================================================005 – SESSÃO==================================================== */
 async function verificarSessao(){
 const userId=localStorage.getItem("usuario_id_lancamentos")
+
 if(userId){
-const nome=localStorage.getItem("usuario_nome_lancamentos")
-if(nome){
-document.getElementById("usuarioLogado").innerText="👤 "+nome
-}
 document.getElementById("telaLogin").style.display="none"
 document.getElementById("appSistema").style.display="block"
 document.body.classList.remove("login")
 document.body.classList.add("app")
+
+setUserUI()
+
 const tipo=localStorage.getItem("tipo_usuario_lancamentos")
+
 if(tipo==="admin"){
 document.getElementById("painelAdmin").style.display="block"
 await carregarUsuarios()
@@ -206,10 +213,8 @@ await carregarUsuarios()
 await carregar()
 await gerarRecorrentes()
 await carregar()
-if(document.getElementById("appSistema").style.display==="block"){
-setUserUI()
 }
-}
+
 }else{
 document.getElementById("telaLogin").style.display="flex"
 document.getElementById("appSistema").style.display="none"
@@ -217,23 +222,27 @@ document.body.classList.add("login")
 document.body.classList.remove("app")
 }
 }
+
 /* ====================================================006 – LOGOUT==================================================== */
 function logout(){
 localStorage.clear()
 location.reload()
-const el=document.getElementById("usuarioLogado")
-if(el)el.innerText=""
 }
+
 /* ====================================================007 – CARREGAR==================================================== */
 async function carregar(){
 const {data,error}=await supabaseClient.from("lancamentos").select("*").order("data",{ascending:true})
 if(error){alert("Erro ao carregar");return}
+
 dados=data||[]
+
 const tipo=localStorage.getItem("tipo_usuario_lancamentos")
 const userId=localStorage.getItem("usuario_id_lancamentos")
+
 if(tipo!=="admin"){
-dados=dados.filter(x=>x.usuario_id===userId)
+dados=dados.filter(x=>String(x.usuario_id)===String(userId))
 }
+
 if(!window._renderLock){
 window._renderLock=true
 requestAnimationFrame(()=>{
@@ -242,6 +251,7 @@ window._renderLock=false
 })
 }
 }
+
 /* ====================================================008 – SALVAR==================================================== */
 async function salvarRegistro(obj){
 let response
@@ -257,29 +267,41 @@ return
 }
 await carregar()
 }
+
 /* ====================================================009 – EXCLUIR==================================================== */
 async function del(id){
 await supabaseClient.from("lancamentos").delete().eq("id",id)
 await carregar()
 }
+
 /* ====================================================010 – MARCAR PAGO==================================================== */
 async function marcarPago(id){
 const item=dados.find(x=>String(x.id)===String(id))
 if(!item)return
+
 if(item.pago&&!modoEdicao){
 alert("Item já está pago. Para alterar, ative o modo edição.")
 return
 }
+
 const novoStatus=!item.pago
 const dataLocal=hojeLocal()
-await supabaseClient.from("lancamentos").update({pago:novoStatus,data_pagamento:novoStatus?dataLocal:null}).eq("id",id)
+
+await supabaseClient.from("lancamentos").update({
+pago:novoStatus,
+data_pagamento:novoStatus?dataLocal:null
+}).eq("id",id)
+
 await carregar()
 }
+
 /* ====================================================011 – EDITAR==================================================== */
 function editarPorId(id){
 const x=dados.find(d=>String(d.id)===String(id))
 if(!x)return
+
 editando=x.id
+
 document.getElementById("data").value=x.data||""
 document.getElementById("desc").value=x.descricao||""
 document.getElementById("tipo").value=x.tipo||"DESPESA"
@@ -290,6 +312,10 @@ document.getElementById("valor").value=x.valor||0
 async function add(){
 const userId=localStorage.getItem("usuario_id_lancamentos")
 if(!userId){alert("Usuário não autenticado");return}
+if(dados.length>=LIMITE_USUARIO){
+mostrarUpgrade()
+return
+}
 const dataEl=document.getElementById("data")
 const descEl=document.getElementById("desc")
 const tipoEl=document.getElementById("tipo")
@@ -325,10 +351,18 @@ if(!dataStr)return null
 const [ano,mes,dia]=dataStr.split("-")
 return `${ano}-${mes}-${dia}`
 }
+
 /* ====================================================014 – FORMATADORES==================================================== */
-function formatarMoeda(v){return Number(v||0).toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2})}
-function formatarDataBR(d){if(!d)return"";const [ano,mes,dia]=d.split("-");return`${dia}/${mes}/${ano}`}
-/* ====================================================000C – DATA LOCAL BRASIL==================================================== */
+function formatarMoeda(v){
+return Number(v||0).toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2})
+}
+function formatarDataBR(d){
+if(!d)return""
+const [ano,mes,dia]=d.split("-")
+return `${dia}/${mes}/${ano}`
+}
+
+/* ====================================================015 – DATA LOCAL==================================================== */
 function hojeLocal(){
 const d=new Date()
 const ano=d.getFullYear()
@@ -336,50 +370,75 @@ const mes=String(d.getMonth()+1).padStart(2,"0")
 const dia=String(d.getDate()).padStart(2,"0")
 return `${ano}-${mes}-${dia}`
 }
-/* ====================================================015 – MÊS BASE==================================================== */
+
+/* ====================================================016 – MÊS BASE==================================================== */
 function getMesBase(x){
 if(!x.data)return
 const [ano,mes]=x.data.split("-")
 return Number(mes)-1
 }
-/* ====================================================016 – MODO EDIÇÃO==================================================== */
+
+/* ====================================================017 – MODO EDIÇÃO==================================================== */
 function toggleModoEdicao(){
 modoEdicao=!modoEdicao
-document.getElementById("btnSalvar").style.display=modoEdicao?"inline-block":"none"
-document.getElementById("btnEditar").innerText=modoEdicao?"❌ Cancelar":"✏️ Editar"
+
+const btnSalvar=document.getElementById("btnSalvar")
+const btnEditar=document.getElementById("btnEditar")
+
+if(btnSalvar)btnSalvar.style.display=modoEdicao?"inline-block":"none"
+if(btnEditar)btnEditar.innerText=modoEdicao?"❌ Cancelar":"✏️ Editar"
+
 if(!modoEdicao)edicoesTemp={}
+
 render()
 }
-/* ====================================================017 – EDIT TEMP==================================================== */
+
+/* ====================================================018 – EDIT TEMP==================================================== */
 function editTemp(id,campo,valor){
 if(!edicoesTemp[id])edicoesTemp[id]={}
 edicoesTemp[id][campo]=valor
 }
-/* ====================================================018 – SALVAR EDIÇÃO==================================================== */
+
+/* ====================================================019 – SALVAR EDIÇÃO==================================================== */
 async function salvarEdicao(id){
 const original=dados.find(x=>String(x.id)===String(id))
 if(!original)return
+
 const alteracoes=edicoesTemp[id]||{}
-const atualizado={...original,...alteracoes,valor:parseFloat(alteracoes.valor??original.valor)}
+
+const atualizado={
+...original,
+...alteracoes,
+valor:parseFloat(alteracoes.valor??original.valor)
+}
+
 await supabaseClient.from("lancamentos").update(atualizado).eq("id",id)
+
 delete edicoesTemp[id]
+
 await carregar()
 }
-/* ====================================================019 – TOGGLE ITEM==================================================== */
+
+/* ====================================================020 – TOGGLE ITEM==================================================== */
 function toggleValor(id){
 visibilidade[id]=!visibilidade[id]
 render()
 }
-/* ====================================================020 – APLICAR OFFSET==================================================== */
+
+/* ====================================================021 – APLICAR OFFSET==================================================== */
 function aplicarMesOffset(){
 const hoje=new Date()
 const data=new Date(hoje.getFullYear(),hoje.getMonth()+mesOffset,1)
+
 const ano=data.getFullYear()
 const mes=String(data.getMonth()+1).padStart(2,"0")
 const ultimoDia=new Date(data.getFullYear(),data.getMonth()+1,0).getDate()
+
 filtroInicio=`${ano}-${mes}-01`
 filtroFim=`${ano}-${mes}-${String(ultimoDia).padStart(2,"0")}`
+
 modoAnoCompleto=false
+
 render()
 }
 /* ====================================================021 – RENDER==================================================== */
@@ -387,10 +446,15 @@ function render(){
 const lista=document.getElementById("lista")
 const totalEl=document.getElementById("total")
 const resumoEl=document.getElementById("resumo")
+
+if(!lista||!resumoEl)return
+
 let listaFiltrada=[...dados]
+
 const hoje=new Date()
 const mesAtual=hoje.getMonth()
 const anoAtual=hoje.getFullYear()
+
 if(!modoAnoCompleto&&!filtroInicio&&!filtroFim){
 listaFiltrada=listaFiltrada.filter(x=>{
 if(!x.data)return false
@@ -398,8 +462,11 @@ const [ano,mes]=x.data.split("-")
 return Number(mes)-1===mesAtual&&Number(ano)===anoAtual
 })
 }
+
 if(filtroInicio)listaFiltrada=listaFiltrada.filter(x=>x.data>=filtroInicio)
 if(filtroFim)listaFiltrada=listaFiltrada.filter(x=>x.data<=filtroFim)
+
+/* 🔥 AGRUPAR */
 const grupos={}
 listaFiltrada.forEach(x=>{
 if(!x.data)return
@@ -408,34 +475,50 @@ const chave=`${ano}-${mes}`
 if(!grupos[chave])grupos[chave]=[]
 grupos[chave].push(x)
 })
-const chaves=Object.keys(grupos).sort()
+
+const chaves=Object.keys(grupos).sort().reverse()
+
 lista.innerHTML=""
+
 let totalGeralR=0
 let totalGeralDPago=0
 let totalGeralDPendente=0
+
 chaves.forEach(chave=>{
 let listaMes=grupos[chave]
+
 listaMes.sort((a,b)=>{
 if(a.tipo==="RECEITA"&&b.tipo!=="RECEITA")return-1
 if(a.tipo!=="RECEITA"&&b.tipo==="RECEITA")return 1
 return(a.data||"").localeCompare(b.data||"")
 })
+
 let totalR=0
 let totalDPago=0
 let totalDPendente=0
+
 listaMes.forEach(x=>{
-if(x.tipo==="RECEITA"){totalR+=Number(x.valor||0)}else{if(x.pago){totalDPago+=Number(x.valor||0)}else{totalDPendente+=Number(x.valor||0)}}
+const v=Number(x.valor||0)
+if(x.tipo==="RECEITA"){
+totalR+=v
+}else{
+if(x.pago){totalDPago+=v}else{totalDPendente+=v}
+}
 })
+
 totalGeralR+=totalR
 totalGeralDPago+=totalDPago
 totalGeralDPendente+=totalDPendente
+
 const totalDSP=totalDPago+totalDPendente
 const saldo=totalR-totalDSP
+
 const [ano,mes]=chave.split("-")
+
 lista.innerHTML+=`
-<div style="margin-top:15px;background:#020617;padding:8px;border-radius:6px;border-left:4px solid #38bdf8;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
+<div style="margin-top:15px;background:#020617;padding:8px;border-radius:6px;border-left:4px solid #38bdf8;display:flex;justify-content:space-between;flex-wrap:wrap">
 <div style="font-weight:bold">📅 ${formatarMesNome(mes)}/${ano}</div>
-<div style="display:flex;gap:12px;flex-wrap:wrap;font-size:12px">
+<div style="display:flex;gap:10px;font-size:12px;flex-wrap:wrap">
 <span style="color:#22c55e">💰 ${formatarMoeda(totalR)}</span>
 <span style="color:#22c55e">✔ ${formatarMoeda(totalDPago)}</span>
 <span style="color:#ef4444">⏳ ${formatarMoeda(totalDPendente)}</span>
@@ -444,29 +527,51 @@ lista.innerHTML+=`
 </div>
 </div>
 `
+
 listaMes.forEach(x=>{
 const ed=edicoesTemp[x.id]||{}
 const dataVal=ed.data??x.data
 const descVal=ed.descricao??x.descricao
 const catVal=ed.categoria??x.categoria
 const valVal=ed.valor??x.valor
+
 const isReceita=x.tipo==="RECEITA"
+
 lista.innerHTML+=`
-<div style="display:grid;grid-template-columns:100px 1fr 120px 140px 200px;gap:6px;background:${isReceita?"#052e16":"#1e293b"};padding:4px;margin:2px 0;border-radius:6px;align-items:center;font-size:12px;border-left:3px solid ${isReceita?"#22c55e":"#ef4444"}">
+<div style="display:grid;grid-template-columns:100px 1fr 120px 140px 200px;gap:6px;background:${isReceita?"#052e16":"#1e293b"};padding:4px;margin:2px 0;border-radius:6px;font-size:12px">
 <div>${modoEdicao?`<input type="date" value="${dataVal||""}" onchange="editTemp('${x.id}','data',this.value)">`:formatarDataBR(x.data)}</div>
-<div>${modoEdicao?`<input type="text" value="${String(descVal||"").replace(/"/g,"&quot;")}" onchange="editTemp('${x.id}','descricao',this.value)">`:`${x.tipo==="RECEITA"?"+ ":"- "}${x.descricao||""}`}</div>
-<div>${modoEdicao?`<select onchange="editTemp('${x.id}','categoria',this.value)"><option ${catVal==="GERAL"?"selected":""}>GERAL</option><option ${catVal==="CASA"?"selected":""}>CASA</option><option ${catVal==="SAÚDE"?"selected":""}>SAÚDE</option><option ${catVal==="EDUCAÇÃO"?"selected":""}>EDUCAÇÃO</option><option ${catVal==="LAZER"?"selected":""}>LAZER</option><option ${catVal==="TCERO/Cripto"?"selected":""}>TCERO/Cripto</option></select>`:(x.categoria||"")}</div>
-<div style="text-align:right">${modoEdicao?`<input type="number" value="${valVal}" onchange="editTemp('${x.id}','valor',this.value)" style="width:90px">`:(x.tipo==="RECEITA"?(visibilidade[x.id]?"R$ "+formatarMoeda(x.valor):"R$ ***"):"R$ "+formatarMoeda(x.valor))}</div>
-<div style="display:flex;gap:5px;justify-content:flex-end;flex-wrap:wrap">
-${x.tipo==="RECEITA"&&!modoEdicao?`<button onclick="toggleValor('${x.id}')" style="background:#3b82f6;color:#fff;padding:4px 6px;border-radius:4px">${visibilidade[x.id]?"🙈":"👁"}</button>`:""}
-<button onclick="marcarPago('${x.id}')" style="background:${x.pago?"#22c55e":"#ef4444"};color:#000;padding:4px 6px;border-radius:4px">${x.pago?"OK":"PEND"}</button>
-${modoEdicao?`<button onclick="delConfirm('${x.id}')" style="background:#ef4444;color:#fff;padding:4px 6px;border-radius:4px">🗑</button>`:""}
+<div>${modoEdicao?`<input type="text" value="${String(descVal||"").replace(/"/g,"&quot;")}" onchange="editTemp('${x.id}','descricao',this.value)">`:`${isReceita?"+ ":"- "}${x.descricao||""}`}</div>
+<div>${modoEdicao?`<select onchange="editTemp('${x.id}','categoria',this.value)">
+<option ${catVal==="GERAL"?"selected":""}>GERAL</option>
+<option ${catVal==="CASA"?"selected":""}>CASA</option>
+<option ${catVal==="SAÚDE"?"selected":""}>SAÚDE</option>
+<option ${catVal==="EDUCAÇÃO"?"selected":""}>EDUCAÇÃO</option>
+<option ${catVal==="LAZER"?"selected":""}>LAZER</option>
+<option ${catVal==="TCERO/Cripto"?"selected":""}>TCERO/Cripto</option>
+</select>`:(x.categoria||"")}</div>
+
+<div style="text-align:right">
+${modoEdicao?`<input type="number" value="${valVal}" onchange="editTemp('${x.id}','valor',this.value)" style="width:90px">`:
+(isReceita?(visibilidade[x.id]?"R$ "+formatarMoeda(x.valor):"R$ ***"):"R$ "+formatarMoeda(x.valor))}
+</div>
+
+<div style="display:flex;gap:5px;justify-content:flex-end">
+
+${isReceita&&!modoEdicao?`<button onclick="toggleValor('${x.id}')" style="background:#3b82f6;color:#fff">👁</button>`:""}
+
+<button onclick="marcarPago('${x.id}')" style="background:${x.pago?"#22c55e":"#ef4444"};color:#000">
+${x.pago?"OK":"PEND"}
+</button>
+
+${modoEdicao?`<button onclick="delConfirm('${x.id}')" style="background:#ef4444;color:#fff">🗑</button>`:""}
+
 </div>
 </div>
 `
 })
+
 lista.innerHTML+=`
-<div style="margin:5px 0 15px 0;padding:6px;background:#111827;border-radius:6px;display:flex;gap:12px;justify-content:flex-end;flex-wrap:wrap;font-size:12px">
+<div style="margin:5px 0 15px 0;padding:6px;background:#111827;border-radius:6px;display:flex;gap:10px;justify-content:flex-end;font-size:12px">
 <span style="color:#22c55e">💰 ${formatarMoeda(totalR)}</span>
 <span style="color:#22c55e">✔ ${formatarMoeda(totalDPago)}</span>
 <span style="color:#ef4444">⏳ ${formatarMoeda(totalDPendente)}</span>
@@ -475,85 +580,129 @@ lista.innerHTML+=`
 </div>
 `
 })
+
 const totalGeralDSP=totalGeralDPago+totalGeralDPendente
 const saldoGeral=totalGeralR-totalGeralDSP
+
 resumoEl.innerHTML=`
-<div style="display:flex;gap:20px;justify-content:center;font-size:14px;font-weight:bold;flex-wrap:wrap">
-<span style="color:#22c55e">💰 Receitas: ${formatarMoeda(totalGeralR)}</span>
-<span style="color:#22c55e">✔ Pagas: ${formatarMoeda(totalGeralDPago)}</span>
-<span style="color:#ef4444">⏳ Pendentes: ${formatarMoeda(totalGeralDPendente)}</span>
-<span style="color:#f59e0b">💸 Total: ${formatarMoeda(totalGeralDSP)}</span>
-<span style="color:${saldoGeral>=0?"#22c55e":"#ef4444"}">${saldoGeral>=0?"📈":"📉"} Saldo: ${formatarMoeda(saldoGeral)}</span>
+<div style="display:flex;gap:15px;justify-content:center;font-size:14px;font-weight:bold;flex-wrap:wrap">
+<span style="color:#22c55e">💰 ${formatarMoeda(totalGeralR)}</span>
+<span style="color:#22c55e">✔ ${formatarMoeda(totalGeralDPago)}</span>
+<span style="color:#ef4444">⏳ ${formatarMoeda(totalGeralDPendente)}</span>
+<span style="color:#f59e0b">💸 ${formatarMoeda(totalGeralDSP)}</span>
+<span style="color:${saldoGeral>=0?"#22c55e":"#ef4444"}">${saldoGeral>=0?"📈":"📉"} ${formatarMoeda(saldoGeral)}</span>
 </div>
 `
-totalEl.innerText=""
+
+if(totalEl)totalEl.innerText=""
+
 if(mostrarGrafico)atualizarDashboard()
 }
+
 /* ====================================================022 – DASHBOARD==================================================== */
 function atualizarDashboard(){
 if(typeof Chart==="undefined")return
+
 const elResumo=document.getElementById("graficoResumo")
 const elMensal=document.getElementById("graficoMensal")
+
 if(!elResumo||!elMensal)return
+
 const ctxResumo=elResumo.getContext("2d")
 const ctxMensal=elMensal.getContext("2d")
+
 if(graficoResumo)graficoResumo.destroy()
 if(graficoMensal)graficoMensal.destroy()
-let listaFiltrada=[...dados]
-const hoje=new Date()
-const mesAtual=hoje.getMonth()
-const anoAtual=hoje.getFullYear()
-if(!modoAnoCompleto&&!filtroInicio&&!filtroFim){
-listaFiltrada=listaFiltrada.filter(x=>{
-if(!x.data)return false
-const [ano,mes]=x.data.split("-")
-return Number(mes)-1===mesAtual&&Number(ano)===anoAtual
-})
-}
-if(filtroInicio)listaFiltrada=listaFiltrada.filter(x=>x.data>=filtroInicio)
-if(filtroFim)listaFiltrada=listaFiltrada.filter(x=>x.data<=filtroFim)
-let r=0,d=0,meses={}
-listaFiltrada.forEach(x=>{
-let m=getMesBase(x)
+
+let r=0,d=0
+let meses={}
+
+dados.forEach(x=>{
+if(!x.data)return
+const m=getMesBase(x)
 if(m===undefined)return
+
 if(!meses[m])meses[m]={r:0,d:0}
-if(x.tipo==="RECEITA"){r+=Number(x.valor||0);meses[m].r+=Number(x.valor||0)}else{d+=Number(x.valor||0);meses[m].d+=Number(x.valor||0)}
+
+const v=Number(x.valor||0)
+
+if(x.tipo==="RECEITA"){
+r+=v
+meses[m].r+=v
+}else{
+d+=v
+meses[m].d+=v
+}
 })
-const gradReceita=ctxResumo.createLinearGradient(0,0,0,300)
-gradReceita.addColorStop(0,"#22c55e")
-gradReceita.addColorStop(1,"#14532d")
-const gradDespesa=ctxResumo.createLinearGradient(0,0,0,300)
-gradDespesa.addColorStop(0,"#ef4444")
-gradDespesa.addColorStop(1,"#7f1d1d")
-graficoResumo=new Chart(ctxResumo,{type:"doughnut",data:{labels:["Receitas","Despesas"],datasets:[{data:[r,d],backgroundColor:[gradReceita,gradDespesa],borderColor:"#111",borderWidth:2,hoverOffset:20}]},options:{responsive:true,maintainAspectRatio:false,cutout:"60%",plugins:{legend:{labels:{color:"#fff"}}}}})
-graficoMensal=new Chart(ctxMensal,{type:"bar",data:{labels:["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"],datasets:[{label:"Receitas",data:Array.from({length:12},(_,i)=>meses[i]?.r||0)},{label:"Despesas",data:Array.from({length:12},(_,i)=>meses[i]?.d||0)}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:"#fff"}}},scales:{x:{ticks:{color:"#fff"}},y:{ticks:{color:"#fff"}}}}})
+
+graficoResumo=new Chart(ctxResumo,{
+type:"doughnut",
+data:{
+labels:["Receitas","Despesas"],
+datasets:[{data:[r,d]}]
+},
+options:{plugins:{legend:{labels:{color:"#fff"}}}}
+})
+
+graficoMensal=new Chart(ctxMensal,{
+type:"bar",
+data:{
+labels:["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"],
+datasets:[
+{label:"Receitas",data:Array.from({length:12},(_,i)=>meses[i]?.r||0)},
+{label:"Despesas",data:Array.from({length:12},(_,i)=>meses[i]?.d||0)}
+]
+},
+options:{plugins:{legend:{labels:{color:"#fff"}}}}
+})
 }
 /* ====================================================023 – COPIAR MÊS==================================================== */
 async function copiarMesAnterior(){
+const userId=localStorage.getItem("usuario_id_lancamentos")
+if(!userId)return
+
 const ano=new Date().getFullYear()
 const mes=parseInt(document.getElementById("mesBase")?.value||new Date().getMonth()+1)-1
 const mesAnterior=mes-1
 if(mesAnterior<0){alert("Sem mês anterior");return}
-const {data:anteriores}=await supabaseClient.from("lancamentos").select("*").gte("data",`${ano}-${String(mesAnterior+1).padStart(2,"0")}-01`).lte("data",`${ano}-${String(mesAnterior+1).padStart(2,"0")}-31`)
-const {data:atuais}=await supabaseClient.from("lancamentos").select("*").gte("data",`${ano}-${String(mes+1).padStart(2,"0")}-01`).lte("data",`${ano}-${String(mes+1).padStart(2,"0")}-31`)
+
+const {data:anteriores}=await supabaseClient.from("lancamentos").select("*")
+.eq("usuario_id",userId)
+.gte("data",`${ano}-${String(mesAnterior+1).padStart(2,"0")}-01`)
+.lte("data",`${ano}-${String(mesAnterior+1).padStart(2,"0")}-31`)
+
+const {data:atuais}=await supabaseClient.from("lancamentos").select("*")
+.eq("usuario_id",userId)
+.gte("data",`${ano}-${String(mes+1).padStart(2,"0")}-01`)
+.lte("data",`${ano}-${String(mes+1).padStart(2,"0")}-31`)
+
 const existentes=new Set((atuais||[]).map(x=>x.descricao))
+
 for(const x of (anteriores||[])){
 if(!existentes.has(x.descricao)){
 const dia=x.data.split("-")[2]
-await supabaseClient.from("lancamentos").insert({data:`${ano}-${String(mes+1).padStart(2,"0")}-${dia}`,descricao:x.descricao,tipo:x.tipo,categoria:x.categoria,valor:x.valor,pago:false})
+await supabaseClient.from("lancamentos").insert({
+data:`${ano}-${String(mes+1).padStart(2,"0")}-${dia}`,
+descricao:x.descricao,
+tipo:x.tipo,
+categoria:x.categoria,
+valor:x.valor,
+pago:false,
+usuario_id:userId
+})
 }
 }
 alert("Mês criado com sucesso")
 await carregar()
 }
-/* ====================================================024 – FILTRAR==================================================== */
+
+/* ====================================================024 – FILTROS==================================================== */
 function filtrarPeriodo(){
 filtroInicio=document.getElementById("dataInicio").value||null
 filtroFim=document.getElementById("dataFim").value||null
 modoAnoCompleto=false
 render()
 }
-/* ====================================================025 – LIMPAR PERÍODO==================================================== */
 function limparPeriodo(){
 filtroInicio=null
 filtroFim=null
@@ -561,48 +710,37 @@ document.getElementById("dataInicio").value=""
 document.getElementById("dataFim").value=""
 render()
 }
-/* ====================================================026 – LIMPAR FILTROS==================================================== */
 function limparFiltros(){
 modoAnoCompleto=true
 filtroInicio=null
 filtroFim=null
-document.getElementById("dataInicio").value=""
-document.getElementById("dataFim").value=""
 render()
 }
-/* ====================================================027 – TOGGLE INSERÇÃO==================================================== */
+
+/* ====================================================025 – UI CONTROLES==================================================== */
 function toggleInsercao(){
 const el=document.getElementById("boxInsercao")
-if(!el)return
-el.style.display=el.style.display==="none"?"flex":"none"
+if(el)el.style.display=el.style.display==="none"?"flex":"none"
 }
-/* ====================================================028 – TOGGLE GRÁFICO==================================================== */
 function toggleGrafico(){
 mostrarGrafico=!mostrarGrafico
-const g1=document.getElementById("graficoResumo")
-const g2=document.getElementById("graficoMensal")
-const lista=document.getElementById("lista")
-if(g1)g1.parentElement.classList.toggle("oculto",!mostrarGrafico)
-if(g2)g2.parentElement.classList.toggle("oculto",!mostrarGrafico)
-if(lista)lista.style.marginTop=mostrarGrafico?"20px":"0px"
-window.scrollTo({top:0,behavior:"smooth"})
+document.getElementById("graficoResumo")?.parentElement.classList.toggle("oculto",!mostrarGrafico)
+document.getElementById("graficoMensal")?.parentElement.classList.toggle("oculto",!mostrarGrafico)
+render()
 }
-/* ====================================================029 – MÊS ATUAL==================================================== */
 function modoMesAtual(){
 mesOffset=0
 modoAnoCompleto=false
 filtroInicio=null
 filtroFim=null
-document.getElementById("dataInicio").value=""
-document.getElementById("dataFim").value=""
 render()
 }
-/* ====================================================030 – MÊS ANTERIOR==================================================== */
 function mesAnterior(){
 mesOffset--
 aplicarMesOffset()
 }
-/* ====================================================031 – SALVAR TUDO==================================================== */
+
+/* ====================================================026 – SALVAR TUDO==================================================== */
 async function salvarTudo(){
 for(const id in edicoesTemp){
 const original=dados.find(x=>String(x.id)===String(id))
@@ -617,198 +755,260 @@ document.getElementById("btnSalvar").style.display="none"
 document.getElementById("btnEditar").innerText="✏️ Editar"
 await carregar()
 }
-/* ====================================================032 – NOME DO MÊS==================================================== */
-function formatarMesNome(m){
-const meses=["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"]
-return meses[Number(m)-1]||m
-}
-/* ====================================================033 – RECORRÊNCIA==================================================== */
+
+/* ====================================================027 – RECORRÊNCIA CORRIGIDA==================================================== */
 async function gerarRecorrentes(){
 const userId=localStorage.getItem("usuario_id_lancamentos")
 if(!userId)return
-const {data:userData,error:userError}=await supabaseClient.auth.getUser()
-if(userError||!userData.user){
-console.error("Usuário não autenticado")
-return
-}
-const user=userData.user
+
 const hoje=new Date()
 const ano=hoje.getFullYear()
 const mes=hoje.getMonth()+1
+
 const primeiroDiaMes=`${ano}-${String(mes).padStart(2,"0")}-01`
-const {data:rec,error}=await supabaseClient.from("lancamentos").select("*").eq("recorrente",true).eq("usuario_id",userId).lt("data",primeiroDiaMes).order("data",{ascending:true})
-if(error){
-console.error("Erro ao buscar recorrentes:",error)
-return
-}
-const modelosMap=new Map()
+
+const {data:rec}=await supabaseClient.from("lancamentos")
+.select("*")
+.eq("recorrente",true)
+.eq("usuario_id",userId)
+.lt("data",primeiroDiaMes)
+
 for(const r of (rec||[])){
-const dia=Number(r.dia_padrao||r.dia_vencimento||1)
-const chaveModelo=[r.descricao||"",r.tipo||"",r.categoria||"",Number(r.valor||0),dia,String(r.user_id||"")].join("|")
-if(!modelosMap.has(chaveModelo)){
-modelosMap.set(chaveModelo,{descricao:r.descricao,tipo:r.tipo,categoria:r.categoria,valor:r.valor,dia_padrao:dia,user_id:r.user_id})
-}
-}
-const modelos=[...modelosMap.values()]
-for(const r of modelos){
 const dia=Number(r.dia_padrao||1)
 const nova=`${ano}-${String(mes).padStart(2,"0")}-${String(dia).padStart(2,"0")}`
-const {data:existente,error:erroExistente}=await supabaseClient.from("lancamentos").select("id").eq("user_id",user.id).eq("data",nova).eq("descricao",r.descricao).eq("tipo",r.tipo).eq("categoria",r.categoria).eq("valor",r.valor).limit(1)
-if(erroExistente){
-console.error("Erro ao verificar duplicidade:",erroExistente)
-continue
+
+const {data:existente}=await supabaseClient.from("lancamentos")
+.select("id")
+.eq("usuario_id",userId)
+.eq("data",nova)
+.eq("descricao",r.descricao)
+.limit(1)
+
+if(existente && existente.length>0)continue
+
+await supabaseClient.from("lancamentos").insert({
+data:nova,
+descricao:r.descricao,
+tipo:r.tipo,
+categoria:r.categoria,
+valor:r.valor,
+recorrente:true,
+dia_padrao:dia,
+pago:false,
+usuario_id:userId
+})
 }
-if(existente&&existente.length>0){
-continue
 }
-const payload={data:nova,descricao:r.descricao,tipo:r.tipo,categoria:r.categoria,valor:r.valor,recorrente:true,dia_padrao:dia,pago:false,data_pagamento:null,dia_vencimento:dia,user_id:user.id}
-const {error:insertError}=await supabaseClient.from("lancamentos").insert(payload)
-if(insertError){
-console.error("ERRO INSERT:",insertError,payload)
-}
-}
-}
-/* ====================================================034 – INICIAR==================================================== */
+
+/* ====================================================028 – SISTEMA==================================================== */
 async function iniciarSistema(){
 carregarCategorias()
 await verificarSessao()
+
 const hoje=hojeLocal()
-const campos=["data","dataInicio","dataFim"]
-campos.forEach(id=>{
+;["data","dataInicio","dataFim"].forEach(id=>{
 const el=document.getElementById(id)
 if(el&&!el.value)el.value=hoje
 })
 }
-/* ====================================================035 – DELETE CONFIRM==================================================== */
-function delConfirm(id){
-if(confirm("Deseja realmente excluir este lançamento?"))del(id)
+
+/* ====================================================029 – CADASTRO MODAL==================================================== */
+function abrirCadastro(){
+document.getElementById("modalCadastro").style.display="flex"
 }
-/* ====================================================036 – PARALLAX LOGIN==================================================== */
-function iniciarParallaxLogin(){
-const bg=document.getElementById("loginBg")
-if(!bg)return
-function mover(clientX,clientY){
-if(!document.body.classList.contains("login"))return
-const x=(clientX/window.innerWidth-.5)*24
-const y=(clientY/window.innerHeight-.5)*24
-bg.style.transform=`translate3d(${x}px,${y}px,0) scale(1.08)`
+function fecharCadastro(){
+document.getElementById("modalCadastro").style.display="none"
 }
-document.addEventListener("mousemove",e=>mover(e.clientX,e.clientY))
-document.addEventListener("touchmove",e=>{
-if(!e.touches||!e.touches[0])return
-mover(e.touches[0].clientX,e.touches[0].clientY)
-},{passive:true})
-window.addEventListener("deviceorientation",e=>{
-if(!document.body.classList.contains("login"))return
-const gamma=typeof e.gamma==="number"?e.gamma:0
-const beta=typeof e.beta==="number"?e.beta:0
-const x=Math.max(-12,Math.min(12,gamma))*1.2
-const y=Math.max(-12,Math.min(12,beta))*1.2
-bg.style.transform=`translate3d(${x}px,${y}px,0) scale(1.08)`
-})
-}
-</script>
-<script>
-document.addEventListener("DOMContentLoaded",async()=>{
-await iniciarSistema()
-iniciarParallaxLogin()
-})
-</script>
-<script>
-/* ====================================================037 – CADASTRO==================================================== */
+
+/* ====================================================030 – CADASTRAR==================================================== */
 async function cadastrar(){
 const nome=document.getElementById("cad_nome").value
 const email=document.getElementById("cad_email").value
 const senha=document.getElementById("cad_senha").value
+
 if(!nome||!email||!senha){alert("Preencha tudo");return}
-await supabaseClient.from("usuarios_lancamentos").insert({nome,email,senha,status:"pendente",tipo:"user"})
-alert("Cadastro enviado! Aguarde aprovação do admin.")
+
+await supabaseClient.from("usuarios_lancamentos").insert({
+nome,email,senha,status:"pendente",tipo:"user",plano:"free"
+})
+
+alert("Cadastro enviado! Aguarde aprovação.")
+fecharCadastro()
 }
-/* ====================================================039 – ADMIN==================================================== */
+
+/* ====================================================031 – ADMIN==================================================== */
 async function carregarUsuarios(){
 const {data}=await supabaseClient.from("usuarios_lancamentos").select("*").order("criado_em")
 const lista=document.getElementById("listaUsuarios")
 if(!lista)return
 lista.innerHTML=""
+
 for(const u of data){
 lista.innerHTML+=`
 <div style="background:#111827;padding:10px;margin:5px;border-radius:6px">
-<b>${u.nome}</b> - ${u.email}<br>
-Status: ${u.status}
+<b>${u.nome}</b><br>${u.email}<br>
+Status: ${u.status}<br>
+Plano: ${u.plano||"free"}<br>
 ${u.status==="pendente"?`<button onclick="aprovarUsuario('${u.id}')">Aprovar</button>`:""}
 </div>`
+<button onclick="tornarPro('${u.id}')">Tornar PRO</button>
 }
 }
-/* ====================================================040 – APROVAR==================================================== */
+/* ==========================031A APROVAR USUARIO========================================= */
 async function aprovarUsuario(id){
-await supabaseClient.from("usuarios_lancamentos").update({status:"aprovado"}).eq("id",id)
+await supabaseClient.from("usuarios_lancamentos").update({status:"aprovado",
+plano:"free"}).eq("id",id)
 await criarPadraoUsuario(id)
 alert("Usuário aprovado")
 carregarUsuarios()
 }
-/* ====================================================041 – PADRÃO==================================================== */
+/* ==============031B TORNAR PRO================================================ */
+async function tornarPro(id){
+await supabaseClient
+.from("usuarios_lancamentos")
+.update({plano:"pro",limite:999999})
+.eq("id",id)
+
+alert("Usuário agora é PRO 💎")
+carregarUsuarios()
+}
+/* ====================================================032 – PADRÃO INICIAL==================================================== */
 async function criarPadraoUsuario(usuarioId){
 const hoje=hojeLocal()
+
 const padrao=[
 {tipo:"RECEITA",categoria:"Salário"},
-{tipo:"RECEITA",categoria:"Extra"},
+{tipo:"RECEITA",categoria:"Renda Extra"},
 {tipo:"DESPESA",categoria:"Moradia"},
 {tipo:"DESPESA",categoria:"Alimentação"},
 {tipo:"DESPESA",categoria:"Transporte"},
 {tipo:"DESPESA",categoria:"Saúde"}
 ]
+
 for(const p of padrao){
-await supabaseClient.from("lancamentos").insert({data:hoje,descricao:"Inicial",tipo:p.tipo,categoria:p.categoria,valor:0,pago:false,usuario_id:usuarioId})
+await supabaseClient.from("lancamentos").insert({
+data:hoje,
+descricao:"Inicial",
+tipo:p.tipo,
+categoria:p.categoria,
+valor:0,
+pago:false,
+usuario_id:usuarioId
+})
 }
 }
-/* ====================================================050 – MENU USUÁRIO==================================================== */
-function toggleMenuUsuario(){
-const menu=document.getElementById("menuUsuario")
-menu.style.display=menu.style.display==="block"?"none":"block"
-}
-/* ====================================================051 – USER UI==================================================== */
+
+/* ====================================================033 – USER UI==================================================== */
 function setUserUI(){
 const nome=localStorage.getItem("usuario_nome_lancamentos")||"Usuário"
 const tipo=localStorage.getItem("tipo_usuario_lancamentos")||"user"
+const plano=localStorage.getItem("usuario_plano")||"free"
 
 const elNome=document.getElementById("userNome")
 const elMeta=document.getElementById("userMeta")
 const avatar=document.getElementById("userAvatar")
 
-if(!elNome||!elMeta||!avatar)return // 🔥 EVITA ERRO
+if(!elNome||!elMeta||!avatar)return
 
 elNome.innerText=nome
 
 let badgeTipo=tipo==="admin"?"👑 ADMIN":"👤 USER"
-let plano="💎 FREE"
+let badgePlano=plano==="pro"?"🚀 PRO":"💎 FREE"
 
-elMeta.innerText=badgeTipo+" • "+plano
+elMeta.innerText=badgeTipo+" • "+badgePlano
 
 avatar.innerText=nome.charAt(0).toUpperCase()
 avatar.style.background=tipo==="admin"?"#f59e0b":"#22c55e"
 }
-/* ====================================================038 – ESTRELAS CADENTES==================================================== */
-function criarEstrela(){
-if(!document.body.classList.contains("app"))return
-const star=document.createElement("div")
-star.className="shooting-star"
-star.style.left=Math.random()*window.innerWidth+"px"
-star.style.animationDuration=(2+Math.random()*2)+"s"
-document.body.appendChild(star)
-setTimeout(()=>star.remove(),4000)
+
+/* ====================================================034 – MENU==================================================== */
+function toggleMenuUsuario(){
+const menu=document.getElementById("menuUsuario")
+if(!menu)return
+
+if(menu.style.display==="block"){
+menu.style.opacity="0"
+setTimeout(()=>menu.style.display="none",150)
+}else{
+menu.style.display="block"
+setTimeout(()=>menu.style.opacity="1",10)
 }
-setInterval(criarEstrela,2000)
-
-
+}
 
 document.addEventListener("click",(e)=>{
 const box=document.getElementById("userBox")
 const menu=document.getElementById("menuUsuario")
 if(!box||!menu)return
-if(!box.contains(e.target) && !menu.contains(e.target)){
+if(!box.contains(e.target)&&!menu.contains(e.target)){
+menu.style.opacity="0"
+setTimeout(()=>menu.style.display="none",150)
+}
+})
+
+/* ====================================================035 – INIT==================================================== */
+document.addEventListener("DOMContentLoaded",async()=>{
+await iniciarSistema()
+iniciarParallaxLogin()
+})
+
+/* ====================================================036 – ESTRELAS==================================================== */
+function criarEstrela(){
+if(!document.body.classList.contains("app"))return
+const star=document.createElement("div")
+star.className="shooting-star"
+star.style.left=Math.random()*window.innerWidth+"px"
+document.body.appendChild(star)
+setTimeout(()=>star.remove(),4000)
+}
+setInterval(criarEstrela,2000)
+/* ====================================================034 – MENU GLOBAL CLICK==================================================== */
+document.addEventListener("click",(e)=>{
+const box=document.getElementById("userBox")
+const menu=document.getElementById("menuUsuario")
+
+if(!box||!menu)return
+
+const clicouDentroBox=box.contains(e.target)
+const clicouDentroMenu=menu.contains(e.target)
+
+if(!clicouDentroBox && !clicouDentroMenu){
 menu.style.display="none"
 }
 })
+/* =================================035 MOSTRAR UPGRADE==================================================== */
+function mostrarUpgrade(){
+let box=document.getElementById("upgradeBox")
+if(box)return
+
+box=document.createElement("div")
+box.id="upgradeBox"
+box.style.position="fixed"
+box.style.bottom="20px"
+box.style.right="20px"
+box.style.background="linear-gradient(135deg,#0f172a,#1e293b)"
+box.style.padding="20px"
+box.style.borderRadius="14px"
+box.style.boxShadow="0 0 30px rgba(0,0,0,.6)"
+box.style.border="1px solid rgba(255,255,255,.1)"
+box.style.zIndex="9999"
+box.style.maxWidth="280px"
+box.innerHTML=`
+<div style="font-size:14px;font-weight:bold;margin-bottom:6px">🚫 Limite atingido</div>
+<div style="font-size:12px;opacity:.8;margin-bottom:10px">
+Plano FREE permite até ${LIMITE_USUARIO} lançamentos
+</div>
+<button onclick="upgradePlano()" style="width:100%;background:#22c55e;color:#000;padding:8px;border-radius:8px;font-weight:bold">
+💎 Upgrade para PRO
+</button>
+`
+document.body.appendChild(box)
+setTimeout(()=>box.remove(),6000)
+}
+/* ==================036  UPGRADE==================================================== */
+function upgradePlano(){
+alert("Aqui você conecta com PIX / Stripe / Mercado Pago 💰")
+}
+
 
 </script>
 </body>
