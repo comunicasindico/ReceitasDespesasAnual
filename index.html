@@ -124,7 +124,9 @@ backdrop-filter:blur(8px);
 
 <div id="menuUsuario" style="display:none;position:absolute;top:55px;right:0;background:#020617;border-radius:10px;padding:10px;width:180px;box-shadow:0 0 20px rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.1)">
 <div style="font-size:12px;margin-bottom:8px">👤 Conta</div>
-<button onclick="logout()" style="width:100%;background:#ef4444;color:#fff;padding:6px;border-radius:6px">Sair</button>
+<button onclick="logout()" style="background:#ef4444;color:#fff;padding:6px 12px;border-radius:8px;font-size:12px">
+🚪 Sair
+</button>
 </div>
 
 </div>
@@ -1074,8 +1076,8 @@ const res=await fetch("http://localhost:3000/criar-pagamento",{
 method:"POST",
 headers:{"Content-Type":"application/json"},
 body:JSON.stringify({
-email:"test_user_123@testuser.com",
-usuario_id:"1"
+email:prompt("Confirme seu email:"),
+usuario_id:localStorage.getItem("usuario_id_lancamentos")
 })
 })
 const data=await res.json()
