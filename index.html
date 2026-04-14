@@ -183,7 +183,7 @@ await carregarUsuarios()
 await carregar()
 await gerarRecorrentes()
 await carregar()
-setUserUI()
+setTimeout(()=>setUserUI(),100)
 }
 }
 /* ====================================================005 – SESSÃO==================================================== */
@@ -206,7 +206,9 @@ await carregarUsuarios()
 await carregar()
 await gerarRecorrentes()
 await carregar()
+if(document.getElementById("appSistema").style.display==="block"){
 setUserUI()
+}
 }
 }else{
 document.getElementById("telaLogin").style.display="flex"
@@ -769,23 +771,22 @@ function setUserUI(){
 const nome=localStorage.getItem("usuario_nome_lancamentos")||"Usuário"
 const tipo=localStorage.getItem("tipo_usuario_lancamentos")||"user"
 
-document.getElementById("userNome").innerText=nome
+const elNome=document.getElementById("userNome")
+const elMeta=document.getElementById("userMeta")
+const avatar=document.getElementById("userAvatar")
+
+if(!elNome||!elMeta||!avatar)return // 🔥 EVITA ERRO
+
+elNome.innerText=nome
 
 let badgeTipo=tipo==="admin"?"👑 ADMIN":"👤 USER"
 let plano="💎 FREE"
 
-document.getElementById("userMeta").innerText=badgeTipo+" • "+plano
+elMeta.innerText=badgeTipo+" • "+plano
 
-const avatar=document.getElementById("userAvatar")
 avatar.innerText=nome.charAt(0).toUpperCase()
-
-if(tipo==="admin"){
-avatar.style.background="#f59e0b"
-}else{
-avatar.style.background="#22c55e"
+avatar.style.background=tipo==="admin"?"#f59e0b":"#22c55e"
 }
-}
-  
 /* ====================================================038 – ESTRELAS CADENTES==================================================== */
 function criarEstrela(){
 if(!document.body.classList.contains("app"))return
