@@ -123,6 +123,10 @@ button:hover{transform:scale(1.05)}
 </div>
 
 <div id="conteudoApp" style="margin-top:90px;padding:15px">
+<div id="painelAdmin" style="display:none;margin-top:90px;padding:15px">
+<h2>👑 Admin</h2>
+<div id="listaUsuarios"></div>
+</div>
 <div id="resumo" style="margin-bottom:15px"></div>
 <div id="lista"></div>
 <div id="areaGraficos" style="margin-top:20px">
@@ -165,7 +169,7 @@ sel.innerHTML=CATEGORIAS.map(c=>`<option>${c}</option>`).join("")
 }
 
 /* ====================================================004 – LOGIN==================================================== */
-aasync function loginSistema(){
+async function loginSistema(){
 const email=document.getElementById("loginUser").value.trim()
 const senha=document.getElementById("loginPass").value.trim()
 if(!email||!senha){alert("Preencha e-mail e senha");return}
@@ -457,7 +461,6 @@ render()
 /* ====================================================021 – RENDER==================================================== */
 function render(){
 const lista=document.getElementById("lista")
-const totalEl=document.getElementById("total")
 const resumoEl=document.getElementById("resumo")
 
 if(!lista||!resumoEl)return
@@ -1057,17 +1060,6 @@ menu.style.display="block"
 setTimeout(()=>menu.style.opacity="1",10)
 }
 }
-
-document.addEventListener("click",(e)=>{
-const box=document.getElementById("userBox")
-const menu=document.getElementById("menuUsuario")
-if(!box||!menu)return
-if(!box.contains(e.target)&&!menu.contains(e.target)){
-menu.style.opacity="0"
-setTimeout(()=>menu.style.display="none",150)
-}
-})
-
 /* ====================================================035 – INIT==================================================== */
 document.addEventListener("DOMContentLoaded",async()=>{
 await iniciarSistema()
@@ -1266,5 +1258,14 @@ carregarUsuarios()
 
   
 </script>
+
+<div id="boxPix" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#020617;padding:20px;border-radius:12px;z-index:99999;text-align:center">
+<h3>💳 PIX</h3>
+<img id="qrPix" style="width:200px">
+<input id="chavePix" readonly style="width:100%;margin-top:10px">
+<button id="btnCopiarPix">Copiar</button>
+<button id="btnWhatsapp">WhatsApp</button>
+</div>
+
 </body>
 </html>
