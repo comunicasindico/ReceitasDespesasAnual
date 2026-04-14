@@ -151,17 +151,18 @@ async function loginSistema(){
 const email=document.getElementById("loginUser").value.trim()
 const senha=document.getElementById("loginPass").value.trim()
 if(!email||!senha){alert("Preencha e-mail e senha");return}
-const {data,error}=await supabaseClient.from("usuarios_lancamentos").select("*").eq("email",email).eq("senha",senha).single()
-if(error||!data){alert("Usuário inválido");return}
-if(data.status!=="aprovado"){alert("Aguardando aprovação do administrador");return}
-localStorage.setItem("usuario_id_lancamentos",data.id)
-localStorage.setItem("usuario_nome_lancamentos",data.nome)
-localStorage.setItem("tipo_usuario_lancamentos",data.tipo)
+const {data,error}=await supabaseClient.from("usuarios_lancamentos").select("*").eq("email",email).eq("senha",senha).limit(1)
+if(error||!data||data.length===0){alert("Usuário inválido");return}
+const user=data[0]
+if(user.status!=="aprovado"){alert("Aguardando aprovação do administrador");return}
+localStorage.setItem("usuario_id_lancamentos",user.id)
+localStorage.setItem("usuario_nome_lancamentos",user.nome)
+localStorage.setItem("tipo_usuario_lancamentos",user.tipo)
 document.getElementById("telaLogin").style.display="none"
 document.getElementById("appSistema").style.display="block"
 document.body.classList.remove("login")
 document.body.classList.add("app")
-if(data.tipo==="admin"){
+if(user.tipo==="admin"){
 document.getElementById("painelAdmin").style.display="block"
 await carregarUsuarios()
 }else{
