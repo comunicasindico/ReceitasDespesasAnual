@@ -94,7 +94,18 @@ backdrop-filter:blur(8px);
 
 <!-- APP -->
 <div id="appSistema" style="display:none">
+<!-- 💰 BOTÃO PIX -->
+<div style="margin-top:20px;text-align:center">
+<button onclick="gerarPix()" style="padding:10px 20px;font-weight:bold">
+💰 Assinar PRO com PIX
+</button>
+</div>
 
+<!-- 📷 QR CODE -->
+<div id="boxPix" style="display:none;margin-top:20px;text-align:center">
+<h3>Escaneie para pagar</h3>
+<img id="qrPix" style="width:250px">
+</div>
 <!-- ADMIN -->
 <div id="painelAdmin" style="display:none;margin-top:10px">
 <h2>Admin</h2>
@@ -1005,11 +1016,87 @@ document.body.appendChild(box)
 setTimeout(()=>box.remove(),6000)
 }
 /* ==================036  UPGRADE==================================================== */
-function upgradePlano(){
-alert("Aqui você conecta com PIX / Stripe / Mercado Pago 💰")
+async function upgradePlano(){
+const usuario_id=localStorage.getItem("usuario_id_lancamentos")
+const email=prompt("Confirme seu email para pagamento:")
+if(!email){
+alert("Email obrigatório")
+return
+}
+try{
+const res=await fetch("http://localhost:3000/criar-pagamento",{
+method:"POST",
+headers:{
+"Content-Type":"application/json"
+},
+body:JSON.stringify({
+email,
+usuario_id
+})
+})
+const data=await res.json()
+if(!data.qr_code){
+alert("Erro ao gerar pagamento")
+return
+}
+/* 🧾 MOSTRAR PIX */
+mostrarPIX(data.qr_base64)
+}catch(err){
+console.error(err)
+alert("Erro ao conectar pagamento")
+}
+}
+/* ==================037 mostraPIX==================================================== */
+function mostrarPIX(base64){
+let box=document.getElementById("pixBox")
+if(box) box.remove()
+box=document.createElement("div")
+box.id="pixBox"
+box.style.position="fixed"
+box.style.top="50%"
+box.style.left="50%"
+box.style.transform="translate(-50%,-50%)"
+box.style.background="#020617"
+box.style.padding="20px"
+box.style.borderRadius="12px"
+box.style.boxShadow="0 0 30px rgba(0,0,0,.7)"
+box.style.zIndex="10000"
+box.style.textAlign="center"
+box.innerHTML=`
+<h3>💳 Pagamento PIX</h3>
+<img src="data:image/png;base64,${base64}" style="width:200px;margin:10px 0">
+<br>
+<button onclick="this.parentElement.remove()" style="background:#ef4444;color:#fff">Fechar</button>
+`
+document.body.appendChild(box)
+}
+/* ====================================================040 – GERAR PIX==================================================== */
+async function gerarPix(){
+try{
+const res=await fetch("http://localhost:3000/criar-pagamento",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({
+email:"test_user_123@testuser.com",
+usuario_id:"1"
+})
+})
+const data=await res.json()
+if(!data.qr_base64){
+alert("Erro ao gerar PIX")
+return
+}
+/* 🔥 MOSTRAR QR */
+const img=document.getElementById("qrPix")
+img.src="data:image/png;base64,"+data.qr_base64
+document.getElementById("boxPix").style.display="block"
+}catch(e){
+console.error(e)
+alert("Erro ao conectar com servidor")
+}
 }
 
-
+  
 </script>
 </body>
 </html>
