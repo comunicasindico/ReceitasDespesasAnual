@@ -48,6 +48,12 @@ body.login .shooting-star{display:none!important}
 <div id="telaLogin">
 <div id="loginBg"></div>
 <div id="loginCard">
+<hr>
+<h3>Criar conta</h3>
+<input id="cad_nome" placeholder="Nome">
+<input id="cad_email" placeholder="Email">
+<input id="cad_senha" placeholder="Senha">
+<button onclick="cadastrar()">Cadastrar</button>
 <h2>Acesso</h2>
 <input id="loginUser" placeholder="Usuário">
 <input id="loginPass" type="password" placeholder="Senha">
@@ -55,6 +61,10 @@ body.login .shooting-star{display:none!important}
 </div>
 </div>
 <div id="appSistema" style="display:none">
+<div id="painelAdmin" style="display:none;margin-top:10px">
+<h2>Admin</h2>
+<div id="listaUsuarios"></div>
+</div>
 <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
 <h1>ReceitasDespesasAnual PRO</h1>
 <button onclick="logout()" style="background:#ef4444;color:#fff">Sair</button>
@@ -140,35 +150,43 @@ sel.innerHTML=CATEGORIAS.map(c=>`<option>${c}</option>`).join("")
 async function loginSistema(){
 const email=document.getElementById("loginUser").value.trim()
 const senha=document.getElementById("loginPass").value.trim()
-if(!email||!senha){
-alert("Preencha e-mail e senha")
-return
-}
-const {error}=await supabaseClient.auth.signInWithPassword({email:email,password:senha})
-if(error){
-alert("Login inválido")
-return
-}
-localStorage.setItem("logado","sim")
+if(!email||!senha){alert("Preencha e-mail e senha");return}
+const {data,error}=await supabaseClient.from("usuarios_lancamentos").select("*").eq("email",email).eq("senha",senha).single()
+if(error||!data){alert("Usuário inválido");return}
+if(data.status!=="aprovado"){alert("Aguardando aprovação do administrador");return}
+localStorage.setItem("usuario_id_lancamentos",data.id)
+localStorage.setItem("usuario_nome_lancamentos",data.nome)
+localStorage.setItem("tipo_usuario_lancamentos",data.tipo)
 document.getElementById("telaLogin").style.display="none"
 document.getElementById("appSistema").style.display="block"
 document.body.classList.remove("login")
 document.body.classList.add("app")
+if(data.tipo==="admin"){
+document.getElementById("painelAdmin").style.display="block"
+await carregarUsuarios()
+}else{
 await carregar()
 await gerarRecorrentes()
 await carregar()
+}
 }
 /* ====================================================005 – SESSÃO==================================================== */
 async function verificarSessao(){
-const {data}=await supabaseClient.auth.getSession()
-if(data.session){
+const userId=localStorage.getItem("usuario_id_lancamentos")
+if(userId){
 document.getElementById("telaLogin").style.display="none"
 document.getElementById("appSistema").style.display="block"
 document.body.classList.remove("login")
 document.body.classList.add("app")
+const tipo=localStorage.getItem("tipo_usuario_lancamentos")
+if(tipo==="admin"){
+document.getElementById("painelAdmin").style.display="block"
+await carregarUsuarios()
+}else{
 await carregar()
 await gerarRecorrentes()
 await carregar()
+}
 }else{
 document.getElementById("telaLogin").style.display="flex"
 document.getElementById("appSistema").style.display="none"
@@ -187,6 +205,11 @@ async function carregar(){
 const {data,error}=await supabaseClient.from("lancamentos").select("*").order("data",{ascending:true})
 if(error){alert("Erro ao carregar");return}
 dados=data||[]
+const tipo=localStorage.getItem("tipo_usuario_lancamentos")
+const userId=localStorage.getItem("usuario_id_lancamentos")
+if(tipo!=="admin"){
+dados=dados.filter(x=>x.usuario_id===userId)
+}
 if(!window._renderLock){
 window._renderLock=true
 requestAnimationFrame(()=>{
@@ -241,9 +264,8 @@ document.getElementById("valor").value=x.valor||0
 }
 /* ====================================================012 – ADD==================================================== */
 async function add(){
-const {data:userData,error:userError}=await supabaseClient.auth.getUser()
-if(userError||!userData.user){alert("Usuário não autenticado");return}
-const user=userData.user
+const userId=localStorage.getItem("usuario_id_lancamentos")
+if(!userId){alert("Usuário não autenticado");return}
 const dataEl=document.getElementById("data")
 const descEl=document.getElementById("desc")
 const tipoEl=document.getElementById("tipo")
@@ -263,7 +285,7 @@ dia_padrao:parseInt((diaEl&&diaEl.value)||0)||null,
 dia_vencimento:dataStr?Number(dataStr.split("-")[2]):null,
 pago:false,
 data_pagamento:null,
-user_id:user.id
+usuario_id:userId
 }
 if(!obj.data||!obj.descricao){alert("Preencha data e descrição");return}
 if(!obj.valor||obj.valor===0){alert("Valor inválido");return}
@@ -578,6 +600,8 @@ return meses[Number(m)-1]||m
 }
 /* ====================================================033 – RECORRÊNCIA==================================================== */
 async function gerarRecorrentes(){
+const userId=localStorage.getItem("usuario_id_lancamentos")
+if(!userId)return
 const {data:userData,error:userError}=await supabaseClient.auth.getUser()
 if(userError||!userData.user){
 console.error("Usuário não autenticado")
@@ -588,7 +612,7 @@ const hoje=new Date()
 const ano=hoje.getFullYear()
 const mes=hoje.getMonth()+1
 const primeiroDiaMes=`${ano}-${String(mes).padStart(2,"0")}-01`
-const {data:rec,error}=await supabaseClient.from("lancamentos").select("*").eq("recorrente",true).eq("user_id",user.id).lt("data",primeiroDiaMes).order("data",{ascending:true})
+const {data:rec,error}=await supabaseClient.from("lancamentos").select("*").eq("recorrente",true).eq("usuario_id",userId).lt("data",primeiroDiaMes).order("data",{ascending:true})
 if(error){
 console.error("Erro ao buscar recorrentes:",error)
 return
@@ -667,7 +691,53 @@ iniciarParallaxLogin()
 })
 </script>
 <script>
-/* ====================================================037 – ESTRELAS CADENTES==================================================== */
+/* ====================================================037 – CADASTRO==================================================== */
+async function cadastrar(){
+const nome=document.getElementById("cad_nome").value
+const email=document.getElementById("cad_email").value
+const senha=document.getElementById("cad_senha").value
+if(!nome||!email||!senha){alert("Preencha tudo");return}
+await supabaseClient.from("usuarios_lancamentos").insert({nome,email,senha,status:"pendente",tipo:"user"})
+alert("Cadastro enviado! Aguarde aprovação do admin.")
+}
+/* ====================================================039 – ADMIN==================================================== */
+async function carregarUsuarios(){
+const {data}=await supabaseClient.from("usuarios_lancamentos").select("*").order("criado_em")
+const lista=document.getElementById("listaUsuarios")
+if(!lista)return
+lista.innerHTML=""
+for(const u of data){
+lista.innerHTML+=`
+<div style="background:#111827;padding:10px;margin:5px;border-radius:6px">
+<b>${u.nome}</b> - ${u.email}<br>
+Status: ${u.status}
+${u.status==="pendente"?`<button onclick="aprovarUsuario('${u.id}')">Aprovar</button>`:""}
+</div>`
+}
+}
+/* ====================================================040 – APROVAR==================================================== */
+async function aprovarUsuario(id){
+await supabaseClient.from("usuarios_lancamentos").update({status:"aprovado"}).eq("id",id)
+await criarPadraoUsuario(id)
+alert("Usuário aprovado")
+carregarUsuarios()
+}
+/* ====================================================041 – PADRÃO==================================================== */
+async function criarPadraoUsuario(usuarioId){
+const hoje=hojeLocal()
+const padrao=[
+{tipo:"RECEITA",categoria:"Salário"},
+{tipo:"RECEITA",categoria:"Extra"},
+{tipo:"DESPESA",categoria:"Moradia"},
+{tipo:"DESPESA",categoria:"Alimentação"},
+{tipo:"DESPESA",categoria:"Transporte"},
+{tipo:"DESPESA",categoria:"Saúde"}
+]
+for(const p of padrao){
+await supabaseClient.from("lancamentos").insert({data:hoje,descricao:"Inicial",tipo:p.tipo,categoria:p.categoria,valor:0,pago:false,usuario_id:usuarioId})
+}
+}
+/* ====================================================038 – ESTRELAS CADENTES==================================================== */
 function criarEstrela(){
 if(!document.body.classList.contains("app"))return
 const star=document.createElement("div")
