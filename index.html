@@ -196,9 +196,8 @@ document.body.classList.remove("app")
 }
 }
 /* ====================================================006 – LOGOUT==================================================== */
-async function logout(){
-localStorage.removeItem("logado")
-await supabaseClient.auth.signOut()
+function logout(){
+localStorage.clear()
 location.reload()
 }
 /* ====================================================007 – CARREGAR==================================================== */
