@@ -60,14 +60,27 @@ body.login .shooting-star{display:none!important}
 <button onclick="loginSistema()">Entrar</button>
 </div>
 </div>
+
 <div id="appSistema" style="display:none">
 <div id="painelAdmin" style="display:none;margin-top:10px">
 <h2>Admin</h2>
 <div id="listaUsuarios"></div>
 </div>
-<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
-<h1>ReceitasDespesasAnual PRO</h1>
-<button onclick="logout()" style="background:#ef4444;color:#fff">Sair</button>
+<div id="topoSaaS" style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px">
+<h1 style="margin:0">ReceitasDespesasAnual PRO</h1>
+<div style="display:flex;align-items:center;gap:10px;position:relative">
+<div id="userBox" onclick="toggleMenuUsuario()" style="display:flex;align-items:center;gap:10px;background:#111827;padding:8px 12px;border-radius:10px;cursor:pointer;border:1px solid rgba(255,255,255,.1)">
+<div id="userAvatar" style="width:32px;height:32px;border-radius:50%;background:#22c55e;display:flex;align-items:center;justify-content:center;font-weight:bold;color:#000">U</div>
+<div style="display:flex;flex-direction:column;font-size:11px;line-height:1.2">
+<span id="userNome"></span>
+<span id="userMeta" style="opacity:.7"></span>
+</div>
+</div>
+<div id="menuUsuario" style="display:none;position:absolute;top:55px;right:0;background:#020617;border-radius:10px;padding:10px;width:180px;box-shadow:0 0 20px rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.1)">
+<div style="font-size:12px;margin-bottom:8px">👤 Conta</div>
+<button onclick="logout()" style="width:100%;background:#ef4444;color:#fff;padding:6px;border-radius:6px">Sair</button>
+</div>
+</div>
 </div>
 <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:10px">
 <input type="date" id="dataInicio">
@@ -157,6 +170,7 @@ const user=data[0]
 if(user.status!=="aprovado"){alert("Aguardando aprovação do administrador");return}
 localStorage.setItem("usuario_id_lancamentos",user.id)
 localStorage.setItem("usuario_nome_lancamentos",user.nome)
+document.getElementById("usuarioLogado").innerText="👤 "+user.nome
 localStorage.setItem("tipo_usuario_lancamentos",user.tipo)
 document.getElementById("telaLogin").style.display="none"
 document.getElementById("appSistema").style.display="block"
@@ -169,12 +183,17 @@ await carregarUsuarios()
 await carregar()
 await gerarRecorrentes()
 await carregar()
+setUserUI()
 }
 }
 /* ====================================================005 – SESSÃO==================================================== */
 async function verificarSessao(){
 const userId=localStorage.getItem("usuario_id_lancamentos")
 if(userId){
+const nome=localStorage.getItem("usuario_nome_lancamentos")
+if(nome){
+document.getElementById("usuarioLogado").innerText="👤 "+nome
+}
 document.getElementById("telaLogin").style.display="none"
 document.getElementById("appSistema").style.display="block"
 document.body.classList.remove("login")
@@ -187,6 +206,7 @@ await carregarUsuarios()
 await carregar()
 await gerarRecorrentes()
 await carregar()
+setUserUI()
 }
 }else{
 document.getElementById("telaLogin").style.display="flex"
@@ -199,6 +219,8 @@ document.body.classList.remove("app")
 function logout(){
 localStorage.clear()
 location.reload()
+const el=document.getElementById("usuarioLogado")
+if(el)el.innerText=""
 }
 /* ====================================================007 – CARREGAR==================================================== */
 async function carregar(){
@@ -737,6 +759,33 @@ for(const p of padrao){
 await supabaseClient.from("lancamentos").insert({data:hoje,descricao:"Inicial",tipo:p.tipo,categoria:p.categoria,valor:0,pago:false,usuario_id:usuarioId})
 }
 }
+/* ====================================================050 – MENU USUÁRIO==================================================== */
+function toggleMenuUsuario(){
+const menu=document.getElementById("menuUsuario")
+menu.style.display=menu.style.display==="block"?"none":"block"
+}
+/* ====================================================051 – USER UI==================================================== */
+function setUserUI(){
+const nome=localStorage.getItem("usuario_nome_lancamentos")||"Usuário"
+const tipo=localStorage.getItem("tipo_usuario_lancamentos")||"user"
+
+document.getElementById("userNome").innerText=nome
+
+let badgeTipo=tipo==="admin"?"👑 ADMIN":"👤 USER"
+let plano="💎 FREE"
+
+document.getElementById("userMeta").innerText=badgeTipo+" • "+plano
+
+const avatar=document.getElementById("userAvatar")
+avatar.innerText=nome.charAt(0).toUpperCase()
+
+if(tipo==="admin"){
+avatar.style.background="#f59e0b"
+}else{
+avatar.style.background="#22c55e"
+}
+}
+  
 /* ====================================================038 – ESTRELAS CADENTES==================================================== */
 function criarEstrela(){
 if(!document.body.classList.contains("app"))return
@@ -748,6 +797,18 @@ document.body.appendChild(star)
 setTimeout(()=>star.remove(),4000)
 }
 setInterval(criarEstrela,2000)
+
+
+
+document.addEventListener("click",(e)=>{
+const box=document.getElementById("userBox")
+const menu=document.getElementById("menuUsuario")
+if(!box||!menu)return
+if(!box.contains(e.target) && !menu.contains(e.target)){
+menu.style.display="none"
+}
+})
+
 </script>
 </body>
 </html>
