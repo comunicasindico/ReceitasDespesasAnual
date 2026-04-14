@@ -94,16 +94,29 @@ backdrop-filter:blur(8px);
 
 <!-- APP -->
 <div id="appSistema" style="display:none">
-<!-- 💰 BOTÃO PIX -->
-<button onclick="upgradePlano()">💰 Assinar PRO com PIX</button>
+
+<!-- 💰 BOTÃO PIX (FIXO ESQUERDA) -->
+<div style="position:fixed;top:15px;left:15px;z-index:10000">
+<button onclick="gerarPix()" style="background:#22c55e;color:#000;padding:10px 16px;border-radius:10px;font-weight:bold;box-shadow:0 0 10px rgba(34,197,94,.5)">
+💰 Assinar PRO
+</button>
+</div>
+
+<!-- 🚪 BOTÃO SAIR (FIXO DIREITA) -->
+<div style="position:fixed;top:15px;right:15px;z-index:10000">
+<button onclick="logout()" style="background:#ef4444;color:#fff;padding:10px 16px;border-radius:10px;font-weight:bold">
+🚪 Sair
+</button>
+</div>
 
 <!-- 📷 QR CODE -->
-<div id="boxPix" style="display:none;margin-top:20px;text-align:center">
+<div id="boxPix" style="display:none;margin-top:80px;text-align:center">
 <h3>Escaneie para pagar</h3>
 <img id="qrPix" style="width:250px">
 <p>Ou copie a chave PIX:</p>
 <input value="SUA_CHAVE_PIX_AQUI" readonly style="width:250px;text-align:center">
 </div>
+
 <!-- ADMIN -->
 <div id="painelAdmin" style="display:none;margin-top:10px">
 <h2>Admin</h2>
@@ -111,27 +124,31 @@ backdrop-filter:blur(8px);
 </div>
 
 <!-- TOPO SAAS -->
-<div id="topoSaaS" style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px">
+<div id="topoSaaS" style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-top:60px;margin-bottom:10px">
+
 <h1 style="margin:0">ReceitasDespesasAnual PRO</h1>
 
+<!-- 👤 USER -->
 <div style="display:flex;align-items:center;gap:10px;position:relative">
 
 <div id="userBox" onclick="toggleMenuUsuario()" style="display:flex;align-items:center;gap:10px;background:#111827;padding:8px 12px;border-radius:10px;cursor:pointer;border:1px solid rgba(255,255,255,.1)">
 <div id="userAvatar" style="width:32px;height:32px;border-radius:50%;background:#22c55e;display:flex;align-items:center;justify-content:center;font-weight:bold;color:#000">U</div>
+
 <div style="display:flex;flex-direction:column;font-size:11px;line-height:1.2">
 <span id="userNome"></span>
 <span id="userMeta" style="opacity:.7"></span>
 </div>
 </div>
 
+<!-- MENU USUÁRIO (AGORA LIMPO) -->
 <div id="menuUsuario" style="display:none;position:absolute;top:55px;right:0;background:#020617;border-radius:10px;padding:10px;width:180px;box-shadow:0 0 20px rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.1)">
 <div style="font-size:12px;margin-bottom:8px">👤 Conta</div>
-<button onclick="logout()" style="background:#ef4444;color:#fff;padding:6px 12px;border-radius:8px;font-size:12px">
-🚪 Sair
-</button>
+<div style="font-size:11px;opacity:.7">Use o botão sair no topo</div>
 </div>
 
 </div>
+</div>
+
 </div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
