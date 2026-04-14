@@ -100,23 +100,6 @@ button:hover{transform:scale(1.05)}
 <!-- APP -->
 <div id="appSistema" style="display:none;margin-top:80px">
 
-<!-- 💰 BOTÃO PIX (FIXO ESQUERDA) -->
-<div style="position:fixed;top:15px;left:15px;z-index:10000">
-<button onclick="gerarPix()" style="background:#22c55e;color:#000;padding:10px 16px;border-radius:10px;font-weight:bold;box-shadow:0 0 10px rgba(34,197,94,.5)">
-💰 Assinar PRO
-</button>
-<button onclick="confirmarPagamento()" style="margin-top:10px;background:#f59e0b;color:#000;padding:8px;border-radius:8px;font-weight:bold">
-✅ Já paguei
-</button>
-</div>
-
-<!-- 🚪 BOTÃO SAIR (FIXO DIREITA) -->
-<div style="position:fixed;top:15px;right:15px;z-index:10000">
-<button onclick="logout()" style="background:#ef4444;color:#fff;padding:10px 16px;border-radius:10px;font-weight:bold">
-🚪 Sair
-</button>
-</div>
-
 <!-- 🔝 TOPO FIXO PROFISSIONAL -->
 <div id="topoSaaS" style="position:fixed;top:0;left:0;width:100%;height:64px;display:flex;justify-content:space-between;align-items:center;padding:0 18px;background:rgba(2,6,23,.95);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,.08);z-index:9999">
 
@@ -124,11 +107,11 @@ button:hover{transform:scale(1.05)}
 
 <h1 style="margin:0;font-size:18px;font-weight:600">📊 Receitas PRO</h1>
 
-<button onclick="gerarPix()" style="background:linear-gradient(135deg,#22c55e,#16a34a);color:#000;padding:7px 14px;border-radius:999px;font-size:12px;font-weight:bold;border:none;box-shadow:0 0 12px rgba(34,197,94,.5);cursor:pointer">
-🚀 VIRAR PRO
+<button id="btnAssinarPro" onclick="gerarPix()" style="background:linear-gradient(135deg,#22c55e,#16a34a);color:#000;padding:7px 14px;border-radius:999px;font-size:12px;font-weight:bold;border:none;cursor:pointer">
+💰 Assinar PRO
 </button>
 
-<button onclick="confirmarPagamento()" style="background:#f59e0b;color:#000;padding:7px 12px;border-radius:999px;font-size:12px;font-weight:bold;border:none;cursor:pointer">
+<button id="btnJaPaguei" onclick="confirmarPagamento()" style="background:#f59e0b;color:#000;padding:7px 12px;border-radius:999px;font-size:12px;font-weight:bold;border:none;cursor:pointer">
 ✔ Já paguei
 </button>
 
@@ -162,40 +145,6 @@ button:hover{transform:scale(1.05)}
 </div>
 
 </div>
-
-</div>
-
-<!-- 📷 MODAL PIX CENTRAL -->
-<div id="boxPix" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:99999;background:#020617;padding:22px;border-radius:16px;box-shadow:0 0 40px rgba(0,0,0,.8);width:320px;text-align:center;border:1px solid rgba(255,255,255,.08)">
-
-<h3 style="margin-bottom:12px;font-size:16px">💳 Escaneie para pagar</h3>
-
-<img id="qrPix" style="width:240px;border-radius:10px;margin-bottom:12px">
-
-<div style="font-size:11px;opacity:.7;margin-bottom:6px">Ou copie a chave PIX:</div>
-
-<input id="chavePix" readonly style="width:100%;padding:8px;border-radius:8px;text-align:center;margin-bottom:10px;border:none">
-
-<button id="btnCopiarPix" style="width:100%;background:#3b82f6;color:#fff;padding:8px;border-radius:8px;font-size:12px;margin-bottom:8px;border:none;cursor:pointer">
-📋 Copiar chave PIX
-</button>
-
-<button id="btnWhatsapp" style="width:100%;background:#22c55e;color:#000;padding:10px;border-radius:10px;font-weight:bold;font-size:13px;border:none;cursor:pointer">
-📲 Enviar comprovante
-</button>
-
-<button onclick="document.getElementById('boxPix').style.display='none'" style="margin-top:10px;background:#ef4444;color:#fff;padding:6px 12px;border-radius:8px;font-size:11px;border:none;cursor:pointer">
-Fechar
-</button>
-
-</div>
-
-<!-- 👑 PAINEL ADMIN -->
-<div id="painelAdmin" style="display:none;margin-top:90px;padding:15px">
-
-<h2 style="margin-bottom:10px">👑 Admin</h2>
-
-<div id="listaUsuarios"></div>
 
 </div>
 
@@ -416,6 +365,10 @@ usuario_id:userId
 }
 if(!obj.data||!obj.descricao){alert("Preencha data e descrição");return}
 if(!obj.valor||obj.valor===0){alert("Valor inválido");return}
+if(PLANO_USUARIO!=="pro" && dados.length>=LIMITE_USUARIO){
+mostrarUpgrade()
+return
+}
 await salvarRegistro(obj)
 document.getElementById("desc").value=""
 document.getElementById("valor").value=""
@@ -913,58 +866,51 @@ alert("Cadastro enviado! Aguarde aprovação.")
 fecharCadastro()
 }
 
-/* ====================================================031 – ADMIN==================================================== */
+/* ====================================================031 – ADMIN PROFISSIONAL==================================================== */
 async function carregarUsuarios(){
-
 const {data}=await supabaseClient
 .from("usuarios_lancamentos")
 .select("*")
 .order("criado_em")
 
 const lista=document.getElementById("listaUsuarios")
+if(!lista)return
+
 lista.innerHTML=""
 
-data.forEach(u=>{
+for(const u of data){
 
 let cor="#f59e0b"
-let status="💎 FREE"
+let badge="FREE"
 
-if(u.status_pagamento==="aguardando"){
-cor="#eab308"
-status="⏳ AGUARDANDO"
-}
-
-if(u.status_pagamento==="pro"){
-cor="#22c55e"
-status="🚀 PRO"
-}
+if(u.plano==="pro"){cor="#22c55e";badge="🚀 PRO"}
+if(u.plano==="analise"){cor="#eab308";badge="⏳ EM ANÁLISE"}
 
 lista.innerHTML+=`
-<div style="background:#111827;padding:12px;margin:6px 0;border-radius:10px;border-left:4px solid ${cor}">
-
-<div style="display:flex;justify-content:space-between">
+<div style="background:#0f172a;padding:14px;margin:8px 0;border-radius:12px;border-left:4px solid ${cor};display:flex;justify-content:space-between;align-items:center">
 
 <div>
-<b>${u.nome}</b><br>
-${u.email}<br>
-<span style="color:${cor}">${status}</span>
+<div style="font-weight:bold">${u.nome}</div>
+<div style="font-size:12px;opacity:.7">${u.email}</div>
+<div style="font-size:11px;margin-top:4px;color:${cor};font-weight:bold">${badge}</div>
 </div>
 
-<div style="display:flex;gap:5px">
+<div style="display:flex;gap:6px">
 
-${u.status_pagamento==="aguardando" ? `
-<button onclick="aprovarPagamento('${u.id}')" style="background:#22c55e;color:#000;padding:5px 8px;border-radius:6px">✔</button>
-<button onclick="recusarPagamento('${u.id}')" style="background:#ef4444;color:#fff;padding:5px 8px;border-radius:6px">✖</button>
-` : ""}
+${u.plano!=="pro"?`
+<button onclick="tornarPro('${u.id}')" style="background:#22c55e;color:#000;padding:6px 10px;border-radius:8px;font-size:11px">
+Liberar PRO
+</button>`:""}
 
-</div>
+<button onclick="aprovarUsuario('${u.id}')" style="background:#3b82f6;color:#fff;padding:6px 10px;border-radius:8px;font-size:11px">
+Resetar
+</button>
 
 </div>
 
 </div>
 `
-})
-
+}
 }
 /* ==========================031A APROVAR USUARIO========================================= */
 async function aprovarUsuario(id){
@@ -978,10 +924,22 @@ carregarUsuarios()
 async function tornarPro(id){
 await supabaseClient
 .from("usuarios_lancamentos")
-.update({plano:"pro",limite:999999})
+.update({
+plano:"pro",
+limite:999999,
+status:"aprovado"
+})
 .eq("id",id)
 
-alert("Usuário agora é PRO 💎")
+alert("Usuário agora é PRO 🚀")
+
+/* 🔥 SE FOR O USUÁRIO LOGADO → ATUALIZA NA HORA */
+const usuarioAtual=localStorage.getItem("usuario_id_lancamentos")
+if(String(usuarioAtual)===String(id)){
+localStorage.setItem("usuario_plano","pro")
+setUserUI()
+}
+
 carregarUsuarios()
 }
 /* ====================================================032 – PADRÃO INICIAL==================================================== */
@@ -1010,45 +968,73 @@ usuario_id:usuarioId
 }
 }
 
-/* ====================================================033 – USER UI==================================================== */
+/* ====================================================033 – USER UI (PROFISSIONAL)==================================================== */
 function setUserUI(){
-
 const nome=localStorage.getItem("usuario_nome_lancamentos")||"Usuário"
+const tipo=localStorage.getItem("tipo_usuario_lancamentos")||"user"
+const plano=(localStorage.getItem("usuario_plano")||"free").toLowerCase()
 
 const elNome=document.getElementById("userNome")
 const elMeta=document.getElementById("userMeta")
 const avatar=document.getElementById("userAvatar")
 
-const userId=localStorage.getItem("usuario_id_lancamentos")
+/* 🔥 PEGAR BOTÕES CORRETOS (SEM RISCO) */
+const btnPro=document.getElementById("btnAssinarPro")
+const btnPago=document.getElementById("btnJaPaguei")
 
-supabaseClient
-.from("usuarios_lancamentos")
-.select("*")
-.eq("id",userId)
-.single()
-.then(({data})=>{
-
-if(!data)return
+if(!elNome||!elMeta||!avatar)return
 
 elNome.innerText=nome
 
-if(data.status_pagamento==="pro"){
-elMeta.innerHTML="🚀 PRO"
-avatar.style.background="#22c55e"
+let badgePlano=""
+let corPlano="#f59e0b"
+
+/* 🔥 STATUS INTELIGENTE */
+if(plano==="pro"){
+badgePlano="🚀 PRO"
+corPlano="#22c55e"
+}else if(plano==="analise"){
+badgePlano="⏳ EM ANÁLISE"
+corPlano="#eab308"
+}else{
+badgePlano="💎 FREE"
+corPlano="#f59e0b"
 }
 
-else if(data.status_pagamento==="aguardando"){
-elMeta.innerHTML="⏳ Em análise"
-avatar.style.background="#eab308"
+let badgeTipo=tipo==="admin"?"👑 ADMIN":"👤 USER"
+
+elMeta.innerHTML=`<span style="color:${corPlano};font-weight:bold">${badgePlano}</span> • ${badgeTipo}`
+
+avatar.innerText=nome.charAt(0).toUpperCase()
+avatar.style.background=tipo==="admin"?"#f59e0b":corPlano
+
+/* 🔥 CONTROLE DE BOTÕES */
+if(btnPro && btnPago){
+
+if(plano==="pro"){
+btnPro.style.display="none"
+btnPago.style.display="none"
+}
+
+else if(plano==="analise"){
+btnPro.style.display="inline-block"
+btnPro.innerText="⏳ Em análise"
+btnPro.style.background="#eab308"
+btnPro.style.color="#000"
+
+btnPago.style.display="none"
 }
 
 else{
-elMeta.innerHTML="💎 FREE"
-avatar.style.background="#f59e0b"
+btnPro.style.display="inline-block"
+btnPro.innerText="💰 Assinar PRO"
+btnPro.style.background="linear-gradient(135deg,#22c55e,#16a34a)"
+btnPro.style.color="#000"
+
+btnPago.style.display="inline-block"
 }
 
-})
-
+}
 }
 /* ===============033A toggleadmin e rebaixarfree ================================================ */
 function toggleAdminMenu(id){
@@ -1122,27 +1108,33 @@ if(box)return
 
 box=document.createElement("div")
 box.id="upgradeBox"
+
 box.style.position="fixed"
-box.style.bottom="20px"
-box.style.right="20px"
-box.style.background="linear-gradient(135deg,#0f172a,#1e293b)"
-box.style.padding="20px"
-box.style.borderRadius="14px"
-box.style.boxShadow="0 0 30px rgba(0,0,0,.6)"
-box.style.border="1px solid rgba(255,255,255,.1)"
-box.style.zIndex="9999"
-box.style.maxWidth="280px"
+box.style.top="50%"
+box.style.left="50%"
+box.style.transform="translate(-50%,-50%)"
+box.style.background="#020617"
+box.style.padding="25px"
+box.style.borderRadius="16px"
+box.style.boxShadow="0 0 50px rgba(0,0,0,.9)"
+box.style.zIndex="99999"
+box.style.textAlign="center"
+
 box.innerHTML=`
-<div style="font-size:14px;font-weight:bold;margin-bottom:6px">🚫 Limite atingido</div>
-<div style="font-size:12px;opacity:.8;margin-bottom:10px">
-Plano FREE permite até ${LIMITE_USUARIO} lançamentos
+<div style="font-size:18px;font-weight:bold;margin-bottom:10px">🚀 Upgrade necessário</div>
+<div style="font-size:13px;opacity:.8;margin-bottom:15px">
+Plano FREE atingiu limite
 </div>
-<button onclick="upgradePlano()" style="width:100%;background:#22c55e;color:#000;padding:8px;border-radius:8px;font-weight:bold">
-💎 Upgrade para PRO
+<button onclick="gerarPix()" style="background:#22c55e;color:#000;padding:10px 16px;border-radius:10px;font-weight:bold">
+💰 Virar PRO agora
+</button>
+<br><br>
+<button onclick="this.parentElement.remove()" style="background:#ef4444;color:#fff;padding:6px 12px;border-radius:8px">
+Fechar
 </button>
 `
+
 document.body.appendChild(box)
-setTimeout(()=>box.remove(),6000)
 }
 /* ==================036  UPGRADE==================================================== */
 async function upgradePlano(){
@@ -1236,11 +1228,19 @@ bg.style.transform=`translate(${x}px,${y}px) scale(1.08)`
 /* ======================042 CONFIRMAR PAGAMENTO=================================================== */
 async function confirmarPagamento(){
 const usuario_id=localStorage.getItem("usuario_id_lancamentos")
+
+if(!usuario_id){alert("Usuário não encontrado");return}
+
 await supabaseClient
 .from("usuarios_lancamentos")
-.update({status_pagamento:"aguardando"})
+.update({plano:"analise"})
 .eq("id",usuario_id)
-alert("Pagamento enviado para análise!")
+
+localStorage.setItem("usuario_plano","analise")
+
+alert("Pagamento enviado! Aguarde liberação do admin.")
+
+setUserUI()
 }
 /* ======================043 APROVAR OU RECUSAR PAGAMENTO=================================================== */
 async function aprovarPagamento(id){
