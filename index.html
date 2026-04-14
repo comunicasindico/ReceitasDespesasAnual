@@ -95,11 +95,7 @@ backdrop-filter:blur(8px);
 <!-- APP -->
 <div id="appSistema" style="display:none">
 <!-- 💰 BOTÃO PIX -->
-<div style="margin-top:20px;text-align:center">
-<button onclick="gerarPix()" style="padding:10px 20px;font-weight:bold">
-💰 Assinar PRO com PIX
-</button>
-</div>
+<button onclick="upgradePlano()">💰 Assinar PRO com PIX</button>
 
 <!-- 📷 QR CODE -->
 <div id="boxPix" style="display:none;margin-top:20px;text-align:center">
@@ -861,8 +857,9 @@ lista.innerHTML+=`
 Status: ${u.status}<br>
 Plano: ${u.plano||"free"}<br>
 ${u.status==="pendente"?`<button onclick="aprovarUsuario('${u.id}')">Aprovar</button>`:""}
-</div>`
 <button onclick="tornarPro('${u.id}')">Tornar PRO</button>
+</div>
+`
 }
 }
 /* ==========================031A APROVAR USUARIO========================================= */
