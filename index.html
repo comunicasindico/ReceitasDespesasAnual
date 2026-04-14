@@ -124,18 +124,20 @@ backdrop-filter:blur(8px);
 </div>
 
 <!-- TOPO SAAS -->
-<div id="topoSaaS" style="display:flex;justify-content:space-between;align-items:center;gap:15px;flex-wrap:wrap;margin-bottom:15px">
+<div id="topoSaaS" style="display:flex;justify-content:space-between;align-items:center;padding:10px 15px;background:rgba(2,6,23,.6);backdrop-filter:blur(10px);border-bottom:1px solid rgba(255,255,255,.1)">
 
 <!-- ESQUERDA -->
-<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+<div style="display:flex;align-items:center;gap:12px">
 
-<h1 style="margin:0;font-size:22px">ReceitasDespesasAnual PRO</h1>
+<h1 style="margin:0;font-size:20px">📊 Receitas PRO</h1>
 
-<button onclick="gerarPix()" style="background:#22c55e;color:#000;padding:8px 14px;border-radius:8px;font-weight:bold;box-shadow:0 0 10px rgba(34,197,94,.4)">
-💰 Assinar PRO
+<!-- BOTÃO PRO (DESTAQUE) -->
+<button onclick="gerarPix()" style="background:linear-gradient(135deg,#22c55e,#16a34a);color:#000;padding:8px 14px;border-radius:20px;font-weight:bold;box-shadow:0 0 15px rgba(34,197,94,.5)">
+🚀 VIRAR PRO
 </button>
 
-<button onclick="abrirCadastro()" style="background:#3b82f6;color:#fff;padding:8px 14px;border-radius:8px;font-weight:bold">
+<!-- BOTÃO CRIAR -->
+<button onclick="abrirCadastro()" style="background:transparent;border:1px solid rgba(255,255,255,.2);color:#fff;padding:8px 12px;border-radius:8px">
 ➕ Criar conta
 </button>
 
@@ -144,32 +146,30 @@ backdrop-filter:blur(8px);
 <!-- DIREITA -->
 <div style="display:flex;align-items:center;gap:10px;position:relative">
 
-<!-- 👤 USER -->
-<div id="userBox" onclick="toggleMenuUsuario()" style="display:flex;align-items:center;gap:10px;background:#111827;padding:8px 12px;border-radius:10px;cursor:pointer;border:1px solid rgba(255,255,255,.1)">
+<!-- USER -->
+<div id="userBox" onclick="toggleMenuUsuario()" style="display:flex;align-items:center;gap:10px;background:#111827;padding:8px 12px;border-radius:20px;cursor:pointer;border:1px solid rgba(255,255,255,.1)">
 
 <div id="userAvatar" style="width:32px;height:32px;border-radius:50%;background:#22c55e;display:flex;align-items:center;justify-content:center;font-weight:bold;color:#000">U</div>
 
-<div style="display:flex;flex-direction:column;font-size:11px;line-height:1.2">
+<div style="display:flex;flex-direction:column;font-size:11px">
 <span id="userNome"></span>
 <span id="userMeta" style="opacity:.7"></span>
 </div>
 
 </div>
 
-<!-- 🚪 SAIR -->
-<button onclick="logout()" style="background:#ef4444;color:#fff;padding:8px 14px;border-radius:8px;font-weight:bold">
+<!-- MENU DROPDOWN -->
+<div id="menuUsuario" style="display:none;position:absolute;top:55px;right:0;background:#020617;border-radius:12px;padding:10px;width:200px;box-shadow:0 0 30px rgba(0,0,0,.7);border:1px solid rgba(255,255,255,.1)">
+
+<div style="padding:8px;border-bottom:1px solid rgba(255,255,255,.1);font-size:12px">👤 Minha conta</div>
+
+<button onclick="logout()" style="width:100%;margin-top:8px;background:#ef4444;color:#fff;padding:8px;border-radius:8px">
 🚪 Sair
 </button>
-
-<!-- MENU USUÁRIO -->
-<div id="menuUsuario" style="display:none;position:absolute;top:55px;right:0;background:#020617;border-radius:10px;padding:10px;width:180px;box-shadow:0 0 20px rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.1)">
-<div style="font-size:12px;margin-bottom:8px">👤 Conta</div>
-<div style="font-size:11px;opacity:.7">Menu em construção</div>
+</div>
+</div>
 </div>
 
-</div>
-
-</div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
@@ -889,19 +889,46 @@ async function carregarUsuarios(){
 const {data}=await supabaseClient.from("usuarios_lancamentos").select("*").order("criado_em")
 const lista=document.getElementById("listaUsuarios")
 if(!lista)return
+
 lista.innerHTML=""
 
-for(const u of data){
+data.forEach(u=>{
+const plano=u.plano==="pro"?"🚀 PRO":"💎 FREE"
+const status=u.status==="aprovado"?"✅":"⏳"
+
 lista.innerHTML+=`
-<div style="background:#111827;padding:10px;margin:5px;border-radius:6px">
-<b>${u.nome}</b><br>${u.email}<br>
-Status: ${u.status}<br>
-Plano: ${u.plano||"free"}<br>
-${u.status==="pendente"?`<button onclick="aprovarUsuario('${u.id}')">Aprovar</button>`:""}
-<button onclick="tornarPro('${u.id}')">Tornar PRO</button>
+<div style="background:#111827;padding:12px;margin:6px 0;border-radius:10px">
+
+<div style="display:flex;justify-content:space-between;align-items:center">
+
+<div>
+<b>${u.nome}</b><br>
+<small>${u.email}</small><br>
+<small>${status} • ${plano}</small>
+</div>
+
+<div style="position:relative">
+<button onclick="toggleAdminMenu('${u.id}')" style="background:#020617;color:#fff;padding:6px 10px;border-radius:8px">
+⚙️
+</button>
+
+<div id="menu_${u.id}" style="display:none;position:absolute;right:0;top:30px;background:#020617;border-radius:8px;padding:8px;border:1px solid rgba(255,255,255,.1)">
+
+${u.status==="pendente"?`<button onclick="aprovarUsuario('${u.id}')" style="width:100%;margin-bottom:5px">✅ Aprovar</button>`:""}
+
+<button onclick="tornarPro('${u.id}')" style="width:100%;margin-bottom:5px">🚀 PRO</button>
+
+<button onclick="rebaixarFree('${u.id}')" style="width:100%;background:#ef4444;color:#fff">⬇️ FREE</button>
+
+</div>
+
+</div>
+
+</div>
+
 </div>
 `
-}
+})
 }
 /* ==========================031A APROVAR USUARIO========================================= */
 async function aprovarUsuario(id){
@@ -961,15 +988,25 @@ if(!elNome||!elMeta||!avatar)return
 
 elNome.innerText=nome
 
-let badgeTipo=tipo==="admin"?"👑 ADMIN":"👤 USER"
-let badgePlano=plano==="pro"?"🚀 PRO":"💎 FREE"
-
-elMeta.innerText=badgeTipo+" • "+badgePlano
-
-avatar.innerText=nome.charAt(0).toUpperCase()
-avatar.style.background=tipo==="admin"?"#f59e0b":"#22c55e"
+if(plano==="pro"){
+elMeta.innerHTML="🚀 PRO"
+avatar.style.background="#f59e0b"
+}else{
+elMeta.innerHTML="💎 FREE"
+avatar.style.background="#22c55e"
+}
+}
+/* ===============033A toggleadmin e rebaixarfree ================================================ */
+function toggleAdminMenu(id){
+const menu=document.getElementById("menu_"+id)
+menu.style.display=menu.style.display==="block"?"none":"block"
 }
 
+async function rebaixarFree(id){
+await supabaseClient.from("usuarios_lancamentos").update({plano:"free",limite:20}).eq("id",id)
+alert("Usuário voltou para FREE")
+carregarUsuarios()
+}
 /* ====================================================034 – MENU==================================================== */
 function toggleMenuUsuario(){
 const menu=document.getElementById("menuUsuario")
