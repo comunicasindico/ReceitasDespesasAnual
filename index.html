@@ -122,6 +122,25 @@ button:hover{transform:scale(1.05)}
 </div>
 </div>
 
+
+<h3 style="margin-bottom:8px">➕ Novo lançamento</h3>
+<div id="boxInsercao" style="background:#020617;padding:15px;border-radius:12px;margin-bottom:15px;display:flex;flex-wrap:wrap;gap:8px;align-items:center">
+<input id="data" type="date" style="width:130px">
+<input id="desc" placeholder="Descrição" style="flex:1">
+<select id="tipo">
+<option value="RECEITA">Receita</option>
+<option value="DESPESA">Despesa</option>
+</select>
+<select id="categoria"></select>
+<input id="valor" type="number" placeholder="Valor" style="width:120px">
+<label style="font-size:11px"><input type="checkbox" id="recorrente"> Recorrente</label>
+<input id="diaPadrao" type="number" placeholder="Dia" style="width:60px">
+<button onclick="add()" style="background:#22c55e;color:#000;font-weight:bold">Adicionar</button>
+<button id="btnEditar" onclick="toggleModoEdicao()" style="background:#3b82f6;color:#fff">✏️ Editar</button>
+<button id="btnSalvar" onclick="salvarTudo()" style="display:none;background:#22c55e;color:#000">💾 Salvar</button>
+</div>
+
+  
 <div id="conteudoApp" style="margin-top:90px;padding:15px">
 <div id="painelAdmin" style="display:none;margin-top:90px;padding:15px">
 <h2>👑 Admin</h2>
