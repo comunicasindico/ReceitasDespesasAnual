@@ -101,6 +101,8 @@ backdrop-filter:blur(8px);
 <div id="boxPix" style="display:none;margin-top:20px;text-align:center">
 <h3>Escaneie para pagar</h3>
 <img id="qrPix" style="width:250px">
+<p>Ou copie a chave PIX:</p>
+<input value="SUA_CHAVE_PIX_AQUI" readonly style="width:250px;text-align:center">
 </div>
 <!-- ADMIN -->
 <div id="painelAdmin" style="display:none;margin-top:10px">
@@ -1071,28 +1073,16 @@ document.body.appendChild(box)
 }
 /* ====================================================040 – GERAR PIX==================================================== */
 async function gerarPix(){
-try{
-const res=await fetch("http://localhost:3000/criar-pagamento",{
-method:"POST",
-headers:{"Content-Type":"application/json"},
-body:JSON.stringify({
-email:prompt("Confirme seu email:"),
-usuario_id:localStorage.getItem("usuario_id_lancamentos")
-})
-})
-const data=await res.json()
-if(!data.qr_base64){
-alert("Erro ao gerar PIX")
-return
-}
+const usuario_id=localStorage.getItem("usuario_id_lancamentos")
+const nome=localStorage.getItem("usuario_nome_lancamentos")
+
+/* 📧 ABRE EMAIL AUTOMÁTICO */
+window.location.href=`mailto:SEUEMAIL@gmail.com?subject=Pagamento PIX PRO&body=Usuário: ${nome}%0AID: ${usuario_id}%0AValor: 19,90`
+
 /* 🔥 MOSTRAR QR */
 const img=document.getElementById("qrPix")
-img.src="data:image/png;base64,"+data.qr_base64
+img.src="data:image/png;base64,SEU_BASE64_AQUI"
 document.getElementById("boxPix").style.display="block"
-}catch(e){
-console.error(e)
-alert("Erro ao conectar com servidor")
-}
 }
 /* ==============================041 parallax  lua=================================================== */
 function iniciarParallaxLogin(){
