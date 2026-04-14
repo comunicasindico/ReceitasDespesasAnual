@@ -57,6 +57,8 @@ box-shadow:0 10px 30px rgba(0,0,0,.6);
 border:1px solid rgba(255,255,255,.1);
 backdrop-filter:blur(8px);
 }
+button:hover{transform:scale(1.05)}
+
 
 </style>
 </head>
@@ -65,13 +67,16 @@ backdrop-filter:blur(8px);
 <div class="nebula"></div>
 
 <!-- BOTÃO DISCRETO -->
-<div style="position:fixed;top:10px;left:10px;z-index:10000">
-<button onclick="abrirCadastro()" style="background:transparent;color:#fff;border:1px solid rgba(255,255,255,.2);padding:5px 10px;font-size:11px;border-radius:6px">Criar conta</button>
-</div>
+
 
 <!-- LOGIN -->
 <div id="telaLogin">
 <div id="loginBg"></div>
+<div style="position:absolute;top:18%;left:50%;transform:translateX(-50%);text-align:center;z-index:2">
+<button onclick="abrirCadastro()" style="background:#ef4444;color:#fff;padding:14px 28px;font-size:16px;font-weight:bold;border-radius:12px;border:none;box-shadow:0 0 25px rgba(239,68,68,.6);cursor:pointer;transition:.2s">
+🚀 Criar Conta Grátis Agora
+</button>
+</div>
 <div id="loginCard">
 <h2>Acesso</h2>
 <input id="loginUser" placeholder="Usuário">
