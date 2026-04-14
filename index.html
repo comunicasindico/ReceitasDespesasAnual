@@ -113,11 +113,13 @@ backdrop-filter:blur(8px);
 </div>
 
 <!-- 📷 QR CODE -->
-<div id="boxPix" style="display:none;margin-top:80px;text-align:center">
-<h3>Escaneie para pagar</h3>
-<img id="qrPix" style="width:250px">
-<p>Ou copie a chave PIX:</p>
-<input value="69984311978 - Celular" readonly style="width:250px;text-align:center">
+<div id="boxPix" style="display:none;margin-top:20px;text-align:center;background:#020617;padding:20px;border-radius:14px;box-shadow:0 0 30px rgba(0,0,0,.6);max-width:320px;margin-left:auto;margin-right:auto">
+<h3 style="margin-bottom:10px">💳 Escaneie para pagar</h3>
+<img id="qrPix" style="width:260px;border-radius:10px;margin-bottom:10px">
+<div style="font-size:12px;opacity:.7;margin-bottom:6px">Ou copie a chave PIX:</div>
+<input id="chavePix" readonly style="width:100%;padding:8px;border-radius:8px;text-align:center;margin-bottom:10px">
+<button id="btnCopiarPix" style="width:100%;background:#3b82f6;color:#fff;padding:8px;border-radius:8px;margin-bottom:8px">📋 Copiar chave PIX</button>
+<button id="btnWhatsapp" style="width:100%;background:#22c55e;color:#000;padding:10px;border-radius:10px;font-weight:bold">📲 Enviar comprovante via WhatsApp</button>
 </div>
 
 <!-- ADMIN -->
@@ -1173,60 +1175,27 @@ box.innerHTML=`
 `
 document.body.appendChild(box)
 }
-/* ====================================================040 – PIX COMPLETO PADRÃO BANCO==================================================== */
+/* ====================================================040 – GERAR PIX PREMIUM==================================================== */
 function gerarPix(){
-
 const usuario_id=localStorage.getItem("usuario_id_lancamentos")||"000"
 const nome=localStorage.getItem("usuario_nome_lancamentos")||"Cliente"
-
-/* 🔑 SUA CHAVE PIX */
 const chavePIX="69984311978"
-
-/* 💰 VALOR */
-const valor="19.90"
-
-/* 🧾 IDENTIFICADOR */
-const txid="USER"+usuario_id
-
-/* 🏦 GERAR PIX PADRÃO */
-const payload =
-"000201"+
-"26"+"54"+
-"0014br.gov.bcb.pix"+
-"01"+String(chavePIX.length).padStart(2,"0")+chavePIX+
-"52040000"+
-"5303986"+
-"54"+String(valor.length).padStart(2,"0")+valor+
-"5802BR"+
-"59"+"13"+"MANOEL F NETO"+
-"60"+"08"+"Brasil - SC"+
-"62"+"05"+
-"05"+String(txid.length).padStart(2,"0")+txid+
-"6304"
-/* 🔢 CRC16 */
-function crc16(str){
-let crc=0xFFFF
-for(let c=0;c<str.length;c++){
-crc^=str.charCodeAt(c)<<8
-for(let i=0;i<8;i++){
-if(crc&0x8000){crc=(crc<<1)^0x1021}else{crc<<=1}
-}
-}
-return (crc&0xFFFF).toString(16).toUpperCase().padStart(4,"0")
-}
-
-const pixFinal=payload+crc16(payload)
-/* 📷 QR CODE */
+const telefone="5569984311978"
+const mensagem=`Olá, realizei o pagamento do PRO.%0AUsuário: ${nome}%0AID: ${usuario_id}%0AValor: R$19,90`
 const img=document.getElementById("qrPix")
-img.src=`https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(pixFinal)}`
-/* 🔑 MOSTRAR COPIA E COLA */
+img.src=`https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(chavePIX)}`
 const inputPix=document.getElementById("chavePix")
-if(inputPix){
-inputPix.value=pixFinal
+if(inputPix)inputPix.value=chavePIX
+const botaoCopiar=document.getElementById("btnCopiarPix")
+if(botaoCopiar)botaoCopiar.onclick=function(){
+navigator.clipboard.writeText(chavePIX)
+botaoCopiar.innerText="✔ Copiado!"
+setTimeout(()=>botaoCopiar.innerText="📋 Copiar chave PIX",2000)
 }
-/* 📧 EMAIL AUTOMÁTICO */
-window.location.href=`mailto:phdbr68@gmail.com?subject=Pagamento PIX PRO&body=Usuário: ${nome}%0AID: ${usuario_id}%0AValor: R$19,90%0ATXID: ${txid}%0A%0AEnviei o comprovante.`
-/* 👁️ MOSTRAR BOX */
+const botaoZap=document.getElementById("btnWhatsapp")
+if(botaoZap)botaoZap.onclick=function(){
+window.open(`https://wa.me/${telefone}?text=${mensagem}`,"_blank")
+}
 document.getElementById("boxPix").style.display="block"
 }
 /* ==============================041 parallax  lua=================================================== */
