@@ -641,57 +641,86 @@ alert("Aguardando liberação")
 }
 /* ====================================================031 – INIT==================================================== */
 async function iniciarSistema(){
+try{
 carregarCategorias()
 
 const telaLogin=document.getElementById("telaLogin")
 const appSistema=document.getElementById("appSistema")
-
-/* 🔥 GARANTE ESTADO INICIAL */
-if(telaLogin)telaLogin.style.display="flex"
-if(appSistema)appSistema.style.display="none"
-document.body.classList.add("login")
-document.body.classList.remove("app")
-
-/* 🔐 VERIFICA SESSÃO */
-const userId=localStorage.getItem("usuario_id_lancamentos")
-
-if(userId){
-if(telaLogin)telaLogin.style.display="none"
-if(appSistema)appSistema.style.display="block"
-document.body.classList.remove("login")
-document.body.classList.add("app")
-
-setUserUI()
-
-const tipo=localStorage.getItem("tipo_usuario_lancamentos")
-
-if(tipo==="admin"){
 const painelAdmin=document.getElementById("painelAdmin")
 const conteudoApp=document.getElementById("conteudoApp")
+/* 🔥 ESTADO INICIAL SEGURO */
+if(telaLogin)telaLogin.style.display="flex"
+if(appSistema)appSistema.style.display="none"
+if(painelAdmin)painelAdmin.style.display="none"
+if(conteudoApp)conteudoApp.style.display="block"
+
+document.body.classList.add("login")
+document.body.classList.remove("app")
+/* 🔐 SESSÃO */
+const userId=localStorage.getItem("usuario_id_lancamentos")
+const tipo=localStorage.getItem("tipo_usuario_lancamentos")
+if(userId){
+/* 🔓 LIBERA APP */
+if(telaLogin)telaLogin.style.display="none"
+if(appSistema)appSistema.style.display="block"
+
+document.body.classList.remove("login")
+document.body.classList.add("app")
+/* 🧠 UI (SEM QUEBRAR) */
+if(typeof setUserUI==="function"){
+setUserUI()
+}
+/* 👑 ADMIN */
+if(tipo==="admin"){
 if(painelAdmin)painelAdmin.style.display="block"
 if(conteudoApp)conteudoApp.style.display="none"
-await carregarUsuarios()
-}else{
-await carregar()
 
+try{
+await carregarUsuarios()
+}catch(e){
+console.error("Erro admin:",e)
+}
+return
+}
+/* 👤 USUÁRIO */
+if(painelAdmin)painelAdmin.style.display="none"
+if(conteudoApp)conteudoApp.style.display="block"
+/* 🔄 CARREGAMENTO SEGURO */
+try{
+await carregar()
+}catch(e){
+console.error("Erro carregar:",e)
+}
+
+/* 🧠 SE VAZIO → SUGESTÃO */
 if(!dados.length){
+try{
 await criarPadraoUsuario(userId)
 await carregar()
+}catch(e){
+console.error("Erro padrão:",e)
 }
-
+}
+/* 🔁 RECORRÊNCIA */
+try{
 await gerarRecorrentes()
 await carregar()
+}catch(e){
+console.error("Erro recorrência:",e)
 }
 }
-
-/* 📅 DATA PADRÃO */
+/* 📅 DATA PADRÃO (NÃO QUEBRA) */
 const hoje=hojeLocal()
 ;["data","dataInicio","dataFim"].forEach(id=>{
 const el=document.getElementById(id)
 if(el&&!el.value)el.value=hoje
 })
+}catch(err){
+console.error("ERRO INIT:",err)
+alert("Erro ao iniciar sistema. Verifique o console.")
 }
-
+}
+/* ====================================================START==================================================== */
 document.addEventListener("DOMContentLoaded",async()=>{
 await iniciarSistema()
 })
