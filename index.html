@@ -3,190 +3,1288 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>ReceitasDespesas PRO</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<title>ReceitasDespesasAnual PRO</title>
+<link rel="icon" href="data:,">
 <style>
-body{font-family:Arial;background:#020617;color:#fff;padding:20px}
+html,body{margin:0;padding:0;min-height:100%;overflow-x:hidden}
+body{font-family:Arial;color:#fff;padding:20px;background:radial-gradient(circle at 20% 30%,rgba(99,102,241,0.25),transparent 40%),radial-gradient(circle at 80% 70%,rgba(236,72,153,0.25),transparent 40%),radial-gradient(circle at 50% 50%,#020617,#020617 60%,#000 100%);position:relative}
+body::before{content:"";position:fixed;top:0;left:0;width:100%;height:100%;background-image:radial-gradient(2px 2px at 20px 30px,#fff,transparent),radial-gradient(2px 2px at 100px 150px,#fff,transparent),radial-gradient(1px 1px at 200px 80px,#fff,transparent),radial-gradient(2px 2px at 300px 200px,#fff,transparent),radial-gradient(1px 1px at 400px 120px,#fff,transparent);background-repeat:repeat;animation:starsMove 60s linear infinite;opacity:.4;z-index:0;pointer-events:none}
+body>*{position:relative;z-index:1}
+.vialactea,.nebula,.shooting-star{z-index:0}
+@keyframes starsMove{from{transform:translateY(0)}to{transform:translateY(-1000px)}}
+h1{text-align:center}
 input,select,button{padding:8px;margin:5px;border-radius:6px;border:none}
 button{cursor:pointer;background:#22c55e;color:#000}
-#login{position:fixed;top:0;left:0;width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:#000}
-#app{display:none}
+.delete{background:#ef4444;color:#fff}
+.edit{background:#3b82f6;color:#fff}
+.topo{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
+.resumo{margin-top:20px;padding:10px;background:#111827;border-radius:10px}
+#areaGraficos{transition:all .3s ease}
+.oculto{display:none!important}
+.linha-receita{background:#052e16!important;border-left:4px solid #22c55e}
+.linha-receita-topo{background:#064e3b!important;border-left:4px solid #4ade80;font-weight:bold}
+.shooting-star{position:fixed;top:-10px;width:2px;height:120px;background:linear-gradient(-45deg,#fff,transparent);opacity:.8;transform:rotate(45deg);animation:shoot 2.5s linear infinite;pointer-events:none}
+@keyframes shoot{0%{transform:translate(0,0) rotate(45deg);opacity:0}10%{opacity:1}100%{transform:translate(800px,800px) rotate(45deg);opacity:0}}
+.nebula{position:fixed;top:0;left:0;width:100%;height:100%;background:radial-gradient(circle at 30% 40%,rgba(139,92,246,0.15),transparent 50%),radial-gradient(circle at 70% 60%,rgba(236,72,153,0.12),transparent 50%),radial-gradient(circle at 50% 50%,rgba(59,130,246,0.12),transparent 60%);filter:blur(20px);opacity:.5;animation:nebulaMove 25s ease-in-out infinite alternate;pointer-events:none}
+@keyframes nebulaMove{0%{transform:scale(1) translate(0,0)}100%{transform:scale(1.2) translate(-50px,50px)}}
+body.app .vialactea{position:fixed;top:0;left:0;width:100%;height:100%;background:linear-gradient(120deg,transparent 20%,rgba(255,255,255,0.15) 40%,rgba(168,85,247,0.25) 50%,rgba(59,130,246,0.25) 60%,transparent 80%),radial-gradient(circle at 30% 60%,rgba(255,255,255,0.12),transparent 60%),radial-gradient(circle at 70% 40%,rgba(168,85,247,0.18),transparent 60%);filter:blur(30px);opacity:.9;transform:rotate(-25deg) scale(1.5);animation:galaxyMove 35s ease-in-out infinite alternate;pointer-events:none}
+@keyframes galaxyMove{0%{transform:rotate(-25deg) scale(1.4) translate(0,0)}100%{transform:rotate(-20deg) scale(1.6) translate(-80px,60px)}}
+body.login{background:#000!important;padding:0}
+body.login::before{display:none!important}
+body.login .vialactea{display:none!important}
+body.login .nebula{display:none!important}
+body.login .shooting-star{display:none!important}
+#telaLogin{position:fixed;top:0;left:0;width:100%;height:100%;display:flex;align-items:center;justify-content:center;z-index:9999;overflow:hidden}
+#loginBg{position:absolute;top:-40px;left:-40px;width:calc(100% + 80px);height:calc(100% + 80px);background:url("img/lua.jpeg") no-repeat center center;background-size:cover;transform:translate3d(0,0,0) scale(1.08);will-change:transform;transition:transform .08s linear;z-index:0}
+#loginBg::after{content:"";position:absolute;inset:0;background:rgba(0,0,0,.28)}
+#loginCard{position:relative;background:rgba(17,24,39,.82);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);padding:30px;border-radius:16px;width:320px;display:flex;flex-direction:column;gap:12px;box-shadow:0 0 40px rgba(0,0,0,.6);border:1px solid rgba(255,255,255,.1);z-index:1}
+#loginCard h2{text-align:center;margin:0 0 6px 0}
+#appSistema{position:relative;z-index:2}
+/* ====================================================MENU USUÁRIO PREMIUM==================================================== */
+#menuUsuario{
+display:none;
+opacity:0;
+transform:translateY(-10px);
+transition:opacity .15s ease, transform .15s ease;
+position:absolute;
+top:55px;
+right:0;
+background:#020617;
+border-radius:10px;
+padding:10px;
+width:180px;
+box-shadow:0 10px 30px rgba(0,0,0,.6);
+border:1px solid rgba(255,255,255,.1);
+backdrop-filter:blur(8px);
+}
+button:hover{transform:scale(1.05)}
+
+
 </style>
 </head>
-<body>
+<body class="login">
+<div class="vialactea"></div>
+<div class="nebula"></div>
+
+<!-- BOTÃO DISCRETO -->
+
 
 <!-- LOGIN -->
-<div id="login">
-<div>
-<h2>Login</h2>
-<input id="email" placeholder="Email"><br>
-<input id="senha" type="password" placeholder="Senha"><br>
-<button onclick="login()">Entrar</button>
+<div id="telaLogin">
+<div id="loginBg"></div>
+<div style="position:absolute;top:18%;left:50%;transform:translateX(-50%);text-align:center;z-index:2">
+<button onclick="abrirCadastro()" style="background:#ef4444;color:#fff;padding:14px 28px;font-size:16px;font-weight:bold;border-radius:12px;border:none;box-shadow:0 0 25px rgba(239,68,68,.6);cursor:pointer;transition:.2s">
+🚀 Criar Conta Grátis Agora
+</button>
+</div>
+<div id="loginCard">
+<h2>Acesso</h2>
+<input id="loginUser" placeholder="Usuário">
+<input id="loginPass" type="password" placeholder="Senha">
+<button onclick="loginSistema()">Entrar</button>
 </div>
 </div>
 
-<!-- APP -->
-<div id="app">
-<h2 id="user"></h2>
-<button onclick="logout()" style="background:red;color:#fff">Sair</button>
+<!-- MODAL CADASTRO (ESCONDIDO) -->
+<div id="modalCadastro" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.7);z-index:10001;align-items:center;justify-content:center">
+<div style="background:#111827;padding:25px;border-radius:12px;width:300px;display:flex;flex-direction:column;gap:10px">
+<h3 style="margin:0;text-align:center">Criar conta</h3>
+<input id="cad_nome" placeholder="Nome">
+<input id="cad_email" placeholder="Email">
+<input id="cad_senha" placeholder="Senha">
+<button onclick="cadastrar()">Cadastrar</button>
+<button onclick="fecharCadastro()" style="background:#ef4444;color:#fff">Cancelar</button>
+</div>
+</div>
 
-<div>
-<input id="data" type="date">
-<input id="desc" placeholder="Descrição">
+<div id="appSistema" style="display:none;margin-top:80px">
+<div id="topoSaaS" style="position:fixed;top:0;left:0;width:100%;height:64px;display:flex;justify-content:space-between;align-items:center;padding:0 18px;background:rgba(2,6,23,.95);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,.08);z-index:9999">
+<div style="display:flex;align-items:center;gap:14px">
+<h1 style="margin:0;font-size:18px;font-weight:600">📊 Receitas PRO</h1>
+<div style="display:flex;gap:8px;align-items:center">
+<button id="btnAssinarPro" onclick="gerarPix()" style="background:linear-gradient(135deg,#22c55e,#16a34a);color:#000;padding:7px 14px;border-radius:999px;font-size:12px;font-weight:bold;border:none;cursor:pointer">💰 Assinar PRO</button>
+<button id="btnJaPaguei" onclick="confirmarPagamento()" style="background:#f59e0b;color:#000;padding:7px 12px;border-radius:999px;font-size:12px;font-weight:bold;border:none;cursor:pointer">✔ Já paguei</button>
+<button onclick="abrirCadastro()" style="background:transparent;border:1px solid rgba(255,255,255,.2);color:#fff;padding:7px 12px;border-radius:8px;font-size:12px;cursor:pointer">➕ Criar conta</button>
+</div>
+</div>
+<div style="display:flex;align-items:center;gap:10px;position:relative">
+<div id="userBox" onclick="toggleMenuUsuario()" style="display:flex;align-items:center;gap:10px;background:#111827;padding:6px 12px;border-radius:999px;cursor:pointer;border:1px solid rgba(255,255,255,.08)">
+<div id="userAvatar" style="width:30px;height:30px;border-radius:50%;background:#22c55e;display:flex;align-items:center;justify-content:center;font-weight:bold;color:#000;font-size:12px">U</div>
+<div style="display:flex;flex-direction:column;font-size:10px;line-height:1.2">
+<span id="userNome"></span>
+<span id="userMeta" style="opacity:.7"></span>
+</div>
+</div>
+<div id="menuUsuario" style="display:none;position:absolute;top:58px;right:0;background:#020617;border-radius:12px;padding:10px;width:200px;box-shadow:0 0 30px rgba(0,0,0,.7);border:1px solid rgba(255,255,255,.08)">
+<div style="padding:8px;border-bottom:1px solid rgba(255,255,255,.08);font-size:12px">👤 Minha conta</div>
+<button onclick="logout()" style="width:100%;margin-top:10px;background:#ef4444;color:#fff;padding:8px;border-radius:8px;font-size:12px;border:none;cursor:pointer">🚪 Sair</button>
+</div>
+</div>
+</div>
+
+
+<h3 style="margin-bottom:8px">➕ Novo lançamento</h3>
+<div id="boxInsercao" style="background:#020617;padding:15px;border-radius:12px;margin-bottom:15px;display:flex;flex-wrap:wrap;gap:8px;align-items:center">
+<input id="data" type="date" style="width:130px">
+<input id="desc" placeholder="Descrição" style="flex:1">
 <select id="tipo">
-<option>RECEITA</option>
-<option>DESPESA</option>
+<option value="RECEITA">Receita</option>
+<option value="DESPESA">Despesa</option>
 </select>
-<input id="valor" type="number">
-<button onclick="add()">Adicionar</button>
+<select id="categoria"></select>
+<input id="valor" type="number" placeholder="Valor" style="width:120px">
+<label style="font-size:11px"><input type="checkbox" id="recorrente"> Recorrente</label>
+<input id="diaPadrao" type="number" placeholder="Dia" style="width:60px">
+<button onclick="add()" style="background:#22c55e;color:#000;font-weight:bold">Adicionar</button>
+<button id="btnEditar" onclick="toggleModoEdicao()" style="background:#3b82f6;color:#fff">✏️ Editar</button>
+<button id="btnSalvar" onclick="salvarTudo()" style="display:none;background:#22c55e;color:#000">💾 Salvar</button>
 </div>
 
+  
+<div id="conteudoApp" style="margin-top:90px;padding:15px">
+<div id="painelAdmin" style="display:none;margin-top:90px;padding:15px">
+<h2>👑 Admin</h2>
+<div id="listaUsuarios"></div>
+</div>
+<div id="resumo" style="margin-bottom:15px"></div>
 <div id="lista"></div>
-
-<canvas id="grafico" height="100"></canvas>
+<div id="areaGraficos" style="margin-top:20px">
+<canvas id="graficoResumo"></canvas>
+<canvas id="graficoMensal"></canvas>
+</div>
+</div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-
-/* CONFIG */
-const supabase = window.supabase.createClient(
-"https://gspdlrenyrzbkxlvyugc.supabase.co",
-"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdzcGRscmVueXJ6Ymt4bHZ5dWdjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ4ODU0NzAsImV4cCI6MjA5MDQ2MTQ3MH0.UWfkWvOh4qMDEcByVL-KZ6ejJ80V7wJlDOFH76TywaI"
-)
-
+/* ====================================================001 – CONFIG==================================================== */
+const SUPABASE_URL="https://gspdlrenyrzbkxlvyugc.supabase.co"
+const SUPABASE_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdzcGRscmVueXJ6Ymt4bHZ5dWdjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ4ODU0NzAsImV4cCI6MjA5MDQ2MTQ3MH0.UWfkWvOh4qMDEcByVL-KZ6ejJ80V7wJlDOFH76TywaI"
+const supabaseClient=supabase.createClient(SUPABASE_URL,SUPABASE_KEY)
+/* ====================================================002 – ESTADO==================================================== */
 let dados=[]
-let userId=null
-let grafico=null
+let editando=null
+let mostrarValores=true
+let visibilidade={}
+let graficoResumo=null
+let graficoMensal=null
+let modoEdicao=false
+let edicoesTemp={}
+let filtroInicio=null
+let filtroFim=null
+let modoAnoCompleto=false
+let mesOffset=0
+let mostrarGrafico=true
+let LIMITE_USUARIO=20
+let PLANO_USUARIO="FREE"
 
-/* LOGIN */
-async function login(){
-const email=document.getElementById("email").value
-const senha=document.getElementById("senha").value
-
-const {data}=await supabase
-.from("usuarios_lancamentos")
-.select("*")
-.eq("email",email)
-.eq("senha",senha)
-.single()
-
-if(!data){alert("Login inválido");return}
-
-userId=data.id
-
-localStorage.setItem("user_id",userId)
-localStorage.setItem("user_nome",data.nome)
-
-abrirApp()
+/* ====================================================003 – CATEGORIAS==================================================== */
+const CATEGORIAS=["GERAL","TCERO/Cripto","CASA","SAÚDE","EDUCAÇÃO","LAZER"]
+function carregarCategorias(){
+const sel=document.getElementById("categoria")
+if(!sel)return
+sel.innerHTML=CATEGORIAS.map(c=>`<option>${c}</option>`).join("")
 }
 
-/* ABRIR APP */
-async function abrirApp(){
-userId=localStorage.getItem("user_id")
-document.getElementById("login").style.display="none"
-document.getElementById("app").style.display="block"
-document.getElementById("user").innerText=localStorage.getItem("user_nome")
+/* ====================================================004 – LOGIN==================================================== */
+async function loginSistema(){
+const email=document.getElementById("loginUser").value.trim()
+const senha=document.getElementById("loginPass").value.trim()
+if(!email||!senha){alert("Preencha e-mail e senha");return}
+const {data,error}=await supabaseClient.from("usuarios_lancamentos").select("*").eq("email",email).eq("senha",senha).limit(1)
+if(error||!data||data.length===0){alert("Usuário inválido");return}
+const user=data[0]
 
+localStorage.setItem("usuario_id_lancamentos",user.id)
+localStorage.setItem("usuario_nome_lancamentos",user.nome)
+localStorage.setItem("tipo_usuario_lancamentos",user.tipo)
+localStorage.setItem("usuario_plano",user.plano||"free")
+
+document.getElementById("telaLogin").style.display="none"
+document.getElementById("appSistema").style.display="block"
+document.body.classList.remove("login")
+document.body.classList.add("app")
+
+setUserUI()
+
+const painelAdmin=document.getElementById("painelAdmin")
+const conteudoApp=document.getElementById("conteudoApp")
+
+if(user.tipo==="admin"){
+if(painelAdmin)painelAdmin.style.display="block"
+if(conteudoApp)conteudoApp.style.display="none"
+await carregarUsuarios()
+}else{
+if(painelAdmin)painelAdmin.style.display="none"
+if(conteudoApp)conteudoApp.style.display="block"
+await carregar()
+await gerarRecorrentes()
+await carregar()
+}
+}
+
+/* ====================================================005 – SESSÃO==================================================== */
+async function verificarSessao(){
+const userId=localStorage.getItem("usuario_id_lancamentos")
+
+if(userId){
+document.getElementById("telaLogin").style.display="none"
+document.getElementById("appSistema").style.display="block"
+document.body.classList.remove("login")
+document.body.classList.add("app")
+
+setUserUI()
+
+const tipo=localStorage.getItem("tipo_usuario_lancamentos")
+
+if(tipo==="admin"){
+document.getElementById("painelAdmin").style.display="block"
+await carregarUsuarios()
+}else{
+await carregar()
+await gerarRecorrentes()
 await carregar()
 }
 
-/* LOGOUT */
+}else{
+document.getElementById("telaLogin").style.display="flex"
+document.getElementById("appSistema").style.display="none"
+document.body.classList.add("login")
+document.body.classList.remove("app")
+}
+}
+
+/* ====================================================006 – LOGOUT==================================================== */
 function logout(){
 localStorage.clear()
 location.reload()
 }
 
-/* CARREGAR */
+/* ====================================================007 – CARREGAR==================================================== */
 async function carregar(){
-try{
-const {data,error}=await supabase
-.from("lancamentos")
-.select("id,data,descricao,tipo,valor,user_id")
-.order("data",{ascending:true})
+const {data,error}=await supabaseClient.from("lancamentos").select("*").order("data",{ascending:true})
+if(error){alert("Erro ao carregar");return}
 
-if(error){
-alert(error.message)
+dados=data||[]
+
+const tipo=localStorage.getItem("tipo_usuario_lancamentos")
+const userId=localStorage.getItem("usuario_id_lancamentos")
+
+if(tipo!=="admin"){
+dados=dados.filter(x=>String(x.usuario_id)===String(userId))
+}
+
+if(!window._renderLock){
+window._renderLock=true
+requestAnimationFrame(()=>{
+render()
+window._renderLock=false
+})
+}
+}
+
+/* ====================================================008 – SALVAR==================================================== */
+async function salvarRegistro(obj){
+let response
+if(obj.id){
+response=await supabaseClient.from("lancamentos").update(obj).eq("id",obj.id)
+}else{
+response=await supabaseClient.from("lancamentos").insert(obj)
+}
+if(response.error){
+console.error("ERRO AO SALVAR:",response.error)
+alert("Erro ao salvar: "+response.error.message)
+return
+}
+await carregar()
+}
+
+/* ====================================================009 – EXCLUIR==================================================== */
+async function del(id){
+await supabaseClient.from("lancamentos").delete().eq("id",id)
+await carregar()
+}
+
+/* ====================================================010 – MARCAR PAGO==================================================== */
+async function marcarPago(id){
+const item=dados.find(x=>String(x.id)===String(id))
+if(!item)return
+
+if(item.pago&&!modoEdicao){
+alert("Item já está pago. Para alterar, ative o modo edição.")
 return
 }
 
-dados=(data||[]).filter(x=>String(x.user_id)===String(userId))
+const novoStatus=!item.pago
+const dataLocal=hojeLocal()
 
-render()
-
-}catch(e){
-console.error(e)
-alert("Erro ao carregar")
-}
-}
-
-/* ADD */
-async function add(){
-const data=document.getElementById("data").value
-const desc=document.getElementById("desc").value
-const tipo=document.getElementById("tipo").value
-const valor=parseFloat(document.getElementById("valor").value||0)
-
-if(!data||!desc||!valor)return alert("Preencha tudo")
-
-await supabase.from("lancamentos").insert({
-data,
-descricao:desc,
-tipo,
-valor,
-user_id:userId
-})
-
-document.getElementById("desc").value=""
-document.getElementById("valor").value=""
+await supabaseClient.from("lancamentos").update({
+pago:novoStatus,
+data_pagamento:novoStatus?dataLocal:null
+}).eq("id",id)
 
 await carregar()
 }
 
-/* RENDER */
-function render(){
-const lista=document.getElementById("lista")
+/* ====================================================011 – EDITAR==================================================== */
+function editarPorId(id){
+const x=dados.find(d=>String(d.id)===String(id))
+if(!x)return
 
-if(!dados.length){
-lista.innerHTML="<p>Sem dados</p>"
+editando=x.id
+
+document.getElementById("data").value=x.data||""
+document.getElementById("desc").value=x.descricao||""
+document.getElementById("tipo").value=x.tipo||"DESPESA"
+document.getElementById("categoria").value=x.categoria||"GERAL"
+document.getElementById("valor").value=x.valor||0
+}
+/* ====================================================012 – ADD==================================================== */
+async function add(){
+const userId=localStorage.getItem("usuario_id_lancamentos")
+if(!userId){alert("Usuário não autenticado");return}
+if(dados.length>=LIMITE_USUARIO){
+mostrarUpgrade()
 return
 }
+const dataEl=document.getElementById("data")
+const descEl=document.getElementById("desc")
+const tipoEl=document.getElementById("tipo")
+const categoriaEl=document.getElementById("categoria")
+const valorEl=document.getElementById("valor")
+const recorrenteEl=document.getElementById("recorrente")
+const diaEl=document.getElementById("diaPadrao")
+const dataStr=normalizarDataLocal(dataEl.value)
+const obj={
+data:dataStr,
+descricao:descEl.value.trim(),
+tipo:tipoEl.value,
+categoria:categoriaEl.value||"GERAL",
+valor:Number((valorEl.value||"0").replace(/\./g,"").replace(",",".")),
+recorrente:(recorrenteEl&&recorrenteEl.checked)||false,
+dia_padrao:parseInt((diaEl&&diaEl.value)||0)||null,
+dia_vencimento:dataStr?Number(dataStr.split("-")[2]):null,
+pago:false,
+data_pagamento:null,
+usuario_id:userId
+}
+if(!obj.data||!obj.descricao){alert("Preencha data e descrição");return}
+if(!obj.valor||obj.valor===0){alert("Valor inválido");return}
+if(PLANO_USUARIO!=="pro" && dados.length>=LIMITE_USUARIO){
+mostrarUpgrade()
+return
+}
+await salvarRegistro(obj)
+document.getElementById("desc").value=""
+document.getElementById("valor").value=""
+document.getElementById("recorrente").checked=false
+document.getElementById("diaPadrao").value=""
+}
+/* ====================================================013 – NORMALIZAR DATA==================================================== */
+function normalizarDataLocal(dataStr){
+if(!dataStr)return null
+const [ano,mes,dia]=dataStr.split("-")
+return `${ano}-${mes}-${dia}`
+}
 
-let html=""
-let r=0,d=0
+/* ====================================================014 – FORMATADORES==================================================== */
+function formatarMoeda(v){
+return Number(v||0).toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2})
+}
+function formatarDataBR(d){
+if(!d)return""
+const [ano,mes,dia]=d.split("-")
+return `${dia}/${mes}/${ano}`
+}
 
-dados.forEach(x=>{
-if(x.tipo==="RECEITA")r+=Number(x.valor)
-else d+=Number(x.valor)
+/* ====================================================015 – DATA LOCAL==================================================== */
+function hojeLocal(){
+const d=new Date()
+const ano=d.getFullYear()
+const mes=String(d.getMonth()+1).padStart(2,"0")
+const dia=String(d.getDate()).padStart(2,"0")
+return `${ano}-${mes}-${dia}`
+}
 
-html+=`
-<div style="margin:4px;padding:6px;background:#111827;border-radius:6px">
-${x.data} - ${x.descricao} - R$ ${x.valor}
+/* ====================================================016 – MÊS BASE==================================================== */
+function getMesBase(x){
+if(!x.data)return
+const [ano,mes]=x.data.split("-")
+return Number(mes)-1
+}
+
+/* ====================================================017 – MODO EDIÇÃO==================================================== */
+function toggleModoEdicao(){
+modoEdicao=!modoEdicao
+
+const btnSalvar=document.getElementById("btnSalvar")
+const btnEditar=document.getElementById("btnEditar")
+
+if(btnSalvar)btnSalvar.style.display=modoEdicao?"inline-block":"none"
+if(btnEditar)btnEditar.innerText=modoEdicao?"❌ Cancelar":"✏️ Editar"
+
+if(!modoEdicao)edicoesTemp={}
+
+render()
+}
+
+/* ====================================================018 – EDIT TEMP==================================================== */
+function editTemp(id,campo,valor){
+if(!edicoesTemp[id])edicoesTemp[id]={}
+edicoesTemp[id][campo]=valor
+}
+
+/* ====================================================019 – SALVAR EDIÇÃO==================================================== */
+async function salvarEdicao(id){
+const original=dados.find(x=>String(x.id)===String(id))
+if(!original)return
+
+const alteracoes=edicoesTemp[id]||{}
+
+const atualizado={
+...original,
+...alteracoes,
+valor:parseFloat(alteracoes.valor??original.valor)
+}
+
+await supabaseClient.from("lancamentos").update(atualizado).eq("id",id)
+
+delete edicoesTemp[id]
+
+await carregar()
+}
+
+/* ====================================================020 – TOGGLE ITEM==================================================== */
+function toggleValor(id){
+visibilidade[id]=!visibilidade[id]
+render()
+}
+
+/* ====================================================021 – APLICAR OFFSET==================================================== */
+function aplicarMesOffset(){
+const hoje=new Date()
+const data=new Date(hoje.getFullYear(),hoje.getMonth()+mesOffset,1)
+
+const ano=data.getFullYear()
+const mes=String(data.getMonth()+1).padStart(2,"0")
+const ultimoDia=new Date(data.getFullYear(),data.getMonth()+1,0).getDate()
+
+filtroInicio=`${ano}-${mes}-01`
+filtroFim=`${ano}-${mes}-${String(ultimoDia).padStart(2,"0")}`
+
+modoAnoCompleto=false
+
+render()
+}
+/* ====================================================021 – RENDER==================================================== */
+function render(){
+const lista=document.getElementById("lista")
+const resumoEl=document.getElementById("resumo")
+
+if(!lista||!resumoEl)return
+
+let listaFiltrada=[...dados]
+
+const hoje=new Date()
+const mesAtual=hoje.getMonth()
+const anoAtual=hoje.getFullYear()
+
+if(!modoAnoCompleto&&!filtroInicio&&!filtroFim){
+listaFiltrada=listaFiltrada.filter(x=>{
+if(!x.data)return false
+const [ano,mes]=x.data.split("-")
+return Number(mes)-1===mesAtual&&Number(ano)===anoAtual
+})
+}
+
+if(filtroInicio)listaFiltrada=listaFiltrada.filter(x=>x.data>=filtroInicio)
+if(filtroFim)listaFiltrada=listaFiltrada.filter(x=>x.data<=filtroFim)
+
+/* 🔥 AGRUPAR */
+const grupos={}
+listaFiltrada.forEach(x=>{
+if(!x.data)return
+const [ano,mes]=x.data.split("-")
+const chave=`${ano}-${mes}`
+if(!grupos[chave])grupos[chave]=[]
+grupos[chave].push(x)
+})
+
+const chaves=Object.keys(grupos).sort().reverse()
+
+lista.innerHTML=""
+
+let totalGeralR=0
+let totalGeralDPago=0
+let totalGeralDPendente=0
+
+chaves.forEach(chave=>{
+let listaMes=grupos[chave]
+
+listaMes.sort((a,b)=>{
+if(a.tipo==="RECEITA"&&b.tipo!=="RECEITA")return-1
+if(a.tipo!=="RECEITA"&&b.tipo==="RECEITA")return 1
+return(a.data||"").localeCompare(b.data||"")
+})
+
+let totalR=0
+let totalDPago=0
+let totalDPendente=0
+
+listaMes.forEach(x=>{
+const v=Number(x.valor||0)
+if(x.tipo==="RECEITA"){
+totalR+=v
+}else{
+if(x.pago){totalDPago+=v}else{totalDPendente+=v}
+}
+})
+
+totalGeralR+=totalR
+totalGeralDPago+=totalDPago
+totalGeralDPendente+=totalDPendente
+
+const totalDSP=totalDPago+totalDPendente
+const saldo=totalR-totalDSP
+
+const [ano,mes]=chave.split("-")
+
+lista.innerHTML+=`
+<div style="margin-top:15px;background:#020617;padding:8px;border-radius:6px;border-left:4px solid #38bdf8;display:flex;justify-content:space-between;flex-wrap:wrap">
+<div style="font-weight:bold">📅 ${formatarMesNome(mes)}/${ano}</div>
+<div style="display:flex;gap:10px;font-size:12px;flex-wrap:wrap">
+<span style="color:#22c55e">💰 ${formatarMoeda(totalR)}</span>
+<span style="color:#22c55e">✔ ${formatarMoeda(totalDPago)}</span>
+<span style="color:#ef4444">⏳ ${formatarMoeda(totalDPendente)}</span>
+<span style="color:#f59e0b">💸 ${formatarMoeda(totalDSP)}</span>
+<span style="color:${saldo>=0?"#22c55e":"#ef4444"}">${saldo>=0?"📈":"📉"} ${formatarMoeda(saldo)}</span>
+</div>
+</div>
+`
+
+listaMes.forEach(x=>{
+const ed=edicoesTemp[x.id]||{}
+const dataVal=ed.data??x.data
+const descVal=ed.descricao??x.descricao
+const catVal=ed.categoria??x.categoria
+const valVal=ed.valor??x.valor
+
+const isReceita=x.tipo==="RECEITA"
+
+lista.innerHTML+=`
+<div style="display:grid;grid-template-columns:100px 1fr 120px 140px 200px;gap:6px;background:${isReceita?"#052e16":"#1e293b"};padding:4px;margin:2px 0;border-radius:6px;font-size:12px">
+<div>${modoEdicao?`<input type="date" value="${dataVal||""}" onchange="editTemp('${x.id}','data',this.value)">`:formatarDataBR(x.data)}</div>
+<div>${modoEdicao?`<input type="text" value="${String(descVal||"").replace(/"/g,"&quot;")}" onchange="editTemp('${x.id}','descricao',this.value)">`:`${isReceita?"+ ":"- "}${x.descricao||""}`}</div>
+<div>${modoEdicao?`<select onchange="editTemp('${x.id}','categoria',this.value)">
+<option ${catVal==="GERAL"?"selected":""}>GERAL</option>
+<option ${catVal==="CASA"?"selected":""}>CASA</option>
+<option ${catVal==="SAÚDE"?"selected":""}>SAÚDE</option>
+<option ${catVal==="EDUCAÇÃO"?"selected":""}>EDUCAÇÃO</option>
+<option ${catVal==="LAZER"?"selected":""}>LAZER</option>
+<option ${catVal==="TCERO/Cripto"?"selected":""}>TCERO/Cripto</option>
+</select>`:(x.categoria||"")}</div>
+
+<div style="text-align:right">
+${modoEdicao?`<input type="number" value="${valVal}" onchange="editTemp('${x.id}','valor',this.value)" style="width:90px">`:
+(isReceita?(visibilidade[x.id]?"R$ "+formatarMoeda(x.valor):"R$ ***"):"R$ "+formatarMoeda(x.valor))}
+</div>
+
+<div style="display:flex;gap:5px;justify-content:flex-end">
+
+${isReceita&&!modoEdicao?`<button onclick="toggleValor('${x.id}')" style="background:#3b82f6;color:#fff">👁</button>`:""}
+
+<button onclick="marcarPago('${x.id}')" style="background:${x.pago?"#22c55e":"#ef4444"};color:#000">
+${x.pago?"OK":"PEND"}
+</button>
+
+${modoEdicao?`<button onclick="delConfirm('${x.id}')" style="background:#ef4444;color:#fff">🗑</button>`:""}
+
+</div>
 </div>
 `
 })
 
-lista.innerHTML=html
+lista.innerHTML+=`
+<div style="margin:5px 0 15px 0;padding:6px;background:#111827;border-radius:6px;display:flex;gap:10px;justify-content:flex-end;font-size:12px">
+<span style="color:#22c55e">💰 ${formatarMoeda(totalR)}</span>
+<span style="color:#22c55e">✔ ${formatarMoeda(totalDPago)}</span>
+<span style="color:#ef4444">⏳ ${formatarMoeda(totalDPendente)}</span>
+<span style="color:#f59e0b">💸 ${formatarMoeda(totalDSP)}</span>
+<span style="color:${saldo>=0?"#22c55e":"#ef4444"}">${saldo>=0?"📈":"📉"} ${formatarMoeda(saldo)}</span>
+</div>
+`
+})
 
-if(grafico)grafico.destroy()
+const totalGeralDSP=totalGeralDPago+totalGeralDPendente
+const saldoGeral=totalGeralR-totalGeralDSP
 
-grafico=new Chart(document.getElementById("grafico"),{
+resumoEl.innerHTML=`
+<div style="display:flex;gap:15px;justify-content:center;font-size:14px;font-weight:bold;flex-wrap:wrap">
+<span style="color:#22c55e">💰 ${formatarMoeda(totalGeralR)}</span>
+<span style="color:#22c55e">✔ ${formatarMoeda(totalGeralDPago)}</span>
+<span style="color:#ef4444">⏳ ${formatarMoeda(totalGeralDPendente)}</span>
+<span style="color:#f59e0b">💸 ${formatarMoeda(totalGeralDSP)}</span>
+<span style="color:${saldoGeral>=0?"#22c55e":"#ef4444"}">${saldoGeral>=0?"📈":"📉"} ${formatarMoeda(saldoGeral)}</span>
+</div>
+`
+
+if(totalEl)totalEl.innerText=""
+
+if(mostrarGrafico)atualizarDashboard()
+}
+
+
+  function formatarMesNome(m){
+const nomes=["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"]
+return nomes[Number(m)-1]||m
+}
+
+function delConfirm(id){
+if(confirm("Deseja excluir este registro?")){
+del(id)
+}
+}
+
+  
+  
+/* ====================================================022 – DASHBOARD==================================================== */
+function atualizarDashboard(){
+if(typeof Chart==="undefined")return
+
+const elResumo=document.getElementById("graficoResumo")
+const elMensal=document.getElementById("graficoMensal")
+
+if(!elResumo||!elMensal)return
+
+const ctxResumo=elResumo.getContext("2d")
+const ctxMensal=elMensal.getContext("2d")
+
+if(graficoResumo)graficoResumo.destroy()
+if(graficoMensal)graficoMensal.destroy()
+
+let r=0,d=0
+let meses={}
+
+dados.forEach(x=>{
+if(!x.data)return
+const m=getMesBase(x)
+if(m===undefined)return
+
+if(!meses[m])meses[m]={r:0,d:0}
+
+const v=Number(x.valor||0)
+
+if(x.tipo==="RECEITA"){
+r+=v
+meses[m].r+=v
+}else{
+d+=v
+meses[m].d+=v
+}
+})
+
+graficoResumo=new Chart(ctxResumo,{
 type:"doughnut",
 data:{
-labels:["Receita","Despesa"],
+labels:["Receitas","Despesas"],
 datasets:[{data:[r,d]}]
+},
+options:{plugins:{legend:{labels:{color:"#fff"}}}}
+})
+
+graficoMensal=new Chart(ctxMensal,{
+type:"bar",
+data:{
+labels:["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"],
+datasets:[
+{label:"Receitas",data:Array.from({length:12},(_,i)=>meses[i]?.r||0)},
+{label:"Despesas",data:Array.from({length:12},(_,i)=>meses[i]?.d||0)}
+]
+},
+options:{plugins:{legend:{labels:{color:"#fff"}}}}
+})
 }
+/* ====================================================023 – COPIAR MÊS==================================================== */
+async function copiarMesAnterior(){
+const userId=localStorage.getItem("usuario_id_lancamentos")
+if(!userId)return
+
+const ano=new Date().getFullYear()
+const mes=parseInt(document.getElementById("mesBase")?.value||new Date().getMonth()+1)-1
+const mesAnterior=mes-1
+if(mesAnterior<0){alert("Sem mês anterior");return}
+
+const {data:anteriores}=await supabaseClient.from("lancamentos").select("*")
+.eq("usuario_id",userId)
+.gte("data",`${ano}-${String(mesAnterior+1).padStart(2,"0")}-01`)
+.lte("data",`${ano}-${String(mesAnterior+1).padStart(2,"0")}-31`)
+
+const {data:atuais}=await supabaseClient.from("lancamentos").select("*")
+.eq("usuario_id",userId)
+.gte("data",`${ano}-${String(mes+1).padStart(2,"0")}-01`)
+.lte("data",`${ano}-${String(mes+1).padStart(2,"0")}-31`)
+
+const existentes=new Set((atuais||[]).map(x=>x.descricao))
+
+for(const x of (anteriores||[])){
+if(!existentes.has(x.descricao)){
+const dia=x.data.split("-")[2]
+await supabaseClient.from("lancamentos").insert({
+data:`${ano}-${String(mes+1).padStart(2,"0")}-${dia}`,
+descricao:x.descricao,
+tipo:x.tipo,
+categoria:x.categoria,
+valor:x.valor,
+pago:false,
+usuario_id:userId
+})
+}
+}
+alert("Mês criado com sucesso")
+await carregar()
+}
+
+/* ====================================================024 – FILTROS==================================================== */
+function filtrarPeriodo(){
+filtroInicio=document.getElementById("dataInicio").value||null
+filtroFim=document.getElementById("dataFim").value||null
+modoAnoCompleto=false
+render()
+}
+function limparPeriodo(){
+filtroInicio=null
+filtroFim=null
+document.getElementById("dataInicio").value=""
+document.getElementById("dataFim").value=""
+render()
+}
+function limparFiltros(){
+modoAnoCompleto=true
+filtroInicio=null
+filtroFim=null
+render()
+}
+
+/* ====================================================025 – UI CONTROLES==================================================== */
+function toggleInsercao(){
+const el=document.getElementById("boxInsercao")
+if(el)el.style.display=el.style.display==="none"?"flex":"none"
+}
+function toggleGrafico(){
+mostrarGrafico=!mostrarGrafico
+document.getElementById("graficoResumo")?.parentElement.classList.toggle("oculto",!mostrarGrafico)
+document.getElementById("graficoMensal")?.parentElement.classList.toggle("oculto",!mostrarGrafico)
+render()
+}
+function modoMesAtual(){
+mesOffset=0
+modoAnoCompleto=false
+filtroInicio=null
+filtroFim=null
+render()
+}
+function mesAnterior(){
+mesOffset--
+aplicarMesOffset()
+}
+
+/* ====================================================026 – SALVAR TUDO==================================================== */
+async function salvarTudo(){
+for(const id in edicoesTemp){
+const original=dados.find(x=>String(x.id)===String(id))
+if(!original)continue
+const alteracoes=edicoesTemp[id]
+const atualizado={...original,...alteracoes,valor:parseFloat(alteracoes.valor??original.valor)}
+await supabaseClient.from("lancamentos").update(atualizado).eq("id",id)
+}
+edicoesTemp={}
+modoEdicao=false
+document.getElementById("btnSalvar").style.display="none"
+document.getElementById("btnEditar").innerText="✏️ Editar"
+await carregar()
+}
+
+/* ====================================================027 – RECORRÊNCIA CORRIGIDA==================================================== */
+async function gerarRecorrentes(){
+const userId=localStorage.getItem("usuario_id_lancamentos")
+if(!userId)return
+
+const hoje=new Date()
+const ano=hoje.getFullYear()
+const mes=hoje.getMonth()+1
+
+const primeiroDiaMes=`${ano}-${String(mes).padStart(2,"0")}-01`
+
+const {data:rec}=await supabaseClient.from("lancamentos")
+.select("*")
+.eq("recorrente",true)
+.eq("usuario_id",userId)
+.lt("data",primeiroDiaMes)
+
+for(const r of (rec||[])){
+const dia=Number(r.dia_padrao||1)
+const nova=`${ano}-${String(mes).padStart(2,"0")}-${String(dia).padStart(2,"0")}`
+
+const {data:existente}=await supabaseClient.from("lancamentos")
+.select("id")
+.eq("usuario_id",userId)
+.eq("data",nova)
+.eq("descricao",r.descricao)
+.limit(1)
+
+if(existente && existente.length>0)continue
+
+await supabaseClient.from("lancamentos").insert({
+data:nova,
+descricao:r.descricao,
+tipo:r.tipo,
+categoria:r.categoria,
+valor:r.valor,
+recorrente:true,
+dia_padrao:dia,
+pago:false,
+usuario_id:userId
+})
+}
+}
+
+/* ====================================================028 – SISTEMA==================================================== */
+async function iniciarSistema(){
+carregarCategorias()
+await verificarSessao()
+
+const hoje=hojeLocal()
+;["data","dataInicio","dataFim"].forEach(id=>{
+const el=document.getElementById(id)
+if(el&&!el.value)el.value=hoje
 })
 }
 
-/* INIT */
-window.onload=()=>{
-const id=localStorage.getItem("user_id")
-if(id){
-abrirApp()
+/* ====================================================029 – CADASTRO MODAL==================================================== */
+function abrirCadastro(){
+document.getElementById("modalCadastro").style.display="flex"
+}
+function fecharCadastro(){
+document.getElementById("modalCadastro").style.display="none"
+}
+
+/* ====================================================030 – CADASTRAR==================================================== */
+async function cadastrar(){
+const nome=document.getElementById("cad_nome").value
+const email=document.getElementById("cad_email").value
+const senha=document.getElementById("cad_senha").value
+
+if(!nome||!email||!senha){alert("Preencha tudo");return}
+
+await supabaseClient.from("usuarios_lancamentos").insert({
+nome,email,senha,status:"pendente",tipo:"user",plano:"free"
+})
+
+alert("Cadastro enviado! Aguarde aprovação.")
+fecharCadastro()
+}
+
+/* ====================================================031 – ADMIN PROFISSIONAL==================================================== */
+async function carregarUsuarios(){
+const {data}=await supabaseClient
+.from("usuarios_lancamentos")
+.select("*")
+.order("criado_em")
+
+const lista=document.getElementById("listaUsuarios")
+if(!lista)return
+
+lista.innerHTML=""
+
+for(const u of data){
+
+let cor="#f59e0b"
+let badge="FREE"
+
+if(u.plano==="pro"){cor="#22c55e";badge="🚀 PRO"}
+if(u.plano==="analise"){cor="#eab308";badge="⏳ EM ANÁLISE"}
+
+lista.innerHTML+=`
+<div style="background:#0f172a;padding:14px;margin:8px 0;border-radius:12px;border-left:4px solid ${cor};display:flex;justify-content:space-between;align-items:center">
+
+<div>
+<div style="font-weight:bold">${u.nome}</div>
+<div style="font-size:12px;opacity:.7">${u.email}</div>
+<div style="font-size:11px;margin-top:4px;color:${cor};font-weight:bold">${badge}</div>
+</div>
+
+<div style="display:flex;gap:6px">
+
+${u.plano!=="pro"?`
+<button onclick="tornarPro('${u.id}')" style="background:#22c55e;color:#000;padding:6px 10px;border-radius:8px;font-size:11px">
+Liberar PRO
+</button>`:""}
+
+<button onclick="aprovarUsuario('${u.id}')" style="background:#3b82f6;color:#fff;padding:6px 10px;border-radius:8px;font-size:11px">
+Resetar
+</button>
+
+</div>
+
+</div>
+`
+}
+}
+/* ==========================031A APROVAR USUARIO========================================= */
+async function aprovarUsuario(id){
+await supabaseClient.from("usuarios_lancamentos").update({status:"aprovado",
+plano:"free"}).eq("id",id)
+await criarPadraoUsuario(id)
+alert("Usuário aprovado")
+carregarUsuarios()
+}
+/* ==============031B TORNAR PRO================================================ */
+async function tornarPro(id){
+await supabaseClient
+.from("usuarios_lancamentos")
+.update({
+plano:"pro",
+limite:999999,
+status:"aprovado"
+})
+.eq("id",id)
+
+alert("Usuário agora é PRO 🚀")
+
+/* 🔥 SE FOR O USUÁRIO LOGADO → ATUALIZA NA HORA */
+const usuarioAtual=localStorage.getItem("usuario_id_lancamentos")
+if(String(usuarioAtual)===String(id)){
+localStorage.setItem("usuario_plano","pro")
+setUserUI()
+}
+
+carregarUsuarios()
+}
+/* ====================================================032 – PADRÃO INICIAL==================================================== */
+async function criarPadraoUsuario(usuarioId){
+const hoje=hojeLocal()
+
+const padrao=[
+{tipo:"RECEITA",categoria:"Salário"},
+{tipo:"RECEITA",categoria:"Renda Extra"},
+{tipo:"DESPESA",categoria:"Moradia"},
+{tipo:"DESPESA",categoria:"Alimentação"},
+{tipo:"DESPESA",categoria:"Transporte"},
+{tipo:"DESPESA",categoria:"Saúde"}
+]
+
+for(const p of padrao){
+await supabaseClient.from("lancamentos").insert({
+data:hoje,
+descricao:"Inicial",
+tipo:p.tipo,
+categoria:p.categoria,
+valor:0,
+pago:false,
+usuario_id:usuarioId
+})
 }
 }
 
+/* ====================================================033 – USER UI (PROFISSIONAL)==================================================== */
+function setUserUI(){
+const nome=localStorage.getItem("usuario_nome_lancamentos")||"Usuário"
+const tipo=localStorage.getItem("tipo_usuario_lancamentos")||"user"
+const plano=(localStorage.getItem("usuario_plano")||"free").toLowerCase()
+
+const elNome=document.getElementById("userNome")
+const elMeta=document.getElementById("userMeta")
+const avatar=document.getElementById("userAvatar")
+
+/* 🔥 PEGAR BOTÕES CORRETOS (SEM RISCO) */
+const btnPro=document.getElementById("btnAssinarPro")
+const btnPago=document.getElementById("btnJaPaguei")
+
+if(!elNome||!elMeta||!avatar)return
+
+elNome.innerText=nome
+
+let badgePlano=""
+let corPlano="#f59e0b"
+
+/* 🔥 STATUS INTELIGENTE */
+if(plano==="pro"){
+badgePlano="🚀 PRO"
+corPlano="#22c55e"
+}else if(plano==="analise"){
+badgePlano="⏳ EM ANÁLISE"
+corPlano="#eab308"
+}else{
+badgePlano="💎 FREE"
+corPlano="#f59e0b"
+}
+
+let badgeTipo=tipo==="admin"?"👑 ADMIN":"👤 USER"
+
+elMeta.innerHTML=`<span style="color:${corPlano};font-weight:bold">${badgePlano}</span> • ${badgeTipo}`
+
+avatar.innerText=nome.charAt(0).toUpperCase()
+avatar.style.background=tipo==="admin"?"#f59e0b":corPlano
+
+/* 🔥 CONTROLE DE BOTÕES */
+if(btnPro && btnPago){
+
+if(plano==="pro"){
+btnPro.style.display="none"
+btnPago.style.display="none"
+}
+
+else if(plano==="analise"){
+btnPro.style.display="inline-block"
+btnPro.innerText="⏳ Em análise"
+btnPro.style.background="#eab308"
+btnPro.style.color="#000"
+
+btnPago.style.display="none"
+}
+
+else{
+btnPro.style.display="inline-block"
+btnPro.innerText="💰 Assinar PRO"
+btnPro.style.background="linear-gradient(135deg,#22c55e,#16a34a)"
+btnPro.style.color="#000"
+
+btnPago.style.display="inline-block"
+}
+
+}
+}
+/* ===============033A toggleadmin e rebaixarfree ================================================ */
+function toggleAdminMenu(id){
+const menu=document.getElementById("menu_"+id)
+menu.style.display=menu.style.display==="block"?"none":"block"
+}
+
+async function rebaixarFree(id){
+await supabaseClient.from("usuarios_lancamentos").update({plano:"free",limite:20}).eq("id",id)
+alert("Usuário voltou para FREE")
+carregarUsuarios()
+}
+/* ====================================================034 – MENU==================================================== */
+function toggleMenuUsuario(){
+const menu=document.getElementById("menuUsuario")
+if(!menu)return
+
+if(menu.style.display==="block"){
+menu.style.opacity="0"
+setTimeout(()=>menu.style.display="none",150)
+}else{
+menu.style.display="block"
+setTimeout(()=>menu.style.opacity="1",10)
+}
+}
+/* ====================================================035 – INIT==================================================== */
+document.addEventListener("DOMContentLoaded",async()=>{
+await iniciarSistema()
+iniciarParallaxLogin()
+})
+
+/* ====================================================036 – ESTRELAS==================================================== */
+function criarEstrela(){
+if(!document.body.classList.contains("app"))return
+const star=document.createElement("div")
+star.className="shooting-star"
+star.style.left=Math.random()*window.innerWidth+"px"
+document.body.appendChild(star)
+setTimeout(()=>star.remove(),4000)
+}
+setInterval(criarEstrela,2000)
+/* ====================================================034 – MENU GLOBAL CLICK==================================================== */
+document.addEventListener("click",(e)=>{
+const box=document.getElementById("userBox")
+const menu=document.getElementById("menuUsuario")
+
+if(!box||!menu)return
+
+const clicouDentroBox=box.contains(e.target)
+const clicouDentroMenu=menu.contains(e.target)
+
+if(!clicouDentroBox && !clicouDentroMenu){
+menu.style.display="none"
+}
+})
+/* =================================035 MOSTRAR UPGRADE==================================================== */
+function mostrarUpgrade(){
+let box=document.getElementById("upgradeBox")
+if(box)return
+
+box=document.createElement("div")
+box.id="upgradeBox"
+
+box.style.position="fixed"
+box.style.top="50%"
+box.style.left="50%"
+box.style.transform="translate(-50%,-50%)"
+box.style.background="#020617"
+box.style.padding="25px"
+box.style.borderRadius="16px"
+box.style.boxShadow="0 0 50px rgba(0,0,0,.9)"
+box.style.zIndex="99999"
+box.style.textAlign="center"
+
+box.innerHTML=`
+<div style="font-size:18px;font-weight:bold;margin-bottom:10px">🚀 Upgrade necessário</div>
+<div style="font-size:13px;opacity:.8;margin-bottom:15px">
+Plano FREE atingiu limite
+</div>
+<button onclick="gerarPix()" style="background:#22c55e;color:#000;padding:10px 16px;border-radius:10px;font-weight:bold">
+💰 Virar PRO agora
+</button>
+<br><br>
+<button onclick="this.parentElement.remove()" style="background:#ef4444;color:#fff;padding:6px 12px;border-radius:8px">
+Fechar
+</button>
+`
+
+document.body.appendChild(box)
+}
+/* ==================036  UPGRADE==================================================== */
+async function upgradePlano(){
+const usuario_id=localStorage.getItem("usuario_id_lancamentos")
+const email=prompt("Confirme seu email para pagamento:")
+if(!email){
+alert("Email obrigatório")
+return
+}
+try{
+const res=await fetch("http://localhost:3000/criar-pagamento",{
+method:"POST",
+headers:{
+"Content-Type":"application/json"
+},
+body:JSON.stringify({
+email,
+usuario_id
+})
+})
+const data=await res.json()
+if(!data.qr_code){
+alert("Erro ao gerar pagamento")
+return
+}
+/* 🧾 MOSTRAR PIX */
+mostrarPIX(data.qr_base64)
+}catch(err){
+console.error(err)
+alert("Erro ao conectar pagamento")
+}
+}
+/* ==================037 mostraPIX==================================================== */
+function mostrarPIX(base64){
+let box=document.getElementById("pixBox")
+if(box) box.remove()
+box=document.createElement("div")
+box.id="pixBox"
+box.style.position="fixed"
+box.style.top="50%"
+box.style.left="50%"
+box.style.transform="translate(-50%,-50%)"
+box.style.background="#020617"
+box.style.padding="20px"
+box.style.borderRadius="12px"
+box.style.boxShadow="0 0 30px rgba(0,0,0,.7)"
+box.style.zIndex="10000"
+box.style.textAlign="center"
+box.innerHTML=`
+<h3>💳 Pagamento PIX</h3>
+<img src="data:image/png;base64,${base64}" style="width:200px;margin:10px 0">
+<br>
+<button onclick="this.parentElement.remove()" style="background:#ef4444;color:#fff">Fechar</button>
+`
+document.body.appendChild(box)
+}
+/* ====================================================040 – GERAR PIX PREMIUM==================================================== */
+function gerarPix(){
+const usuario_id=localStorage.getItem("usuario_id_lancamentos")||"000"
+const nome=localStorage.getItem("usuario_nome_lancamentos")||"Cliente"
+const chavePIX="69984311978"
+const telefone="5569984311978"
+const mensagem=`Olá, realizei o pagamento do PRO.%0AUsuário: ${nome}%0AID: ${usuario_id}%0AValor: R$19,90`
+const img=document.getElementById("qrPix")
+img.src=`https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(chavePIX)}`
+const inputPix=document.getElementById("chavePix")
+if(inputPix)inputPix.value=chavePIX
+const botaoCopiar=document.getElementById("btnCopiarPix")
+if(botaoCopiar)botaoCopiar.onclick=function(){
+navigator.clipboard.writeText(chavePIX)
+botaoCopiar.innerText="✔ Copiado!"
+setTimeout(()=>botaoCopiar.innerText="📋 Copiar chave PIX",2000)
+}
+const botaoZap=document.getElementById("btnWhatsapp")
+if(botaoZap)botaoZap.onclick=function(){
+window.open(`https://wa.me/${telefone}?text=${mensagem}`,"_blank")
+}
+document.getElementById("boxPix").style.display="block"
+}
+/* ==============================041 parallax  lua=================================================== */
+function iniciarParallaxLogin(){
+const bg=document.getElementById("loginBg")
+if(!bg)return
+
+document.addEventListener("mousemove",(e)=>{
+const x=(e.clientX/window.innerWidth-0.5)*20
+const y=(e.clientY/window.innerHeight-0.5)*20
+bg.style.transform=`translate(${x}px,${y}px) scale(1.08)`
+})
+}
+/* ======================042 CONFIRMAR PAGAMENTO=================================================== */
+async function confirmarPagamento(){
+const usuario_id=localStorage.getItem("usuario_id_lancamentos")
+
+if(!usuario_id){alert("Usuário não encontrado");return}
+
+await supabaseClient
+.from("usuarios_lancamentos")
+.update({plano:"analise"})
+.eq("id",usuario_id)
+
+localStorage.setItem("usuario_plano","analise")
+
+alert("Pagamento enviado! Aguarde liberação do admin.")
+
+setUserUI()
+}
+/* ======================043 APROVAR OU RECUSAR PAGAMENTO=================================================== */
+async function aprovarPagamento(id){
+await supabaseClient
+.from("usuarios_lancamentos")
+.update({
+status_pagamento:"pro",
+plano:"pro",
+limite:999999
+})
+.eq("id",id)
+alert("Usuário liberado como PRO 💰")
+carregarUsuarios()
+}
+
+async function recusarPagamento(id){
+await supabaseClient
+.from("usuarios_lancamentos")
+.update({
+status_pagamento:"free"
+})
+.eq("id",id)
+alert("Pagamento recusado")
+carregarUsuarios()
+}
+
+  
 </script>
+
+<div id="boxPix" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#020617;padding:20px;border-radius:12px;z-index:99999;text-align:center">
+<h3>💳 PIX</h3>
+<img id="qrPix" style="width:200px">
+<input id="chavePix" readonly style="width:100%;margin-top:10px">
+<button id="btnCopiarPix">Copiar</button>
+<button id="btnWhatsapp">WhatsApp</button>
+</div>
+
 </body>
 </html>
