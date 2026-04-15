@@ -3,940 +3,190 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>ReceitasDespesasAnual PRO</title>
-<link rel="icon" href="data:,">
+<title>ReceitasDespesas PRO</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-</head>
 <style>
-html,body{margin:0;padding:0;min-height:100%;overflow-x:hidden}
-body{font-family:Arial;color:#fff;padding:20px;background:radial-gradient(circle at 20% 30%,rgba(99,102,241,0.25),transparent 40%),radial-gradient(circle at 80% 70%,rgba(236,72,153,0.25),transparent 40%),radial-gradient(circle at 50% 50%,#020617,#020617 60%,#000 100%);position:relative}
-body::before{content:"";position:fixed;top:0;left:0;width:100%;height:100%;background-image:radial-gradient(2px 2px at 20px 30px,#fff,transparent),radial-gradient(2px 2px at 100px 150px,#fff,transparent),radial-gradient(1px 1px at 200px 80px,#fff,transparent),radial-gradient(2px 2px at 300px 200px,#fff,transparent),radial-gradient(1px 1px at 400px 120px,#fff,transparent);background-repeat:repeat;animation:starsMove 60s linear infinite;opacity:.4;z-index:0;pointer-events:none}
-body>*{position:relative;z-index:1}
-@keyframes starsMove{from{transform:translateY(0)}to{transform:translateY(-1000px)}}
+body{font-family:Arial;background:#020617;color:#fff;padding:20px}
 input,select,button{padding:8px;margin:5px;border-radius:6px;border:none}
 button{cursor:pointer;background:#22c55e;color:#000}
-.delete{background:#ef4444;color:#fff}
-.edit{background:#3b82f6;color:#fff}
-.resumo{margin-top:20px;padding:10px;background:#111827;border-radius:10px}
-.oculto{display:none!important}
-body.login{background:#000!important;padding:0}
-body.login::before{display:none!important}
-#telaLogin{position:fixed;top:0;left:0;width:100%;height:100%;display:flex;align-items:center;justify-content:center;z-index:9999}
-#loginBg{position:absolute;top:0;left:0;width:100%;height:100%;background:url("img/lua.jpeg") center/cover no-repeat}
-#menuUsuario{display:none;position:absolute;top:55px;right:0;background:#020617;border-radius:10px;padding:10px;width:180px}
-#areaGraficos{max-width:800px;margin:20px auto;height:300px;}
-#areaGraficos canvas{height:250px !important;}
-#formLogin,#formCadastro{transition:all .4s ease}
-#loginCard input{width:100%;box-sizing:border-box}
-#loginCard button{margin-top:8px}
-#loginCard{overflow:hidden}
-#loginCard *{max-width:100%;box-sizing:border-box}
-#loginCard input{width:100%}
-#loginCard label{width:100%}
-/* ====================================================APP / LOGIN CONTROL==================================================== */
-#appSistema{display:none}
-#telaLogin{display:none}
-
-body.login #telaLogin{display:flex}
-body.login #appSistema{display:none}
-
-body.app #telaLogin{display:none}
-body.app #appSistema{display:block}
-
-
-
+#login{position:fixed;top:0;left:0;width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:#000}
+#app{display:none}
 </style>
-
+</head>
 <body>
-<!-- HTML LOGIN    APP-->
-<div id="telaLogin">
-<div id="loginBg"></div>
 
-<div id="loginCard" style="width:360px;overflow:hidden;border-radius:14px;background:rgba(17,24,39,.85);backdrop-filter:blur(10px)">
-
-<div style="display:flex">
-<button id="tabLogin" onclick="mostrarLogin()" style="flex:1;padding:12px;background:#22c55e;color:#000;font-weight:bold">Entrar</button>
-<button id="tabCadastro" onclick="mostrarCadastro()" style="flex:1;padding:12px;background:#1e293b;color:#fff">Criar Conta</button>
-</div>
-
-<div id="boxForms" style="position:relative;min-height:320px">
 <!-- LOGIN -->
-<div id="formLogin" style="position:absolute;width:100%;padding:20px;left:0;transition:.4s">
-
-<input id="loginUser" placeholder="Email">
-
-<div style="position:relative">
-<input id="loginPass" type="password" placeholder="Senha" style="width:100%">
-<span onclick="toggleSenha()" style="position:absolute;right:10px;top:10px;cursor:pointer;color:#ef4444;font-size:16px">👁</span>
-</div>
-
-<label style="font-size:12px;display:flex;align-items:center;gap:5px;flex-wrap:wrap">
-<input type="checkbox" id="lembrarLogin"> Lembrar login
-</label>
-
-<button id="btnLogin" onclick="loginSistema()" style="background:#22c55e;color:#000;font-weight:bold;width:100%">
-Entrar
-</button>
-
-</div>
-
-<!-- CADASTRO -->
-<div id="formCadastro" style="position:absolute;width:100%;padding:20px;left:100%;transition:.4s">
-<input id="cadNome" placeholder="Nome completo">
-<input id="cadEmail" placeholder="Email">
-<input id="cadSenha" type="password" placeholder="Senha (mín 6 caracteres)">
-<button id="btnCad" onclick="cadastrarContaPremium()" style="background:#3b82f6;color:#fff;font-weight:bold;width:100%">Cadastrar</button>
-</div>
-
+<div id="login">
+<div>
+<h2>Login</h2>
+<input id="email" placeholder="Email"><br>
+<input id="senha" type="password" placeholder="Senha"><br>
+<button onclick="login()">Entrar</button>
 </div>
 </div>
 
-<div id="appSistema" style="display:none">
+<!-- APP -->
+<div id="app">
+<h2 id="user"></h2>
+<button onclick="logout()" style="background:red;color:#fff">Sair</button>
 
-<div id="painelAdmin" style="display:none">
-<h2>Admin</h2>
-<div id="listaUsuarios"></div>
-</div>
-
-<div id="conteudoApp">
-<div id="topoUsuario" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-
-<div id="userNome" style="font-size:13px;font-weight:bold;color:#22c55e"></div>
-
-<button onclick="logout()" style="background:#ef4444;color:#fff;padding:6px 10px;border-radius:6px;font-size:12px">
-Sair
-</button>
-
-</div>
-<div style="margin-bottom:10px">
+<div>
 <input id="data" type="date">
 <input id="desc" placeholder="Descrição">
 <select id="tipo">
-<option value="RECEITA">Receita</option>
-<option value="DESPESA">Despesa</option>
+<option>RECEITA</option>
+<option>DESPESA</option>
 </select>
-<select id="categoria"></select>
-<input id="valor" type="number" placeholder="Valor">
+<input id="valor" type="number">
 <button onclick="add()">Adicionar</button>
-<button id="btnEditar" onclick="toggleModoEdicao()">Editar</button>
-<button id="btnSalvar" style="display:none" onclick="salvarTudo()">Salvar</button>
 </div>
 
-<div id="resumo"></div>
 <div id="lista"></div>
 
-<div id="areaGraficos">
-<canvas id="graficoResumo"></canvas>
-<canvas id="graficoMensal"></canvas>
-</div>
+<canvas id="grafico" height="100"></canvas>
 </div>
 
-</div>
-
-<div id="boxPix" style="display:none;text-align:center">
-<img id="qrPix" style="width:200px">
-<button id="btnZap">WhatsApp</button>
-</div>
-
-  
 <script>
-/* ====================================================001 – CONFIG==================================================== */
-const SUPABASE_URL="https://gspdlrenyrzbkxlvyugc.supabase.co"
-const SUPABASE_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdzcGRscmVueXJ6Ymt4bHZ5dWdjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ4ODU0NzAsImV4cCI6MjA5MDQ2MTQ3MH0.UWfkWvOh4qMDEcByVL-KZ6ejJ80V7wJlDOFH76TywaI"
-const supabaseClient=supabase.createClient(SUPABASE_URL,SUPABASE_KEY)
 
-/* ====================================================002 – ESTADO==================================================== */
+/* CONFIG */
+const supabase = window.supabase.createClient(
+"https://gspdlrenyrzbkxlvyugc.supabase.co",
+"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdzcGRscmVueXJ6Ymt4bHZ5dWdjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ4ODU0NzAsImV4cCI6MjA5MDQ2MTQ3MH0.UWfkWvOh4qMDEcByVL-KZ6ejJ80V7wJlDOFH76TywaI"
+)
+
 let dados=[]
-let editando=null
-let mostrarValores=true
-let visibilidade={}
-let graficoResumo=null
-let graficoMensal=null
-let modoEdicao=false
-let edicoesTemp={}
-let filtroInicio=null
-let filtroFim=null
-let modoAnoCompleto=false
-let mesOffset=0
-let mostrarGrafico=true
-let LIMITE_USUARIO=20
-let PLANO_USUARIO="free"
-/* ====================================================003 – CATEGORIAS==================================================== */
-const CATEGORIAS=["GERAL","TCERO/Cripto","CASA","SAÚDE","EDUCAÇÃO","LAZER"]
-function carregarCategorias(){
-const sel=document.getElementById("categoria")
-if(!sel)return
-sel.innerHTML=CATEGORIAS.map(c=>`<option>${c}</option>`).join("")
+let userId=null
+let grafico=null
+
+/* LOGIN */
+async function login(){
+const email=document.getElementById("email").value
+const senha=document.getElementById("senha").value
+
+const {data}=await supabase
+.from("usuarios_lancamentos")
+.select("*")
+.eq("email",email)
+.eq("senha",senha)
+.single()
+
+if(!data){alert("Login inválido");return}
+
+userId=data.id
+
+localStorage.setItem("user_id",userId)
+localStorage.setItem("user_nome",data.nome)
+
+abrirApp()
 }
-/* ====================================================003A – USER UI==================================================== */
-function setUserUI(){
-const nome=localStorage.getItem("usuario_nome_lancamentos")||"Usuário"
-const tipo=localStorage.getItem("tipo_usuario_lancamentos")||"user"
-const plano=(localStorage.getItem("usuario_plano")||"free").toLowerCase()
 
-const el=document.getElementById("userNome")
-if(!el)return
+/* ABRIR APP */
+async function abrirApp(){
+userId=localStorage.getItem("user_id")
+document.getElementById("login").style.display="none"
+document.getElementById("app").style.display="block"
+document.getElementById("user").innerText=localStorage.getItem("user_nome")
 
-let badgePlano="💎 FREE"
-if(plano==="pro")badgePlano="🚀 PRO"
-if(plano==="analise")badgePlano="⏳ ANÁLISE"
-
-let badgeTipo=tipo==="admin"?"👑 ADMIN":"👤 USER"
-
-el.innerHTML=`${nome} • ${badgePlano} • ${badgeTipo}`
-}
-/* ====================================================004 – LOGIN==================================================== */
-async function loginSistema(){
-const email=document.getElementById("loginUser").value.trim()
-const senha=document.getElementById("loginPass").value.trim()
-const btn=document.getElementById("btnLogin")
-if(btn){btn.innerText="Entrando...";btn.disabled=true}
-if(!email||!senha){alert("Preencha e-mail e senha");if(btn){btn.innerText="Entrar";btn.disabled=false};return}
-const {data,error}=await supabaseClient.from("usuarios_lancamentos").select("*").eq("email",email).eq("senha",senha).limit(1)
-if(error){alert("Erro no login");console.error(error);if(btn){btn.innerText="Entrar";btn.disabled=false};return}
-if(!data||!data.length){alert("Usuário inválido");if(btn){btn.innerText="Entrar";btn.disabled=false};return}
-const user=data[0]
-const lembrar=document.getElementById("lembrarLogin")?.checked
-if(lembrar){
-localStorage.setItem("login_email",email)
-localStorage.setItem("login_senha",senha)
-}else{
-localStorage.removeItem("login_email")
-localStorage.removeItem("login_senha")
-}
-if(user.status&&user.status!=="aprovado"){alert("Aguardando liberação do administrador");if(btn){btn.innerText="Entrar";btn.disabled=false};return}
-localStorage.setItem("usuario_id_lancamentos",user.id)
-localStorage.setItem("usuario_nome_lancamentos",user.nome||"")
-localStorage.setItem("tipo_usuario_lancamentos",user.tipo||"user")
-localStorage.setItem("usuario_plano",(user.plano||"free").toLowerCase())
-PLANO_USUARIO=(user.plano||"free").toLowerCase()
-LIMITE_USUARIO=user.limite||20
-const telaLogin=document.getElementById("telaLogin")
-const appSistema=document.getElementById("appSistema")
-
-document.body.classList.remove("login")
-document.body.classList.add("app")
-document.getElementById("telaLogin").style.display="none"
-document.getElementById("appSistema").style.display="block"
-
-setUserUI()
-const painelAdmin=document.getElementById("painelAdmin")
-const conteudoApp=document.getElementById("conteudoApp")
-if(user.tipo==="admin"){if(painelAdmin)painelAdmin.style.display="block";if(conteudoApp)conteudoApp.style.display="none";await carregarUsuarios();if(btn){btn.innerText="Entrar";btn.disabled=false};return}
-if(painelAdmin)painelAdmin.style.display="none"
-if(conteudoApp)conteudoApp.style.display="block"
-await carregar()
-if(!dados.length){await criarPadraoUsuario(user.id);await carregar()}
-await gerarRecorrentes()
-try{
-await carregar()
-}catch(e){
-console.error("Erro ao carregar:",e)
-}
-if(btn){btn.innerText="Entrar";btn.disabled=false}
-}
-/* ====================================================005 – SESSÃO PRO==================================================== */
-async function verificarSessao(){
-const id=localStorage.getItem("usuario_id_lancamentos")
-if(!id)return
-
-console.log("RESTAURANDO SESSÃO:",id)
-
-/* 🔥 FORÇA UI */
-document.body.classList.remove("login")
-document.body.classList.add("app")
-document.getElementById("telaLogin").style.display="none"
-document.getElementById("appSistema").style.display="block"
-
-/* 🔥 GARANTE USER UI */
-setUserUI()
-
-try{
-await carregar()
-
-if(!dados.length){
-await criarPadraoUsuario(id)
 await carregar()
 }
 
-await gerarRecorrentes()
-
-}catch(e){
-console.error("ERRO SESSÃO:",e)
-alert("Erro ao restaurar sessão")
-}
-}
-/* ====================================================006 – LOGOUT==================================================== */
+/* LOGOUT */
 function logout(){
 localStorage.clear()
 location.reload()
 }
-/* ====================================================007 – CARREGAR==================================================== */
+
+/* CARREGAR */
 async function carregar(){
 try{
-const {data,error}=await supabaseClient.from("lancamentos").select("id,data,descricao,tipo,categoria,valor,pago,user_id").order("data",{ascending:true})
+const {data,error}=await supabase
+.from("lancamentos")
+.select("id,data,descricao,tipo,valor,user_id")
+.order("data",{ascending:true})
 
 if(error){
-console.error("SUPABASE ERRO:",error)
-alert("Erro banco: "+error.message)
-dados=[]
-render()
+alert(error.message)
 return
 }
 
-dados=data||[]
-
-const tipo=localStorage.getItem("tipo_usuario_lancamentos")
-const userId=localStorage.getItem("usuario_id_lancamentos")
-/* 🔥 FILTRO CORRIGIDO (NÃO SUMIR DADOS) */
-if(tipo!=="admin"){
-dados=dados.filter(x=>{
-return String(x.user_id||"")===String(userId)
-})
-}
-
-console.log("DADOS CARREGADOS:",dados)
+dados=(data||[]).filter(x=>String(x.user_id)===String(userId))
 
 render()
 
 }catch(e){
-console.error("ERRO GERAL CARREGAR:",e)
-alert("Falha crítica ao carregar dados")
-dados=[]
-render()
-setTimeout(()=>render(),100)
+console.error(e)
+alert("Erro ao carregar")
 }
 }
 
-/* ====================================================008 – SALVAR==================================================== */
-async function salvarRegistro(obj){
-if(obj.id){
-await supabaseClient.from("lancamentos").update(obj).eq("id",obj.id)
-}else{
-await supabaseClient.from("lancamentos").insert(obj)
-}
-await carregar()
-}
-/* ====================================================009 – EXCLUIR==================================================== */
-async function del(id){
-await supabaseClient.from("lancamentos").delete().eq("id",id)
-await carregar()
-}
-
-/* ====================================================010 – MARCAR PAGO==================================================== */
-async function marcarPago(id){
-const item=dados.find(x=>String(x.id)===String(id))
-if(!item)return
-if(item.pago&&!modoEdicao){alert("Ative modo edição para alterar");return}
-const novo=!item.pago
-await supabaseClient.from("lancamentos").update({
-pago:novo,
-data_pagamento:novo?hojeLocal():null
-}).eq("id",id)
-await carregar()
-}
-
-/* ====================================================011 – EDITAR==================================================== */
-function editarPorId(id){
-const x=dados.find(d=>String(d.id)===String(id))
-if(!x)return
-editando=x.id
-document.getElementById("data").value=x.data||""
-document.getElementById("desc").value=x.descricao||""
-document.getElementById("tipo").value=x.tipo||"DESPESA"
-document.getElementById("categoria").value=x.categoria||"GERAL"
-document.getElementById("valor").value=x.valor||0
-}
-
-/* ====================================================012 – ADD==================================================== */
+/* ADD */
 async function add(){
-const userId=localStorage.getItem("usuario_id_lancamentos")
-if(!userId){alert("Usuário não autenticado");return}
 const data=document.getElementById("data").value
-const desc=document.getElementById("desc").value.trim()
+const desc=document.getElementById("desc").value
 const tipo=document.getElementById("tipo").value
-const categoria=document.getElementById("categoria").value
 const valor=parseFloat(document.getElementById("valor").value||0)
-if(!data||!desc||!valor){alert("Preencha tudo");return}
-/* 🔥 GARANTE USUARIO_ID */
-await supabaseClient.from("lancamentos").insert({
+
+if(!data||!desc||!valor)return alert("Preencha tudo")
+
+await supabase.from("lancamentos").insert({
 data,
 descricao:desc,
 tipo,
-categoria,
 valor,
-pago:false,
 user_id:userId
 })
 
 document.getElementById("desc").value=""
 document.getElementById("valor").value=""
-await carregar()
-}
-/* ====================================================013 – NORMALIZAR DATA==================================================== */
-function normalizarDataLocal(d){
-if(!d)return null
-const[a,b,c]=d.split("-")
-return `${a}-${b}-${c}`
-}
 
-/* ====================================================014 – FORMATADORES==================================================== */
-function formatarMoeda(v){
-return Number(v||0).toLocaleString("pt-BR",{minimumFractionDigits:2})
-}
-function formatarDataBR(d){
-if(!d)return""
-const[a,b,c]=d.split("-")
-return `${c}/${b}/${a}`
-}
-/* ====================================================014A – FORMATAR MÊS==================================================== */
-function formatarMesNome(m){
-const nomes=["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"]
-return nomes[Number(m)-1]||m
-}
-/* ====================================================015 – DATA LOCAL==================================================== */
-function hojeLocal(){
-const d=new Date()
-return d.toISOString().slice(0,10)
-}
-
-/* ====================================================016 – MÊS BASE==================================================== */
-function getMesBase(x){
-if(!x.data)return
-const[ano,mes]=x.data.split("-")
-return Number(mes)-1
-}
-/* ====================================================017 – MODO EDIÇÃO==================================================== */
-function toggleModoEdicao(){
-modoEdicao=!modoEdicao
-document.getElementById("btnSalvar").style.display=modoEdicao?"inline-block":"none"
-document.getElementById("btnEditar").innerText=modoEdicao?"Cancelar":"Editar"
-if(!modoEdicao)edicoesTemp={}
-render()
-}
-
-/* ====================================================018 – EDIT TEMP==================================================== */
-function editTemp(id,campo,valor){
-if(!edicoesTemp[id])edicoesTemp[id]={}
-edicoesTemp[id][campo]=valor
-}
-
-/* ====================================================019 – SALVAR EDIÇÃO==================================================== */
-async function salvarEdicao(id){
-const original=dados.find(x=>String(x.id)===String(id))
-const alteracoes=edicoesTemp[id]||{}
-const atualizado={...original,...alteracoes}
-await supabaseClient.from("lancamentos").update(atualizado).eq("id",id)
-delete edicoesTemp[id]
 await carregar()
 }
 
-/* ====================================================020 – TOGGLE VALOR==================================================== */
-function toggleValor(id){
-visibilidade[id]=!visibilidade[id]
-render()
-}
-/* ====================================================021 – RENDER==================================================== */
+/* RENDER */
 function render(){
-try{
 const lista=document.getElementById("lista")
-const resumo=document.getElementById("resumo")
-if(!lista||!resumo){
-console.warn("DOM ainda não pronto")
-setTimeout(render,300)
+
+if(!dados.length){
+lista.innerHTML="<p>Sem dados</p>"
 return
 }
-console.log("RENDER EXECUTADO",dados)
-if(!dados||!dados.length){
-lista.innerHTML="<div style='text-align:center;margin-top:40px'>Sem dados</div>"
-resumo.innerHTML=""
-return
-}
-let listaFiltrada=[...dados]
-const hoje=new Date()
 
-if(filtroInicio)listaFiltrada=listaFiltrada.filter(x=>x.data>=filtroInicio)
-if(filtroFim)listaFiltrada=listaFiltrada.filter(x=>x.data<=filtroFim)
-const grupos={}
-listaFiltrada.forEach(x=>{
-if(!x.data)return
-const[a,m]=x.data.split("-")
-const chave=`${a}-${m}`
-if(!grupos[chave])grupos[chave]=[]
-grupos[chave].push(x)
-})
-const chaves=Object.keys(grupos).sort().reverse()
-lista.innerHTML=""
-
-if(!chaves.length){
-lista.innerHTML="<div style='text-align:center;margin-top:40px'>Sem dados no período</div>"
-resumo.innerHTML=""
-return
-}
-let totalR=0
-let totalDPago=0
-let totalDPendente=0
-chaves.forEach(chave=>{
-let itens=grupos[chave]
-itens.sort((a,b)=>{
-if(a.tipo==="RECEITA"&&b.tipo!=="RECEITA")return-1
-if(a.tipo!=="RECEITA"&&b.tipo==="RECEITA")return 1
-return(a.data||"").localeCompare(b.data||"")
-})
-let r=0
-let dPago=0
-let dPend=0
-itens.forEach(x=>{
-const v=Number(x.valor||0)
-if(x.tipo==="RECEITA"){r+=v}else{if(x.pago){dPago+=v}else{dPend+=v}}
-})
-totalR+=r
-totalDPago+=dPago
-totalDPendente+=dPend
-const totalDSP=dPago+dPend
-const saldo=r-totalDSP
-const[a,m]=chave.split("-")
-lista.innerHTML+=`
-<div style="margin-top:15px;background:#020617;padding:8px;border-radius:6px;border-left:4px solid #38bdf8;display:flex;justify-content:space-between;flex-wrap:wrap">
-<div><b>📅 ${formatarMesNome(m)}/${a}</b></div>
-<div style="display:flex;gap:10px;font-size:12px">
-<span style="color:#22c55e">R$ ${formatarMoeda(r)}</span>
-<span style="color:#22c55e">✔ ${formatarMoeda(dPago)}</span>
-<span style="color:#ef4444">⏳ ${formatarMoeda(dPend)}</span>
-<span style="color:#f59e0b">💸 ${formatarMoeda(totalDSP)}</span>
-<span style="color:${saldo>=0?"#22c55e":"#ef4444"}">${formatarMoeda(saldo)}</span>
-</div>
-</div>
-`
-itens.forEach(x=>{
-const ed=edicoesTemp[x.id]||{}
-const val=ed.valor??x.valor
-const desc=ed.descricao??x.descricao
-const isR=x.tipo==="RECEITA"
-lista.innerHTML+=`
-<div data-id="${x.id}" style="display:grid;grid-template-columns:100px 1fr 120px 120px 160px;gap:6px;background:${isR?"#052e16":"#1e293b"};padding:4px;margin:2px 0;border-radius:6px;font-size:12px">
-<div>${modoEdicao?`<input type="date" value="${x.data}" onchange="editTemp('${x.id}','data',this.value)">`:formatarDataBR(x.data)}</div>
-<div>${modoEdicao?`<input value="${desc}" onchange="editTemp('${x.id}','descricao',this.value)">`:`${isR?"+ ":"- "}${desc}`}</div>
-<div>${modoEdicao?`<input value="${x.categoria}" onchange="editTemp('${x.id}','categoria',this.value)">`:x.categoria}</div>
-<div>${modoEdicao?`<input type="number" value="${val}" onchange="editTemp('${x.id}','valor',this.value)">`:(isR?(visibilidade[x.id]?"R$ "+formatarMoeda(val):"R$ ***"):"R$ "+formatarMoeda(val))}</div>
-<div style="display:flex;gap:4px;justify-content:flex-end">
-${isR&&!modoEdicao?`<button onclick="toggleValor('${x.id}')" style="background:#ef4444;color:#fff">👁</button>`:""}
-<button onclick="marcarPago('${x.id}')" style="background:${x.pago?"#22c55e":"#ef4444"}">${x.pago?"OK":"PEND"}</button>
-${modoEdicao?`<button onclick="del('${x.id}')">🗑</button>`:""}
-</div>
-</div>
-`
-})
-lista.innerHTML+=`
-<div style="margin-bottom:15px;padding:6px;background:#111827;border-radius:6px;text-align:right;font-size:12px">
-<b>Saldo: ${formatarMoeda(saldo)}</b>
-</div>
-`
-})
-const totalDSP=totalDPago+totalDPendente
-const saldoFinal=totalR-totalDSP
-resumo.innerHTML=`
-<div style="display:flex;gap:10px;justify-content:center;font-weight:bold">
-<span style="color:#22c55e">R$ ${formatarMoeda(totalR)}</span>
-<span style="color:#22c55e">✔ ${formatarMoeda(totalDPago)}</span>
-<span style="color:#ef4444">⏳ ${formatarMoeda(totalDPendente)}</span>
-<span style="color:#f59e0b">💸 ${formatarMoeda(totalDSP)}</span>
-<span style="color:${saldoFinal>=0?"#22c55e":"#ef4444"}">${formatarMoeda(saldoFinal)}</span>
-</div>
-`
-if(mostrarGrafico)atualizarDashboard(listaFiltrada)
-}catch(e){
-console.error("ERRO RENDER:",e)
-}
-}
-/* ====================================================022 – DASHBOARD==================================================== */
-function atualizarDashboard(base){
-if(typeof Chart==="undefined")return
-const el1=document.getElementById("graficoResumo")
-const el2=document.getElementById("graficoMensal")
-if(!el1||!el2)return
-if(graficoResumo)graficoResumo.destroy()
-if(graficoMensal)graficoMensal.destroy()
-
+let html=""
 let r=0,d=0
-let meses={}
 
-base.forEach(x=>{
-if(!x.data)return
-const m=getMesBase(x)
-if(!meses[m])meses[m]={r:0,d:0}
-const v=Number(x.valor||0)
-if(x.tipo==="RECEITA"){r+=v;meses[m].r+=v}else{d+=v;meses[m].d+=v}
+dados.forEach(x=>{
+if(x.tipo==="RECEITA")r+=Number(x.valor)
+else d+=Number(x.valor)
+
+html+=`
+<div style="margin:4px;padding:6px;background:#111827;border-radius:6px">
+${x.data} - ${x.descricao} - R$ ${x.valor}
+</div>
+`
 })
 
-graficoResumo=new Chart(el1,{
+lista.innerHTML=html
+
+if(grafico)grafico.destroy()
+
+grafico=new Chart(document.getElementById("grafico"),{
 type:"doughnut",
-data:{labels:["Receita","Despesa"],datasets:[{data:[r,d]}]},
-options:{
-responsive:true,
-maintainAspectRatio:false,
-plugins:{
-legend:{labels:{color:"#fff"}}
-}
-}
-})
-
-graficoMensal=new Chart(el2,{
-type:"bar",
 data:{
-labels:["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"],
-datasets:[
-{label:"Receita",data:Array.from({length:12},(_,i)=>meses[i]?.r||0)},
-{label:"Despesa",data:Array.from({length:12},(_,i)=>meses[i]?.d||0)}
-]
-},
-options:{
-responsive:true,
-maintainAspectRatio:false,
-plugins:{
-legend:{labels:{color:"#fff"}}
-}
+labels:["Receita","Despesa"],
+datasets:[{data:[r,d]}]
 }
 })
 }
-/* ====================================================023 – FILTROS==================================================== */
-function filtrarPeriodo(){
-const ini=document.getElementById("dataInicio")
-const fim=document.getElementById("dataFim")
-filtroInicio=ini?ini.value:null
-filtroFim=fim?fim.value:null
-modoAnoCompleto=false
-render()
-}
-function limparPeriodo(){
-filtroInicio=null
-filtroFim=null
-const ini=document.getElementById("dataInicio")
-const fim=document.getElementById("dataFim")
-if(ini)ini.value=""
-if(fim)fim.value=""
-render()
-}
-function verAnoCompleto(){
-modoAnoCompleto=true
-filtroInicio=null
-filtroFim=null
-render()
-}
 
-/* ====================================================024 – CONTROLES==================================================== */
-function toggleGrafico(){
-mostrarGrafico=!mostrarGrafico
-document.getElementById("graficoResumo").parentElement.classList.toggle("oculto",!mostrarGrafico)
-document.getElementById("graficoMensal").parentElement.classList.toggle("oculto",!mostrarGrafico)
-render()
-}
-function mesAnterior(){
-mesOffset--
-aplicarMesOffset()
-}
-function mesAtual(){
-mesOffset=0
-filtroInicio=null
-filtroFim=null
-modoAnoCompleto=false
-render()
-}
-/* ====================================================024A – APLICAR OFFSET==================================================== */
-function aplicarMesOffset(){
-const hoje=new Date()
-const data=new Date(hoje.getFullYear(),hoje.getMonth()+mesOffset,1)
-filtroInicio=data.toISOString().slice(0,7)+"-01"
-filtroFim=new Date(data.getFullYear(),data.getMonth()+1,0).toISOString().slice(0,10)
-modoAnoCompleto=false
-render()
-}
-/* ====================================================025 – SALVAR TUDO==================================================== */
-async function salvarTudo(){
-for(const id in edicoesTemp){
-const original=dados.find(x=>String(x.id)===String(id))
-if(!original)continue
-const atualizado={...original,...edicoesTemp[id]}
-await supabaseClient.from("lancamentos").update(atualizado).eq("id",id)
-}
-edicoesTemp={}
-modoEdicao=false
-document.getElementById("btnSalvar").style.display="none"
-document.getElementById("btnEditar").innerText="Editar"
-await carregar()
-}
-
-/* ====================================================026 – RECORRÊNCIA==================================================== */
-async function gerarRecorrentes(){
-const userId=localStorage.getItem("usuario_id_lancamentos")
-if(!userId)return
-const hoje=new Date()
-const ano=hoje.getFullYear()
-const mes=String(hoje.getMonth()+1).padStart(2,"0")
-const {data:rec}=await supabaseClient.from("lancamentos").select("*").eq("recorrente",true).eq("usuario_id",userId)
-for(const r of (rec||[])){
-const dia=String(r.dia_padrao||1).padStart(2,"0")
-const nova=`${ano}-${mes}-${dia}`
-const {data:existe}=await supabaseClient.from("lancamentos").select("id").eq("data",nova).eq("descricao",r.descricao).limit(1)
-if(existe&&existe.length)continue
-await supabaseClient.from("lancamentos").insert({...r,data:nova,pago:false})
-}
-}
-/* ====================================================026A – PADRÃO USUÁRIO==================================================== */
-async function criarPadraoUsuario(usuarioId){
-const hoje=hojeLocal()
-const padrao=[
-{tipo:"RECEITA",categoria:"GERAL",descricao:"Salário"},
-{tipo:"RECEITA",categoria:"GERAL",descricao:"Renda Extra"},
-{tipo:"DESPESA",categoria:"CASA",descricao:"Moradia"},
-{tipo:"DESPESA",categoria:"CASA",descricao:"Alimentação"},
-{tipo:"DESPESA",categoria:"GERAL",descricao:"Transporte"},
-{tipo:"DESPESA",categoria:"SAÚDE",descricao:"Saúde"}
-]
-for(const p of padrao){
-await supabaseClient.from("lancamentos").insert({
-data:hoje,
-descricao:p.descricao,
-tipo:p.tipo,
-categoria:p.categoria,
-valor:0,
-pago:false,
-user_id:usuarioId
-})
-}
-}
-/* ====================================================027 – ADMIN==================================================== */
-async function carregarUsuarios(){
-montarTopoAdmin()
-
-const {data}=await supabaseClient.from("usuarios_lancamentos").select("*").order("criado_em")
-const lista=document.getElementById("listaUsuarios")
-if(!lista)return
-lista.innerHTML=""
-
-data.forEach(u=>{
-lista.innerHTML+=`
-<div style="background:#0f172a;padding:12px;margin:6px;border-radius:8px">
-<b>${u.nome}</b><br>${u.email}<br>
-Plano: ${u.plano||"free"}<br>
-<div style="display:flex;gap:6px;margin-top:6px">
-${u.plano!=="pro"?`<button onclick="tornarPro('${u.id}')">PRO</button>`:""}
-<button onclick="rebaixarFree('${u.id}')">FREE</button>
-<button onclick="excluirUsuario('${u.id}')">Excluir</button>
-</div>
-</div>
-`
-})
-}
-/* ====================================================028 – UPGRADE==================================================== */
-function mostrarUpgrade(){
-let box=document.getElementById("upgradeBox")
-if(box)return
-box=document.createElement("div")
-box.id="upgradeBox"
-box.style.position="fixed"
-box.style.top="50%"
-box.style.left="50%"
-box.style.transform="translate(-50%,-50%)"
-box.style.background="#020617"
-box.style.padding="20px"
-box.style.borderRadius="12px"
-box.style.zIndex="99999"
-box.innerHTML=`
-<b>Limite FREE atingido</b><br><br>
-<button onclick="gerarPix()">Virar PRO</button><br><br>
-<button onclick="this.parentElement.remove()">Fechar</button>
-`
-document.body.appendChild(box)
-}
-
-/* ====================================================029 – PIX==================================================== */
-function gerarPix(){
-const chave="69984311978"
-const nome=localStorage.getItem("usuario_nome_lancamentos")||"Cliente"
-const id=localStorage.getItem("usuario_id_lancamentos")
-const msg=`Pagamento PRO%0AUsuário:${nome}%0AID:${id}`
-document.getElementById("boxPix").style.display="block"
-document.getElementById("qrPix").src=`https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${chave}`
-document.getElementById("btnZap").onclick=function(){
-window.open(`https://wa.me/5569984311978?text=${msg}`,"_blank")
+/* INIT */
+window.onload=()=>{
+const id=localStorage.getItem("user_id")
+if(id){
+abrirApp()
 }
 }
 
-/* ====================================================030 – CONFIRMAR==================================================== */
-async function confirmarPagamento(){
-const id=localStorage.getItem("usuario_id_lancamentos")
-await supabaseClient.from("usuarios_lancamentos").update({plano:"analise"}).eq("id",id)
-alert("Aguardando liberação")
-}
-/* ========031 – INIT==================================================== */
-async function iniciarSistema(){
-const versaoApp="v2.0"
-const versaoSalva=localStorage.getItem("app_versao")
-if(versaoSalva!==versaoApp){
-console.warn("Atualizando versão sem destruir sessão")
-localStorage.setItem("app_versao",versaoApp)
-}
-
-const emailSalvo=localStorage.getItem("login_email")
-const senhaSalva=localStorage.getItem("login_senha")
-if(emailSalvo){
-const el=document.getElementById("loginUser")
-if(el)el.value=emailSalvo
-}
-if(senhaSalva){
-const el=document.getElementById("loginPass")
-if(el)el.value=senhaSalva
-}
-try{
-carregarCategorias()
-const telaLogin=document.getElementById("telaLogin")
-const appSistema=document.getElementById("appSistema")
-const painelAdmin=document.getElementById("painelAdmin")
-const conteudoApp=document.getElementById("conteudoApp")
-
-if(painelAdmin)painelAdmin.style.display="none"
-if(conteudoApp)conteudoApp.style.display="block"
-document.body.classList.add("login")
-document.getElementById("telaLogin").style.display="flex"
-document.getElementById("appSistema").style.display="none"
-document.body.classList.remove("app")
-const userId=localStorage.getItem("usuario_id_lancamentos")
-if(userId){
-console.log("Sessão encontrada:",userId)
-await verificarSessao()
-setTimeout(()=>render(),200)
-return
-}else{
-console.log("Sem sessão → mostrar login")
-}
-if(emailSalvo&&senhaSalva){
-setTimeout(()=>loginSistema(),500)
-}
-const hoje=hojeLocal()
-;["data","dataInicio","dataFim"].forEach(id=>{
-const el=document.getElementById(id)
-if(el&&!el.value)el.value=hoje
-})
-}catch(err){
-console.error("ERRO INIT:",err)
-alert("Erro ao iniciar sistema. Verifique o console.")
-}
-}
-/* ====================================================032 – TOPO ADMIN==================================================== */
-function montarTopoAdmin(){
-const painel=document.getElementById("painelAdmin")
-if(!painel)return
-
-painel.innerHTML=`
-<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-<h2>Admin</h2>
-<div style="display:flex;gap:6px">
-<button onclick="alternarParaApp()">App</button>
-<button onclick="carregarUsuarios()">Atualizar</button>
-<button onclick="novoUsuario()">Novo</button>
-<button onclick="logout()" style="background:#ef4444;color:#fff">Sair</button>
-</div>
-</div>
-<div id="listaUsuarios"></div>
-`
-}
-/* ====================================================033 – ADMIN PARA APP==================================================== */
-function alternarParaApp(){
-document.getElementById("painelAdmin").style.display="none"
-document.getElementById("conteudoApp").style.display="block"
-}
-/* ====================================================034 – NOVO USUÁRIO==================================================== */
-async function novoUsuario(){
-const nome=prompt("Nome")
-const email=prompt("Email")
-const senha=prompt("Senha")
-if(!nome||!email||!senha)return
-
-await supabaseClient.from("usuarios_lancamentos").insert({
-nome,email,senha,tipo:"user",plano:"free",limite:20,status:"aprovado"
-})
-
-alert("Usuário criado")
-carregarUsuarios()
-}
-/* ====================================================035 – EXCLUIR USUÁRIO==================================================== */
-async function excluirUsuario(id){
-if(!confirm("Excluir usuário?"))return
-await supabaseClient.from("usuarios_lancamentos").delete().eq("id",id)
-carregarUsuarios()
-}
-/* ====================================================036 – ABRIR CADASTRO==================================================== */
-
-/* ====================================================038 – CADASTRAR CONTA==================================================== */
-async function cadastrarContaPremium(){
-const nome=document.getElementById("cadNome").value.trim()
-const email=document.getElementById("cadEmail").value.trim()
-const senha=document.getElementById("cadSenha").value.trim()
-const btn=document.getElementById("btnCad")
-
-if(!nome||!email||!senha){alert("Preencha todos os campos");return}
-
-btn.innerText="Criando..."
-btn.disabled=true
-
-const {data:existe}=await supabaseClient.from("usuarios_lancamentos").select("id").eq("email",email).limit(1)
-
-if(existe&&existe.length){
-alert("Email já cadastrado")
-btn.innerText="Cadastrar"
-btn.disabled=false
-return
-}
-await supabaseClient.from("usuarios_lancamentos").insert({
-nome,email,senha,tipo:"user",plano:"free",limite:20,status:"aprovado"
-})
-btn.innerText="Criado ✓"
-
-setTimeout(()=>{
-mostrarLogin()
-btn.innerText="Cadastrar"
-btn.disabled=false
-},1200)
-document.getElementById("cadNome").value=""
-document.getElementById("cadEmail").value=""
-document.getElementById("cadSenha").value=""
-}
-/* ====================================================039 – TROCA FORM==================================================== */
-function mostrarCadastro(){
-const login=document.getElementById("formLogin")
-const cad=document.getElementById("formCadastro")
-if(!login||!cad)return
-login.style.left="-100%"
-cad.style.left="0"
-document.getElementById("tabLogin").style.background="#1e293b"
-document.getElementById("tabLogin").style.color="#fff"
-document.getElementById("tabCadastro").style.background="#3b82f6"
-document.getElementById("tabCadastro").style.color="#fff"
-}
-function mostrarLogin(){
-const login=document.getElementById("formLogin")
-const cad=document.getElementById("formCadastro")
-if(!login||!cad)return
-login.style.left="0"
-cad.style.left="100%"
-document.getElementById("tabLogin").style.background="#22c55e"
-document.getElementById("tabLogin").style.color="#000"
-document.getElementById("tabCadastro").style.background="#1e293b"
-document.getElementById("tabCadastro").style.color="#fff"
-}
-/* ===========040 – TOGGLE SENHA==================================================== */
-function toggleSenha(){
-const input=document.getElementById("loginPass")
-if(!input)return
-input.type=input.type==="password"?"text":"password"
-}
-/* =========045===START==================================================== */
-document.addEventListener("DOMContentLoaded",async()=>{
-await iniciarSistema()
-})
-
-  
 </script>
 </body>
+</html>
