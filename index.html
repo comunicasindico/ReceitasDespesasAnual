@@ -47,12 +47,23 @@ body.login::before{display:none!important}
 
 <div id="boxForms" style="position:relative;min-height:320px">
 <!-- LOGIN -->
+<div id="formLogin" style="position:absolute;width:100%;padding:20px;left:0;transition:.4s">
+
+<input id="loginUser" placeholder="Email">
+
 <div style="position:relative">
 <input id="loginPass" type="password" placeholder="Senha" style="width:100%">
+<span onclick="toggleSenha()" style="position:absolute;right:10px;top:10px;cursor:pointer">👁</span>
+</div>
+
 <label style="font-size:12px;display:flex;align-items:center;gap:5px">
 <input type="checkbox" id="lembrarLogin"> Lembrar login
 </label>
-<span onclick="toggleSenha()" style="position:absolute;right:10px;top:10px;cursor:pointer">👁</span>
+
+<button id="btnLogin" onclick="loginSistema()" style="background:#22c55e;color:#000;font-weight:bold;width:100%">
+Entrar
+</button>
+
 </div>
 
 <!-- CADASTRO -->
@@ -804,18 +815,24 @@ document.getElementById("cadNome").value=""
 document.getElementById("cadEmail").value=""
 document.getElementById("cadSenha").value=""
 }
-/* ====039 – TROCA FORM==================================================== */
+/* ====================================================039 – TROCA FORM==================================================== */
 function mostrarCadastro(){
-document.getElementById("formLogin").style.left="-100%"
-document.getElementById("formCadastro").style.left="0"
+const login=document.getElementById("formLogin")
+const cad=document.getElementById("formCadastro")
+if(!login||!cad)return
+login.style.left="-100%"
+cad.style.left="0"
 document.getElementById("tabLogin").style.background="#1e293b"
 document.getElementById("tabLogin").style.color="#fff"
 document.getElementById("tabCadastro").style.background="#3b82f6"
 document.getElementById("tabCadastro").style.color="#fff"
 }
 function mostrarLogin(){
-document.getElementById("formLogin").style.left="0"
-document.getElementById("formCadastro").style.left="100%"
+const login=document.getElementById("formLogin")
+const cad=document.getElementById("formCadastro")
+if(!login||!cad)return
+login.style.left="0"
+cad.style.left="100%"
 document.getElementById("tabLogin").style.background="#22c55e"
 document.getElementById("tabLogin").style.color="#000"
 document.getElementById("tabCadastro").style.background="#1e293b"
