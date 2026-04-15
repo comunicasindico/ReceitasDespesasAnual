@@ -246,10 +246,11 @@ dados=data||[]
 console.log("DADOS:",dados)
 const tipo=localStorage.getItem("tipo_usuario_lancamentos")
 const userId=localStorage.getItem("usuario_id_lancamentos")
+if(tipo!=="admin"){
 dados=dados.filter(x=>{
-if(tipo==="admin")return true
-return String(x.usuario_id)===String(userId)
+return !x.usuario_id || String(x.usuario_id)===String(userId)
 })
+}
 render()
 }
 
@@ -375,6 +376,10 @@ render()
 }
 /* ====================================================021 – RENDER==================================================== */
 function render(){
+if(!dados||!dados.length){
+document.getElementById("lista").innerHTML="<div style='text-align:center;margin-top:40px'>Sem dados ainda</div>"
+return
+}
 if(!dados){console.log("SEM DADOS");return}
 const lista=document.getElementById("lista")
 const resumo=document.getElementById("resumo")
