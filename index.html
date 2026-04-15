@@ -289,9 +289,11 @@ dados=data||[]
 
 const tipo=localStorage.getItem("tipo_usuario_lancamentos")
 const userId=localStorage.getItem("usuario_id_lancamentos")
-
+/* 🔥 FILTRO CORRIGIDO (NÃO SUMIR DADOS) */
 if(tipo!=="admin"){
-dados=dados.filter(x=>!x.usuario_id||String(x.usuario_id)===String(userId))
+dados=dados.filter(x=>{
+return String(x.usuario_id||"")===String(userId)
+})
 }
 
 console.log("DADOS CARREGADOS:",dados)
@@ -350,18 +352,26 @@ document.getElementById("valor").value=x.valor||0
 async function add(){
 const userId=localStorage.getItem("usuario_id_lancamentos")
 if(!userId){alert("Usuário não autenticado");return}
-if(PLANO_USUARIO!=="pro" && dados.length>=LIMITE_USUARIO){mostrarUpgrade();return}
 const data=document.getElementById("data").value
 const desc=document.getElementById("desc").value.trim()
 const tipo=document.getElementById("tipo").value
 const categoria=document.getElementById("categoria").value
 const valor=parseFloat(document.getElementById("valor").value||0)
 if(!data||!desc||!valor){alert("Preencha tudo");return}
-await salvarRegistro({
-data,descricao:desc,tipo,categoria,valor,pago:false,usuario_id:userId
+/* 🔥 GARANTE USUARIO_ID */
+await supabaseClient.from("lancamentos").insert({
+data,
+descricao:desc,
+tipo,
+categoria,
+valor,
+pago:false,
+usuario_id:userId
 })
+
 document.getElementById("desc").value=""
 document.getElementById("valor").value=""
+await carregar()
 }
 /* ====================================================013 – NORMALIZAR DATA==================================================== */
 function normalizarDataLocal(d){
