@@ -292,7 +292,7 @@ const userId=localStorage.getItem("usuario_id_lancamentos")
 /* 🔥 FILTRO CORRIGIDO (NÃO SUMIR DADOS) */
 if(tipo!=="admin"){
 dados=dados.filter(x=>{
-return String(x.usuario_id||"")===String(userId)
+return String(x.user_id||"")===String(userId)
 })
 }
 
@@ -366,7 +366,7 @@ tipo,
 categoria,
 valor,
 pago:false,
-usuario_id:userId
+user_id:userId
 })
 
 document.getElementById("desc").value=""
@@ -701,7 +701,7 @@ tipo:p.tipo,
 categoria:p.categoria,
 valor:0,
 pago:false,
-usuario_id:usuarioId
+user_id:usuarioId
 })
 }
 }
