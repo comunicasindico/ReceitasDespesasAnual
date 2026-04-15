@@ -24,10 +24,10 @@ body.login{background:#000!important;padding:0}
 body.login::before{display:none!important}
 #telaLogin{position:fixed;top:0;left:0;width:100%;height:100%;display:flex;align-items:center;justify-content:center;z-index:9999}
 #loginBg{position:absolute;top:0;left:0;width:100%;height:100%;background:url("img/lua.jpeg") center/cover no-repeat}
-#loginCard{position:relative;background:rgba(17,24,39,.85);padding:30px;border-radius:12px;width:300px;display:flex;flex-direction:column;gap:10px}
 #menuUsuario{display:none;position:absolute;top:55px;right:0;background:#020617;border-radius:10px;padding:10px;width:180px}
 #areaGraficos{max-width:800px;margin:20px auto;height:300px;}
 #areaGraficos canvas{height:250px !important;}
+#formLogin,#formCadastro{transition:all .4s ease}
 
 </style>
 
@@ -161,14 +161,35 @@ el.innerHTML=`${nome} • ${badgePlano} • ${badgeTipo}`
 async function loginSistema(){
 const email=document.getElementById("loginUser").value.trim()
 const senha=document.getElementById("loginPass").value.trim()
-if(!email||!senha){alert("Preencha e-mail e senha");return}
+const btn=document.getElementById("btnLogin")
+
+if(btn){btn.innerText="Entrando...";btn.disabled=true}
+
+if(!email||!senha){
+alert("Preencha e-mail e senha")
+if(btn){btn.innerText="Entrar";btn.disabled=false}
+return
+}
 const {data,error}=await supabaseClient.from("usuarios_lancamentos").select("*").eq("email",email).eq("senha",senha).limit(1)
-if(error){alert("Erro no login");console.error(error);return}
-if(!data||!data.length){alert("Usuário inválido");return}
+
+if(error){
+alert("Erro no login")
+console.error(error)
+if(btn){btn.innerText="Entrar";btn.disabled=false}
+return
+}
+
+if(!data||!data.length){
+alert("Usuário inválido")
+if(btn){btn.innerText="Entrar";btn.disabled=false}
+return
+}
+
 const user=data[0]
 /* 🔐 STATUS */
 if(user.status&&user.status!=="aprovado"){
 alert("Aguardando liberação do administrador")
+if(btn){btn.innerText="Entrar";btn.disabled=false}
 return
 }
 /* 🔥 CONTEXTO */
@@ -176,6 +197,7 @@ localStorage.setItem("usuario_id_lancamentos",user.id)
 localStorage.setItem("usuario_nome_lancamentos",user.nome||"")
 localStorage.setItem("tipo_usuario_lancamentos",user.tipo||"user")
 localStorage.setItem("usuario_plano",(user.plano||"free").toLowerCase())
+
 PLANO_USUARIO=(user.plano||"free").toLowerCase()
 LIMITE_USUARIO=user.limite||20
 /* 🎨 UI */
@@ -183,7 +205,9 @@ document.getElementById("telaLogin").style.display="none"
 document.getElementById("appSistema").style.display="block"
 document.body.classList.remove("login")
 document.body.classList.add("app")
+
 setUserUI()
+
 const painelAdmin=document.getElementById("painelAdmin")
 const conteudoApp=document.getElementById("conteudoApp")
 /* 👑 ADMIN */
@@ -191,6 +215,7 @@ if(user.tipo==="admin"){
 if(painelAdmin)painelAdmin.style.display="block"
 if(conteudoApp)conteudoApp.style.display="none"
 await carregarUsuarios()
+if(btn){btn.innerText="Entrar";btn.disabled=false}
 return
 }
 /* 👤 USUÁRIO NORMAL */
@@ -206,6 +231,7 @@ await carregar()
 /* 🔁 RECORRÊNCIA */
 await gerarRecorrentes()
 await carregar()
+if(btn){btn.innerText="Entrar";btn.disabled=false}
 }
 /* ====================================================005 – SESSÃO==================================================== */
 async function verificarSessao(){
@@ -805,30 +831,37 @@ await supabaseClient.from("usuarios_lancamentos").delete().eq("id",id)
 carregarUsuarios()
 }
 /* ====================================================036 – ABRIR CADASTRO==================================================== */
-function abrirCadastro(){
-const nome=prompt("Nome completo")
-const email=prompt("Email")
-const senha=prompt("Senha")
-if(!nome||!email||!senha){alert("Preencha todos os campos");return}
-cadastrarConta(nome,email,senha)
-}
+
 /* ====================================================038 – CADASTRAR CONTA==================================================== */
-aasync function cadastrarContaPremium(){
+async function cadastrarContaPremium(){
 const nome=document.getElementById("cadNome").value.trim()
 const email=document.getElementById("cadEmail").value.trim()
 const senha=document.getElementById("cadSenha").value.trim()
+const btn=document.getElementById("btnCad")
 
 if(!nome||!email||!senha){alert("Preencha todos os campos");return}
 
-const {data:existe}=await supabaseClient.from("usuarios_lancamentos").select("id").eq("email",email).limit(1)
-if(existe&&existe.length){alert("Email já cadastrado");return}
+btn.innerText="Criando..."
+btn.disabled=true
 
+const {data:existe}=await supabaseClient.from("usuarios_lancamentos").select("id").eq("email",email).limit(1)
+
+if(existe&&existe.length){
+alert("Email já cadastrado")
+btn.innerText="Cadastrar"
+btn.disabled=false
+return
+}
 await supabaseClient.from("usuarios_lancamentos").insert({
 nome,email,senha,tipo:"user",plano:"free",limite:20,status:"aprovado"
 })
+btn.innerText="Criado ✓"
 
-alert("Conta criada com sucesso")
-
+setTimeout(()=>{
+mostrarLogin()
+btn.innerText="Cadastrar"
+btn.disabled=false
+},1200)
 document.getElementById("cadNome").value=""
 document.getElementById("cadEmail").value=""
 document.getElementById("cadSenha").value=""
