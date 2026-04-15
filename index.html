@@ -660,6 +660,10 @@ del(id)
 }
 /* ====================================================022 – DASHBOARD NUBANK==================================================== */
 function atualizarDashboard(){
+/* ====================================================002 – BLOQUEIO DUPLO RENDER==================================================== */
+if(window._chartLock)return
+window._chartLock=true
+
 if(typeof Chart==="undefined")return
 
 const elResumo=document.getElementById("graficoResumo")
@@ -670,8 +674,15 @@ if(!elResumo||!elMensal)return
 const ctxResumo=elResumo.getContext("2d")
 const ctxMensal=elMensal.getContext("2d")
 
-if(graficoResumo)graficoResumo.destroy()
-if(graficoMensal)graficoMensal.destroy()
+/* ====================================================001 – DESTRUIR CHART SEGURO==================================================== */
+if(graficoResumo){
+try{graficoResumo.destroy()}catch(e){}
+graficoResumo=null
+}
+if(graficoMensal){
+try{graficoMensal.destroy()}catch(e){}
+graficoMensal=null
+}
 
 let listaFiltrada=[...dados]
 
@@ -764,7 +775,7 @@ y:{ticks:{color:"#fff"}}
 }
 }
 })
-
+window._chartLock=false
 }
 /* ====================================================023 – COPIAR MÊS==================================================== */
 async function copiarMesAnterior(){
