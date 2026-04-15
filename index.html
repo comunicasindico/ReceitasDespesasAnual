@@ -231,6 +231,23 @@ document.getElementById("appSistema").style.display="block"
 document.body.classList.remove("login")
 document.body.classList.add("app")
 setUserUI()
+const tipo=localStorage.getItem("tipo_usuario_lancamentos")
+const painelAdmin=document.getElementById("painelAdmin")
+const conteudoApp=document.getElementById("conteudoApp")
+if(tipo==="admin"){
+if(painelAdmin)painelAdmin.style.display="block"
+if(conteudoApp)conteudoApp.style.display="none"
+await carregarUsuarios()
+return
+}
+if(painelAdmin)painelAdmin.style.display="none"
+if(conteudoApp)conteudoApp.style.display="block"
+await carregar()
+if(!dados.length){
+await criarPadraoUsuario(id)
+await carregar()
+}
+await gerarRecorrentes()
 await carregar()
 }
 /* ====================================================006 – LOGOUT==================================================== */
@@ -376,8 +393,9 @@ render()
 }
 /* ====================================================021 – RENDER==================================================== */
 function render(){
+console.log("RENDER EXECUTADO",dados)
 if(!dados||!dados.length){
-document.getElementById("lista").innerHTML="<div style='text-align:center;margin-top:40px'>Sem dados ainda</div>"
+document.getElementById("lista").innerHTML="<div style='text-align:center;margin-top:40px'>Sem dados</div>"
 return
 }
 if(!dados){console.log("SEM DADOS");return}
