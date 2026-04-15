@@ -28,6 +28,8 @@ body.login::before{display:none!important}
 #areaGraficos{max-width:800px;margin:20px auto;height:300px;}
 #areaGraficos canvas{height:250px !important;}
 #formLogin,#formCadastro{transition:all .4s ease}
+#loginCard input{width:100%;box-sizing:border-box}
+#loginCard button{margin-top:8px}
 
 </style>
 
@@ -43,8 +45,7 @@ body.login::before{display:none!important}
 <button id="tabCadastro" onclick="mostrarCadastro()" style="flex:1;padding:12px;background:#1e293b;color:#fff">Criar Conta</button>
 </div>
 
-<div id="boxForms" style="position:relative;height:260px">
-
+<div id="boxForms" style="position:relative;min-height:320px">
 <!-- LOGIN -->
 <div style="position:relative">
 <input id="loginPass" type="password" placeholder="Senha" style="width:100%">
