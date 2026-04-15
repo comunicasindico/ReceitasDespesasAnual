@@ -46,10 +46,12 @@ body.login::before{display:none!important}
 <div id="boxForms" style="position:relative;height:260px">
 
 <!-- LOGIN -->
-<div id="formLogin" style="position:absolute;width:100%;padding:20px;left:0;transition:.4s">
-<input id="loginUser" placeholder="Email">
-<input id="loginPass" type="password" placeholder="Senha">
-<button id="btnLogin" onclick="loginSistema()" style="background:#22c55e;color:#000;font-weight:bold;width:100%">Entrar</button>
+<div style="position:relative">
+<input id="loginPass" type="password" placeholder="Senha" style="width:100%">
+<label style="font-size:12px;display:flex;align-items:center;gap:5px">
+<input type="checkbox" id="lembrarLogin"> Lembrar login
+</label>
+<span onclick="toggleSenha()" style="position:absolute;right:10px;top:10px;cursor:pointer">👁</span>
 </div>
 
 <!-- CADASTRO -->
@@ -162,83 +164,51 @@ async function loginSistema(){
 const email=document.getElementById("loginUser").value.trim()
 const senha=document.getElementById("loginPass").value.trim()
 const btn=document.getElementById("btnLogin")
-
 if(btn){btn.innerText="Entrando...";btn.disabled=true}
-
-if(!email||!senha){
-alert("Preencha e-mail e senha")
-if(btn){btn.innerText="Entrar";btn.disabled=false}
-return
-}
+if(!email||!senha){alert("Preencha e-mail e senha");if(btn){btn.innerText="Entrar";btn.disabled=false};return}
 const {data,error}=await supabaseClient.from("usuarios_lancamentos").select("*").eq("email",email).eq("senha",senha).limit(1)
-
-if(error){
-alert("Erro no login")
-console.error(error)
-if(btn){btn.innerText="Entrar";btn.disabled=false}
-return
-}
-
-if(!data||!data.length){
-alert("Usuário inválido")
-if(btn){btn.innerText="Entrar";btn.disabled=false}
-return
-}
-
+if(error){alert("Erro no login");console.error(error);if(btn){btn.innerText="Entrar";btn.disabled=false};return}
+if(!data||!data.length){alert("Usuário inválido");if(btn){btn.innerText="Entrar";btn.disabled=false};return}
 const user=data[0]
-/* 🔐 STATUS */
-if(user.status&&user.status!=="aprovado"){
-alert("Aguardando liberação do administrador")
-if(btn){btn.innerText="Entrar";btn.disabled=false}
-return
+const lembrar=document.getElementById("lembrarLogin")?.checked
+if(lembrar){
+localStorage.setItem("login_email",email)
+localStorage.setItem("login_senha",senha)
+}else{
+localStorage.removeItem("login_email")
+localStorage.removeItem("login_senha")
 }
-/* 🔥 CONTEXTO */
+if(user.status&&user.status!=="aprovado"){alert("Aguardando liberação do administrador");if(btn){btn.innerText="Entrar";btn.disabled=false};return}
 localStorage.setItem("usuario_id_lancamentos",user.id)
 localStorage.setItem("usuario_nome_lancamentos",user.nome||"")
 localStorage.setItem("tipo_usuario_lancamentos",user.tipo||"user")
 localStorage.setItem("usuario_plano",(user.plano||"free").toLowerCase())
-
 PLANO_USUARIO=(user.plano||"free").toLowerCase()
 LIMITE_USUARIO=user.limite||20
-/* 🎨 UI */
 document.getElementById("telaLogin").style.display="none"
 document.getElementById("appSistema").style.display="block"
 document.body.classList.remove("login")
 document.body.classList.add("app")
-
 setUserUI()
-
 const painelAdmin=document.getElementById("painelAdmin")
 const conteudoApp=document.getElementById("conteudoApp")
-/* 👑 ADMIN */
-if(user.tipo==="admin"){
-if(painelAdmin)painelAdmin.style.display="block"
-if(conteudoApp)conteudoApp.style.display="none"
-await carregarUsuarios()
-if(btn){btn.innerText="Entrar";btn.disabled=false}
-return
-}
-/* 👤 USUÁRIO NORMAL */
+if(user.tipo==="admin"){if(painelAdmin)painelAdmin.style.display="block";if(conteudoApp)conteudoApp.style.display="none";await carregarUsuarios();if(btn){btn.innerText="Entrar";btn.disabled=false};return}
 if(painelAdmin)painelAdmin.style.display="none"
 if(conteudoApp)conteudoApp.style.display="block"
-/* 🔄 CARREGAMENTO */
 await carregar()
-/* 🧠 SE NÃO TIVER DADOS → CRIA SUGESTÕES */
-if(!dados.length){
-await criarPadraoUsuario(user.id)
-await carregar()
-}
-/* 🔁 RECORRÊNCIA */
+if(!dados.length){await criarPadraoUsuario(user.id);await carregar()}
 await gerarRecorrentes()
 await carregar()
 if(btn){btn.innerText="Entrar";btn.disabled=false}
 }
-/* ====================================================005 – SESSÃO==================================================== */
+/* ====================================================005 – SESSÃO PRO==================================================== */
 async function verificarSessao(){
 const id=localStorage.getItem("usuario_id_lancamentos")
 if(!id)return
 document.getElementById("telaLogin").style.display="none"
 document.getElementById("appSistema").style.display="block"
+document.body.classList.remove("login")
+document.body.classList.add("app")
 setUserUI()
 await carregar()
 }
@@ -714,69 +684,36 @@ alert("Aguardando liberação")
 }
 /* ====================================================031 – INIT==================================================== */
 async function iniciarSistema(){
+const emailSalvo=localStorage.getItem("login_email")
+const senhaSalva=localStorage.getItem("login_senha")
+if(emailSalvo){
+const el=document.getElementById("loginUser")
+if(el)el.value=emailSalvo
+}
+if(senhaSalva){
+const el=document.getElementById("loginPass")
+if(el)el.value=senhaSalva
+}
 try{
 carregarCategorias()
-
 const telaLogin=document.getElementById("telaLogin")
 const appSistema=document.getElementById("appSistema")
 const painelAdmin=document.getElementById("painelAdmin")
 const conteudoApp=document.getElementById("conteudoApp")
-/* 🔥 ESTADO INICIAL SEGURO */
 if(telaLogin)telaLogin.style.display="flex"
 if(appSistema)appSistema.style.display="none"
 if(painelAdmin)painelAdmin.style.display="none"
 if(conteudoApp)conteudoApp.style.display="block"
-
 document.body.classList.add("login")
 document.body.classList.remove("app")
-/* 🔐 SESSÃO */
 const userId=localStorage.getItem("usuario_id_lancamentos")
-const tipo=localStorage.getItem("tipo_usuario_lancamentos")
 if(userId){
-/* 🔓 LIBERA APP */
-if(telaLogin)telaLogin.style.display="none"
-if(appSistema)appSistema.style.display="block"
-
-document.body.classList.remove("login")
-document.body.classList.add("app")
-/* 🧠 UI (SEM QUEBRAR) */
-if(typeof setUserUI==="function"){
-setUserUI()
-}
-/* 👑 ADMIN */
-if(tipo==="admin"){
-if(painelAdmin)painelAdmin.style.display="block"
-if(conteudoApp)conteudoApp.style.display="none"
-await carregarUsuarios()
+await verificarSessao()
 return
 }
-/* 👤 USUÁRIO */
-if(painelAdmin)painelAdmin.style.display="none"
-if(conteudoApp)conteudoApp.style.display="block"
-/* 🔄 CARREGAMENTO SEGURO */
-try{
-await carregar()
-}catch(e){
-console.error("Erro carregar:",e)
+if(emailSalvo&&senhaSalva){
+setTimeout(()=>loginSistema(),500)
 }
-/* 🧠 SE VAZIO → SUGESTÃO */
-if(!dados.length){
-try{
-await criarPadraoUsuario(userId)
-await carregar()
-}catch(e){
-console.error("Erro padrão:",e)
-}
-}
-/* 🔁 RECORRÊNCIA */
-try{
-await gerarRecorrentes()
-await carregar()
-}catch(e){
-console.error("Erro recorrência:",e)
-}
-}
-/* 📅 DATA PADRÃO (NÃO QUEBRA) */
 const hoje=hojeLocal()
 ;["data","dataInicio","dataFim"].forEach(id=>{
 const el=document.getElementById(id)
@@ -883,7 +820,13 @@ document.getElementById("tabLogin").style.color="#000"
 document.getElementById("tabCadastro").style.background="#1e293b"
 document.getElementById("tabCadastro").style.color="#fff"
 }
-/* =========040===START==================================================== */
+/* ===========040 – TOGGLE SENHA==================================================== */
+function toggleSenha(){
+const input=document.getElementById("loginPass")
+if(!input)return
+input.type=input.type==="password"?"text":"password"
+}
+/* =========045===START==================================================== */
 document.addEventListener("DOMContentLoaded",async()=>{
 await iniciarSistema()
 })
