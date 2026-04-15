@@ -409,10 +409,7 @@ return
 }
 let listaFiltrada=[...dados]
 const hoje=new Date()
-if(!modoAnoCompleto&&!filtroInicio&&!filtroFim){
-const limite=new Date(hoje.getFullYear(),hoje.getMonth()-2,1)
-listaFiltrada=listaFiltrada.filter(x=>x.data&&new Date(x.data)>=limite)
-}
+
 if(filtroInicio)listaFiltrada=listaFiltrada.filter(x=>x.data>=filtroInicio)
 if(filtroFim)listaFiltrada=listaFiltrada.filter(x=>x.data<=filtroFim)
 const grupos={}
