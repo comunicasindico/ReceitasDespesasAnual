@@ -26,6 +26,9 @@ body.login::before{display:none!important}
 #loginBg{position:absolute;top:0;left:0;width:100%;height:100%;background:url("img/lua.jpeg") center/cover no-repeat}
 #loginCard{position:relative;background:rgba(17,24,39,.85);padding:30px;border-radius:12px;width:300px;display:flex;flex-direction:column;gap:10px}
 #menuUsuario{display:none;position:absolute;top:55px;right:0;background:#020617;border-radius:10px;padding:10px;width:180px}
+#areaGraficos{max-width:800px;margin:20px auto;height:300px;}
+#areaGraficos canvas{height:250px !important;}
+
 </style>
 
 <body>
@@ -332,11 +335,17 @@ let listaFiltrada=[...dados]
 const hoje=new Date()
 const mesAtual=hoje.getMonth()
 const anoAtual=hoje.getFullYear()
-if(!modoAnoCompleto&&!filtroInicio&&!filtroFim){
+if(modoAnoCompleto){
+/* mostra tudo */
+}else if(filtroInicio||filtroFim){
+/* usa filtros */
+}else{
+/* padrão = últimos 3 meses */
+const hoje=new Date()
+const limite=new Date(hoje.getFullYear(),hoje.getMonth()-2,1)
+
 listaFiltrada=listaFiltrada.filter(x=>{
-if(!x.data)return false
-const[a,m]=x.data.split("-")
-return Number(m)-1===mesAtual&&Number(a)===anoAtual
+return new Date(x.data)>=limite
 })
 }
 if(filtroInicio)listaFiltrada=listaFiltrada.filter(x=>x.data>=filtroInicio)
@@ -464,7 +473,13 @@ if(x.tipo==="RECEITA"){r+=v;meses[m].r+=v}else{d+=v;meses[m].d+=v}
 graficoResumo=new Chart(el1,{
 type:"doughnut",
 data:{labels:["Receita","Despesa"],datasets:[{data:[r,d]}]},
-options:{plugins:{legend:{labels:{color:"#fff"}}}}
+options:{
+responsive:true,
+maintainAspectRatio:false,
+plugins:{
+legend:{labels:{color:"#fff"}}
+}
+}
 })
 
 graficoMensal=new Chart(el2,{
@@ -476,7 +491,13 @@ datasets:[
 {label:"Despesa",data:Array.from({length:12},(_,i)=>meses[i]?.d||0)}
 ]
 },
-options:{plugins:{legend:{labels:{color:"#fff"}}}}
+options:{
+responsive:true,
+maintainAspectRatio:false,
+plugins:{
+legend:{labels:{color:"#fff"}}
+}
+}
 })
 }
 /* ====================================================023 – FILTROS==================================================== */
