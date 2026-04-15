@@ -241,14 +241,18 @@ async function verificarSessao(){
 const id=localStorage.getItem("usuario_id_lancamentos")
 if(!id)return
 
-const telaLogin=document.getElementById("telaLogin")
-const appSistema=document.getElementById("appSistema")
+console.log("RESTAURANDO SESSÃO:",id)
 
+/* 🔥 FORÇA UI */
 document.body.classList.remove("login")
 document.body.classList.add("app")
+document.getElementById("telaLogin").style.display="none"
+document.getElementById("appSistema").style.display="block"
 
+/* 🔥 GARANTE USER UI */
 setUserUI()
 
+try{
 await carregar()
 
 if(!dados.length){
@@ -257,6 +261,11 @@ await carregar()
 }
 
 await gerarRecorrentes()
+
+}catch(e){
+console.error("ERRO SESSÃO:",e)
+alert("Erro ao restaurar sessão")
+}
 }
 /* ====================================================006 – LOGOUT==================================================== */
 function logout(){
@@ -265,18 +274,36 @@ location.reload()
 }
 /* ====================================================007 – CARREGAR==================================================== */
 async function carregar(){
+try{
 const {data,error}=await supabaseClient.from("lancamentos").select("*").order("data",{ascending:true})
-if(error){console.error("ERRO CARREGAR:",error);alert("Erro ao carregar dados");return}
+
+if(error){
+console.error("SUPABASE ERRO:",error)
+alert("Erro banco: "+error.message)
+dados=[]
+render()
+return
+}
+
 dados=data||[]
-console.log("DADOS:",dados)
+
 const tipo=localStorage.getItem("tipo_usuario_lancamentos")
 const userId=localStorage.getItem("usuario_id_lancamentos")
+
 if(tipo!=="admin"){
-dados=dados.filter(x=>{
-return !x.usuario_id || String(x.usuario_id)===String(userId)
-})
+dados=dados.filter(x=>!x.usuario_id||String(x.usuario_id)===String(userId))
 }
+
+console.log("DADOS CARREGADOS:",dados)
+
 render()
+
+}catch(e){
+console.error("ERRO GERAL CARREGAR:",e)
+alert("Falha crítica ao carregar dados")
+dados=[]
+render()
+}
 }
 
 /* ====================================================008 – SALVAR==================================================== */
@@ -768,6 +795,7 @@ const userId=localStorage.getItem("usuario_id_lancamentos")
 if(userId){
 console.log("Sessão encontrada:",userId)
 await verificarSessao()
+setTimeout(()=>render(),200)
 return
 }else{
 console.log("Sem sessão → mostrar login")
