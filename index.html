@@ -215,7 +215,11 @@ if(conteudoApp)conteudoApp.style.display="block"
 await carregar()
 if(!dados.length){await criarPadraoUsuario(user.id);await carregar()}
 await gerarRecorrentes()
+try{
 await carregar()
+}catch(e){
+console.error("Erro ao carregar:",e)
+}
 if(btn){btn.innerText="Entrar";btn.disabled=false}
 }
 /* ====================================================005 – SESSÃO PRO==================================================== */
@@ -236,8 +240,10 @@ location.reload()
 }
 /* ====================================================007 – CARREGAR==================================================== */
 async function carregar(){
-const {data}=await supabaseClient.from("lancamentos").select("*").order("data",{ascending:true})
+const {data,error}=await supabaseClient.from("lancamentos").select("*").order("data",{ascending:true})
+if(error){console.error("ERRO CARREGAR:",error);alert("Erro ao carregar dados");return}
 dados=data||[]
+console.log("DADOS:",dados)
 const tipo=localStorage.getItem("tipo_usuario_lancamentos")
 const userId=localStorage.getItem("usuario_id_lancamentos")
 dados=dados.filter(x=>{
@@ -369,6 +375,7 @@ render()
 }
 /* ====================================================021 – RENDER==================================================== */
 function render(){
+if(!dados){console.log("SEM DADOS");return}
 const lista=document.getElementById("lista")
 const resumo=document.getElementById("resumo")
 if(!lista||!resumo)return
