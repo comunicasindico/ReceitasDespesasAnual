@@ -60,6 +60,8 @@ backdrop-filter:blur(8px);
 button:hover{transform:scale(1.05)}
 /* ====================================================003C – EFEITO 3D GRÁFICO==================================================== */
 #graficoResumo{filter:drop-shadow(0 10px 20px rgba(0,0,0,.6));}
+#topoSaaS{overflow-x:auto}
+
 
 </style>
 </head>
@@ -100,9 +102,9 @@ button:hover{transform:scale(1.05)}
 
 <div id="appSistema" style="display:none;margin-top:80px">
 <!-- ====================================================001 – TOPO CORRIGIDO==================================================== -->
-<div id="topoSaaS" style="position:fixed;top:0;left:0;width:100%;height:64px;display:flex;justify-content:space-between;align-items:center;padding:0 18px;background:rgba(2,6,23,.95);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,.08);z-index:9999;overflow:visible">
+<div id="topoSaaS" style="position:fixed;top:0;left:0;width:100%;height:64px;overflow-x:auto;display:flex;justify-content:space-between;align-items:center;padding:0 18px;background:rgba(2,6,23,.95);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,.08);z-index:9999;overflow:visible">
 
-<div style="display:flex;align-items:center;gap:10px;min-width:260px;justify-content:flex-end">
+<div style="display:flex;align-items:center;gap:10px;flex-shrink:0;margin-left:auto;padding-right:10px">
 <h1 style="margin:0;font-size:18px;font-weight:600">📊 Receitas PRO</h1>
 
 <div style="display:flex;gap:6px;align-items:center;flex-wrap:nowrap">
