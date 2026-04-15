@@ -36,7 +36,18 @@ body.login::before{display:none!important}
 <div id="telaLogin">
 <div id="loginBg"></div>
 <div id="loginCard">
-<h2>Acesso</h2>
+<h2 style="text-align:center">Acesso</h2>
+
+<input id="loginUser" placeholder="Email">
+<input id="loginPass" type="password" placeholder="Senha">
+
+<button onclick="loginSistema()">Entrar</button>
+
+<div style="height:20px"></div>
+
+<button onclick="abrirCadastro()" style="background:#3b82f6;color:#fff;font-weight:bold;padding:12px;border-radius:8px">
+CRIAR / CADASTRAR CONTA
+</button>
 <input id="loginUser" placeholder="Email">
 <input id="loginPass" type="password" placeholder="Senha">
 <button onclick="loginSistema()">Entrar</button>
@@ -788,6 +799,31 @@ if(!confirm("Excluir usuário?"))return
 await supabaseClient.from("usuarios_lancamentos").delete().eq("id",id)
 carregarUsuarios()
 }
+/* ====================================================036 – ABRIR CADASTRO==================================================== */
+function abrirCadastro(){
+const nome=prompt("Nome completo")
+const email=prompt("Email")
+const senha=prompt("Senha")
+if(!nome||!email||!senha){alert("Preencha todos os campos");return}
+cadastrarConta(nome,email,senha)
+}
+/* ====================================================038 – CADASTRAR CONTA==================================================== */
+async function cadastrarConta(nome,email,senha){
+const {data:existe}=await supabaseClient.from("usuarios_lancamentos").select("id").eq("email",email).limit(1)
+if(existe&&existe.length){alert("Email já cadastrado");return}
+await supabaseClient.from("usuarios_lancamentos").insert({
+nome,
+email,
+senha,
+tipo:"user",
+plano:"free",
+limite:20,
+status:"aprovado"
+})
+alert("Conta criada com sucesso")
+}
 
+
+  
 </script>
 </body>
