@@ -276,7 +276,11 @@ if(!d)return""
 const[a,b,c]=d.split("-")
 return `${c}/${b}/${a}`
 }
-
+/* ====================================================014A – FORMATAR MÊS==================================================== */
+function formatarMesNome(m){
+const nomes=["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"]
+return nomes[Number(m)-1]||m
+}
 /* ====================================================015 – DATA LOCAL==================================================== */
 function hojeLocal(){
 const d=new Date()
@@ -691,7 +695,6 @@ await carregar()
 }catch(e){
 console.error("Erro carregar:",e)
 }
-
 /* 🧠 SE VAZIO → SUGESTÃO */
 if(!dados.length){
 try{
