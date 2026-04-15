@@ -275,7 +275,7 @@ location.reload()
 /* ====================================================007 – CARREGAR==================================================== */
 async function carregar(){
 try{
-const {data,error}=await supabaseClient.from("lancamentos").select("*").order("data",{ascending:true})
+const {data,error}=await supabaseClient.from("lancamentos").select("id,data,descricao,tipo,categoria,valor,pago,user_id").order("data",{ascending:true})
 
 if(error){
 console.error("SUPABASE ERRO:",error)
@@ -305,6 +305,7 @@ console.error("ERRO GERAL CARREGAR:",e)
 alert("Falha crítica ao carregar dados")
 dados=[]
 render()
+setTimeout(()=>render(),100)
 }
 }
 
