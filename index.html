@@ -35,22 +35,31 @@ body.login::before{display:none!important}
 <!-- HTML LOGIN    APP-->
 <div id="telaLogin">
 <div id="loginBg"></div>
-<div id="loginCard">
-<h2 style="text-align:center">Acesso</h2>
 
+<div id="loginCard" style="width:360px;overflow:hidden;border-radius:14px;background:rgba(17,24,39,.85);backdrop-filter:blur(10px)">
+
+<div style="display:flex">
+<button id="tabLogin" onclick="mostrarLogin()" style="flex:1;padding:12px;background:#22c55e;color:#000;font-weight:bold">Entrar</button>
+<button id="tabCadastro" onclick="mostrarCadastro()" style="flex:1;padding:12px;background:#1e293b;color:#fff">Criar Conta</button>
+</div>
+
+<div id="boxForms" style="position:relative;height:260px">
+
+<!-- LOGIN -->
+<div id="formLogin" style="position:absolute;width:100%;padding:20px;left:0;transition:.4s">
 <input id="loginUser" placeholder="Email">
 <input id="loginPass" type="password" placeholder="Senha">
+<button id="btnLogin" onclick="loginSistema()" style="background:#22c55e;color:#000;font-weight:bold;width:100%">Entrar</button>
+</div>
 
-<button onclick="loginSistema()">Entrar</button>
+<!-- CADASTRO -->
+<div id="formCadastro" style="position:absolute;width:100%;padding:20px;left:100%;transition:.4s">
+<input id="cadNome" placeholder="Nome completo">
+<input id="cadEmail" placeholder="Email">
+<input id="cadSenha" type="password" placeholder="Senha (mín 6 caracteres)">
+<button id="btnCad" onclick="cadastrarContaPremium()" style="background:#3b82f6;color:#fff;font-weight:bold;width:100%">Cadastrar</button>
+</div>
 
-<div style="height:20px"></div>
-
-<button onclick="abrirCadastro()" style="background:#3b82f6;color:#fff;font-weight:bold;padding:12px;border-radius:8px">
-CRIAR / CADASTRAR CONTA
-</button>
-<input id="loginUser" placeholder="Email">
-<input id="loginPass" type="password" placeholder="Senha">
-<button onclick="loginSistema()">Entrar</button>
 </div>
 </div>
 
@@ -752,10 +761,6 @@ console.error("ERRO INIT:",err)
 alert("Erro ao iniciar sistema. Verifique o console.")
 }
 }
-/* =========031 A====START==================================================== */
-document.addEventListener("DOMContentLoaded",async()=>{
-await iniciarSistema()
-})
 /* ====================================================032 – TOPO ADMIN==================================================== */
 function montarTopoAdmin(){
 const painel=document.getElementById("painelAdmin")
@@ -808,21 +813,47 @@ if(!nome||!email||!senha){alert("Preencha todos os campos");return}
 cadastrarConta(nome,email,senha)
 }
 /* ====================================================038 – CADASTRAR CONTA==================================================== */
-async function cadastrarConta(nome,email,senha){
+aasync function cadastrarContaPremium(){
+const nome=document.getElementById("cadNome").value.trim()
+const email=document.getElementById("cadEmail").value.trim()
+const senha=document.getElementById("cadSenha").value.trim()
+
+if(!nome||!email||!senha){alert("Preencha todos os campos");return}
+
 const {data:existe}=await supabaseClient.from("usuarios_lancamentos").select("id").eq("email",email).limit(1)
 if(existe&&existe.length){alert("Email já cadastrado");return}
-await supabaseClient.from("usuarios_lancamentos").insert({
-nome,
-email,
-senha,
-tipo:"user",
-plano:"free",
-limite:20,
-status:"aprovado"
-})
-alert("Conta criada com sucesso")
-}
 
+await supabaseClient.from("usuarios_lancamentos").insert({
+nome,email,senha,tipo:"user",plano:"free",limite:20,status:"aprovado"
+})
+
+alert("Conta criada com sucesso")
+
+document.getElementById("cadNome").value=""
+document.getElementById("cadEmail").value=""
+document.getElementById("cadSenha").value=""
+}
+/* ====039 – TROCA FORM==================================================== */
+function mostrarCadastro(){
+document.getElementById("formLogin").style.left="-100%"
+document.getElementById("formCadastro").style.left="0"
+document.getElementById("tabLogin").style.background="#1e293b"
+document.getElementById("tabLogin").style.color="#fff"
+document.getElementById("tabCadastro").style.background="#3b82f6"
+document.getElementById("tabCadastro").style.color="#fff"
+}
+function mostrarLogin(){
+document.getElementById("formLogin").style.left="0"
+document.getElementById("formCadastro").style.left="100%"
+document.getElementById("tabLogin").style.background="#22c55e"
+document.getElementById("tabLogin").style.color="#000"
+document.getElementById("tabCadastro").style.background="#1e293b"
+document.getElementById("tabCadastro").style.color="#fff"
+}
+/* =========040===START==================================================== */
+document.addEventListener("DOMContentLoaded",async()=>{
+await iniciarSistema()
+})
 
   
 </script>
