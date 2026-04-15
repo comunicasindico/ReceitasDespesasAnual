@@ -29,8 +29,7 @@ body.login::before{display:none!important}
 </style>
 
 <body>
-<!-- LOGIN -->
-/* ====================================================HTML – LOGIN + APP==================================================== */
+<!-- HTML LOGIN    APP-->
 <div id="telaLogin">
 <div id="loginBg"></div>
 <div id="loginCard">
@@ -109,6 +108,21 @@ function carregarCategorias(){
 const sel=document.getElementById("categoria")
 if(!sel)return
 sel.innerHTML=CATEGORIAS.map(c=>`<option>${c}</option>`).join("")
+}
+/* ====================================================003A – USER UI==================================================== */
+function setUserUI(){
+const nome=localStorage.getItem("usuario_nome_lancamentos")||"Usuário"
+const tipo=localStorage.getItem("tipo_usuario_lancamentos")||"user"
+const plano=(localStorage.getItem("usuario_plano")||"free").toLowerCase()
+/* 🔎 SE NÃO EXISTIR ELEMENTO, IGNORA (evita erro) */
+const topo=document.getElementById("userNome")
+if(!topo)return
+
+let badgePlano="FREE"
+if(plano==="pro")badgePlano="PRO"
+if(plano==="analise")badgePlano="ANÁLISE"
+
+topo.innerText=`${nome} • ${badgePlano} • ${tipo==="admin"?"ADMIN":"USER"}`
 }
 /* ====================================================004 – LOGIN==================================================== */
 async function loginSistema(){
