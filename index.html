@@ -39,16 +39,16 @@ body.login::before{display:none!important}
 display:none;
 position:relative;
 z-index:10;
-opacity:1;
-visibility:visible;
 }
-/* garante que o app apareça quando classe .app estiver ativa */
 body.app #appSistema{
-display:block !important;
+display:block;
 }
-/* garante que login suma completamente */
+#telaLogin{
+display:flex;
+z-index:9999;
+}
 body.app #telaLogin{
-display:none !important;
+display:none;
 }
 /* remove qualquer interferência do modo login */
 body.app{
@@ -227,22 +227,11 @@ LIMITE_USUARIO=user.limite||20
 const telaLogin=document.getElementById("telaLogin")
 const appSistema=document.getElementById("appSistema")
 
-if(telaLogin){
-telaLogin.style.display="none"
-telaLogin.style.opacity="0"
-telaLogin.style.pointerEvents="none"
-}
-
-if(appSistema){
-appSistema.style.display="block"
-appSistema.style.opacity="1"
-appSistema.style.visibility="visible"
-appSistema.style.position="relative"
-appSistema.style.zIndex="10"
-}
-
+if(telaLogin)telaLogin.style.display="none"
+if(appSistema)appSistema.style.display="block"
 document.body.classList.remove("login")
 document.body.classList.add("app")
+
 setUserUI()
 const painelAdmin=document.getElementById("painelAdmin")
 const conteudoApp=document.getElementById("conteudoApp")
@@ -456,6 +445,12 @@ grupos[chave].push(x)
 })
 const chaves=Object.keys(grupos).sort().reverse()
 lista.innerHTML=""
+
+if(!chaves.length){
+lista.innerHTML="<div style='text-align:center;margin-top:40px'>Sem dados no período</div>"
+resumo.innerHTML=""
+return
+}
 let totalR=0
 let totalDPago=0
 let totalDPendente=0
@@ -791,13 +786,6 @@ if(el&&!el.value)el.value=hoje
 console.error("ERRO INIT:",err)
 alert("Erro ao iniciar sistema. Verifique o console.")
 }
-setTimeout(()=>{
-const appSistema=document.getElementById("appSistema")
-if(appSistema && appSistema.style.display==="none"){
-console.warn("FORÇANDO EXIBIÇÃO DO APP")
-appSistema.style.display="block"
-}
-},1000)
 }
 /* ====================================================032 – TOPO ADMIN==================================================== */
 function montarTopoAdmin(){
