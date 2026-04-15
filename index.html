@@ -217,6 +217,8 @@ const appSistema=document.getElementById("appSistema")
 
 document.body.classList.remove("login")
 document.body.classList.add("app")
+document.getElementById("telaLogin").style.display="none"
+document.getElementById("appSistema").style.display="block"
 
 setUserUI()
 const painelAdmin=document.getElementById("painelAdmin")
@@ -562,16 +564,20 @@ legend:{labels:{color:"#fff"}}
 }
 /* ====================================================023 – FILTROS==================================================== */
 function filtrarPeriodo(){
-filtroInicio=document.getElementById("dataInicio").value||null
-filtroFim=document.getElementById("dataFim").value||null
+const ini=document.getElementById("dataInicio")
+const fim=document.getElementById("dataFim")
+filtroInicio=ini?ini.value:null
+filtroFim=fim?fim.value:null
 modoAnoCompleto=false
 render()
 }
 function limparPeriodo(){
 filtroInicio=null
 filtroFim=null
-document.getElementById("dataInicio").value=""
-document.getElementById("dataFim").value=""
+const ini=document.getElementById("dataInicio")
+const fim=document.getElementById("dataFim")
+if(ini)ini.value=""
+if(fim)fim.value=""
 render()
 }
 function verAnoCompleto(){
@@ -599,7 +605,15 @@ filtroFim=null
 modoAnoCompleto=false
 render()
 }
-
+/* ====================================================024A – APLICAR OFFSET==================================================== */
+function aplicarMesOffset(){
+const hoje=new Date()
+const data=new Date(hoje.getFullYear(),hoje.getMonth()+mesOffset,1)
+filtroInicio=data.toISOString().slice(0,7)+"-01"
+filtroFim=new Date(data.getFullYear(),data.getMonth()+1,0).toISOString().slice(0,10)
+modoAnoCompleto=false
+render()
+}
 /* ====================================================025 – SALVAR TUDO==================================================== */
 async function salvarTudo(){
 for(const id in edicoesTemp){
@@ -718,7 +732,7 @@ const id=localStorage.getItem("usuario_id_lancamentos")
 await supabaseClient.from("usuarios_lancamentos").update({plano:"analise"}).eq("id",id)
 alert("Aguardando liberação")
 }
-/* ====================================================031 – INIT==================================================== */
+/* ========031 – INIT==================================================== */
 async function iniciarSistema(){
 const versaoApp="v2.0"
 const versaoSalva=localStorage.getItem("app_versao")
@@ -747,6 +761,8 @@ const conteudoApp=document.getElementById("conteudoApp")
 if(painelAdmin)painelAdmin.style.display="none"
 if(conteudoApp)conteudoApp.style.display="block"
 document.body.classList.add("login")
+document.getElementById("telaLogin").style.display="flex"
+document.getElementById("appSistema").style.display="none"
 document.body.classList.remove("app")
 const userId=localStorage.getItem("usuario_id_lancamentos")
 if(userId){
