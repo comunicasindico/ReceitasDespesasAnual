@@ -393,9 +393,16 @@ render()
 }
 /* ====================================================021 – RENDER==================================================== */
 function render(){
+const lista=document.getElementById("lista")
+const resumo=document.getElementById("resumo")
+if(!lista||!resumo){
+console.warn("DOM ainda não pronto")
+setTimeout(render,300)
+return
+}
 console.log("RENDER EXECUTADO",dados)
 if(!dados||!dados.length){
-document.getElementById("lista").innerHTML="<div style='text-align:center;margin-top:40px'>Sem dados</div>"
+lista.innerHTML="<div style='text-align:center;margin-top:40px'>Sem dados</div>"
 return
 }
 if(!dados){console.log("SEM DADOS");return}
