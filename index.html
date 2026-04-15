@@ -604,32 +604,26 @@ usuario_id:usuarioId
 }
 /* ====================================================027 – ADMIN==================================================== */
 async function carregarUsuarios(){
+montarTopoAdmin()
+
 const {data}=await supabaseClient.from("usuarios_lancamentos").select("*").order("criado_em")
 const lista=document.getElementById("listaUsuarios")
 if(!lista)return
 lista.innerHTML=""
+
 data.forEach(u=>{
 lista.innerHTML+=`
 <div style="background:#0f172a;padding:12px;margin:6px;border-radius:8px">
 <b>${u.nome}</b><br>${u.email}<br>
 Plano: ${u.plano||"free"}<br>
+<div style="display:flex;gap:6px;margin-top:6px">
 ${u.plano!=="pro"?`<button onclick="tornarPro('${u.id}')">PRO</button>`:""}
 <button onclick="rebaixarFree('${u.id}')">FREE</button>
+<button onclick="excluirUsuario('${u.id}')">Excluir</button>
+</div>
 </div>
 `
 })
-}
-
-async function tornarPro(id){
-await supabaseClient.from("usuarios_lancamentos").update({plano:"pro",limite:999999}).eq("id",id)
-alert("Liberado PRO")
-carregarUsuarios()
-}
-
-async function rebaixarFree(id){
-await supabaseClient.from("usuarios_lancamentos").update({plano:"free",limite:20}).eq("id",id)
-alert("Voltou FREE")
-carregarUsuarios()
 }
 /* ====================================================028 – UPGRADE==================================================== */
 function mostrarUpgrade(){
@@ -707,12 +701,7 @@ setUserUI()
 if(tipo==="admin"){
 if(painelAdmin)painelAdmin.style.display="block"
 if(conteudoApp)conteudoApp.style.display="none"
-
-try{
 await carregarUsuarios()
-}catch(e){
-console.error("Erro admin:",e)
-}
 return
 }
 /* 👤 USUÁRIO */
@@ -752,10 +741,53 @@ console.error("ERRO INIT:",err)
 alert("Erro ao iniciar sistema. Verifique o console.")
 }
 }
-/* ====================================================START==================================================== */
+/* =========031 A====START==================================================== */
 document.addEventListener("DOMContentLoaded",async()=>{
 await iniciarSistema()
 })
+/* ====================================================032 – TOPO ADMIN==================================================== */
+function montarTopoAdmin(){
+const painel=document.getElementById("painelAdmin")
+if(!painel)return
+
+painel.innerHTML=`
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+<h2>Admin</h2>
+<div style="display:flex;gap:6px">
+<button onclick="alternarParaApp()">App</button>
+<button onclick="carregarUsuarios()">Atualizar</button>
+<button onclick="novoUsuario()">Novo</button>
+<button onclick="logout()" style="background:#ef4444;color:#fff">Sair</button>
+</div>
+</div>
+<div id="listaUsuarios"></div>
+`
+}
+/* ====================================================033 – ADMIN PARA APP==================================================== */
+function alternarParaApp(){
+document.getElementById("painelAdmin").style.display="none"
+document.getElementById("conteudoApp").style.display="block"
+}
+/* ====================================================034 – NOVO USUÁRIO==================================================== */
+async function novoUsuario(){
+const nome=prompt("Nome")
+const email=prompt("Email")
+const senha=prompt("Senha")
+if(!nome||!email||!senha)return
+
+await supabaseClient.from("usuarios_lancamentos").insert({
+nome,email,senha,tipo:"user",plano:"free",limite:20,status:"aprovado"
+})
+
+alert("Usuário criado")
+carregarUsuarios()
+}
+/* ====================================================035 – EXCLUIR USUÁRIO==================================================== */
+async function excluirUsuario(id){
+if(!confirm("Excluir usuário?"))return
+await supabaseClient.from("usuarios_lancamentos").delete().eq("id",id)
+carregarUsuarios()
+}
 
 </script>
 </body>
