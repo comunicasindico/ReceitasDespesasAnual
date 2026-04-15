@@ -263,29 +263,26 @@ if(btn){btn.innerText="Entrar";btn.disabled=false}
 async function verificarSessao(){
 const id=localStorage.getItem("usuario_id_lancamentos")
 if(!id)return
-document.getElementById("telaLogin").style.display="none"
-document.getElementById("appSistema").style.display="block"
+
+const telaLogin=document.getElementById("telaLogin")
+const appSistema=document.getElementById("appSistema")
+
+if(telaLogin)telaLogin.style.display="none"
+if(appSistema)appSistema.style.display="block"
+
 document.body.classList.remove("login")
 document.body.classList.add("app")
+
 setUserUI()
-const tipo=localStorage.getItem("tipo_usuario_lancamentos")
-const painelAdmin=document.getElementById("painelAdmin")
-const conteudoApp=document.getElementById("conteudoApp")
-if(tipo==="admin"){
-if(painelAdmin)painelAdmin.style.display="block"
-if(conteudoApp)conteudoApp.style.display="none"
-await carregarUsuarios()
-return
-}
-if(painelAdmin)painelAdmin.style.display="none"
-if(conteudoApp)conteudoApp.style.display="block"
+
 await carregar()
+
 if(!dados.length){
 await criarPadraoUsuario(id)
 await carregar()
 }
+
 await gerarRecorrentes()
-await carregar()
 }
 /* ====================================================006 – LOGOUT==================================================== */
 function logout(){
@@ -745,15 +742,11 @@ alert("Aguardando liberação")
 }
 /* ====================================================031 – INIT==================================================== */
 async function iniciarSistema(){
-/* ===090 – RESET CACHE CONTROL==================================================== */
 const versaoApp="v2.0"
 const versaoSalva=localStorage.getItem("app_versao")
 if(versaoSalva!==versaoApp){
-console.warn("LIMPANDO CACHE ANTIGO...")
-localStorage.clear()
+console.warn("Atualizando versão sem destruir sessão")
 localStorage.setItem("app_versao",versaoApp)
-location.reload()
-return
 }
 
 const emailSalvo=localStorage.getItem("login_email")
@@ -780,8 +773,11 @@ document.body.classList.add("login")
 document.body.classList.remove("app")
 const userId=localStorage.getItem("usuario_id_lancamentos")
 if(userId){
+console.log("Sessão encontrada:",userId)
 await verificarSessao()
 return
+}else{
+console.log("Sem sessão → mostrar login")
 }
 if(emailSalvo&&senhaSalva){
 setTimeout(()=>loginSistema(),500)
@@ -795,6 +791,13 @@ if(el&&!el.value)el.value=hoje
 console.error("ERRO INIT:",err)
 alert("Erro ao iniciar sistema. Verifique o console.")
 }
+setTimeout(()=>{
+const appSistema=document.getElementById("appSistema")
+if(appSistema && appSistema.style.display==="none"){
+console.warn("FORÇANDO EXIBIÇÃO DO APP")
+appSistema.style.display="block"
+}
+},1000)
 }
 /* ====================================================032 – TOPO ADMIN==================================================== */
 function montarTopoAdmin(){
