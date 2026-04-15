@@ -34,27 +34,15 @@ body.login::before{display:none!important}
 #loginCard *{max-width:100%;box-sizing:border-box}
 #loginCard input{width:100%}
 #loginCard label{width:100%}
-/* ====================================================100 – FIX APP VISIBILITY==================================================== */
-#appSistema{
-display:none;
-position:relative;
-z-index:10;
-}
-body.app #appSistema{
-display:block;
-}
-#telaLogin{
-display:flex;
-z-index:9999;
-}
-body.app #telaLogin{
-display:none;
-}
-/* remove qualquer interferência do modo login */
-body.app{
-background:radial-gradient(circle at 20% 30%,rgba(99,102,241,0.25),transparent 40%),radial-gradient(circle at 80% 70%,rgba(236,72,153,0.25),transparent 40%),radial-gradient(circle at 50% 50%,#020617,#020617 60%,#000 100%) !important;
-padding:20px !important;
-}
+/* ====================================================APP / LOGIN CONTROL==================================================== */
+#appSistema{display:none}
+#telaLogin{display:none}
+
+body.login #telaLogin{display:flex}
+body.login #appSistema{display:none}
+
+body.app #telaLogin{display:none}
+body.app #appSistema{display:block}
 
 
 
@@ -227,8 +215,6 @@ LIMITE_USUARIO=user.limite||20
 const telaLogin=document.getElementById("telaLogin")
 const appSistema=document.getElementById("appSistema")
 
-if(telaLogin)telaLogin.style.display="none"
-if(appSistema)appSistema.style.display="block"
 document.body.classList.remove("login")
 document.body.classList.add("app")
 
@@ -255,9 +241,6 @@ if(!id)return
 
 const telaLogin=document.getElementById("telaLogin")
 const appSistema=document.getElementById("appSistema")
-
-if(telaLogin)telaLogin.style.display="none"
-if(appSistema)appSistema.style.display="block"
 
 document.body.classList.remove("login")
 document.body.classList.add("app")
@@ -760,8 +743,7 @@ const telaLogin=document.getElementById("telaLogin")
 const appSistema=document.getElementById("appSistema")
 const painelAdmin=document.getElementById("painelAdmin")
 const conteudoApp=document.getElementById("conteudoApp")
-if(telaLogin)telaLogin.style.display="flex"
-if(appSistema)appSistema.style.display="none"
+
 if(painelAdmin)painelAdmin.style.display="none"
 if(conteudoApp)conteudoApp.style.display="block"
 document.body.classList.add("login")
