@@ -58,7 +58,8 @@ border:1px solid rgba(255,255,255,.1);
 backdrop-filter:blur(8px);
 }
 button:hover{transform:scale(1.05)}
-
+/* ====================================================003C – EFEITO 3D GRÁFICO==================================================== */
+#graficoResumo{filter:drop-shadow(0 10px 20px rgba(0,0,0,.6));}
 
 </style>
 </head>
@@ -101,7 +102,7 @@ button:hover{transform:scale(1.05)}
 <!-- ====================================================001 – TOPO CORRIGIDO==================================================== -->
 <div id="topoSaaS" style="position:fixed;top:0;left:0;width:100%;height:64px;display:flex;justify-content:space-between;align-items:center;padding:0 18px;background:rgba(2,6,23,.95);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,.08);z-index:9999;overflow:visible">
 
-<div style="display:flex;align-items:center;gap:14px;flex-wrap:nowrap">
+<div style="display:flex;align-items:center;gap:10px;min-width:260px;justify-content:flex-end">
 <h1 style="margin:0;font-size:18px;font-weight:600">📊 Receitas PRO</h1>
 
 <div style="display:flex;gap:6px;align-items:center;flex-wrap:nowrap">
@@ -121,8 +122,7 @@ button:hover{transform:scale(1.05)}
 </div>
 </div>
 <!-- 🔴 BOTÃO SAIR FIXO -->
-<button onclick="logout()" style="background:#ef4444;color:#fff;padding:7px 12px;border-radius:8px;font-size:12px;font-weight:bold;border:none">
-🚪 Sair
+<button onclick="logout()" style="background:#ef4444;color:#fff;padding:7px 16px;border-radius:10px;font-size:12px;font-weight:bold;border:none;white-space:nowrap">🚪 Sair
 </button>
 
 </div>
@@ -159,7 +159,7 @@ button:hover{transform:scale(1.05)}
 📊 Mostrar / Ocultar Gráfico
 </button>
 <div id="areaGraficos" style="margin-top:20px">
-<canvas id="graficoResumo"></canvas>
+<canvas id="graficoResumo" style="max-width:280px;margin:auto"></canvas>
 <canvas id="graficoMensal"></canvas>
 </div>
 </div>
@@ -521,11 +521,9 @@ const chave=`${ano}-${mes}`
 if(!grupos[chave])grupos[chave]=[]
 grupos[chave].push(x)
 })
-
-const chaves=Object.keys(grupos).sort()
+const chaves=Object.keys(grupos).sort().reverse()
 
 lista.innerHTML=""
-
 let totalGeralR=0
 let totalGeralDPago=0
 let totalGeralDPendente=0
@@ -655,9 +653,6 @@ if(confirm("Deseja excluir este registro?")){
 del(id)
 }
 }
-
-  
-  
 /* ====================================================022 – DASHBOARD NUBANK==================================================== */
 function atualizarDashboard(){
 if(typeof Chart==="undefined")return
@@ -699,19 +694,39 @@ meses[m].d+=v
 }
 })
 
-graficoResumo=new Chart(ctxResumo,{
+ggraficoResumo=new Chart(ctxResumo,{
 type:"doughnut",
 data:{
 labels:["Receitas","Despesas"],
 datasets:[{
 data:[r,d],
-backgroundColor:["#22c55e","#ef4444"],
+backgroundColor:[
+"rgba(34,197,94,0.9)",
+"rgba(239,68,68,0.9)"
+],
 borderWidth:0
 }]
 },
 options:{
-cutout:"75%",
-plugins:{legend:{display:false}}
+cutout:"60%",
+plugins:{
+legend:{display:false},
+tooltip:{
+callbacks:{
+label:(ctx)=>{
+return ctx.label+": R$ "+formatarMoeda(ctx.raw)
+}
+}
+}
+},
+onClick:(evt,elements)=>{
+if(elements.length){
+const i=elements[0].index
+const valor=i===0?r:d
+const tipo=i===0?"Receitas":"Despesas"
+alert(`${tipo}: R$ ${formatarMoeda(valor)}`)
+}
+}
 }
 })
 
