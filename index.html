@@ -51,7 +51,15 @@ body.login::before{display:none!important}
 </div>
 
 <div id="conteudoApp">
+<div id="topoUsuario" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
 
+<div id="userNome" style="font-size:13px;font-weight:bold;color:#22c55e"></div>
+
+<button onclick="logout()" style="background:#ef4444;color:#fff;padding:6px 10px;border-radius:6px;font-size:12px">
+Sair
+</button>
+
+</div>
 <div style="margin-bottom:10px">
 <input id="data" type="date">
 <input id="desc" placeholder="Descrição">
@@ -117,15 +125,17 @@ function setUserUI(){
 const nome=localStorage.getItem("usuario_nome_lancamentos")||"Usuário"
 const tipo=localStorage.getItem("tipo_usuario_lancamentos")||"user"
 const plano=(localStorage.getItem("usuario_plano")||"free").toLowerCase()
-/* 🔎 SE NÃO EXISTIR ELEMENTO, IGNORA (evita erro) */
-const topo=document.getElementById("userNome")
-if(!topo)return
 
-let badgePlano="FREE"
-if(plano==="pro")badgePlano="PRO"
-if(plano==="analise")badgePlano="ANÁLISE"
+const el=document.getElementById("userNome")
+if(!el)return
 
-topo.innerText=`${nome} • ${badgePlano} • ${tipo==="admin"?"ADMIN":"USER"}`
+let badgePlano="💎 FREE"
+if(plano==="pro")badgePlano="🚀 PRO"
+if(plano==="analise")badgePlano="⏳ ANÁLISE"
+
+let badgeTipo=tipo==="admin"?"👑 ADMIN":"👤 USER"
+
+el.innerHTML=`${nome} • ${badgePlano} • ${badgeTipo}`
 }
 /* ====================================================004 – LOGIN==================================================== */
 async function loginSistema(){
@@ -186,13 +196,11 @@ document.getElementById("appSistema").style.display="block"
 setUserUI()
 await carregar()
 }
-
 /* ====================================================006 – LOGOUT==================================================== */
 function logout(){
 localStorage.clear()
 location.reload()
 }
-
 /* ====================================================007 – CARREGAR==================================================== */
 async function carregar(){
 const {data}=await supabaseClient.from("lancamentos").select("*").order("data",{ascending:true})
