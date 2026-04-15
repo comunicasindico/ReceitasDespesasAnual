@@ -30,6 +30,11 @@ body.login::before{display:none!important}
 #formLogin,#formCadastro{transition:all .4s ease}
 #loginCard input{width:100%;box-sizing:border-box}
 #loginCard button{margin-top:8px}
+#loginCard{overflow:hidden}
+#loginCard *{max-width:100%;box-sizing:border-box}
+#loginCard input{width:100%}
+#loginCard label{width:100%}
+
 
 </style>
 
@@ -53,10 +58,10 @@ body.login::before{display:none!important}
 
 <div style="position:relative">
 <input id="loginPass" type="password" placeholder="Senha" style="width:100%">
-<span onclick="toggleSenha()" style="position:absolute;right:10px;top:10px;cursor:pointer">👁</span>
+<span onclick="toggleSenha()" style="position:absolute;right:10px;top:10px;cursor:pointer;color:#ef4444;font-size:16px">👁</span>
 </div>
 
-<label style="font-size:12px;display:flex;align-items:center;gap:5px">
+<label style="font-size:12px;display:flex;align-items:center;gap:5px;flex-wrap:wrap">
 <input type="checkbox" id="lembrarLogin"> Lembrar login
 </label>
 
