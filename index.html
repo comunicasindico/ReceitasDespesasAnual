@@ -708,6 +708,17 @@ alert("Aguardando liberação")
 }
 /* ====================================================031 – INIT==================================================== */
 async function iniciarSistema(){
+/* ===090 – RESET CACHE CONTROL==================================================== */
+const versaoApp="v2.0"
+const versaoSalva=localStorage.getItem("app_versao")
+if(versaoSalva!==versaoApp){
+console.warn("LIMPANDO CACHE ANTIGO...")
+localStorage.clear()
+localStorage.setItem("app_versao",versaoApp)
+location.reload()
+return
+}
+
 const emailSalvo=localStorage.getItem("login_email")
 const senhaSalva=localStorage.getItem("login_senha")
 if(emailSalvo){
