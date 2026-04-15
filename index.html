@@ -1,3 +1,5 @@
+<!DOCTYPE html>
+<html lang="pt-br">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
@@ -26,6 +28,59 @@ body.login::before{display:none!important}
 #menuUsuario{display:none;position:absolute;top:55px;right:0;background:#020617;border-radius:10px;padding:10px;width:180px}
 </style>
 
+<body>
+<!-- LOGIN -->
+/* ====================================================HTML – LOGIN + APP==================================================== */
+<div id="telaLogin">
+<div id="loginBg"></div>
+<div id="loginCard">
+<h2>Acesso</h2>
+<input id="loginUser" placeholder="Email">
+<input id="loginPass" type="password" placeholder="Senha">
+<button onclick="loginSistema()">Entrar</button>
+</div>
+</div>
+
+<div id="appSistema" style="display:none">
+
+<div id="painelAdmin" style="display:none">
+<h2>Admin</h2>
+<div id="listaUsuarios"></div>
+</div>
+
+<div id="conteudoApp">
+
+<div style="margin-bottom:10px">
+<input id="data" type="date">
+<input id="desc" placeholder="Descrição">
+<select id="tipo">
+<option value="RECEITA">Receita</option>
+<option value="DESPESA">Despesa</option>
+</select>
+<select id="categoria"></select>
+<input id="valor" type="number" placeholder="Valor">
+<button onclick="add()">Adicionar</button>
+<button id="btnEditar" onclick="toggleModoEdicao()">Editar</button>
+<button id="btnSalvar" style="display:none" onclick="salvarTudo()">Salvar</button>
+</div>
+
+<div id="resumo"></div>
+<div id="lista"></div>
+
+<div id="areaGraficos">
+<canvas id="graficoResumo"></canvas>
+<canvas id="graficoMensal"></canvas>
+</div>
+</div>
+
+</div>
+
+<div id="boxPix" style="display:none;text-align:center">
+<img id="qrPix" style="width:200px">
+<button id="btnZap">WhatsApp</button>
+</div>
+
+  
 <script>
 /* ====================================================001 – CONFIG==================================================== */
 const SUPABASE_URL="https://gspdlrenyrzbkxlvyugc.supabase.co"
@@ -573,7 +628,49 @@ alert("Aguardando liberação")
 /* ====================================================031 – INIT==================================================== */
 async function iniciarSistema(){
 carregarCategorias()
-await verificarSessao()
+
+const telaLogin=document.getElementById("telaLogin")
+const appSistema=document.getElementById("appSistema")
+
+/* 🔥 GARANTE ESTADO INICIAL */
+if(telaLogin)telaLogin.style.display="flex"
+if(appSistema)appSistema.style.display="none"
+document.body.classList.add("login")
+document.body.classList.remove("app")
+
+/* 🔐 VERIFICA SESSÃO */
+const userId=localStorage.getItem("usuario_id_lancamentos")
+
+if(userId){
+if(telaLogin)telaLogin.style.display="none"
+if(appSistema)appSistema.style.display="block"
+document.body.classList.remove("login")
+document.body.classList.add("app")
+
+setUserUI()
+
+const tipo=localStorage.getItem("tipo_usuario_lancamentos")
+
+if(tipo==="admin"){
+const painelAdmin=document.getElementById("painelAdmin")
+const conteudoApp=document.getElementById("conteudoApp")
+if(painelAdmin)painelAdmin.style.display="block"
+if(conteudoApp)conteudoApp.style.display="none"
+await carregarUsuarios()
+}else{
+await carregar()
+
+if(!dados.length){
+await criarPadraoUsuario(userId)
+await carregar()
+}
+
+await gerarRecorrentes()
+await carregar()
+}
+}
+
+/* 📅 DATA PADRÃO */
 const hoje=hojeLocal()
 ;["data","dataInicio","dataFim"].forEach(id=>{
 const el=document.getElementById(id)
@@ -584,3 +681,6 @@ if(el&&!el.value)el.value=hoje
 document.addEventListener("DOMContentLoaded",async()=>{
 await iniciarSistema()
 })
+
+</script>
+</body>
