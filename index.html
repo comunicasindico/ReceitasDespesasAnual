@@ -506,11 +506,7 @@ const mesAtual=hoje.getMonth()
 const anoAtual=hoje.getFullYear()
 
 if(!modoAnoCompleto&&!filtroInicio&&!filtroFim){
-listaFiltrada=listaFiltrada.filter(x=>{
-if(!x.data)return false
-const [ano,mes]=x.data.split("-")
-return Number(mes)-1===mesAtual&&Number(ano)===anoAtual
-})
+modoAnoCompleto=true
 }
 
 if(filtroInicio)listaFiltrada=listaFiltrada.filter(x=>x.data>=filtroInicio)
@@ -566,17 +562,19 @@ const saldo=totalR-totalDSP
 const [ano,mes]=chave.split("-")
 
 lista.innerHTML+=`
-<div style="margin-top:15px;background:#020617;padding:8px;border-radius:6px;border-left:4px solid #38bdf8;display:flex;justify-content:space-between;flex-wrap:wrap">
+<div style="margin-top:15px;background:#020617;padding:10px;border-radius:10px;border-left:4px solid #38bdf8;display:grid;grid-template-columns:160px 1fr 120px 120px 120px 120px 140px;align-items:center;font-size:12px">
 <div onclick="toggleMes('${chave}')" style="font-weight:bold;cursor:pointer">
 ${mesesOcultos[chave]?"▶️":"🔽"} ${formatarMesNome(mes)}/${ano}
 </div>
-<div style="display:flex;gap:12px;font-size:12px;flex-wrap:wrap;align-items:center">
-<span style="color:#22c55e">💰 ${formatarMoeda(totalR)}</span>
-<span style="color:#22c55e">✔ ${formatarMoeda(totalDPago)}</span>
-<span style="color:#ef4444">⏳ ${formatarMoeda(totalDPendente)}</span>
-<span style="color:#f59e0b">💸 ${formatarMoeda(totalDSP)}</span>
-<span style="color:${saldo>=0?"#22c55e":"#ef4444"}">${saldo>=0?"📈":"📉"} ${formatarMoeda(saldo)}</span>
-</div>
+
+<div></div>
+
+<div style="color:#22c55e;text-align:right">💰 ${formatarMoeda(totalR)}</div>
+<div style="color:#22c55e;text-align:right">✔ ${formatarMoeda(totalDPago)}</div>
+<div style="color:#ef4444;text-align:right">⏳ ${formatarMoeda(totalDPendente)}</div>
+<div style="color:#f59e0b;text-align:right">💸 ${formatarMoeda(totalDSP)}</div>
+<div style="color:${saldo>=0?"#22c55e":"#ef4444"};text-align:right;font-weight:bold">
+${saldo>=0?"📈":"📉"} ${formatarMoeda(saldo)}
 </div>
 `
 if(!mesesOcultos[chave]){
@@ -590,7 +588,7 @@ const valVal=ed.valor??x.valor
 const isReceita=x.tipo==="RECEITA"
 
 lista.innerHTML+=`
-<div style="display:grid;grid-template-columns:100px 1fr 120px 140px 200px;gap:6px;background:${isReceita?"#052e16":"#1e293b"};padding:4px;margin:2px 0;border-radius:6px;font-size:12px">
+<div style="display:grid;grid-template-columns:160px 1fr 120px 120px 120px 120px 140px;gap:6px;background:${isReceita?"#052e16":"#1e293b"};padding:4px;margin:2px 0;border-radius:6px;font-size:12px">
 <div>${modoEdicao?`<input type="date" value="${dataVal||""}" onchange="editTemp('${x.id}','data',this.value)">`:formatarDataBR(x.data)}</div>
 <div>${modoEdicao?`<input type="text" value="${String(descVal||"").replace(/"/g,"&quot;")}" onchange="editTemp('${x.id}','descricao',this.value)">`:`${isReceita?"+ ":"- "}${x.descricao||""}`}</div>
 <div>${modoEdicao?`<select onchange="editTemp('${x.id}','categoria',this.value)">
@@ -607,16 +605,14 @@ ${modoEdicao?`<input type="number" value="${valVal}" onchange="editTemp('${x.id}
 (isReceita?(visibilidade[x.id]?"R$ "+formatarMoeda(x.valor):"R$ ***"):"R$ "+formatarMoeda(x.valor))}
 </div>
 
+<div></div>
+<div></div>
+
 <div style="display:flex;gap:5px;justify-content:flex-end">
-
-${isReceita&&!modoEdicao?`<button onclick="toggleValor('${x.id}')" style="background:#3b82f6;color:#fff">👁</button>`:""}
-
 <button onclick="marcarPago('${x.id}')" style="background:${x.pago?"#22c55e":"#ef4444"};color:#000">
 ${x.pago?"OK":"PEND"}
 </button>
-
 ${modoEdicao?`<button onclick="delConfirm('${x.id}')" style="background:#ef4444;color:#fff">🗑</button>`:""}
-
 </div>
 </div>
 `
@@ -645,9 +641,6 @@ resumoEl.innerHTML=`
 <span style="color:${saldoGeral>=0?"#22c55e":"#ef4444"}">${saldoGeral>=0?"📈":"📉"} ${formatarMoeda(saldoGeral)}</span>
 </div>
 `
-
-if(totalEl)totalEl.innerText=""
-
 if(mostrarGrafico)atualizarDashboard()
 }
 
