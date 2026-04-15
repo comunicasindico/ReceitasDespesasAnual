@@ -98,26 +98,33 @@ button:hover{transform:scale(1.05)}
 </div>
 
 <div id="appSistema" style="display:none;margin-top:80px">
-<div id="topoSaaS" style="position:fixed;top:0;left:0;width:100%;height:64px;display:flex;justify-content:space-between;align-items:center;padding:0 18px;background:rgba(2,6,23,.95);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,.08);z-index:9999">
-<div style="display:flex;align-items:center;gap:14px">
+<!-- ====================================================001 – TOPO CORRIGIDO==================================================== -->
+<div id="topoSaaS" style="position:fixed;top:0;left:0;width:100%;height:64px;display:flex;justify-content:space-between;align-items:center;padding:0 18px;background:rgba(2,6,23,.95);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,.08);z-index:9999;overflow:visible">
+
+<div style="display:flex;align-items:center;gap:14px;flex-wrap:nowrap">
 <h1 style="margin:0;font-size:18px;font-weight:600">📊 Receitas PRO</h1>
-<div style="display:flex;gap:8px;align-items:center">
-<button id="btnAssinarPro" onclick="gerarPix()" style="background:linear-gradient(135deg,#22c55e,#16a34a);color:#000;padding:7px 14px;border-radius:999px;font-size:12px;font-weight:bold;border:none;cursor:pointer">💰 Assinar PRO</button>
-<button id="btnJaPaguei" onclick="confirmarPagamento()" style="background:#f59e0b;color:#000;padding:7px 12px;border-radius:999px;font-size:12px;font-weight:bold;border:none;cursor:pointer">✔ Já paguei</button>
-<button onclick="abrirCadastro()" style="background:transparent;border:1px solid rgba(255,255,255,.2);color:#fff;padding:7px 12px;border-radius:8px;font-size:12px;cursor:pointer">➕ Criar conta</button>
+
+<div style="display:flex;gap:6px;align-items:center;flex-wrap:nowrap">
+<button id="btnAssinarPro" onclick="gerarPix()" style="background:linear-gradient(135deg,#22c55e,#16a34a);color:#000;padding:6px 12px;border-radius:999px;font-size:11px;font-weight:bold;border:none">💰 PRO</button>
+<button id="btnJaPaguei" onclick="confirmarPagamento()" style="background:#f59e0b;color:#000;padding:6px 10px;border-radius:999px;font-size:11px;font-weight:bold;border:none">✔ Pago</button>
+<button onclick="abrirCadastro()" style="background:transparent;border:1px solid rgba(255,255,255,.2);color:#fff;padding:6px 10px;border-radius:8px;font-size:11px">➕ Conta</button>
 </div>
 </div>
-<div style="display:flex;align-items:center;gap:10px;position:relative">
-<div id="userBox" onclick="toggleMenuUsuario()" style="display:flex;align-items:center;gap:10px;background:#111827;padding:6px 12px;border-radius:999px;cursor:pointer;border:1px solid rgba(255,255,255,.08)">
-<div id="userAvatar" style="width:30px;height:30px;border-radius:50%;background:#22c55e;display:flex;align-items:center;justify-content:center;font-weight:bold;color:#000;font-size:12px">U</div>
-<div style="display:flex;flex-direction:column;font-size:10px;line-height:1.2">
+
+<div style="display:flex;align-items:center;gap:10px">
+
+<div id="userBox" onclick="toggleMenuUsuario()" style="display:flex;align-items:center;gap:10px;background:#111827;padding:6px 10px;border-radius:999px;border:1px solid rgba(255,255,255,.08)">
+<div id="userAvatar" style="width:28px;height:28px;border-radius:50%;background:#22c55e;display:flex;align-items:center;justify-content:center;font-weight:bold;color:#000;font-size:12px">U</div>
+<div style="display:flex;flex-direction:column;font-size:10px;line-height:1.1">
 <span id="userNome"></span>
 <span id="userMeta" style="opacity:.7"></span>
 </div>
 </div>
-<div id="menuUsuario" style="display:none;position:absolute;top:58px;right:0;background:#020617;border-radius:12px;padding:10px;width:200px;box-shadow:0 0 30px rgba(0,0,0,.7);border:1px solid rgba(255,255,255,.08)">
-<div style="padding:8px;border-bottom:1px solid rgba(255,255,255,.08);font-size:12px">👤 Minha conta</div>
-<button onclick="logout()" style="width:100%;margin-top:10px;background:#ef4444;color:#fff;padding:8px;border-radius:8px;font-size:12px;border:none;cursor:pointer">🚪 Sair</button>
+<!-- 🔴 BOTÃO SAIR FIXO -->
+<button onclick="logout()" style="background:#ef4444;color:#fff;padding:7px 12px;border-radius:8px;font-size:12px;font-weight:bold;border:none">
+🚪 Sair
+</button>
+
 </div>
 </div>
 </div>
@@ -148,6 +155,9 @@ button:hover{transform:scale(1.05)}
 </div>
 <div id="resumo" style="margin-bottom:15px"></div>
 <div id="lista"></div>
+<button onclick="toggleGrafico()" style="margin-top:10px;background:#111827;color:#fff;padding:6px 12px;border-radius:8px">
+📊 Mostrar / Ocultar Gráfico
+</button>
 <div id="areaGraficos" style="margin-top:20px">
 <canvas id="graficoResumo"></canvas>
 <canvas id="graficoMensal"></canvas>
@@ -163,6 +173,7 @@ const SUPABASE_URL="https://gspdlrenyrzbkxlvyugc.supabase.co"
 const SUPABASE_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdzcGRscmVueXJ6Ymt4bHZ5dWdjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ4ODU0NzAsImV4cCI6MjA5MDQ2MTQ3MH0.UWfkWvOh4qMDEcByVL-KZ6ejJ80V7wJlDOFH76TywaI"
 const supabaseClient=supabase.createClient(SUPABASE_URL,SUPABASE_KEY)
 /* ====================================================002 – ESTADO==================================================== */
+let mesesOcultos={}
 let dados=[]
 let editando=null
 let mostrarValores=true
@@ -186,7 +197,11 @@ const sel=document.getElementById("categoria")
 if(!sel)return
 sel.innerHTML=CATEGORIAS.map(c=>`<option>${c}</option>`).join("")
 }
-
+/* ====================================================003A – TOGGLE MÊS==================================================== */
+function toggleMes(mes){
+mesesOcultos[mes]=!mesesOcultos[mes]
+render()
+}
 /* ====================================================004 – LOGIN==================================================== */
 async function loginSistema(){
 const email=document.getElementById("loginUser").value.trim()
@@ -455,7 +470,7 @@ delete edicoesTemp[id]
 await carregar()
 }
 
-/* ====================================================020 – TOGGLE ITEM==================================================== */
+/* ==========020 – TOGGLE ITEM==================================================== */
 function toggleValor(id){
 visibilidade[id]=!visibilidade[id]
 render()
@@ -511,7 +526,7 @@ if(!grupos[chave])grupos[chave]=[]
 grupos[chave].push(x)
 })
 
-const chaves=Object.keys(grupos).sort().reverse()
+const chaves=Object.keys(grupos).sort()
 
 lista.innerHTML=""
 
@@ -552,8 +567,10 @@ const [ano,mes]=chave.split("-")
 
 lista.innerHTML+=`
 <div style="margin-top:15px;background:#020617;padding:8px;border-radius:6px;border-left:4px solid #38bdf8;display:flex;justify-content:space-between;flex-wrap:wrap">
-<div style="font-weight:bold">📅 ${formatarMesNome(mes)}/${ano}</div>
-<div style="display:flex;gap:10px;font-size:12px;flex-wrap:wrap">
+<div onclick="toggleMes('${chave}')" style="font-weight:bold;cursor:pointer">
+${mesesOcultos[chave]?"▶️":"🔽"} ${formatarMesNome(mes)}/${ano}
+</div>
+<div style="display:flex;gap:12px;font-size:12px;flex-wrap:wrap;align-items:center">
 <span style="color:#22c55e">💰 ${formatarMoeda(totalR)}</span>
 <span style="color:#22c55e">✔ ${formatarMoeda(totalDPago)}</span>
 <span style="color:#ef4444">⏳ ${formatarMoeda(totalDPendente)}</span>
@@ -562,7 +579,7 @@ lista.innerHTML+=`
 </div>
 </div>
 `
-
+if(!mesesOcultos[chave]){
 listaMes.forEach(x=>{
 const ed=edicoesTemp[x.id]||{}
 const dataVal=ed.data??x.data
@@ -604,7 +621,7 @@ ${modoEdicao?`<button onclick="delConfirm('${x.id}')" style="background:#ef4444;
 </div>
 `
 })
-
+}
 lista.innerHTML+=`
 <div style="margin:5px 0 15px 0;padding:6px;background:#111827;border-radius:6px;display:flex;gap:10px;justify-content:flex-end;font-size:12px">
 <span style="color:#22c55e">💰 ${formatarMoeda(totalR)}</span>
@@ -648,7 +665,7 @@ del(id)
 
   
   
-/* ====================================================022 – DASHBOARD==================================================== */
+/* ====================================================022 – DASHBOARD NUBANK==================================================== */
 function atualizarDashboard(){
 if(typeof Chart==="undefined")return
 
@@ -663,10 +680,15 @@ const ctxMensal=elMensal.getContext("2d")
 if(graficoResumo)graficoResumo.destroy()
 if(graficoMensal)graficoMensal.destroy()
 
+let listaFiltrada=[...dados]
+
+if(filtroInicio)listaFiltrada=listaFiltrada.filter(x=>x.data>=filtroInicio)
+if(filtroFim)listaFiltrada=listaFiltrada.filter(x=>x.data<=filtroFim)
+
 let r=0,d=0
 let meses={}
 
-dados.forEach(x=>{
+listaFiltrada.forEach(x=>{
 if(!x.data)return
 const m=getMesBase(x)
 if(m===undefined)return
@@ -688,21 +710,41 @@ graficoResumo=new Chart(ctxResumo,{
 type:"doughnut",
 data:{
 labels:["Receitas","Despesas"],
-datasets:[{data:[r,d]}]
+datasets:[{
+data:[r,d],
+backgroundColor:["#22c55e","#ef4444"],
+borderWidth:0
+}]
 },
-options:{plugins:{legend:{labels:{color:"#fff"}}}}
+options:{
+cutout:"75%",
+plugins:{legend:{display:false}}
+}
 })
 
 graficoMensal=new Chart(ctxMensal,{
-type:"bar",
+type:"line",
 data:{
 labels:["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"],
 datasets:[
-{label:"Receitas",data:Array.from({length:12},(_,i)=>meses[i]?.r||0)},
-{label:"Despesas",data:Array.from({length:12},(_,i)=>meses[i]?.d||0)}
+{
+label:"Receitas",
+data:Array.from({length:12},(_,i)=>meses[i]?.r||0),
+borderColor:"#22c55e",
+tension:.4
+},
+{
+label:"Despesas",
+data:Array.from({length:12},(_,i)=>meses[i]?.d||0),
+borderColor:"#ef4444",
+tension:.4
+}
 ]
 },
-options:{plugins:{legend:{labels:{color:"#fff"}}}}
+options:{
+plugins:{legend:{labels:{color:"#fff"}}},
+scales:{x:{ticks:{color:"#fff"}},y:{ticks:{color:"#fff"}}}
+}
 })
 }
 /* ====================================================023 – COPIAR MÊS==================================================== */
