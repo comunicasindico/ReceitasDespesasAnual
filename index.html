@@ -48,7 +48,6 @@ let mesOffset=0
 let mostrarGrafico=true
 let LIMITE_USUARIO=20
 let PLANO_USUARIO="free"
-
 /* ====================================================003 – CATEGORIAS==================================================== */
 const CATEGORIAS=["GERAL","TCERO/Cripto","CASA","SAÚDE","EDUCAÇÃO","LAZER"]
 function carregarCategorias(){
@@ -56,24 +55,55 @@ const sel=document.getElementById("categoria")
 if(!sel)return
 sel.innerHTML=CATEGORIAS.map(c=>`<option>${c}</option>`).join("")
 }
-
 /* ====================================================004 – LOGIN==================================================== */
 async function loginSistema(){
 const email=document.getElementById("loginUser").value.trim()
 const senha=document.getElementById("loginPass").value.trim()
-const {data}=await supabaseClient.from("usuarios_lancamentos").select("*").eq("email",email).eq("senha",senha).limit(1)
+if(!email||!senha){alert("Preencha e-mail e senha");return}
+const {data,error}=await supabaseClient.from("usuarios_lancamentos").select("*").eq("email",email).eq("senha",senha).limit(1)
+if(error){alert("Erro no login");console.error(error);return}
 if(!data||!data.length){alert("Usuário inválido");return}
 const user=data[0]
+/* 🔐 STATUS */
+if(user.status&&user.status!=="aprovado"){
+alert("Aguardando liberação do administrador")
+return
+}
+/* 🔥 CONTEXTO */
 localStorage.setItem("usuario_id_lancamentos",user.id)
-localStorage.setItem("usuario_nome_lancamentos",user.nome)
-localStorage.setItem("tipo_usuario_lancamentos",user.tipo)
-localStorage.setItem("usuario_plano",user.plano)
+localStorage.setItem("usuario_nome_lancamentos",user.nome||"")
+localStorage.setItem("tipo_usuario_lancamentos",user.tipo||"user")
+localStorage.setItem("usuario_plano",(user.plano||"free").toLowerCase())
 PLANO_USUARIO=(user.plano||"free").toLowerCase()
 LIMITE_USUARIO=user.limite||20
+/* 🎨 UI */
 document.getElementById("telaLogin").style.display="none"
 document.getElementById("appSistema").style.display="block"
+document.body.classList.remove("login")
+document.body.classList.add("app")
 setUserUI()
-if(user.tipo==="admin"){document.getElementById("painelAdmin").style.display="block";await carregarUsuarios()}else{await carregar()}
+const painelAdmin=document.getElementById("painelAdmin")
+const conteudoApp=document.getElementById("conteudoApp")
+/* 👑 ADMIN */
+if(user.tipo==="admin"){
+if(painelAdmin)painelAdmin.style.display="block"
+if(conteudoApp)conteudoApp.style.display="none"
+await carregarUsuarios()
+return
+}
+/* 👤 USUÁRIO NORMAL */
+if(painelAdmin)painelAdmin.style.display="none"
+if(conteudoApp)conteudoApp.style.display="block"
+/* 🔄 CARREGAMENTO */
+await carregar()
+/* 🧠 SE NÃO TIVER DADOS → CRIA SUGESTÕES */
+if(!dados.length){
+await criarPadraoUsuario(user.id)
+await carregar()
+}
+/* 🔁 RECORRÊNCIA */
+await gerarRecorrentes()
+await carregar()
 }
 /* ====================================================005 – SESSÃO==================================================== */
 async function verificarSessao(){
@@ -445,6 +475,29 @@ const nova=`${ano}-${mes}-${dia}`
 const {data:existe}=await supabaseClient.from("lancamentos").select("id").eq("data",nova).eq("descricao",r.descricao).limit(1)
 if(existe&&existe.length)continue
 await supabaseClient.from("lancamentos").insert({...r,data:nova,pago:false})
+}
+}
+/* ====================================================026A – PADRÃO USUÁRIO==================================================== */
+async function criarPadraoUsuario(usuarioId){
+const hoje=hojeLocal()
+const padrao=[
+{tipo:"RECEITA",categoria:"GERAL",descricao:"Salário"},
+{tipo:"RECEITA",categoria:"GERAL",descricao:"Renda Extra"},
+{tipo:"DESPESA",categoria:"CASA",descricao:"Moradia"},
+{tipo:"DESPESA",categoria:"CASA",descricao:"Alimentação"},
+{tipo:"DESPESA",categoria:"GERAL",descricao:"Transporte"},
+{tipo:"DESPESA",categoria:"SAÚDE",descricao:"Saúde"}
+]
+for(const p of padrao){
+await supabaseClient.from("lancamentos").insert({
+data:hoje,
+descricao:p.descricao,
+tipo:p.tipo,
+categoria:p.categoria,
+valor:0,
+pago:false,
+usuario_id:usuarioId
+})
 }
 }
 /* ====================================================027 – ADMIN==================================================== */
