@@ -393,6 +393,7 @@ render()
 }
 /* ====================================================021 – RENDER==================================================== */
 function render(){
+try{
 const lista=document.getElementById("lista")
 const resumo=document.getElementById("resumo")
 if(!lista||!resumo){
@@ -403,33 +404,17 @@ return
 console.log("RENDER EXECUTADO",dados)
 if(!dados||!dados.length){
 lista.innerHTML="<div style='text-align:center;margin-top:40px'>Sem dados</div>"
+resumo.innerHTML=""
 return
 }
-if(!dados){console.log("SEM DADOS");return}
-const lista=document.getElementById("lista")
-const resumo=document.getElementById("resumo")
-if(!lista||!resumo)return
 let listaFiltrada=[...dados]
 const hoje=new Date()
-const mesAtual=hoje.getMonth()
-const anoAtual=hoje.getFullYear()
-if(modoAnoCompleto){
-/* mostra tudo */
-}else if(filtroInicio||filtroFim){
-/* usa filtros */
-}else{
-/* padrão = últimos 3 meses */
-const hoje=new Date()
+if(!modoAnoCompleto&&!filtroInicio&&!filtroFim){
 const limite=new Date(hoje.getFullYear(),hoje.getMonth()-2,1)
-
-listaFiltrada=listaFiltrada.filter(x=>{
-return new Date(x.data)>=limite
-})
+listaFiltrada=listaFiltrada.filter(x=>x.data&&new Date(x.data)>=limite)
 }
 if(filtroInicio)listaFiltrada=listaFiltrada.filter(x=>x.data>=filtroInicio)
 if(filtroFim)listaFiltrada=listaFiltrada.filter(x=>x.data<=filtroFim)
-
-/* AGRUPAR */
 const grupos={}
 listaFiltrada.forEach(x=>{
 if(!x.data)return
@@ -438,40 +423,31 @@ const chave=`${a}-${m}`
 if(!grupos[chave])grupos[chave]=[]
 grupos[chave].push(x)
 })
-
 const chaves=Object.keys(grupos).sort().reverse()
 lista.innerHTML=""
-
 let totalR=0
 let totalDPago=0
 let totalDPendente=0
-
 chaves.forEach(chave=>{
 let itens=grupos[chave]
-
 itens.sort((a,b)=>{
 if(a.tipo==="RECEITA"&&b.tipo!=="RECEITA")return-1
 if(a.tipo!=="RECEITA"&&b.tipo==="RECEITA")return 1
 return(a.data||"").localeCompare(b.data||"")
 })
-
 let r=0
 let dPago=0
 let dPend=0
-
 itens.forEach(x=>{
 const v=Number(x.valor||0)
 if(x.tipo==="RECEITA"){r+=v}else{if(x.pago){dPago+=v}else{dPend+=v}}
 })
-
 totalR+=r
 totalDPago+=dPago
 totalDPendente+=dPend
-
 const totalDSP=dPago+dPend
 const saldo=r-totalDSP
 const[a,m]=chave.split("-")
-
 lista.innerHTML+=`
 <div style="margin-top:15px;background:#020617;padding:8px;border-radius:6px;border-left:4px solid #38bdf8;display:flex;justify-content:space-between;flex-wrap:wrap">
 <div><b>📅 ${formatarMesNome(m)}/${a}</b></div>
@@ -484,13 +460,11 @@ lista.innerHTML+=`
 </div>
 </div>
 `
-
 itens.forEach(x=>{
 const ed=edicoesTemp[x.id]||{}
 const val=ed.valor??x.valor
 const desc=ed.descricao??x.descricao
 const isR=x.tipo==="RECEITA"
-
 lista.innerHTML+=`
 <div data-id="${x.id}" style="display:grid;grid-template-columns:100px 1fr 120px 120px 160px;gap:6px;background:${isR?"#052e16":"#1e293b"};padding:4px;margin:2px 0;border-radius:6px;font-size:12px">
 <div>${modoEdicao?`<input type="date" value="${x.data}" onchange="editTemp('${x.id}','data',this.value)">`:formatarDataBR(x.data)}</div>
@@ -498,24 +472,21 @@ lista.innerHTML+=`
 <div>${modoEdicao?`<input value="${x.categoria}" onchange="editTemp('${x.id}','categoria',this.value)">`:x.categoria}</div>
 <div>${modoEdicao?`<input type="number" value="${val}" onchange="editTemp('${x.id}','valor',this.value)">`:(isR?(visibilidade[x.id]?"R$ "+formatarMoeda(val):"R$ ***"):"R$ "+formatarMoeda(val))}</div>
 <div style="display:flex;gap:4px;justify-content:flex-end">
-${isR&&!modoEdicao?`<button onclick="toggleValor('${x.id}')">👁</button>`:""}
+${isR&&!modoEdicao?`<button onclick="toggleValor('${x.id}')" style="background:#ef4444;color:#fff">👁</button>`:""}
 <button onclick="marcarPago('${x.id}')" style="background:${x.pago?"#22c55e":"#ef4444"}">${x.pago?"OK":"PEND"}</button>
 ${modoEdicao?`<button onclick="del('${x.id}')">🗑</button>`:""}
 </div>
 </div>
 `
 })
-
 lista.innerHTML+=`
 <div style="margin-bottom:15px;padding:6px;background:#111827;border-radius:6px;text-align:right;font-size:12px">
 <b>Saldo: ${formatarMoeda(saldo)}</b>
 </div>
 `
 })
-
 const totalDSP=totalDPago+totalDPendente
 const saldoFinal=totalR-totalDSP
-
 resumo.innerHTML=`
 <div style="display:flex;gap:10px;justify-content:center;font-weight:bold">
 <span style="color:#22c55e">R$ ${formatarMoeda(totalR)}</span>
@@ -525,8 +496,10 @@ resumo.innerHTML=`
 <span style="color:${saldoFinal>=0?"#22c55e":"#ef4444"}">${formatarMoeda(saldoFinal)}</span>
 </div>
 `
-
 if(mostrarGrafico)atualizarDashboard(listaFiltrada)
+}catch(e){
+console.error("ERRO RENDER:",e)
+}
 }
 /* ====================================================022 – DASHBOARD==================================================== */
 function atualizarDashboard(base){
