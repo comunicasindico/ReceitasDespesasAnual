@@ -119,7 +119,7 @@ Olá, <span id="mobileNome"></span>
 </div>
 <div style="font-size:22px;font-weight:bold;display:flex;align-items:center;gap:10px">
 <span id="mobileSaldo"></span>
-<button onclick="toggleSaldo()" style="background:none;border:none;color:#fff;font-size:18px">${visibilidadeTotal[chave]?"🙈":"👁"}</button>
+<button id="btnToggleSaldo" onclick="toggleSaldo()" style="background:none;border:none;color:#fff;font-size:18px">👁</button>
 </div>
 <div style="margin-top:10px;font-size:12px;opacity:.7">
 Agência: <span id="mobileAgencia"></span> • Conta: <span id="mobileConta"></span>
@@ -449,6 +449,10 @@ document.getElementById("appSistema").style.display="none"
 }
 function toggleSaldo(){
 ocultarSaldo=!ocultarSaldo
+const btn=document.getElementById("btnToggleSaldo")
+if(btn){
+btn.innerText=ocultarSaldo?"🙈":"👁"
+}
 atualizarPainelMobile()
 }
 /* ====================================================006 – LOGOUT==================================================== */
