@@ -100,21 +100,21 @@ button:hover{transform:scale(1.05)}
 </div>
 
 <div id="appSistema" style="display:none;margin-top:80px">
-<!-- ====================================================001 – TOPO CENTRALIZADO CORRETO==================================================== -->
+<!-- ====================================================001 – TOPO CONTÁBIL CENTRALIZADO==================================================== -->
 <div id="topoSaaS" style="position:fixed;top:0;left:0;width:100%;height:64px;display:flex;align-items:center;padding:0 18px;background:rgba(2,6,23,.95);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,.08);z-index:9999">
-<!-- 🔵 LADO ESQUERDO -->
-<div style="display:flex;align-items:center;gap:12px;flex:1">
+<!-- ESQUERDA -->
+<div style="flex:1;display:flex;align-items:center">
 <h1 style="margin:0;font-size:18px;font-weight:600">📊 Receitas PRO</h1>
-<div style="display:flex;gap:6px">
-<button id="btnAssinarPro" onclick="gerarPix()" style="background:linear-gradient(135deg,#22c55e,#16a34a);color:#000;padding:6px 12px;border-radius:999px;font-size:11px;font-weight:bold;border:none">💰 PRO</button>
+</div>
+<!-- CENTRO -->
+<div style="flex:1;display:flex;justify-content:center;gap:8px">
+<button id="btnAssinarPro" onclick="gerarPix()" style="background:#22c55e;color:#000;padding:6px 12px;border-radius:999px;font-size:11px;font-weight:bold;border:none">💰 PRO</button>
 <button id="btnJaPaguei" onclick="confirmarPagamento()" style="background:#f59e0b;color:#000;padding:6px 10px;border-radius:999px;font-size:11px;font-weight:bold;border:none">✔ Pago</button>
 <button onclick="abrirCadastro()" style="background:transparent;border:1px solid rgba(255,255,255,.2);color:#fff;padding:6px 10px;border-radius:8px;font-size:11px">➕ Conta</button>
 </div>
-</div>
-<!-- 🔵 CENTRO (ESPAÇADOR) -->
-<div style="flex:1"></div>
-<!-- 🔴 LADO DIREITO -->
-<div style="display:flex;align-items:center;gap:10px;flex:1;justify-content:flex-end">
+<!-- DIREITA -->
+<div style="flex:1;display:flex;justify-content:flex-end;align-items:center;gap:10px">
+
 <div id="userBox" onclick="toggleMenuUsuario()" style="display:flex;align-items:center;gap:8px;background:#111827;padding:6px 10px;border-radius:999px;border:1px solid rgba(255,255,255,.08)">
 <div id="userAvatar" style="width:28px;height:28px;border-radius:50%;background:#22c55e;display:flex;align-items:center;justify-content:center;font-weight:bold;color:#000;font-size:12px">U</div>
 <div style="display:flex;flex-direction:column;font-size:10px;line-height:1.1">
@@ -122,7 +122,7 @@ button:hover{transform:scale(1.05)}
 <span id="userMeta" style="opacity:.7"></span>
 </div>
 </div>
-<button onclick="logout()" style="background:#ef4444;color:#fff;padding:6px 14px;border-radius:10px;font-size:12px;font-weight:bold;border:none;white-space:nowrap">
+<button onclick="logout()" style="background:#ef4444;color:#fff;padding:6px 14px;border-radius:10px;font-size:12px;font-weight:bold;border:none">
 🚪 Sair
 </button>
 </div>
@@ -495,22 +495,13 @@ modoAnoCompleto=false
 
 render()
 }
-/* ====================================================021 – RENDER==================================================== */
+/* ====================================================021 – RENDER CONTÁBIL CORRIGIDO==================================================== */
 function render(){
 const lista=document.getElementById("lista")
 const resumoEl=document.getElementById("resumo")
-
 if(!lista||!resumoEl)return
 
 let listaFiltrada=[...dados]
-
-const hoje=new Date()
-const mesAtual=hoje.getMonth()
-const anoAtual=hoje.getFullYear()
-
-if(!modoAnoCompleto&&!filtroInicio&&!filtroFim){
-modoAnoCompleto=true
-}
 
 if(filtroInicio)listaFiltrada=listaFiltrada.filter(x=>x.data>=filtroInicio)
 if(filtroFim)listaFiltrada=listaFiltrada.filter(x=>x.data<=filtroFim)
@@ -524,12 +515,13 @@ const chave=`${ano}-${mes}`
 if(!grupos[chave])grupos[chave]=[]
 grupos[chave].push(x)
 })
+
 const chaves=Object.keys(grupos).sort().reverse()
 
 lista.innerHTML=""
+
 let totalGeralR=0
-let totalGeralDPago=0
-let totalGeralDPendente=0
+let totalGeralD=0
 
 chaves.forEach(chave=>{
 let listaMes=grupos[chave]
@@ -541,107 +533,97 @@ return(a.data||"").localeCompare(b.data||"")
 })
 
 let totalR=0
-let totalDPago=0
-let totalDPendente=0
+let totalD=0
 
 listaMes.forEach(x=>{
 const v=Number(x.valor||0)
-if(x.tipo==="RECEITA"){
-totalR+=v
-}else{
-if(x.pago){totalDPago+=v}else{totalDPendente+=v}
-}
+if(x.tipo==="RECEITA") totalR+=v
+else totalD+=v
 })
 
 totalGeralR+=totalR
-totalGeralDPago+=totalDPago
-totalGeralDPendente+=totalDPendente
+totalGeralD+=totalD
 
-const totalDSP=totalDPago+totalDPendente
-const saldo=totalR-totalDSP
+const saldo=totalR-totalD
 
 const [ano,mes]=chave.split("-")
 
+/* ===================== CABEÇALHO DO MÊS ===================== */
 lista.innerHTML+=`
-<div style="margin-top:15px;background:#020617;padding:10px;border-radius:10px;border-left:4px solid #38bdf8;display:grid;grid-template-columns:160px 1fr 120px 120px 120px 120px 140px;align-items:center;font-size:12px">
+<div style="margin-top:15px;background:#020617;padding:10px;border-radius:10px;border-left:4px solid #38bdf8;
+display:grid;grid-template-columns:120px 1fr 140px 140px 140px;align-items:center;font-size:12px">
+
 <div onclick="toggleMes('${chave}')" style="font-weight:bold;cursor:pointer">
 ${mesesOcultos[chave]?"▶️":"🔽"} ${formatarMesNome(mes)}/${ano}
 </div>
 
 <div></div>
 
-<div style="color:#22c55e;text-align:right">💰 ${formatarMoeda(totalR)}</div>
-<div style="color:#22c55e;text-align:right">✔ ${formatarMoeda(totalDPago)}</div>
-<div style="color:#ef4444;text-align:right">⏳ ${formatarMoeda(totalDPendente)}</div>
-<div style="color:#f59e0b;text-align:right">💸 ${formatarMoeda(totalDSP)}</div>
-<div style="color:${saldo>=0?"#22c55e":"#ef4444"};text-align:right;font-weight:bold">
-${saldo>=0?"📈":"📉"} ${formatarMoeda(saldo)}
+<div style="text-align:right;color:#fff;font-weight:bold">
+R$ ${formatarMoeda(totalR)}
+</div>
+
+<div style="text-align:right;color:#ef4444;font-weight:bold">
+R$ ${formatarMoeda(totalD)}
+</div>
+
+<div style="text-align:right;color:${saldo>=0?"#22c55e":"#ef4444"};font-weight:bold">
+R$ ${formatarMoeda(saldo)}
+</div>
+
 </div>
 `
+
+/* ===================== ITENS ===================== */
 if(!mesesOcultos[chave]){
 listaMes.forEach(x=>{
-const ed=edicoesTemp[x.id]||{}
-const dataVal=ed.data??x.data
-const descVal=ed.descricao??x.descricao
-const catVal=ed.categoria??x.categoria
-const valVal=ed.valor??x.valor
-
 const isReceita=x.tipo==="RECEITA"
 
 lista.innerHTML+=`
-<div style="display:grid;grid-template-columns:160px 1fr 120px 120px 120px 120px 140px;gap:6px;background:${isReceita?"#052e16":"#1e293b"};padding:4px;margin:2px 0;border-radius:6px;font-size:12px">
-<div>${modoEdicao?`<input type="date" value="${dataVal||""}" onchange="editTemp('${x.id}','data',this.value)">`:formatarDataBR(x.data)}</div>
-<div>${modoEdicao?`<input type="text" value="${String(descVal||"").replace(/"/g,"&quot;")}" onchange="editTemp('${x.id}','descricao',this.value)">`:`${isReceita?"+ ":"- "}${x.descricao||""}`}</div>
-<div>${modoEdicao?`<select onchange="editTemp('${x.id}','categoria',this.value)">
-<option ${catVal==="GERAL"?"selected":""}>GERAL</option>
-<option ${catVal==="CASA"?"selected":""}>CASA</option>
-<option ${catVal==="SAÚDE"?"selected":""}>SAÚDE</option>
-<option ${catVal==="EDUCAÇÃO"?"selected":""}>EDUCAÇÃO</option>
-<option ${catVal==="LAZER"?"selected":""}>LAZER</option>
-<option ${catVal==="TCERO/Cripto"?"selected":""}>TCERO/Cripto</option>
-</select>`:(x.categoria||"")}</div>
+<div style="display:grid;grid-template-columns:120px 1fr 140px 140px 140px;gap:6px;
+background:${isReceita?"#052e16":"#1e293b"};padding:4px;margin:2px 0;border-radius:6px;font-size:12px">
 
-<div style="text-align:right">
-${modoEdicao?`<input type="number" value="${valVal}" onchange="editTemp('${x.id}','valor',this.value)" style="width:90px">`:
-(isReceita?(visibilidade[x.id]?"R$ "+formatarMoeda(x.valor):"R$ ***"):"R$ "+formatarMoeda(x.valor))}
+<div>${formatarDataBR(x.data)}</div>
+
+<div>${isReceita?"+ ":"- "}${x.descricao||""}</div>
+
+<!-- RECEITA -->
+<div style="text-align:right;color:#fff;font-weight:bold">
+${isReceita?"R$ "+formatarMoeda(x.valor):""}
 </div>
 
-<div></div>
-<div></div>
+<!-- DESPESA -->
+<div style="text-align:right;color:#ef4444;font-weight:bold">
+${!isReceita?"R$ "+formatarMoeda(x.valor):""}
+</div>
 
-<div style="display:flex;gap:5px;justify-content:flex-end">
+<!-- STATUS -->
+<div style="display:flex;justify-content:flex-end">
 <button onclick="marcarPago('${x.id}')" style="background:${x.pago?"#22c55e":"#ef4444"};color:#000">
 ${x.pago?"OK":"PEND"}
 </button>
-${modoEdicao?`<button onclick="delConfirm('${x.id}')" style="background:#ef4444;color:#fff">🗑</button>`:""}
 </div>
+
 </div>
 `
 })
 }
-lista.innerHTML+=`
-<div style="margin:5px 0 15px 0;padding:6px;background:#111827;border-radius:6px;display:flex;gap:10px;justify-content:flex-end;font-size:12px">
-<span style="color:#22c55e">💰 ${formatarMoeda(totalR)}</span>
-<span style="color:#22c55e">✔ ${formatarMoeda(totalDPago)}</span>
-<span style="color:#ef4444">⏳ ${formatarMoeda(totalDPendente)}</span>
-<span style="color:#f59e0b">💸 ${formatarMoeda(totalDSP)}</span>
-<span style="color:${saldo>=0?"#22c55e":"#ef4444"}">${saldo>=0?"📈":"📉"} ${formatarMoeda(saldo)}</span>
-</div>
-`
+
 })
 
-const totalGeralDSP=totalGeralDPago+totalGeralDPendente
-const saldoGeral=totalGeralR-totalGeralDSP
+/* ===================== RESUMO GERAL ===================== */
+const saldoGeral=totalGeralR-totalGeralD
 
 resumoEl.innerHTML=`
-<div style="display:flex;gap:15px;justify-content:center;font-size:14px;font-weight:bold;flex-wrap:wrap">
-<span style="color:#22c55e">💰 ${formatarMoeda(totalGeralR)}</span>
-<span style="color:#22c55e">✔ ${formatarMoeda(totalGeralDPago)}</span>
-<span style="color:#ef4444">⏳ ${formatarMoeda(totalGeralDPendente)}</span>
-<span style="color:#f59e0b">💸 ${formatarMoeda(totalGeralDSP)}</span>
-<span style="color:${saldoGeral>=0?"#22c55e":"#ef4444"}">${saldoGeral>=0?"📈":"📉"} ${formatarMoeda(saldoGeral)}</span>
+<div style="display:flex;gap:20px;justify-content:center;font-size:14px;font-weight:bold">
+<span style="color:#fff">Receita: R$ ${formatarMoeda(totalGeralR)}</span>
+<span style="color:#ef4444">Despesa: R$ ${formatarMoeda(totalGeralD)}</span>
+<span style="color:${saldoGeral>=0?"#22c55e":"#ef4444"}">
+Saldo: R$ ${formatarMoeda(saldoGeral)}
+</span>
 </div>
 `
+
 if(mostrarGrafico)atualizarDashboard()
 }
 
