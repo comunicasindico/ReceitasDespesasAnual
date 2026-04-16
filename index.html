@@ -217,7 +217,7 @@ const user=data[0]
 localStorage.setItem("usuario_id_lancamentos",user.id)
 localStorage.setItem("usuario_nome_lancamentos",user.nome)
 localStorage.setItem("tipo_usuario_lancamentos",user.tipo)
-localStorage.setItem("usuario_plano",user.plano||"free")
+localStorage.setItem("usuario_plano",(user.plano||"free").toLowerCase())
 
 document.getElementById("telaLogin").style.display="none"
 document.getElementById("appSistema").style.display="block"
@@ -254,6 +254,32 @@ document.body.classList.add("app")
 
 setUserUI()
 
+const userId=localStorage.getItem("usuario_id_lancamentos")
+
+if(userId){
+
+/* 🔥 BUSCAR USUÁRIO ATUALIZADO NO BANCO */
+const {data}=await supabaseClient
+.from("usuarios_lancamentos")
+.select("*")
+.eq("id",userId)
+.limit(1)
+
+if(data && data.length){
+const user=data[0]
+
+localStorage.setItem("usuario_plano",(user.plano||"free").toLowerCase())
+localStorage.setItem("tipo_usuario_lancamentos",user.tipo||"user")
+localStorage.setItem("usuario_nome_lancamentos",user.nome||"Usuário")
+}
+/* UI */
+document.getElementById("telaLogin").style.display="none"
+document.getElementById("appSistema").style.display="block"
+document.body.classList.remove("login")
+document.body.classList.add("app")
+
+setUserUI()
+
 const tipo=localStorage.getItem("tipo_usuario_lancamentos")
 
 if(tipo==="admin"){
@@ -271,8 +297,8 @@ document.getElementById("appSistema").style.display="none"
 document.body.classList.add("login")
 document.body.classList.remove("app")
 }
+  
 }
-
 /* ====================================================006 – LOGOUT==================================================== */
 function logout(){
 localStorage.clear()
@@ -1105,6 +1131,7 @@ function setUserUI(){
 const nome=localStorage.getItem("usuario_nome_lancamentos")||"Usuário"
 const tipo=localStorage.getItem("tipo_usuario_lancamentos")||"user"
 const plano=(localStorage.getItem("usuario_plano")||"free").toLowerCase()
+console.log("PLANO ATUAL:",plano)
 
 const elNome=document.getElementById("userNome")
 const elMeta=document.getElementById("userMeta")
