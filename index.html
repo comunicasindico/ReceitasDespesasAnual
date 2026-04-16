@@ -398,12 +398,20 @@ const valorEl=document.getElementById("valor")
 const recorrenteEl=document.getElementById("recorrente")
 const diaEl=document.getElementById("diaPadrao")
 const dataStr=normalizarDataLocal(dataEl.value)
+/* 🔥 TRATAR VALOR ANTES DO OBJETO */
+let valorBr = valorEl.value || "0"
+valorBr = valorBr.replace(/\./g,"").replace(",",".")
+const valorNum = parseFloat(valorBr)
+if(isNaN(valorNum)){
+alert("Valor inválido")
+return
+}
 const obj={
 data:dataStr,
 descricao:descEl.value.trim(),
 tipo:tipoEl.value,
 categoria:categoriaEl.value||"GERAL",
-valor:Number((valorEl.value||"0").replace(/\./g,"").replace(",",".")),
+valor:valorNum,
 recorrente:(recorrenteEl&&recorrenteEl.checked)||false,
 dia_padrao:parseInt((diaEl&&diaEl.value)||0)||null,
 dia_vencimento:dataStr?Number(dataStr.split("-")[2]):null,
@@ -412,7 +420,10 @@ data_pagamento:null,
 usuario_id:userId
 }
 if(!obj.data||!obj.descricao){alert("Preencha data e descrição");return}
-if(!obj.valor||obj.valor===0){alert("Valor inválido");return}
+if(obj.valor<=0){
+alert("Valor deve ser maior que zero")
+return
+}
 const planoAtual = (localStorage.getItem("usuario_plano") || "free").toLowerCase()
 
 if(planoAtual!=="pro" && dados.length>=LIMITE_USUARIO){
@@ -1015,13 +1026,15 @@ async function iniciarSistema(){
 carregarCategorias()
 await verificarSessao()
 
-const hoje=hojeLocal()
+const hoje=new Date()
+const iso=new Date(hoje.getTime()-hoje.getTimezoneOffset()*60000)
+.toISOString()
+.slice(0,10)
 ;["data","dataInicio","dataFim"].forEach(id=>{
 const el=document.getElementById(id)
-if(el&&!el.value)el.value=hoje
+if(el&&!el.value)el.value=iso
 })
 }
-
 /* ====================================================029 – CADASTRO MODAL==================================================== */
 function abrirCadastro(){
 document.getElementById("modalCadastro").style.display="flex"
