@@ -381,11 +381,15 @@ document.getElementById("valor").value=x.valor||0
 async function add(){
 const userId=localStorage.getItem("usuario_id_lancamentos")
 if(!userId){alert("Usuário não autenticado");return}
-const planoAtual = (localStorage.getItem("usuario_plano") || "free").toLowerCase()
+
+/* 🔥 PLANO (DECLARADO UMA ÚNICA VEZ) */
+const planoAtual=(localStorage.getItem("usuario_plano")||"free").toLowerCase()
+
 if(planoAtual!=="pro" && dados.length>=LIMITE_USUARIO){
 mostrarUpgrade()
 return
 }
+
 const dataEl=document.getElementById("data")
 const descEl=document.getElementById("desc")
 const tipoEl=document.getElementById("tipo")
@@ -393,15 +397,19 @@ const categoriaEl=document.getElementById("categoria")
 const valorEl=document.getElementById("valor")
 const recorrenteEl=document.getElementById("recorrente")
 const diaEl=document.getElementById("diaPadrao")
+
 const dataStr=dataEl.value
-/* 🔥 TRATAR VALOR ANTES DO OBJETO */
-let valorBr = valorEl.value || "0"
-valorBr = valorBr.replace(/\./g,"").replace(",",".")
-const valorNum = parseFloat(valorBr)
+
+/* 🔥 TRATAR VALOR */
+let valorBr=valorEl.value||"0"
+valorBr=valorBr.replace(/\./g,"").replace(",",".")
+const valorNum=parseFloat(valorBr)
+
 if(isNaN(valorNum)){
 alert("Valor inválido")
 return
 }
+
 const obj={
 data:dataStr,
 descricao:descEl.value.trim(),
@@ -415,18 +423,19 @@ pago:false,
 data_pagamento:null,
 usuario_id:userId
 }
-if(!obj.data||!obj.descricao){alert("Preencha data e descrição");return}
+
+if(!obj.data||!obj.descricao){
+alert("Preencha data e descrição")
+return
+}
+
 if(obj.valor<=0){
 alert("Valor deve ser maior que zero")
 return
 }
-const planoAtual = (localStorage.getItem("usuario_plano") || "free").toLowerCase()
 
-if(planoAtual!=="pro" && dados.length>=LIMITE_USUARIO){
-mostrarUpgrade()
-return
-}
 await salvarRegistro(obj)
+
 document.getElementById("desc").value=""
 document.getElementById("valor").value=""
 document.getElementById("recorrente").checked=false
