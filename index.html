@@ -389,7 +389,7 @@ PLANO_USUARIO=(localStorage.getItem("usuario_plano")||"free").toLowerCase()
 const userId=localStorage.getItem("usuario_id_lancamentos")
 if(userId){
 /* 🔥 BUSCAR USUÁRIO ATUALIZADO NO BANCO */
-const {data}=await supabaseClient
+const {data}=await db
 .from("usuarios_lancamentos")
 .select("*")
 .eq("id",userId)
@@ -1283,7 +1283,7 @@ fecharCadastro()
 
 /* ====================================================031 – ADMIN PROFISSIONAL==================================================== */
 async function carregarUsuarios(){
-const {data}=await supabaseClient
+const {data}=await db
 .from("usuarios_lancamentos")
 .select("*")
 .order("criado_em")
@@ -1337,7 +1337,7 @@ carregarUsuarios()
 }
 /* ==============031B TORNAR PRO================================================ */
 async function tornarPro(id){
-await supabaseClient
+await db
 .from("usuarios_lancamentos")
 .update({
 plano:"pro",
@@ -1638,7 +1638,7 @@ const usuario_id=localStorage.getItem("usuario_id_lancamentos")
 
 if(!usuario_id){alert("Usuário não encontrado");return}
 
-await supabaseClient
+await db
 .from("usuarios_lancamentos")
 .update({plano:"analise"})
 .eq("id",usuario_id)
@@ -1672,7 +1672,7 @@ document.getElementById("respostaIA").innerText=resposta
 }
 /* =============044 APROVAR OU RECUSAR PAGAMENTO=================================================== */
 async function aprovarPagamento(id){
-await supabaseClient
+await db
 .from("usuarios_lancamentos")
 .update({
 status_pagamento:"pro",
@@ -1685,7 +1685,7 @@ carregarUsuarios()
 }
 
 async function recusarPagamento(id){
-await supabaseClient
+await db
 .from("usuarios_lancamentos")
 .update({
 status_pagamento:"free"
