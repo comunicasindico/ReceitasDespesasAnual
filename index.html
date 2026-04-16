@@ -398,7 +398,7 @@ const valorEl=document.getElementById("valor")
 const recorrenteEl=document.getElementById("recorrente")
 const diaEl=document.getElementById("diaPadrao")
 
-const dataStr=dataEl.value
+const dataStr=dataEl.value.split("T")[0]
 
 /* 🔥 TRATAR VALOR */
 let valorBr=valorEl.value||"0"
