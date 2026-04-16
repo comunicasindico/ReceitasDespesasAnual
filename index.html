@@ -99,6 +99,61 @@ Criar Conta Grátis Agora
 </div>
 </div>
 
+<div id="painelMobile" style="display:none">
+<div style="padding:20px;background:linear-gradient(180deg,#1e3a8a,#020617);border-bottom-left-radius:25px;border-bottom-right-radius:25px">
+<div style="font-size:18px;margin-bottom:10px">
+Olá, <span id="mobileNome"></span>
+</div>
+<div style="font-size:22px;font-weight:bold;display:flex;align-items:center;gap:10px">
+<span id="mobileSaldo"></span>
+<button onclick="toggleSaldo()" style="background:none;border:none;color:#fff;font-size:18px">👁</button>
+</div>
+R$ 0,00
+</div>
+<div style="margin-top:10px;font-size:12px;opacity:.7">
+Agência: <span id="mobileAgencia"></span> • Conta: <span id="mobileConta"></span>
+</div>
+</div>
+<div style="margin-top:15px">
+<div style="font-size:12px">Score financeiro</div>
+<div id="scoreBox" style="padding:10px;border-radius:10px;text-align:center;font-weight:bold">
+-- 
+</div>
+</div>
+<div style="padding:15px">
+<button onclick="abrirFinanceiro()" style="width:100%;padding:15px;background:#22c55e;color:#000;border-radius:12px;font-weight:bold">
+Entrar no Financeiro
+</button>
+
+<div style="margin-top:20px">
+<h4 style="margin-bottom:10px">Favoritos</h4>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+<button onclick="abrirFinanceiro()" style="padding:12px;background:#1e293b;color:#fff;border-radius:10px">➕ Receita</button>
+<button onclick="abrirFinanceiro()" style="padding:12px;background:#1e293b;color:#fff;border-radius:10px">➖ Despesa</button>
+<button onclick="toggleGrafico()" style="padding:12px;background:#1e293b;color:#fff;border-radius:10px">📊 Gráfico</button>
+<button onclick="mesAnterior()" style="padding:12px;background:#1e293b;color:#fff;border-radius:10px">📅 Mês</button>
+</div>
+</div>
+
+<div style="margin-top:20px;background:#020617;padding:15px;border-radius:12px">
+<div style="font-size:14px;opacity:.7">Cartão virtual</div>
+<div style="font-size:18px;font-weight:bold">**** **** **** 1968</div>
+<div style="font-size:12px;margin-top:5px">Limite: R$ 5.000,00</div>
+</div>
+
+<div style="margin-top:20px">
+<input id="perguntaIA" placeholder="Pergunte algo..." style="width:100%;padding:10px;border-radius:10px">
+<button onclick="responderIA()" style="margin-top:5px;width:100%;background:#22c55e;padding:10px;border-radius:10px">
+Perguntar
+</button>
+<div id="respostaIA" style="margin-top:8px;font-size:12px"></div>
+</div>
+
+</div>
+</div>
+
+<div id="alertaFinanceiro" style="margin-top:10px;font-size:12px"></div>
+
 <div id="appSistema" style="display:none;margin-top:80px">
 <!-- ====================================================001 – TOPO CONTÁBIL CENTRALIZADO==================================================== -->
 <div id="topoSaaS" style="position:fixed;top:0;left:0;width:100%;height:64px;display:flex;align-items:center;padding:0 18px;background:rgba(2,6,23,.95);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,.08);z-index:9999">
@@ -190,6 +245,7 @@ let filtroFim=null
 let modoAnoCompleto=false
 let mesOffset=0
 let mostrarGrafico=true
+let ocultarSaldo=false
 let LIMITE_USUARIO=20
 let PLANO_USUARIO="FREE"
 
@@ -220,7 +276,9 @@ localStorage.setItem("tipo_usuario_lancamentos",user.tipo)
 localStorage.setItem("usuario_plano",(user.plano||"free").toLowerCase())
 
 document.getElementById("telaLogin").style.display="none"
-document.getElementById("appSistema").style.display="block"
+document.getElementById("appSistema").style.display="none"
+document.getElementById("painelMobile").style.display="block"
+atualizarPainelMobile()
 document.body.classList.remove("login")
 document.body.classList.add("app")
 
@@ -240,6 +298,7 @@ if(conteudoApp)conteudoApp.style.display="block"
 await carregar()
 await gerarRecorrentes()
 await carregar()
+gerarDadosBancarios()
 }
 }
 /* ====================================================005 – SESSÃO==================================================== */
@@ -296,6 +355,105 @@ document.body.classList.add("login")
 document.body.classList.remove("app")
 }
 }
+}
+/* ====================================================050 – GERAR DADOS BANCÁRIOS==================================================== */
+function gerarDadosBancarios(){
+const userId=localStorage.getItem("usuario_id_lancamentos")
+if(!userId)return
+
+let agencia=localStorage.getItem("agencia_"+userId)
+let conta=localStorage.getItem("conta_"+userId)
+
+if(!agencia || !conta){
+
+const hoje=new Date()
+
+const dd=String(hoje.getDate()).padStart(2,"0")
+const mm=String(hoje.getMonth()+1).padStart(2,"0")
+const yyyy=hoje.getFullYear()
+
+const dataBase=dd+mm+yyyy
+
+/* 🔥 contador incremental */
+let contador=parseInt(localStorage.getItem("contador_conta")||"1")
+
+const contaGerada=String(contador).padStart(3,"0")+dataBase
+
+agencia="1968-6"
+
+localStorage.setItem("agencia_"+userId,agencia)
+localStorage.setItem("conta_"+userId,contaGerada)
+
+localStorage.setItem("contador_conta",contador+1)
+}
+}
+/* ====================================================051 – UI MOBILE==================================================== */
+function atualizarPainelMobile(){
+
+const nome=localStorage.getItem("usuario_nome_lancamentos")||"Usuário"
+const userId=localStorage.getItem("usuario_id_lancamentos")
+
+const agencia=localStorage.getItem("agencia_"+userId)
+const conta=localStorage.getItem("conta_"+userId)
+
+/* 🔥 CALCULAR SALDO */
+let r=0,d=0
+dados.forEach(x=>{
+if(x.tipo==="RECEITA") r+=Number(x.valor||0)
+else d+=Number(x.valor||0)
+})
+
+const saldo=r-d
+
+document.getElementById("mobileNome").innerText=nome
+document.getElementById("mobileAgencia").innerText=agencia
+document.getElementById("mobileConta").innerText=conta
+document.getElementById("mobileSaldo").innerText=
+ocultarSaldo ? "R$ ***" : "R$ "+formatarMoeda(saldo)
+
+const aviso=document.getElementById("alertaFinanceiro")
+if(aviso){
+if(saldo<0){
+aviso.innerText="⚠️ Atenção: saldo negativo"
+}else{
+aviso.innerText="✔️ Situação financeira ok"
+}
+}
+const scoreBox=document.getElementById("scoreBox")
+if(scoreBox){
+if(saldo>1000){
+scoreBox.innerText="🟢 Excelente"
+scoreBox.style.background="#052e16"
+}
+else if(saldo>0){
+scoreBox.innerText="🟡 Atenção"
+scoreBox.style.background="#78350f"
+}
+else{
+scoreBox.innerText="🔴 Risco"
+scoreBox.style.background="#7f1d1d"
+}
+}
+
+}
+ 
+<div style="margin-top:10px">
+<button onclick="abrirFinanceiro()" style="background:#3b82f6;color:#fff;padding:8px 12px;border-radius:8px">
+Ver extrato
+</button>
+</div>
+  
+function abrirFinanceiro(){
+document.getElementById("painelMobile").style.display="none"
+document.getElementById("appSistema").style.display="block"
+}
+function abrirMobile(){
+document.getElementById("painelMobile").style.display="block"
+document.getElementById("appSistema").style.display="none"
+}
+function toggleSaldo(){
+ocultarSaldo=!ocultarSaldo
+atualizarPainelMobile()
 }
 /* ====================================================006 – LOGOUT==================================================== */
 function logout(){
@@ -1440,7 +1598,28 @@ alert("Pagamento enviado! Aguarde liberação do admin.")
 
 setUserUI()
 }
-/* ======================043 APROVAR OU RECUSAR PAGAMENTO=================================================== */
+/* ===============043 RESPONDER IA================================================== */
+function responderIA(){
+const pergunta=document.getElementById("perguntaIA").value.toLowerCase()
+let r=0,d=0
+dados.forEach(x=>{
+if(x.tipo==="RECEITA") r+=Number(x.valor||0)
+else d+=Number(x.valor||0)
+})
+const saldo=r-d
+let resposta=""
+if(pergunta.includes("saldo")){
+resposta="Seu saldo é R$ "+formatarMoeda(saldo)
+}
+else if(pergunta.includes("gasto")){
+resposta="Você gastou R$ "+formatarMoeda(d)
+}
+else{
+resposta="Não entendi, tente: saldo ou gasto"
+}
+document.getElementById("respostaIA").innerText=resposta
+}
+/* =============044 APROVAR OU RECUSAR PAGAMENTO=================================================== */
 async function aprovarPagamento(id){
 await supabaseClient
 .from("usuarios_lancamentos")
