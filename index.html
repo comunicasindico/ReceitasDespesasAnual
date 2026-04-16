@@ -297,7 +297,7 @@ document.getElementById("appSistema").style.display="none"
 document.body.classList.add("login")
 document.body.classList.remove("app")
 }
-  
+}
 }
 /* ====================================================006 – LOGOUT==================================================== */
 function logout(){
@@ -712,29 +712,23 @@ del(id)
 }
 /* ====================================================022 – DASHBOARD (NUBANK / CONTÁBIL)==================================================== */
 function atualizarDashboard(){
-
 /* ====================================================022.1 – BLOQUEIO DUPLO RENDER==================================================== */
 if(window._chartLock)return
 window._chartLock=true
-
 /* ====================================================022.2 – VALIDAÇÃO CHART==================================================== */
 if(typeof Chart==="undefined"){
 window._chartLock=false
 return
 }
-
 /* ====================================================022.3 – ELEMENTOS DOM==================================================== */
 const elResumo=document.getElementById("graficoResumo")
 const elMensal=document.getElementById("graficoMensal")
-
 if(!elResumo||!elMensal){
 window._chartLock=false
 return
 }
-
 const ctxResumo=elResumo.getContext("2d")
 const ctxMensal=elMensal.getContext("2d")
-
 /* ====================================================022.4 – DESTRUIR CHARTS (SEGURO)==================================================== */
 if(graficoResumo){
 try{graficoResumo.destroy()}catch(e){}
@@ -744,28 +738,20 @@ if(graficoMensal){
 try{graficoMensal.destroy()}catch(e){}
 graficoMensal=null
 }
-
 /* ====================================================022.5 – FILTRO DE DADOS==================================================== */
 let listaFiltrada=[...dados]
-
 if(filtroInicio)listaFiltrada=listaFiltrada.filter(x=>x.data>=filtroInicio)
 if(filtroFim)listaFiltrada=listaFiltrada.filter(x=>x.data<=filtroFim)
-
 /* ====================================================022.6 – CONSOLIDAÇÃO==================================================== */
 let r=0
 let d=0
 let meses={}
-
 listaFiltrada.forEach(x=>{
 if(!x.data)return
-
 const m=getMesBase(x)
 if(m===undefined)return
-
 if(!meses[m])meses[m]={r:0,d:0}
-
 const v=Number(x.valor||0)
-
 if(x.tipo==="RECEITA"){
 r+=v
 meses[m].r+=v
@@ -774,7 +760,6 @@ d+=v
 meses[m].d+=v
 }
 })
-
 /* ====================================================022.7 – GRÁFICO RESUMO (DOUGHNUT)==================================================== */
 graficoResumo=new Chart(ctxResumo,{
 type:"doughnut",
@@ -809,7 +794,6 @@ alert(`${tipo}: R$ ${formatarMoeda(valor)}`)
 }
 }
 })
-
 /* ====================================================022.8 – GRÁFICO MENSAL (BARRAS)==================================================== */
 graficoMensal=new Chart(ctxMensal,{
 type:"bar",
@@ -840,10 +824,13 @@ y:{ticks:{color:"#fff"}}
 }
 }
 })
-
 /* ====================================================022.9 – LIBERAÇÃO LOCK==================================================== */
 window._chartLock=false
 }
+/* ====================================================999 – FINAL SCRIPT==================================================== */
+
+
+
 /* ====================================================023 – COPIAR MÊS==================================================== */
 async function copiarMesAnterior(){
 const userId=localStorage.getItem("usuario_id_lancamentos")
@@ -1415,9 +1402,6 @@ alert("Pagamento recusado")
 carregarUsuarios()
 }
 
-  
-</script>
-
 <div id="boxPix" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#020617;padding:20px;border-radius:12px;z-index:99999;text-align:center">
 <h3>💳 PIX</h3>
 <img id="qrPix" style="width:200px">
@@ -1426,5 +1410,6 @@ carregarUsuarios()
 <button id="btnWhatsapp">WhatsApp</button>
 </div>
 
+</script>
 </body>
 </html>
