@@ -371,7 +371,7 @@ if(!x)return
 
 editando=x.id
 
-document.getElementById("data").value=x.data||""
+document.getElementById("data").value=(x.data||"").split("T")[0]
 document.getElementById("desc").value=x.descricao||""
 document.getElementById("tipo").value=x.tipo||"DESPESA"
 document.getElementById("categoria").value=x.categoria||"GERAL"
@@ -1040,7 +1040,10 @@ const dataEl=document.getElementById("data")
 const dataInicioEl=document.getElementById("dataInicio")
 const dataFimEl=document.getElementById("dataFim")
 /* 👉 sempre força a data principal */
-if(dataEl)dataEl.value=iso
+if(dataEl){
+dataEl.value=""
+setTimeout(()=>{dataEl.value=iso},10)
+}
 /* 👉 filtros só se estiverem vazios */
 if(dataInicioEl && !dataInicioEl.value)dataInicioEl.value=iso
 if(dataFimEl && !dataFimEl.value)dataFimEl.value=iso
