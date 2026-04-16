@@ -319,65 +319,41 @@ render()
 }
 /* ====================================================004 – LOGIN==================================================== */
 async function loginSistema(){
-
 const email=document.getElementById("loginUser").value.trim()
 const senha=document.getElementById("loginPass").value.trim()
-
 if(!email||!senha){alert("Preencha e-mail e senha");return}
-
-/* 🔥 USAR db PADRÃO */
-const {data,error}=await db
-.from("usuarios_lancamentos")
-.select("*")
-.eq("email",email)
-.eq("senha",senha)
-.limit(1)
-
-if(error||!data||data.length===0){
-alert("Usuário inválido")
-return
-}
-
+const {data,error}=await db.from("usuarios_lancamentos").select("*").eq("email",email).eq("senha",senha).limit(1)
+if(error||!data||data.length===0){alert("Usuário inválido");return}
 const user=data[0]
-
-/* 🔥 SALVAR SESSÃO */
 localStorage.setItem("usuario_id_lancamentos",user.id)
 localStorage.setItem("usuario_nome_lancamentos",user.nome)
 localStorage.setItem("tipo_usuario_lancamentos",user.tipo)
 localStorage.setItem("usuario_plano",(user.plano||"free").toLowerCase())
-/* 🔥 UI */
 document.getElementById("telaLogin").style.display="none"
 document.getElementById("appSistema").style.display="none"
 document.getElementById("painelMobile").style.display="block"
-
 document.body.classList.remove("login")
 document.body.classList.add("app")
-
-setUserUI()
 PLANO_USUARIO=(localStorage.getItem("usuario_plano")||"free").toLowerCase()
-/* 🔥 ATUALIZA MOBILE */
+setUserUI()
 atualizarPainelMobile()
-
-const painelAdmin=document.getElementById("painelAdmin")
-const conteudoApp=document.getElementById("conteudoApp")
+const btnAdmin=document.getElementById("btnAdmin")
+if(user.tipo==="admin"){if(btnAdmin)btnAdmin.style.display="flex"}else{if(btnAdmin)btnAdmin.style.display="none"}
+/* 🔥 SEMPRE RESETAR TELAS */
+document.querySelectorAll(".telaApp").forEach(t=>t.classList.remove("telaAtiva"))
 /* 🔥 ADMIN */
 if(user.tipo==="admin"){
-if(painelAdmin)painelAdmin.style.display="block"
-if(conteudoApp)conteudoApp.style.display="none"
 await carregarAdminUsuarios()
+document.getElementById("telaAdmin").classList.add("telaAtiva")
 }
 /* 🔥 USUÁRIO NORMAL */
 else{
-if(painelAdmin)painelAdmin.style.display="none"
-if(conteudoApp)conteudoApp.style.display="block"
-
 await carregar()
 await gerarRecorrentes()
 await carregar()
-
 gerarDadosBancarios()
 await carregarPerfil()
-abrirTela("perfil")
+document.getElementById("telaInicio").classList.add("telaAtiva")
 }
 }
 /* ====================================================005 – SESSÃO==================================================== */
@@ -1712,10 +1688,7 @@ if(nome==="inicio")document.getElementById("telaInicio").classList.add("telaAtiv
 if(nome==="extrato")document.getElementById("telaExtrato").classList.add("telaAtiva")
 if(nome==="perfil")document.getElementById("telaPerfil").classList.add("telaAtiva")
 if(nome==="ia")document.getElementById("telaIA").classList.add("telaAtiva")
-if(nome==="admin"){
-document.getElementById("telaAdmin").classList.add("telaAtiva")
-carregarAdminUsuarios()
-}
+if(nome==="admin")document.getElementById("telaAdmin").classList.add("telaAtiva")
 if(el)el.classList.add("navAtivo")
 }
 
