@@ -116,7 +116,7 @@ Olá, <span id="mobileNome"></span>
 </div>
 <div style="font-size:22px;font-weight:bold;display:flex;align-items:center;gap:10px">
 <span id="mobileSaldo"></span>
-<button onclick="toggleSaldo()" style="background:none;border:none;color:#fff;font-size:18px">👁</button>
+<button onclick="toggleSaldo()" style="background:none;border:none;color:#fff;font-size:18px">${visibilidadeTotal[chave]?"🙈":"👁"}</button>
 </div>
 <div style="margin-top:10px;font-size:12px;opacity:.7">
 Agência: <span id="mobileAgencia"></span> • Conta: <span id="mobileConta"></span>
@@ -250,6 +250,7 @@ let dados=[]
 let editando=null
 let mostrarValores=true
 let visibilidade={}
+let visibilidadeTotal={}
 let graficoResumo=null
 let graficoMensal=null
 let modoEdicao=false
@@ -671,6 +672,7 @@ render()
 }
 /* ====================================================021 – RENDER CONTÁBIL CORRIGIDO==================================================== */
 function render(){
+if(visibilidadeTotal['GERAL']===undefined)visibilidadeTotal['GERAL']=true
 const lista=document.getElementById("lista")
 const resumoEl=document.getElementById("resumo")
 if(!lista||!resumoEl)return
@@ -756,7 +758,8 @@ ${formatarMesNome(mes)}/${ano}
 <div></div>
 
 <div style="text-align:right;color:#fff;font-weight:bold">
-R$ ${formatarMoeda(totalR)}
+${visibilidadeTotal[chave]?"R$ "+formatarMoeda(totalR):"R$ ***"}
+<button onclick="toggleTotal('${chave}')" style="margin-left:5px;background:#3b82f6;color:#fff;border:none;border-radius:6px;padding:2px 6px">${visibilidadeTotal[chave]?"🙈":"👁"}</button>
 </div>
 
 <div style="text-align:right;color:#ef4444;font-weight:bold">
@@ -825,7 +828,7 @@ ${!isReceita
 <div style="display:flex;justify-content:flex-end;gap:6px">
 
 ${isReceita && !modoEdicao ? `
-<button onclick="toggleValor('${x.id}')" style="background:#3b82f6;color:#fff">👁</button>
+<button onclick="toggleValor('${x.id}')" style="background:#3b82f6;color:#fff">${visibilidadeTotal[chave]?"🙈":"👁"}</button>
 ` : ""}
 
 ${modoEdicao ? `
@@ -865,7 +868,8 @@ align-items:center;font-size:13px;font-weight:bold">
 <div></div>
 
 <div style="text-align:right;color:#fff">
-R$ ${formatarMoeda(totalGeralR)}
+${visibilidadeTotal['GERAL']?"R$ "+formatarMoeda(totalGeralR):"R$ ***"}
+<button onclick="toggleTotal('GERAL')" style="margin-left:5px;background:#3b82f6;color:#fff;border:none;border-radius:6px;padding:2px 6px">${visibilidadeTotal[chave]?"🙈":"👁"}</button>
 </div>
 
 <div style="text-align:right;color:#ef4444">
@@ -1084,6 +1088,10 @@ function toggleGrafico(){
 mostrarGrafico=!mostrarGrafico
 document.getElementById("graficoResumo")?.parentElement.classList.toggle("oculto",!mostrarGrafico)
 document.getElementById("graficoMensal")?.parentElement.classList.toggle("oculto",!mostrarGrafico)
+render()
+}
+function toggleTotal(chave){
+visibilidadeTotal[chave]=!visibilidadeTotal[chave]
 render()
 }
 function modoMesAtual(){
