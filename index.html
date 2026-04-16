@@ -69,8 +69,6 @@ button:hover{transform:scale(1.05)}
 <div class="vialactea"></div>
 <div class="nebula"></div>
 
-<!-- BOTÃO DISCRETO -->
-
 <!-- LOGIN -->
 <div id="telaLogin">
 <div id="loginBg"></div>
@@ -87,7 +85,7 @@ Criar Conta Grátis Agora
 </div>
 </div>
 
-<!-- MODAL CADASTRO (ESCONDIDO) -->
+<!-- MODAL CADASTRO -->
 <div id="modalCadastro" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.7);z-index:10001;align-items:center;justify-content:center">
 <div style="background:#111827;padding:25px;border-radius:12px;width:300px;display:flex;flex-direction:column;gap:10px">
 <h3 style="margin:0;text-align:center">Criar conta</h3>
@@ -99,7 +97,9 @@ Criar Conta Grátis Agora
 </div>
 </div>
 
+<!-- PAINEL MOBILE -->
 <div id="painelMobile" style="display:none">
+
 <div style="padding:20px;background:linear-gradient(180deg,#1e3a8a,#020617);border-bottom-left-radius:25px;border-bottom-right-radius:25px">
 <div style="font-size:18px;margin-bottom:10px">
 Olá, <span id="mobileNome"></span>
@@ -108,22 +108,28 @@ Olá, <span id="mobileNome"></span>
 <span id="mobileSaldo"></span>
 <button onclick="toggleSaldo()" style="background:none;border:none;color:#fff;font-size:18px">👁</button>
 </div>
-R$ 0,00
-</div>
 <div style="margin-top:10px;font-size:12px;opacity:.7">
 Agência: <span id="mobileAgencia"></span> • Conta: <span id="mobileConta"></span>
 </div>
 </div>
-<div style="margin-top:15px">
+
+<div id="alertaFinanceiro" style="margin-top:10px;font-size:12px;padding:10px"></div>
+
+<div style="margin-top:15px;padding:15px">
 <div style="font-size:12px">Score financeiro</div>
-<div id="scoreBox" style="padding:10px;border-radius:10px;text-align:center;font-weight:bold">
--- 
+<div id="scoreBox" style="padding:10px;border-radius:10px;text-align:center;font-weight:bold">--</div>
 </div>
-</div>
+
 <div style="padding:15px">
 <button onclick="abrirFinanceiro()" style="width:100%;padding:15px;background:#22c55e;color:#000;border-radius:12px;font-weight:bold">
 Entrar no Financeiro
 </button>
+
+<div style="margin-top:10px">
+<button onclick="abrirFinanceiro()" style="background:#3b82f6;color:#fff;padding:8px 12px;border-radius:8px">
+Ver extrato
+</button>
+</div>
 
 <div style="margin-top:20px">
 <h4 style="margin-bottom:10px">Favoritos</h4>
@@ -152,29 +158,22 @@ Perguntar
 </div>
 </div>
 
-<div id="alertaFinanceiro" style="margin-top:10px;font-size:12px"></div>
-
+<!-- APP SISTEMA -->
 <div id="appSistema" style="display:none;margin-top:80px">
-<!-- ====================================================001 – TOPO CONTÁBIL CENTRALIZADO==================================================== -->
+
 <div id="topoSaaS" style="position:fixed;top:0;left:0;width:100%;height:64px;display:flex;align-items:center;padding:0 18px;background:rgba(2,6,23,.95);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,.08);z-index:9999">
-<!-- ESQUERDA -->
-<div style="flex:1;display:flex;align-items:center">
-<h1 style="margin:0;font-size:18px;font-weight:600">📊 Receitas PRO</h1>
-</div>
-<!-- CENTRO -->
+<div style="flex:1"><h1 style="margin:0;font-size:18px;font-weight:600">📊 Receitas PRO</h1></div>
 <div style="flex:1;display:flex;justify-content:center;gap:8px">
-<button id="btnAssinarPro" onclick="gerarPix()" style="background:#22c55e;color:#000;padding:6px 12px;border-radius:999px;font-size:11px;font-weight:bold;border:none">💰 PRO</button>
-<button id="btnJaPaguei" onclick="confirmarPagamento()" style="background:#f59e0b;color:#000;padding:6px 10px;border-radius:999px;font-size:11px;font-weight:bold;border:none">✔ Pago</button>
+<button onclick="gerarPix()" style="background:#22c55e;color:#000;padding:6px 12px;border-radius:999px;font-size:11px;font-weight:bold;border:none">💰 PRO</button>
+<button onclick="confirmarPagamento()" style="background:#f59e0b;color:#000;padding:6px 10px;border-radius:999px;font-size:11px;font-weight:bold;border:none">✔ Pago</button>
 <button onclick="abrirCadastro()" style="background:transparent;border:1px solid rgba(255,255,255,.2);color:#fff;padding:6px 10px;border-radius:8px;font-size:11px">➕ Conta</button>
 </div>
-<!-- DIREITA -->
-<div style="flex:1;display:flex;justify-content:flex-end;align-items:center;gap:10px;padding-right:20px;min-width:260px">
-
-<div id="userBox" onclick="toggleMenuUsuario()" style="display:flex;align-items:center;gap:8px;background:#111827;padding:6px 10px;border-radius:999px;border:1px solid rgba(255,255,255,.08)">
+<div style="flex:1;display:flex;justify-content:flex-end;align-items:center;gap:10px;padding-right:20px">
+<div id="userBox" onclick="toggleMenuUsuario()" style="display:flex;align-items:center;gap:8px;background:#111827;padding:6px 10px;border-radius:999px">
 <div id="userAvatar" style="width:28px;height:28px;border-radius:50%;background:#22c55e;display:flex;align-items:center;justify-content:center;font-weight:bold;color:#000;font-size:12px">U</div>
-<div style="display:flex;flex-direction:column;font-size:10px;line-height:1.1">
+<div style="display:flex;flex-direction:column;font-size:10px">
 <span id="userNome"></span>
-<span id="userMeta" style="opacity:.7"></span>
+<span id="userMeta"></span>
 </div>
 </div>
 <button onclick="logout()" style="background:#ef4444;color:#fff;padding:6px 14px;border-radius:10px;font-size:12px;font-weight:bold;border:none">
@@ -182,11 +181,6 @@ Perguntar
 </button>
 </div>
 </div>
-
-  
-</div>
-</div>
-
 
 <h3 style="margin-bottom:8px">➕ Novo lançamento</h3>
 <div id="boxInsercao" style="background:#020617;padding:15px;border-radius:12px;margin-bottom:15px;display:flex;flex-wrap:wrap;gap:8px;align-items:center">
@@ -201,26 +195,22 @@ Perguntar
 <label style="font-size:11px"><input type="checkbox" id="recorrente"> Recorrente</label>
 <input id="diaPadrao" type="number" placeholder="Dia" style="width:60px">
 <button onclick="add()" style="background:#22c55e;color:#000;font-weight:bold">Adicionar</button>
-<button id="btnEditar" onclick="toggleModoEdicao()" style="background:#3b82f6;color:#fff">✏️ Editar</button>
-<button id="btnSalvar" onclick="salvarTudo()" style="display:none;background:#22c55e;color:#000">💾 Salvar</button>
+<button onclick="toggleModoEdicao()" style="background:#3b82f6;color:#fff">✏️ Editar</button>
+<button onclick="salvarTudo()" style="display:none;background:#22c55e;color:#000">💾 Salvar</button>
 </div>
 
-  
 <div id="conteudoApp" style="max-width:950px;margin:auto;">
-<div id="painelAdmin" style="display:none;margin-top:90px;padding:15px">
-<h2>👑 Admin</h2>
-<div id="listaUsuarios"></div>
-</div>
-<div id="resumo" style="margin-bottom:15px"></div>
+<div id="resumo"></div>
 <div id="lista"></div>
 <button onclick="toggleGrafico()" style="margin-top:10px;background:#111827;color:#fff;padding:6px 12px;border-radius:8px">
 📊 Mostrar / Ocultar Gráfico
 </button>
-<div id="areaGraficos" style="margin-top:20px">
-<canvas id="graficoResumo" style="max-width:280px;margin:auto"></canvas>
+<div id="areaGraficos">
+<canvas id="graficoResumo"></canvas>
 <canvas id="graficoMensal"></canvas>
 </div>
 </div>
+
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -389,60 +379,32 @@ localStorage.setItem("contador_conta",contador+1)
 }
 /* ====================================================051 – UI MOBILE==================================================== */
 function atualizarPainelMobile(){
-
 const nome=localStorage.getItem("usuario_nome_lancamentos")||"Usuário"
 const userId=localStorage.getItem("usuario_id_lancamentos")
-
 const agencia=localStorage.getItem("agencia_"+userId)
 const conta=localStorage.getItem("conta_"+userId)
-
-/* 🔥 CALCULAR SALDO */
 let r=0,d=0
 dados.forEach(x=>{
-if(x.tipo==="RECEITA") r+=Number(x.valor||0)
+if(x.tipo==="RECEITA")r+=Number(x.valor||0)
 else d+=Number(x.valor||0)
 })
-
 const saldo=r-d
-
 document.getElementById("mobileNome").innerText=nome
 document.getElementById("mobileAgencia").innerText=agencia
 document.getElementById("mobileConta").innerText=conta
-document.getElementById("mobileSaldo").innerText=
-ocultarSaldo ? "R$ ***" : "R$ "+formatarMoeda(saldo)
-
+document.getElementById("mobileSaldo").innerText=ocultarSaldo?"R$ ***":"R$ "+formatarMoeda(saldo)
 const aviso=document.getElementById("alertaFinanceiro")
 if(aviso){
-if(saldo<0){
-aviso.innerText="⚠️ Atenção: saldo negativo"
-}else{
-aviso.innerText="✔️ Situação financeira ok"
-}
+if(saldo<0){aviso.innerText="⚠️ Atenção: saldo negativo"}
+else{aviso.innerText="✔️ Situação financeira ok"}
 }
 const scoreBox=document.getElementById("scoreBox")
 if(scoreBox){
-if(saldo>1000){
-scoreBox.innerText="🟢 Excelente"
-scoreBox.style.background="#052e16"
-}
-else if(saldo>0){
-scoreBox.innerText="🟡 Atenção"
-scoreBox.style.background="#78350f"
-}
-else{
-scoreBox.innerText="🔴 Risco"
-scoreBox.style.background="#7f1d1d"
+if(saldo>1000){scoreBox.innerText="🟢 Excelente";scoreBox.style.background="#052e16"}
+else if(saldo>0){scoreBox.innerText="🟡 Atenção";scoreBox.style.background="#78350f"}
+else{scoreBox.innerText="🔴 Risco";scoreBox.style.background="#7f1d1d"}
 }
 }
-
-}
- 
-<div style="margin-top:10px">
-<button onclick="abrirFinanceiro()" style="background:#3b82f6;color:#fff;padding:8px 12px;border-radius:8px">
-Ver extrato
-</button>
-</div>
-  
 function abrirFinanceiro(){
 document.getElementById("painelMobile").style.display="none"
 document.getElementById("appSistema").style.display="block"
