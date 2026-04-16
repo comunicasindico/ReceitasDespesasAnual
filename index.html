@@ -107,15 +107,22 @@ Criar Conta Grátis Agora
 
 <!-- PAINEL MOBILE -->
 <div id="painelMobile" style="display:none">
-
 <div id="telaInicio" class="telaApp telaAtiva">
-
 <div style="padding:20px;background:linear-gradient(180deg,#1e3a8a,#020617);border-bottom-left-radius:25px;border-bottom-right-radius:25px;position:relative">
 <button onclick="abrirMobile()" style="position:absolute;top:10px;left:10px;background:rgba(0,0,0,.4);color:#fff;border:none;border-radius:8px;padding:6px 10px">
 🏠
 </button>
 <div style="font-size:18px;margin-bottom:10px">
 Olá, <span id="mobileNome"></span>
+</div>
+<div id="telaAdmin" class="telaApp">
+<div class="topBarMobile">
+<button class="btnVoltar" onclick="irInicio()">←</button>
+<b>👑 Administração</b>
+</div>
+<div style="padding:15px">
+<div id="listaAdminUsuarios"></div>
+</div>
 </div>
 <div style="font-size:22px;font-weight:bold;display:flex;align-items:center;gap:10px">
 <span id="mobileSaldo"></span>
@@ -154,19 +161,31 @@ Entrar no Financeiro
 <div id="telaPerfil" class="telaApp">
 <div class="topBarMobile">
 <button class="btnVoltar" onclick="irInicio()">←</button>
-<b>Perfil</b>
+<b>👤 Perfil</b>
 </div>
-<div style="padding:20px">
-<div style="font-size:20px;font-weight:bold" id="mobileNome"></div>
-<div style="margin-top:10px">Agência: <span id="mobileAgencia"></span></div>
-<div>Conta: <span id="mobileConta"></span></div>
+<div style="padding:15px;display:flex;flex-direction:column;gap:8px">
+<input id="perfilNome" placeholder="Nome">
+<input id="perfilEmail" placeholder="Email">
+<input id="perfilCelular" placeholder="Celular">
+<div style="font-size:12px">Agência</div>
+<input id="perfilAgencia" disabled>
+<div style="font-size:12px">Conta</div>
+<input id="perfilConta" disabled>
+<select id="perfilPlano">
+<option value="free">FREE</option>
+<option value="pro">PRO</option>
+</select>
+<div style="display:flex;gap:5px;margin-top:10px">
+<button onclick="salvarPerfil()" style="flex:1;background:#22c55e;color:#000;padding:10px;border-radius:10px">Salvar</button>
+<button onclick="excluirUsuario()" style="flex:1;background:#ef4444;color:#fff;padding:10px;border-radius:10px">Excluir</button>
+</div>
 </div>
 </div>
 
 <div id="telaIA" class="telaApp">
 <div class="topBarMobile">
 <button class="btnVoltar" onclick="irInicio()">←</button>
-<b>Assistente IA</b>
+<b>Comunica IA</b>
 </div>
 <div style="padding:15px">
 <input id="perguntaIA" placeholder="Pergunte algo..." style="width:100%;padding:10px;border-radius:10px">
@@ -178,10 +197,11 @@ Perguntar
 </div>
 
 <div class="bottomNav">
+<div class="navItem" id="btnAdmin" onclick="abrirTela('admin',this)" style="display:none"><span>👑</span>Admin</div>
 <div class="navItem navAtivo" onclick="abrirTela('inicio',this)"><span>🏠</span>Início</div>
 <div class="navItem" onclick="abrirTela('extrato',this)"><span>📄</span>Extrato</div>
 <div class="navItem" onclick="abrirTela('perfil',this)"><span>👤</span>Perfil</div>
-<div class="navItem" onclick="abrirTela('ia',this)"><span>🤖</span>IA</div>
+<div class="navItem" onclick="abrirTela('ia',this)"><span>🤖</span>ComunicaIA</div>
 </div>
 </div>
 
@@ -1182,6 +1202,7 @@ usuario_id:userId
 /* ====================================================028 – SISTEMA==================================================== */
 async function iniciarSistema(){
 carregarCategorias()
+verificarAdmin()
 await verificarSessao()
 /* 🔥 DATA LOCAL REAL (100% SEM BUG DE MÊS) */
 const hoje=new Date()
@@ -1652,6 +1673,10 @@ if(nome==="inicio")document.getElementById("telaInicio").classList.add("telaAtiv
 if(nome==="extrato")document.getElementById("telaExtrato").classList.add("telaAtiva")
 if(nome==="perfil")document.getElementById("telaPerfil").classList.add("telaAtiva")
 if(nome==="ia")document.getElementById("telaIA").classList.add("telaAtiva")
+if(nome==="admin"){
+document.getElementById("telaAdmin").classList.add("telaAtiva")
+carregarAdminUsuarios()
+}
 if(el)el.classList.add("navAtivo")
 }
 
@@ -1671,8 +1696,75 @@ document.getElementById("painelMobile").style.display="block"
 document.getElementById("appSistema").style.display="none"
 window.scrollTo(0,0)
 }
+/* ====================================================094 – ADMIN VISIBILIDADE==================================================== */
+function verificarAdmin(){
+const tipo=localStorage.getItem("tipo_usuario")
+if(tipo==="admin"){
+const btn=document.getElementById("btnAdmin")
+if(btn)btn.style.display="flex"
+}
+}
+/* ====================================================095 – ADMIN LISTA==================================================== */
+async function carregarAdminUsuarios(){
+const {data}=await db.from("usuarios_lancamentos").select("*")
+const lista=document.getElementById("listaAdminUsuarios")
+lista.innerHTML=data.map(u=>`
+<div style="background:#020617;padding:12px;border-radius:10px;margin-bottom:8px">
+<div><b>${u.nome}</b></div>
+<div>${u.email}</div>
+<div>📞 ${u.celular||"-"}</div>
+<div>🏦 ${u.agencia||"-"} • ${u.conta||"-"}</div>
+<div>Plano: ${u.plano}</div>
+<div style="margin-top:5px;display:flex;gap:5px">
+<button onclick="editarUsuarioAdmin('${u.id}')" style="background:#3b82f6;color:#fff;padding:5px;border-radius:6px">Editar</button>
+<button onclick="excluirUsuarioAdmin('${u.id}')" style="background:#ef4444;color:#fff;padding:5px;border-radius:6px">Excluir</button>
+</div>
+</div>
+`).join("")
+}
+/* ================096 CARREGAR PERFIL ================================================== */
+async function carregarPerfil(){
+const userId=localStorage.getItem("usuario_id_lancamentos")
+const {data}=await db.from("usuarios_lancamentos").select("*").eq("id",userId).single()
+if(!data)return
+document.getElementById("perfilNome").value=data.nome||""
+document.getElementById("perfilEmail").value=data.email||""
+document.getElementById("perfilCelular").value=data.celular||""
+document.getElementById("perfilAgencia").value=data.agencia||""
+document.getElementById("perfilConta").value=data.conta||""
+document.getElementById("perfilPlano").value=data.plano||"free"
+}
+/* ================097 SALVAR PERFIL ================================================== */
+async function salvarPerfil(){
+const userId=localStorage.getItem("usuario_id_lancamentos")
+const obj={
+nome:document.getElementById("perfilNome").value,
+email:document.getElementById("perfilEmail").value,
+celular:document.getElementById("perfilCelular").value,
+plano:document.getElementById("perfilPlano").value
+}
+await db.from("usuarios_lancamentos").update(obj).eq("id",userId)
+alert("Perfil atualizado")
+}
+/* ================098 EXCLUIR USUÁRIO ================================================== */
+async function excluirUsuario(){
+if(!confirm("Deseja excluir este usuário?"))return
+const userId=localStorage.getItem("usuario_id_lancamentos")
+await db.from("usuarios_lancamentos").delete().eq("id",userId)
+alert("Usuário excluído")
+logout()
+}
+/* ================099 EDITAR USUÁRIO ADMIN================================================== */
+async function editarUsuarioAdmin(id){
+const {data}=await db.from("usuarios_lancamentos").select("*").eq("id",id).single()
+document.getElementById("perfilNome").value=data.nome
+document.getElementById("perfilEmail").value=data.email
+document.getElementById("perfilCelular").value=data.celular
+document.getElementById("perfilPlano").value=data.plano
+abrirTela("perfil")
+}  
 
-
+    
 </script>
 
 <div id="boxPix" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#020617;padding:20px;border-radius:12px;z-index:99999;text-align:center">
