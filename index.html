@@ -1737,18 +1737,23 @@ if(btn)btn.style.display="flex"
 }
 /* ====================================================095 – ADMIN LISTA==================================================== */
 async function carregarAdminUsuarios(){
-const {data}=await db.from("usuarios_lancamentos").select("*")
 const lista=document.getElementById("listaAdminUsuarios")
+if(!lista)return
+const {data,error}=await db.from("usuarios_lancamentos").select("*").order("nome",{ascending:true})
+if(error||!data){lista.innerHTML="Erro ao carregar usuários";return}
 lista.innerHTML=data.map(u=>`
-<div style="background:#020617;padding:12px;border-radius:10px;margin-bottom:8px">
-<div><b>${u.nome}</b></div>
-<div>${u.email}</div>
-<div>📞 ${u.celular||"-"}</div>
-<div>🏦 ${u.agencia||"-"} • ${u.conta||"-"}</div>
-<div>Plano: ${u.plano}</div>
-<div style="margin-top:5px;display:flex;gap:5px">
-<button onclick="editarUsuarioAdmin('${u.id}')" style="background:#3b82f6;color:#fff;padding:5px;border-radius:6px">Editar</button>
-<button onclick="excluirUsuarioAdmin('${u.id}')" style="background:#ef4444;color:#fff;padding:5px;border-radius:6px">Excluir</button>
+<div style="background:#020617;padding:12px;border-radius:10px;margin-bottom:8px;border:1px solid rgba(255,255,255,.05)">
+<div><b>${u.nome||"-"}</b></div>
+<div style="font-size:12px;opacity:.8">${u.email||"-"}</div>
+<div style="font-size:12px">📞 ${u.celular||"-"}</div>
+<div style="font-size:12px">🏦 ${u.agencia||"-"} • ${u.conta||"-"}</div>
+<div style="font-size:12px;color:${u.plano==="pro"?"#22c55e":"#f59e0b"}">
+Plano: ${(u.plano||"free").toUpperCase()}
+</div>
+<div style="font-size:12px">Tipo: ${u.tipo||"user"}</div>
+<div style="margin-top:6px;display:flex;gap:6px">
+<button onclick="editarUsuarioAdmin('${u.id}')" style="flex:1;background:#3b82f6;color:#fff;padding:6px;border-radius:6px">Editar</button>
+<button onclick="excluirUsuarioAdmin('${u.id}')" style="flex:1;background:#ef4444;color:#fff;padding:6px;border-radius:6px">Excluir</button>
 </div>
 </div>
 `).join("")
@@ -1794,19 +1799,23 @@ document.getElementById("perfilPlano").value=data.plano||"free"
 async function salvarPerfil(){
 const userId=localStorage.getItem("usuario_id_lancamentos")
 if(!userId)return
+
 const obj={
 nome:document.getElementById("perfilNome").value,
 email:document.getElementById("perfilEmail").value,
-celular:document.getElementById("perfilCelular").value
+celular:document.getElementById("perfilCelular").value,
+plano:document.getElementById("perfilPlano").value
 }
-/* 🔥 NÃO ALTERAR agência/conta aqui (são fixos) */
+
 const {error}=await db
 .from("usuarios_lancamentos")
 .update(obj)
 .eq("id",userId)
+
 if(error){alert("Erro ao salvar");return}
-alert("✔ Perfil atualizado")
-await carregarPerfil()
+
+alert("Perfil atualizado")
+carregarPerfil()
 }
 /* ================099 EDITAR USUÁRIO ADMIN================================================== */
 async function editarUsuarioAdmin(id){
