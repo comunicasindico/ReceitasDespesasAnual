@@ -215,7 +215,7 @@ Perguntar
 <option value="DESPESA">Despesa</option>
 </select>
 <select id="categoria"></select>
-<input id="valor" type="number" placeholder="Valor" style="width:120px">
+<input id="valor" type="text" onblur="formatarInputValor(this)">
 <label style="font-size:11px"><input type="checkbox" id="recorrente"> Recorrente</label>
 <input id="diaPadrao" type="number" placeholder="Dia" style="width:60px">
 <button onclick="add()" style="background:#22c55e;color:#000;font-weight:bold">Adicionar</button>
@@ -525,15 +525,12 @@ document.getElementById("valor").value=x.valor||0
 async function add(){
 const userId=localStorage.getItem("usuario_id_lancamentos")
 if(!userId){alert("Usuário não autenticado");return}
-
 /* 🔥 PLANO (DECLARADO UMA ÚNICA VEZ) */
 const planoAtual=(localStorage.getItem("usuario_plano")||"free").toLowerCase()
-
 if(planoAtual!=="pro" && dados.length>=LIMITE_USUARIO){
 mostrarUpgrade()
 return
 }
-
 const dataEl=document.getElementById("data")
 const descEl=document.getElementById("desc")
 const tipoEl=document.getElementById("tipo")
@@ -541,13 +538,11 @@ const categoriaEl=document.getElementById("categoria")
 const valorEl=document.getElementById("valor")
 const recorrenteEl=document.getElementById("recorrente")
 const diaEl=document.getElementById("diaPadrao")
-
 const dataStr=dataEl.value.split("T")[0]
-
 /* 🔥 TRATAR VALOR */
 let valorBr=valorEl.value||"0"
-valorBr=valorBr.replace(/\./g,"").replace(",",".")
-const valorNum=parseFloat(valorBr)
+valorBr=valorBr.replace(/\s/g,"").replace(",",".")
+const valorNum=Number(valorBr)
 
 if(isNaN(valorNum)){
 alert("Valor inválido")
@@ -567,17 +562,14 @@ pago:false,
 data_pagamento:null,
 usuario_id:userId
 }
-
 if(!obj.data||!obj.descricao){
 alert("Preencha data e descrição")
 return
 }
-
 if(obj.valor<=0){
 alert("Valor deve ser maior que zero")
 return
 }
-
 await salvarRegistro(obj)
 
 document.getElementById("desc").value=""
@@ -591,7 +583,6 @@ if(!dataStr)return null
 const [ano,mes,dia]=dataStr.split("-")
 return `${ano}-${mes}-${dia}`
 }
-
 /* ====================================================014 – FORMATADORES==================================================== */
 function formatarMoeda(v){
 return Number(v||0).toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2})
@@ -1646,7 +1637,13 @@ if(el)el.classList.add("navAtivo")
 function irInicio(){
 abrirTela("inicio",document.querySelectorAll(".navItem")[0])
 }
-
+/* =========092 – FORMATAR INPUT VALOR=================================================== */
+function formatarInputValor(el){
+let v=el.value.replace(",",".")
+let num=Number(v)
+if(isNaN(num)){el.value="";return}
+el.value=num.toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2})
+}
 
 </script>
 
