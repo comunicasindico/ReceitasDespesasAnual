@@ -306,41 +306,62 @@ render()
 }
 /* ====================================================004 – LOGIN==================================================== */
 async function loginSistema(){
+
 const email=document.getElementById("loginUser").value.trim()
 const senha=document.getElementById("loginPass").value.trim()
+
 if(!email||!senha){alert("Preencha e-mail e senha");return}
-const {data,error}=await supabaseClient.from("usuarios_lancamentos").select("*").eq("email",email).eq("senha",senha).limit(1)
-if(error||!data||data.length===0){alert("Usuário inválido");return}
+
+/* 🔥 USAR db PADRÃO */
+const {data,error}=await db
+.from("usuarios_lancamentos")
+.select("*")
+.eq("email",email)
+.eq("senha",senha)
+.limit(1)
+
+if(error||!data||data.length===0){
+alert("Usuário inválido")
+return
+}
+
 const user=data[0]
 
+/* 🔥 SALVAR SESSÃO */
 localStorage.setItem("usuario_id_lancamentos",user.id)
 localStorage.setItem("usuario_nome_lancamentos",user.nome)
 localStorage.setItem("tipo_usuario_lancamentos",user.tipo)
 localStorage.setItem("usuario_plano",(user.plano||"free").toLowerCase())
-
+/* 🔥 UI */
 document.getElementById("telaLogin").style.display="none"
 document.getElementById("appSistema").style.display="none"
 document.getElementById("painelMobile").style.display="block"
-atualizarPainelMobile()
+
 document.body.classList.remove("login")
 document.body.classList.add("app")
 
 setUserUI()
-PLANO_USUARIO = (localStorage.getItem("usuario_plano") || "free").toLowerCase()
+PLANO_USUARIO=(localStorage.getItem("usuario_plano")||"free").toLowerCase()
+/* 🔥 ATUALIZA MOBILE */
+atualizarPainelMobile()
 
 const painelAdmin=document.getElementById("painelAdmin")
 const conteudoApp=document.getElementById("conteudoApp")
-
+/* 🔥 ADMIN */
 if(user.tipo==="admin"){
 if(painelAdmin)painelAdmin.style.display="block"
 if(conteudoApp)conteudoApp.style.display="none"
-await carregarUsuarios()
-}else{
+await carregarAdminUsuarios()
+}
+/* 🔥 USUÁRIO NORMAL */
+else{
 if(painelAdmin)painelAdmin.style.display="none"
 if(conteudoApp)conteudoApp.style.display="block"
+
 await carregar()
 await gerarRecorrentes()
 await carregar()
+
 gerarDadosBancarios()
 await carregarPerfil()
 }
@@ -1735,23 +1756,25 @@ const {data,error}=await db
 .select("*")
 .eq("id",userId)
 .single()
+
+if(error){console.log(error);return}
+/* 🔥 GERAR AGÊNCIA/CONTA SE NÃO EXISTIR */
 if(!data.agencia || !data.conta){
 const hoje=new Date()
 const dd=String(hoje.getDate()).padStart(2,"0")
 const mm=String(hoje.getMonth()+1).padStart(2,"0")
 const yyyy=hoje.getFullYear()
 const contaGerada="001"+dd+mm+yyyy
+
 await db.from("usuarios_lancamentos")
 .update({
 agencia:"1968-6",
 conta:contaGerada
 })
 .eq("id",userId)
-/* 🔁 recarregar */
+
 return carregarPerfil()
 }
-if(error){console.log(error);return}
-
 /* 🔥 PREENCHER CAMPOS */
 document.getElementById("perfilNome").value=data.nome||""
 document.getElementById("perfilEmail").value=data.email||""
@@ -1787,7 +1810,13 @@ document.getElementById("perfilCelular").value=data.celular
 document.getElementById("perfilPlano").value=data.plano
 abrirTela("perfil")
 }  
-
+/* ================100 ABRIR PERFIL================================================= */
+function abrirPerfil(){
+document.getElementById("painelMobile").style.display="none"
+document.getElementById("appSistema").style.display="none"
+document.getElementById("telaPerfil").style.display="block"
+carregarPerfil()
+}
     
 </script>
 
