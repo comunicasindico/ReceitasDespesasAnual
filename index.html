@@ -457,7 +457,6 @@ if(!d)return""
 const [ano,mes,dia]=d.split("-")
 return `${dia}/${mes}/${ano}`
 }
-
 /* ====================================================015 – DATA LOCAL==================================================== */
 function hojeLocal(){
 const d=new Date()
@@ -470,7 +469,6 @@ if(!x.data)return
 const [ano,mes]=x.data.split("-")
 return Number(mes)-1
 }
-
 /* ====================================================017 – MODO EDIÇÃO==================================================== */
 function toggleModoEdicao(){
 modoEdicao=!modoEdicao
@@ -1027,15 +1025,18 @@ usuario_id:userId
 async function iniciarSistema(){
 carregarCategorias()
 await verificarSessao()
-
+/* 🔥 DATA LOCAL CORRETA (SEM ERRO DE MÊS) */
 const hoje=new Date()
-const iso=new Date(hoje.getTime()-hoje.getTimezoneOffset()*60000)
-.toISOString()
-.slice(0,10)
-;["data","dataInicio","dataFim"].forEach(id=>{
-const el=document.getElementById(id)
-if(el&&!el.value)el.value=iso
-})
+const local=new Date(hoje.getTime()-hoje.getTimezoneOffset()*60000)
+const iso=local.toISOString().slice(0,10)
+/* 🔥 FORÇA ATUALIZAÇÃO (SEM DEPENDER DE CACHE) */
+const dataEl=document.getElementById("data")
+const dataInicioEl=document.getElementById("dataInicio")
+const dataFimEl=document.getElementById("dataFim")
+
+if(dataEl)dataEl.value=iso
+if(dataInicioEl && !dataInicioEl.value)dataInicioEl.value=iso
+if(dataFimEl && !dataFimEl.value)dataFimEl.value=iso
 }
 /* ====================================================029 – CADASTRO MODAL==================================================== */
 function abrirCadastro(){
