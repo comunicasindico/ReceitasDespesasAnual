@@ -359,56 +359,49 @@ document.getElementById("telaInicio").classList.add("telaAtiva")
 /* ====================================================005 – SESSÃO==================================================== */
 async function verificarSessao(){
 const userId=localStorage.getItem("usuario_id_lancamentos")
-
-if(userId){
-document.getElementById("telaLogin").style.display="none"
-document.getElementById("appSistema").style.display="block"
-document.body.classList.remove("login")
-document.body.classList.add("app")
-
-setUserUI()
-PLANO_USUARIO=(localStorage.getItem("usuario_plano")||"free").toLowerCase()
-const userId=localStorage.getItem("usuario_id_lancamentos")
-if(userId){
-/* 🔥 BUSCAR USUÁRIO ATUALIZADO NO BANCO */
-const {data}=await db
-.from("usuarios_lancamentos")
-.select("*")
-.eq("id",userId)
-.limit(1)
-
-if(data && data.length){
+if(!userId){
+const telaLogin=document.getElementById("telaLogin")
+const appSistema=document.getElementById("appSistema")
+if(telaLogin)telaLogin.style.display="flex"
+if(appSistema)appSistema.style.display="none"
+document.body.classList.add("login")
+document.body.classList.remove("app")
+return
+}
+const {data,error}=await db.from("usuarios_lancamentos").select("*").eq("id",userId).limit(1)
+if(error||!data||!data.length){
+localStorage.clear()
+location.reload()
+return
+}
 const user=data[0]
-
 localStorage.setItem("usuario_plano",(user.plano||"free").toLowerCase())
 localStorage.setItem("tipo_usuario_lancamentos",user.tipo||"user")
 localStorage.setItem("usuario_nome_lancamentos",user.nome||"Usuário")
-}
-/* UI */
-document.getElementById("telaLogin").style.display="none"
-document.getElementById("appSistema").style.display="block"
+const telaLogin=document.getElementById("telaLogin")
+const painelMobile=document.getElementById("painelMobile")
+if(telaLogin)telaLogin.style.display="none"
+if(painelMobile)painelMobile.style.display="block"
 document.body.classList.remove("login")
 document.body.classList.add("app")
-
 setUserUI()
-
-const tipo=localStorage.getItem("tipo_usuario_lancamentos")
-
-if(tipo==="admin"){
-document.getElementById("painelAdmin").style.display="block"
-await carregarUsuarios()
+PLANO_USUARIO=(localStorage.getItem("usuario_plano")||"free").toLowerCase()
+atualizarPainelMobile()
+const btnAdmin=document.getElementById("btnAdmin")
+if(user.tipo==="admin"){if(btnAdmin)btnAdmin.style.display="flex"}else{if(btnAdmin)btnAdmin.style.display="none"}
+document.querySelectorAll(".telaApp").forEach(t=>t.classList.remove("telaAtiva"))
+if(user.tipo==="admin"){
+await carregarAdminUsuarios()
+const telaAdmin=document.getElementById("telaAdmin")
+if(telaAdmin)telaAdmin.classList.add("telaAtiva")
 }else{
 await carregar()
 await gerarRecorrentes()
 await carregar()
-}
-
-}else{
-document.getElementById("telaLogin").style.display="flex"
-document.getElementById("appSistema").style.display="none"
-document.body.classList.add("login")
-document.body.classList.remove("app")
-}
+gerarDadosBancarios()
+await carregarPerfil()
+const telaInicio=document.getElementById("telaInicio")
+if(telaInicio)telaInicio.classList.add("telaAtiva")
 }
 }
 /* ====================================================050 – GERAR DADOS BANCÁRIOS==================================================== */
