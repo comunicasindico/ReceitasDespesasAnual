@@ -371,6 +371,7 @@ await carregar()
 
 gerarDadosBancarios()
 await carregarPerfil()
+abrirTela("perfil")
 }
 }
 /* ====================================================005 – SESSÃO==================================================== */
@@ -1833,7 +1834,14 @@ document.getElementById("appSistema").style.display="none"
 document.getElementById("telaPerfil").style.display="block"
 carregarPerfil()
 }
-    
+document.addEventListener("DOMContentLoaded",()=>{
+const userId=localStorage.getItem("usuario_id_lancamentos")
+if(userId){
+carregarPerfil()
+}
+})
+
+
 </script>
 
 <div id="boxPix" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#020617;padding:20px;border-radius:12px;z-index:99999;text-align:center">
