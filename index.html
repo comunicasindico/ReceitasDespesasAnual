@@ -454,15 +454,9 @@ return Number(v||0).toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFract
 }
 function formatarDataBR(d){
 if(!d)return""
-/* 🔥 GARANTE QUE É DATA REAL */
-const data=new Date(d)
-/* 🔥 CORRIGE TIMEZONE */
-const local=new Date(data.getTime()-data.getTimezoneOffset()*60000)
-/* 🔥 FORMATA CORRETO */
-const dia=String(local.getDate()).padStart(2,"0")
-const mes=String(local.getMonth()+1).padStart(2,"0")
-const ano=local.getFullYear()
-
+/* 🔥 REMOVE QUALQUER COISA APÓS T (timezone) */
+const limpa=d.split("T")[0]
+const [ano,mes,dia]=limpa.split("-")
 return `${dia}/${mes}/${ano}`
 }
 /* ====================================================015 – DATA LOCAL==================================================== */
