@@ -512,7 +512,7 @@ location.reload()
 }
 /* ====================================================007 – CARREGAR==================================================== */
 async function carregar(){
-const {data,error}=await supabaseClient.from("lancamentos").select("*").order("data",{ascending:true})
+const {data,error}=await db.from("lancamentos").select("*").order("data",{ascending:true})
 if(error){alert("Erro ao carregar");return}
 
 dados=data||[]
@@ -536,9 +536,9 @@ window._renderLock=false
 async function salvarRegistro(obj){
 let response
 if(obj.id){
-response=await supabaseClient.from("lancamentos").update(obj).eq("id",obj.id)
+response=await db.from("lancamentos").update(obj).eq("id",obj.id)
 }else{
-response=await supabaseClient.from("lancamentos").insert(obj)
+response=await db.from("lancamentos").insert(obj)
 }
 if(response.error){
 console.error("ERRO AO SALVAR:",response.error)
@@ -549,7 +549,7 @@ await carregar()
 }
 /* ====================================================009 – EXCLUIR==================================================== */
 async function del(id){
-await supabaseClient.from("lancamentos").delete().eq("id",id)
+await db.from("lancamentos").delete().eq("id",id)
 await carregar()
 }
 /* ====================================================010 – MARCAR PAGO==================================================== */
@@ -565,7 +565,7 @@ return
 const novoStatus=!item.pago
 const dataLocal=hojeLocal()
 
-await supabaseClient.from("lancamentos").update({
+await db.from("lancamentos").update({
 pago:novoStatus,
 data_pagamento:novoStatus?dataLocal:null
 }).eq("id",id)
@@ -704,7 +704,7 @@ const atualizado={
 valor:parseFloat(alteracoes.valor??original.valor)
 }
 
-await supabaseClient.from("lancamentos").update(atualizado).eq("id",id)
+await db.from("lancamentos").update(atualizado).eq("id",id)
 
 delete edicoesTemp[id]
 
@@ -1091,12 +1091,12 @@ const mes=parseInt(document.getElementById("mesBase")?.value||new Date().getMont
 const mesAnterior=mes-1
 if(mesAnterior<0){alert("Sem mês anterior");return}
 
-const {data:anteriores}=await supabaseClient.from("lancamentos").select("*")
+const {data:anteriores}=await db.from("lancamentos").select("*")
 .eq("usuario_id",userId)
 .gte("data",`${ano}-${String(mesAnterior+1).padStart(2,"0")}-01`)
 .lte("data",`${ano}-${String(mesAnterior+1).padStart(2,"0")}-31`)
 
-const {data:atuais}=await supabaseClient.from("lancamentos").select("*")
+const {data:atuais}=await db.from("lancamentos").select("*")
 .eq("usuario_id",userId)
 .gte("data",`${ano}-${String(mes+1).padStart(2,"0")}-01`)
 .lte("data",`${ano}-${String(mes+1).padStart(2,"0")}-31`)
@@ -1106,7 +1106,7 @@ const existentes=new Set((atuais||[]).map(x=>x.descricao))
 for(const x of (anteriores||[])){
 if(!existentes.has(x.descricao)){
 const dia=x.data.split("-")[2]
-await supabaseClient.from("lancamentos").insert({
+await db.from("lancamentos").insert({
 data:`${ano}-${String(mes+1).padStart(2,"0")}-${dia}`,
 descricao:x.descricao,
 tipo:x.tipo,
@@ -1176,7 +1176,7 @@ const original=dados.find(x=>String(x.id)===String(id))
 if(!original)continue
 const alteracoes=edicoesTemp[id]
 const atualizado={...original,...alteracoes,valor:parseFloat(alteracoes.valor??original.valor)}
-await supabaseClient.from("lancamentos").update(atualizado).eq("id",id)
+await db.from("lancamentos").update(atualizado).eq("id",id)
 }
 edicoesTemp={}
 modoEdicao=false
@@ -1196,7 +1196,7 @@ const mes=hoje.getMonth()+1
 
 const primeiroDiaMes=`${ano}-${String(mes).padStart(2,"0")}-01`
 
-const {data:rec}=await supabaseClient.from("lancamentos")
+const {data:rec}=await db.from("lancamentos")
 .select("*")
 .eq("recorrente",true)
 .eq("usuario_id",userId)
@@ -1206,7 +1206,7 @@ for(const r of (rec||[])){
 const dia=Number(r.dia_padrao||1)
 const nova=`${ano}-${String(mes).padStart(2,"0")}-${String(dia).padStart(2,"0")}`
 
-const {data:existente}=await supabaseClient.from("lancamentos")
+const {data:existente}=await db.from("lancamentos")
 .select("id")
 .eq("usuario_id",userId)
 .eq("data",nova)
@@ -1215,7 +1215,7 @@ const {data:existente}=await supabaseClient.from("lancamentos")
 
 if(existente && existente.length>0)continue
 
-await supabaseClient.from("lancamentos").insert({
+await db.from("lancamentos").insert({
 data:nova,
 descricao:r.descricao,
 tipo:r.tipo,
@@ -1273,7 +1273,7 @@ const senha=document.getElementById("cad_senha").value
 
 if(!nome||!email||!senha){alert("Preencha tudo");return}
 
-await supabaseClient.from("usuarios_lancamentos").insert({
+await db.from("usuarios_lancamentos").insert({
 nome,email,senha,status:"pendente",tipo:"user",plano:"free"
 })
 
@@ -1329,7 +1329,7 @@ Resetar
 }
 /* ==========================031A APROVAR USUARIO========================================= */
 async function aprovarUsuario(id){
-await supabaseClient.from("usuarios_lancamentos").update({status:"aprovado",
+await db.from("usuarios_lancamentos").update({status:"aprovado",
 plano:"free"}).eq("id",id)
 await criarPadraoUsuario(id)
 alert("Usuário aprovado")
@@ -1371,7 +1371,7 @@ const padrao=[
 ]
 
 for(const p of padrao){
-await supabaseClient.from("lancamentos").insert({
+await db.from("lancamentos").insert({
 data:hoje,
 descricao:"Inicial",
 tipo:p.tipo,
@@ -1459,7 +1459,7 @@ menu.style.display=menu.style.display==="block"?"none":"block"
 }
 
 async function rebaixarFree(id){
-await supabaseClient.from("usuarios_lancamentos").update({plano:"free",limite:20}).eq("id",id)
+await db.from("usuarios_lancamentos").update({plano:"free",limite:20}).eq("id",id)
 alert("Usuário voltou para FREE")
 carregarUsuarios()
 }
