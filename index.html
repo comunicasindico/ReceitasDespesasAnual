@@ -179,14 +179,12 @@ Entrar no Financeiro
 <input id="perfilNome" placeholder="Nome">
 <input id="perfilEmail" placeholder="Email">
 <input id="perfilCelular" placeholder="Celular">
-<div style="font-size:12px">Agência</div>
-<input id="perfilAgencia" disabled>
-<div style="font-size:12px">Conta</div>
-<input id="perfilConta" disabled>
-<select id="perfilPlano">
-<option value="free">FREE</option>
-<option value="pro">PRO</option>
-</select>
+<div style="font-size:12px;opacity:.7;margin-top:10px">Agência</div>
+<div id="boxAgencia" style="background:#020617;border:1px solid rgba(255,255,255,.15);padding:12px;border-radius:10px;font-weight:bold;color:#e2e8f0">--</div>
+<div style="font-size:12px;opacity:.7;margin-top:10px">Conta</div>
+<div id="boxConta" style="background:#020617;border:1px solid rgba(255,255,255,.15);padding:12px;border-radius:10px;font-weight:bold;color:#e2e8f0">--</div>
+<div style="font-size:12px;opacity:.7;margin-top:10px">Plano</div>
+<div id="badgePlano" style="padding:10px;border-radius:10px;text-align:center;font-weight:bold">--</div>
 <div style="display:flex;gap:5px;margin-top:10px">
 <button onclick="salvarPerfil()" style="flex:1;background:#22c55e;color:#000;padding:10px;border-radius:10px">Salvar</button>
 <button onclick="excluirUsuario()" style="flex:1;background:#ef4444;color:#fff;padding:10px;border-radius:10px">Excluir</button>
@@ -1792,9 +1790,35 @@ return carregarPerfil()
 document.getElementById("perfilNome").value=data.nome||""
 document.getElementById("perfilEmail").value=data.email||""
 document.getElementById("perfilCelular").value=data.celular||""
-document.getElementById("perfilAgencia").value=data.agencia||""
-document.getElementById("perfilConta").value=data.conta||""
-document.getElementById("perfilPlano").value=data.plano||"free"
+/* 🔥 NOVO VISUAL */
+document.getElementById("boxAgencia").innerText=data.agencia||"-"
+document.getElementById("boxConta").innerText=data.conta||"-"
+/* 🔥 BADGE PLANO */
+const badge=document.getElementById("badgePlano")
+if(data.plano==="pro"){
+badge.innerText="🟢 PRO"
+badge.style.background="#052e16"
+badge.style.color="#4ade80"
+}else{
+badge.innerText="🟡 FREE"
+badge.style.background="#78350f"
+badge.style.color="#facc15"
+}
+const tipo=localStorage.getItem("tipo_usuario_lancamentos")
+
+if(tipo!=="admin"){
+document.getElementById("perfilPlano").style.display="none"
+}
+if(tipo!=="admin"){
+document.getElementById("perfilNome").disabled=true
+document.getElementById("perfilEmail").disabled=true
+document.getElementById("perfilCelular").disabled=true
+}
+if(tipo==="admin"){
+document.getElementById("perfilNome").disabled=false
+document.getElementById("perfilEmail").disabled=false
+document.getElementById("perfilCelular").disabled=false
+}
 }
 /* ================097 SALVAR PERFIL ================================================== */
 async function salvarPerfil(){
