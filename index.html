@@ -2,7 +2,7 @@
 <html lang="pt-br">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <title>ReceitasDespesasAnual PRO</title>
 <link rel="icon" href="data:,">
 <style>
@@ -70,6 +70,11 @@ button:hover{transform:scale(1.05)}
 .telaAtiva{display:block}
 .topBarMobile{display:flex;align-items:center;gap:10px;padding:10px;background:#020617}
 .btnVoltar{background:#111827;border:none;color:#fff;padding:6px 10px;border-radius:8px}
+html,body{width:100%;height:100%;overflow-x:hidden}
+#painelMobile{min-height:100vh;overflow-y:auto}
+#painelMobile{scroll-behavior:smooth}
+.telaApp{display:none;padding-bottom:90px;min-height:100vh}
+.telaApp.telaAtiva{display:block!important}
 
 </style>
 
@@ -124,8 +129,11 @@ Criar Conta Grátis Agora
 <button onclick="abrirMobile()" style="position:absolute;top:10px;left:10px;background:rgba(0,0,0,.4);color:#fff;border:none;border-radius:8px;padding:6px 10px">
 🏠
 </button>
-<div style="font-size:18px;margin-bottom:10px">
-          Olá, <span id="mobileNome"></span>
+<div style="display:flex;align-items:center;gap:10px">
+<button onclick="abrirMobile()" style="background:rgba(0,0,0,.4);color:#fff;border:none;border-radius:8px;padding:6px 10px">🏠</button>
+<div style="font-size:18px">
+Olá, <span id="mobileNome"></span>
+</div>
 </div>
 <div id="telaAdmin" class="telaApp">
 <div class="topBarMobile">
@@ -1598,13 +1606,17 @@ document.body.appendChild(box)
 }
 /* ====================================================040 – GERAR PIX PREMIUM==================================================== */
 function gerarPix(){
+const plano=(localStorage.getItem("usuario_plano")||"free").toLowerCase()
+if(plano==="pro"){alert("Seu plano já é PRO e está ativo.");return}
 const usuario_id=localStorage.getItem("usuario_id_lancamentos")||"000"
 const nome=localStorage.getItem("usuario_nome_lancamentos")||"Cliente"
 const chavePIX="69984311978"
 const telefone="5569984311978"
+const valor="19.90"
 const mensagem=`Olá, realizei o pagamento do PRO.%0AUsuário: ${nome}%0AID: ${usuario_id}%0AValor: R$19,90`
+const payloadPix=`00020126360014BR.GOV.BCB.PIX0114${chavePIX}5204000053039865405${valor}5802BR5920${nome.substring(0,20)}6009SAO PAULO62070503***6304`
 const img=document.getElementById("qrPix")
-img.src=`https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(chavePIX)}`
+if(img)img.src=`https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(payloadPix)}`
 const inputPix=document.getElementById("chavePix")
 if(inputPix)inputPix.value=chavePIX
 const botaoCopiar=document.getElementById("btnCopiarPix")
@@ -1617,7 +1629,8 @@ const botaoZap=document.getElementById("btnWhatsapp")
 if(botaoZap)botaoZap.onclick=function(){
 window.open(`https://wa.me/${telefone}?text=${mensagem}`,"_blank")
 }
-document.getElementById("boxPix").style.display="block"
+const box=document.getElementById("boxPix")
+if(box)box.style.display="block"
 }
 /* ==============================041 parallax  lua=================================================== */
 function iniciarParallaxLogin(){
@@ -1633,18 +1646,14 @@ bg.style.transform=`translate(${x}px,${y}px) scale(1.08)`
 /* ======================042 CONFIRMAR PAGAMENTO=================================================== */
 async function confirmarPagamento(){
 const usuario_id=localStorage.getItem("usuario_id_lancamentos")
-
+const plano=(localStorage.getItem("usuario_plano")||"free").toLowerCase()
 if(!usuario_id){alert("Usuário não encontrado");return}
-
-await db
-.from("usuarios_lancamentos")
-.update({plano:"analise"})
-.eq("id",usuario_id)
-
+if(plano==="pro"){alert("Seu plano já está ativo como PRO.");return}
+if(plano==="analise"){alert("Seu pagamento já está em análise.");return}
+const {error}=await db.from("usuarios_lancamentos").update({plano:"analise"}).eq("id",usuario_id)
+if(error){alert("Erro ao enviar para análise");console.log(error);return}
 localStorage.setItem("usuario_plano","analise")
-
-alert("Pagamento enviado! Aguarde liberação do admin.")
-
+alert("Pagamento enviado! Aguarde liberação do Banco Admin.")
 setUserUI()
 }
 /* ===============043 RESPONDER IA================================================== */
