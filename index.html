@@ -381,7 +381,8 @@ document.getElementById("valor").value=x.valor||0
 async function add(){
 const userId=localStorage.getItem("usuario_id_lancamentos")
 if(!userId){alert("Usuário não autenticado");return}
-if(dados.length>=LIMITE_USUARIO){
+const planoAtual = (localStorage.getItem("usuario_plano") || "free").toLowerCase()
+if(planoAtual!=="pro" && dados.length>=LIMITE_USUARIO){
 mostrarUpgrade()
 return
 }
@@ -451,12 +452,9 @@ return `${dia}/${mes}/${ano}`
 /* ====================================================015 – DATA LOCAL==================================================== */
 function hojeLocal(){
 const d=new Date()
-const ano=d.getFullYear()
-const mes=String(d.getMonth()+1).padStart(2,"0")
-const dia=String(d.getDate()).padStart(2,"0")
-return `${ano}-${mes}-${dia}`
+const local=new Date(d.getTime()-d.getTimezoneOffset()*60000)
+return local.toISOString().slice(0,10)
 }
-
 /* ====================================================016 – MÊS BASE==================================================== */
 function getMesBase(x){
 if(!x.data)return
