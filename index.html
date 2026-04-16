@@ -110,7 +110,10 @@ Criar Conta Grátis Agora
 
 <div id="telaInicio" class="telaApp telaAtiva">
 
-<div style="padding:20px;background:linear-gradient(180deg,#1e3a8a,#020617);border-bottom-left-radius:25px;border-bottom-right-radius:25px">
+<div style="padding:20px;background:linear-gradient(180deg,#1e3a8a,#020617);border-bottom-left-radius:25px;border-bottom-right-radius:25px;position:relative">
+<button onclick="abrirMobile()" style="position:absolute;top:10px;left:10px;background:rgba(0,0,0,.4);color:#fff;border:none;border-radius:8px;padding:6px 10px">
+🏠
+</button>
 <div style="font-size:18px;margin-bottom:10px">
 Olá, <span id="mobileNome"></span>
 </div>
@@ -186,7 +189,12 @@ Perguntar
 <div id="appSistema" style="display:none;margin-top:80px">
 
 <div id="topoSaaS" style="position:fixed;top:0;left:0;width:100%;height:64px;display:flex;align-items:center;padding:0 18px;background:rgba(2,6,23,.95);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,.08);z-index:9999">
-<div style="flex:1"><h1 style="margin:0;font-size:18px;font-weight:600">📊 Receitas PRO</h1></div>
+<div style="flex:1;display:flex;align-items:center;gap:10px">
+<button onclick="voltarInicio()" style="background:#1e293b;color:#fff;border:none;border-radius:8px;padding:6px 10px;font-size:14px;cursor:pointer">
+🏠
+</button>
+<h1 style="margin:0;font-size:18px;font-weight:600">📊 Receitas PRO</h1>
+</div>
 <div style="flex:1;display:flex;justify-content:center;gap:8px">
 <button onclick="gerarPix()" style="background:#22c55e;color:#000;padding:6px 12px;border-radius:999px;font-size:11px;font-weight:bold;border:none">💰 PRO</button>
 <button onclick="confirmarPagamento()" style="background:#f59e0b;color:#000;padding:6px 10px;border-radius:999px;font-size:11px;font-weight:bold;border:none">✔ Pago</button>
@@ -433,6 +441,7 @@ else{scoreBox.innerText="🔴 Risco";scoreBox.style.background="#7f1d1d"}
 function abrirFinanceiro(){
 document.getElementById("painelMobile").style.display="none"
 document.getElementById("appSistema").style.display="block"
+window.scrollTo(0,0)
 }
 function abrirMobile(){
 document.getElementById("painelMobile").style.display="block"
@@ -1652,6 +1661,13 @@ let num=Number(v)
 if(isNaN(num)){el.value="";return}
 el.value=num.toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2})
 }
+/* ====================================================093 – VOLTAR INÍCIO==================================================== */
+function voltarInicio(){
+document.getElementById("painelMobile").style.display="block"
+document.getElementById("appSistema").style.display="none"
+window.scrollTo(0,0)
+}
+
 
 </script>
 
@@ -1662,5 +1678,24 @@ el.value=num.toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigi
 <button id="btnCopiarPix">Copiar</button>
 <button id="btnWhatsapp">WhatsApp</button>
 </div>
+
+<button onclick="voltarInicio()" style="
+position:fixed;
+bottom:20px;
+right:20px;
+z-index:9999;
+background:#22c55e;
+color:#000;
+border:none;
+border-radius:50%;
+width:55px;
+height:55px;
+font-size:20px;
+box-shadow:0 0 20px rgba(0,0,0,.5);
+cursor:pointer;
+">
+🏠
+</button>
+
 </body>
 </html>
