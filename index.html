@@ -72,8 +72,18 @@ button:hover{transform:scale(1.05)}
 .btnVoltar{background:#111827;border:none;color:#fff;padding:6px 10px;border-radius:8px}
 
 </style>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+/* ====================================================001 – CONFIG==================================================== */
+const SUPABASE_URL="https://gspdlrenyrzbkxlvyugc.supabase.co"
+const SUPABASE_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdzcGRscmVueXJ6Ymt4bHZ5dWdjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ4ODU0NzAsImV4cCI6MjA5MDQ2MTQ3MH0.UWfkWvOh4qMDEcByVL-KZ6ejJ80V7wJlDOFH76TywaI"
+const supabaseClient=supabase.createClient(SUPABASE_URL,SUPABASE_KEY)
+</script>
 </head>
 <body class="login">
+
 <div class="vialactea"></div>
 <div class="nebula"></div>
 
@@ -265,13 +275,7 @@ Perguntar
 
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-/* ====================================================001 – CONFIG==================================================== */
-const SUPABASE_URL="https://gspdlrenyrzbkxlvyugc.supabase.co"
-const SUPABASE_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdzcGRscmVueXJ6Ymt4bHZ5dWdjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ4ODU0NzAsImV4cCI6MjA5MDQ2MTQ3MH0.UWfkWvOh4qMDEcByVL-KZ6ejJ80V7wJlDOFH76TywaI"
-const supabaseClient=supabase.createClient(SUPABASE_URL,SUPABASE_KEY)
 /* ====================================================002 – ESTADO==================================================== */
 let mesesOcultos={}
 let dados=[]
@@ -291,7 +295,8 @@ let mostrarGrafico=true
 let ocultarSaldo=false
 let LIMITE_USUARIO=20
 let PLANO_USUARIO="FREE"
-
+</script>
+<script>
 /* ====================================================003 – CATEGORIAS==================================================== */
 const CATEGORIAS=["GERAL","TCERO/Cripto","CASA","SAÚDE","EDUCAÇÃO","LAZER"]
 function carregarCategorias(){
