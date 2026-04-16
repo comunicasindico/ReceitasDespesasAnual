@@ -61,7 +61,15 @@ button:hover{transform:scale(1.05)}
 /* ====================================================003C – EFEITO 3D GRÁFICO==================================================== */
 #graficoResumo{filter:drop-shadow(0 10px 20px rgba(0,0,0,.6));}
 #topoSaaS{overflow-x:auto}
-
+/* ====================================================090 – MOBILE APP==================================================== */
+.bottomNav{position:fixed;bottom:0;left:0;width:100%;height:65px;background:#020617;border-top:1px solid rgba(255,255,255,.08);display:flex;justify-content:space-around;align-items:center;z-index:9999}
+.navItem{display:flex;flex-direction:column;align-items:center;font-size:11px;color:#94a3b8}
+.navItem span{font-size:20px}
+.navAtivo{color:#22c55e}
+.telaApp{display:none;padding-bottom:80px}
+.telaAtiva{display:block}
+.topBarMobile{display:flex;align-items:center;gap:10px;padding:10px;background:#020617}
+.btnVoltar{background:#111827;border:none;color:#fff;padding:6px 10px;border-radius:8px}
 
 </style>
 </head>
@@ -100,6 +108,8 @@ Criar Conta Grátis Agora
 <!-- PAINEL MOBILE -->
 <div id="painelMobile" style="display:none">
 
+<div id="telaInicio" class="telaApp telaAtiva">
+
 <div style="padding:20px;background:linear-gradient(180deg,#1e3a8a,#020617);border-bottom-left-radius:25px;border-bottom-right-radius:25px">
 <div style="font-size:18px;margin-bottom:10px">
 Olá, <span id="mobileNome"></span>
@@ -115,7 +125,7 @@ Agência: <span id="mobileAgencia"></span> • Conta: <span id="mobileConta"></s
 
 <div id="alertaFinanceiro" style="margin-top:10px;font-size:12px;padding:10px"></div>
 
-<div style="margin-top:15px;padding:15px">
+<div style="padding:15px">
 <div style="font-size:12px">Score financeiro</div>
 <div id="scoreBox" style="padding:10px;border-radius:10px;text-align:center;font-weight:bold">--</div>
 </div>
@@ -124,37 +134,51 @@ Agência: <span id="mobileAgencia"></span> • Conta: <span id="mobileConta"></s
 <button onclick="abrirFinanceiro()" style="width:100%;padding:15px;background:#22c55e;color:#000;border-radius:12px;font-weight:bold">
 Entrar no Financeiro
 </button>
-
-<div style="margin-top:10px">
-<button onclick="abrirFinanceiro()" style="background:#3b82f6;color:#fff;padding:8px 12px;border-radius:8px">
-Ver extrato
-</button>
 </div>
 
-<div style="margin-top:20px">
-<h4 style="margin-bottom:10px">Favoritos</h4>
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-<button onclick="abrirFinanceiro()" style="padding:12px;background:#1e293b;color:#fff;border-radius:10px">➕ Receita</button>
-<button onclick="abrirFinanceiro()" style="padding:12px;background:#1e293b;color:#fff;border-radius:10px">➖ Despesa</button>
-<button onclick="toggleGrafico()" style="padding:12px;background:#1e293b;color:#fff;border-radius:10px">📊 Gráfico</button>
-<button onclick="mesAnterior()" style="padding:12px;background:#1e293b;color:#fff;border-radius:10px">📅 Mês</button>
+</div>
+
+<div id="telaExtrato" class="telaApp">
+<div class="topBarMobile">
+<button class="btnVoltar" onclick="irInicio()">←</button>
+<b>Extrato</b>
+</div>
+<div style="padding:15px">
+<button onclick="abrirFinanceiro()" style="width:100%;padding:12px;background:#22c55e;border-radius:10px">Abrir completo</button>
 </div>
 </div>
 
-<div style="margin-top:20px;background:#020617;padding:15px;border-radius:12px">
-<div style="font-size:14px;opacity:.7">Cartão virtual</div>
-<div style="font-size:18px;font-weight:bold">**** **** **** 1968</div>
-<div style="font-size:12px;margin-top:5px">Limite: R$ 5.000,00</div>
+<div id="telaPerfil" class="telaApp">
+<div class="topBarMobile">
+<button class="btnVoltar" onclick="irInicio()">←</button>
+<b>Perfil</b>
+</div>
+<div style="padding:20px">
+<div style="font-size:20px;font-weight:bold" id="mobileNome"></div>
+<div style="margin-top:10px">Agência: <span id="mobileAgencia"></span></div>
+<div>Conta: <span id="mobileConta"></span></div>
+</div>
 </div>
 
-<div style="margin-top:20px">
+<div id="telaIA" class="telaApp">
+<div class="topBarMobile">
+<button class="btnVoltar" onclick="irInicio()">←</button>
+<b>Assistente IA</b>
+</div>
+<div style="padding:15px">
 <input id="perguntaIA" placeholder="Pergunte algo..." style="width:100%;padding:10px;border-radius:10px">
 <button onclick="responderIA()" style="margin-top:5px;width:100%;background:#22c55e;padding:10px;border-radius:10px">
 Perguntar
 </button>
 <div id="respostaIA" style="margin-top:8px;font-size:12px"></div>
 </div>
+</div>
 
+<div class="bottomNav">
+<div class="navItem navAtivo" onclick="abrirTela('inicio',this)"><span>🏠</span>Início</div>
+<div class="navItem" onclick="abrirTela('extrato',this)"><span>📄</span>Extrato</div>
+<div class="navItem" onclick="abrirTela('perfil',this)"><span>👤</span>Perfil</div>
+<div class="navItem" onclick="abrirTela('ia',this)"><span>🤖</span>IA</div>
 </div>
 </div>
 
@@ -1608,6 +1632,22 @@ carregarUsuarios()
 
 window.loginSistema = loginSistema;
 window.abrirCadastro = abrirCadastro;
+/* ====================================================091 – NAVEGAÇÃO MOBILE==================================================== */
+function abrirTela(nome,el){
+document.querySelectorAll(".telaApp").forEach(t=>t.classList.remove("telaAtiva"))
+document.querySelectorAll(".navItem").forEach(n=>n.classList.remove("navAtivo"))
+if(nome==="inicio")document.getElementById("telaInicio").classList.add("telaAtiva")
+if(nome==="extrato")document.getElementById("telaExtrato").classList.add("telaAtiva")
+if(nome==="perfil")document.getElementById("telaPerfil").classList.add("telaAtiva")
+if(nome==="ia")document.getElementById("telaIA").classList.add("telaAtiva")
+if(el)el.classList.add("navAtivo")
+}
+
+function irInicio(){
+abrirTela("inicio",document.querySelectorAll(".navItem")[0])
+}
+
+
 </script>
 
 <div id="boxPix" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#020617;padding:20px;border-radius:12px;z-index:99999;text-align:center">
