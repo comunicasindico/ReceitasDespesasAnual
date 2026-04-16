@@ -583,23 +583,38 @@ lista.innerHTML+=`
 <div style="display:grid;grid-template-columns:120px 1fr 140px 140px 140px;gap:6px;
 background:${isReceita?"#052e16":"#1e293b"};padding:4px;margin:2px 0;border-radius:6px;font-size:12px">
 
-<div>${formatarDataBR(x.data)}</div>
+<div>
+${modoEdicao
+? `<input type="date" value="${x.data||""}" onchange="editTemp('${x.id}','data',this.value)">`
+: formatarDataBR(x.data)
+}
+</div>
 
-<div>${isReceita?"+ ":"- "}${x.descricao||""}</div>
+<div>
+${modoEdicao
+? `<input type="text" value="${String(x.descricao||"").replace(/"/g,"&quot;")}" onchange="editTemp('${x.id}','descricao',this.value)">`
+: `${isReceita?"+ ":"- "}${x.descricao||""}`
+}
+</div>
 
 <!-- RECEITA -->
 <div style="text-align:right;color:#fff;font-weight:bold">
-${isReceita
-? (visibilidade[x.id]
-    ? "R$ "+formatarMoeda(x.valor)
-    : "R$ ***")
+${!isReceita
+? (modoEdicao
+    ? `<input type="number" value="${x.valor}" onchange="editTemp('${x.id}','valor',this.value)" style="width:100px">`
+    : "R$ "+formatarMoeda(x.valor))
 : ""
 }
 </div>
 
 <!-- DESPESA -->
 <div style="text-align:right;color:#ef4444;font-weight:bold">
-${!isReceita?"R$ "+formatarMoeda(x.valor):""}
+${isReceita
+? (modoEdicao
+    ? `<input type="number" value="${x.valor}" onchange="editTemp('${x.id}','valor',this.value)" style="width:100px">`
+    : (visibilidade[x.id] ? "R$ "+formatarMoeda(x.valor) : "R$ ***"))
+: ""
+}
 </div>
 
 <!-- STATUS -->
