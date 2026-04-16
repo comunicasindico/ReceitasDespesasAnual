@@ -225,6 +225,7 @@ document.body.classList.remove("login")
 document.body.classList.add("app")
 
 setUserUI()
+PLANO_USUARIO = (localStorage.getItem("usuario_plano") || "free").toLowerCase()
 
 const painelAdmin=document.getElementById("painelAdmin")
 const conteudoApp=document.getElementById("conteudoApp")
@@ -241,7 +242,6 @@ await gerarRecorrentes()
 await carregar()
 }
 }
-
 /* ====================================================005 – SESSÃO==================================================== */
 async function verificarSessao(){
 const userId=localStorage.getItem("usuario_id_lancamentos")
@@ -253,11 +253,9 @@ document.body.classList.remove("login")
 document.body.classList.add("app")
 
 setUserUI()
-
+PLANO_USUARIO=(localStorage.getItem("usuario_plano")||"free").toLowerCase()
 const userId=localStorage.getItem("usuario_id_lancamentos")
-
 if(userId){
-
 /* 🔥 BUSCAR USUÁRIO ATUALIZADO NO BANCO */
 const {data}=await supabaseClient
 .from("usuarios_lancamentos")
@@ -415,7 +413,9 @@ usuario_id:userId
 }
 if(!obj.data||!obj.descricao){alert("Preencha data e descrição");return}
 if(!obj.valor||obj.valor===0){alert("Valor inválido");return}
-if(PLANO_USUARIO!=="pro" && dados.length>=LIMITE_USUARIO){
+const planoAtual = (localStorage.getItem("usuario_plano") || "free").toLowerCase()
+
+if(planoAtual!=="pro" && dados.length>=LIMITE_USUARIO){
 mostrarUpgrade()
 return
 }
@@ -1273,6 +1273,9 @@ menu.style.display="none"
 })
 /* =================================035 MOSTRAR UPGRADE==================================================== */
 function mostrarUpgrade(){
+/* 🔥 BLOQUEIO SE FOR PRO */
+const planoAtual=(localStorage.getItem("usuario_plano")||"free").toLowerCase()
+if(planoAtual==="pro")return
 let box=document.getElementById("upgradeBox")
 if(box)return
 
@@ -1303,7 +1306,6 @@ Plano FREE atingiu limite
 Fechar
 </button>
 `
-
 document.body.appendChild(box)
 }
 /* ==================036  UPGRADE==================================================== */
