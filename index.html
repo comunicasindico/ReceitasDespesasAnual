@@ -151,7 +151,7 @@ Criar Conta Grátis Agora
 </div>
 
   
-<div id="conteudoApp" style="margin-top:90px;padding:15px">
+<div id="conteudoApp" style="max-width:950px;margin:auto;">
 <div id="painelAdmin" style="display:none;margin-top:90px;padding:15px">
 <h2>👑 Admin</h2>
 <div id="listaUsuarios"></div>
@@ -577,7 +577,11 @@ const [ano,mes]=chave.split("-")
 /* ===================== CABEÇALHO DO MÊS ===================== */
 lista.innerHTML+=`
 <div style="margin-top:15px;background:#020617;padding:10px;border-radius:10px;border-left:4px solid #38bdf8;
-display:grid;grid-template-columns:120px 2fr 120px 120px 120px;align-items:center;font-size:12px">
+display:grid;
+grid-template-columns:100px 1.5fr 110px 110px 110px;
+max-width:900px;
+margin:auto;
+align-items:center;font-size:12px">
 
 <div style="display:flex;align-items:center;gap:8px">
 <button onclick="toggleMes('${chave}')" style="
@@ -623,8 +627,16 @@ listaMes.forEach(x=>{
 const isReceita=x.tipo==="RECEITA"
 
 lista.innerHTML+=`
-<div style="display:grid;grid-template-columns:110px 2fr 110px 110px 140px;gap:6px;
-background:${isReceita?"#052e16":"#1e293b"};padding:4px;margin:2px 0;border-radius:6px;font-size:12px">
+<div style="display:grid;
+grid-template-columns:100px 1.5fr 110px 110px 140px;
+gap:4px;
+max-width:900px;
+margin:auto;
+gap:6px;
+background:${isReceita?"#052e16":"#1e293b"};
+padding:3px 6px;
+margin:1px 0;
+border-radius:6px;font-size:12px">
 
 <div>
 ${modoEdicao
@@ -693,7 +705,11 @@ const saldoGeral=totalGeralR-totalGeralD
 
 resumoEl.innerHTML=`
 <div style="margin-top:10px;background:#020617;padding:10px;border-radius:10px;
-display:grid;grid-template-columns:110px 2fr 110px 110px 140px;align-items:center;font-size:13px;font-weight:bold">
+display:grid;
+grid-template-columns:100px 1.5fr 110px 110px 140px;
+max-width:900px;
+margin:auto;
+align-items:center;font-size:13px;font-weight:bold">
 
 <div style="color:#fff">TOTAL</div>
 <div></div>
