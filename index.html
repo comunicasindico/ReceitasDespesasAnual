@@ -597,18 +597,8 @@ ${modoEdicao
 }
 </div>
 
-<!-- RECEITA -->
+<!-- RECEITA (ESQUERDA / BRANCO) -->
 <div style="text-align:right;color:#fff;font-weight:bold">
-${!isReceita
-? (modoEdicao
-    ? `<input type="number" value="${x.valor}" onchange="editTemp('${x.id}','valor',this.value)" style="width:100px">`
-    : "R$ "+formatarMoeda(x.valor))
-: ""
-}
-</div>
-
-<!-- DESPESA -->
-<div style="text-align:right;color:#ef4444;font-weight:bold">
 ${isReceita
 ? (modoEdicao
     ? `<input type="number" value="${x.valor}" onchange="editTemp('${x.id}','valor',this.value)" style="width:100px">`
@@ -617,14 +607,35 @@ ${isReceita
 }
 </div>
 
+<!-- DESPESA (DIREITA / VERMELHO) -->
+<div style="text-align:right;color:#ef4444;font-weight:bold">
+${!isReceita
+? (modoEdicao
+    ? `<input type="number" value="${x.valor}" onchange="editTemp('${x.id}','valor',this.value)" style="width:100px">`
+    : "R$ "+formatarMoeda(x.valor))
+: ""
+}
+</div>
+
 <!-- STATUS -->
 <div style="display:flex;justify-content:flex-end;gap:6px">
+
 ${isReceita && !modoEdicao ? `
 <button onclick="toggleValor('${x.id}')" style="background:#3b82f6;color:#fff">👁</button>
 ` : ""}
+
+${modoEdicao ? `
+<button onclick="salvarEdicao('${x.id}')" style="background:#22c55e;color:#000">💾</button>
+` : ""}
+
 <button onclick="marcarPago('${x.id}')" style="background:${x.pago?"#22c55e":"#ef4444"};color:#000">
 ${x.pago?"OK":"PEND"}
 </button>
+
+<button onclick="delConfirm('${x.id}')" style="background:#ef4444;color:#fff">
+🗑
+</button>
+
 </div>
 
 </div>
