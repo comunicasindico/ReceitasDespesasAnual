@@ -342,6 +342,7 @@ await carregar()
 await gerarRecorrentes()
 await carregar()
 gerarDadosBancarios()
+await carregarPerfil()
 }
 }
 /* ====================================================005 – SESSÃO==================================================== */
@@ -1198,7 +1199,6 @@ usuario_id:userId
 })
 }
 }
-
 /* ====================================================028 – SISTEMA==================================================== */
 async function iniciarSistema(){
 carregarCategorias()
@@ -1224,6 +1224,9 @@ setTimeout(()=>{dataEl.value=iso},10)
 /* 👉 filtros só se estiverem vazios */
 if(dataInicioEl && !dataInicioEl.value)dataInicioEl.value=iso
 if(dataFimEl && !dataFimEl.value)dataFimEl.value=iso
+if(localStorage.getItem("tipo_usuario")==="admin"){
+carregarAdminUsuarios()
+}
 }
 /* ====================================================029 – CADASTRO MODAL==================================================== */
 function abrirCadastro(){
@@ -1722,11 +1725,34 @@ lista.innerHTML=data.map(u=>`
 </div>
 `).join("")
 }
-/* ================096 CARREGAR PERFIL ================================================== */
+/* ===============================096 – CARREGAR PERFIL==================================================== */
 async function carregarPerfil(){
 const userId=localStorage.getItem("usuario_id_lancamentos")
-const {data}=await db.from("usuarios_lancamentos").select("*").eq("id",userId).single()
-if(!data)return
+if(!userId)return
+
+const {data,error}=await db
+.from("usuarios_lancamentos")
+.select("*")
+.eq("id",userId)
+.single()
+if(!data.agencia || !data.conta){
+const hoje=new Date()
+const dd=String(hoje.getDate()).padStart(2,"0")
+const mm=String(hoje.getMonth()+1).padStart(2,"0")
+const yyyy=hoje.getFullYear()
+const contaGerada="001"+dd+mm+yyyy
+await db.from("usuarios_lancamentos")
+.update({
+agencia:"1968-6",
+conta:contaGerada
+})
+.eq("id",userId)
+/* 🔁 recarregar */
+return carregarPerfil()
+}
+if(error){console.log(error);return}
+
+/* 🔥 PREENCHER CAMPOS */
 document.getElementById("perfilNome").value=data.nome||""
 document.getElementById("perfilEmail").value=data.email||""
 document.getElementById("perfilCelular").value=data.celular||""
@@ -1737,22 +1763,20 @@ document.getElementById("perfilPlano").value=data.plano||"free"
 /* ================097 SALVAR PERFIL ================================================== */
 async function salvarPerfil(){
 const userId=localStorage.getItem("usuario_id_lancamentos")
+if(!userId)return
 const obj={
 nome:document.getElementById("perfilNome").value,
 email:document.getElementById("perfilEmail").value,
-celular:document.getElementById("perfilCelular").value,
-plano:document.getElementById("perfilPlano").value
+celular:document.getElementById("perfilCelular").value
 }
-await db.from("usuarios_lancamentos").update(obj).eq("id",userId)
-alert("Perfil atualizado")
-}
-/* ================098 EXCLUIR USUÁRIO ================================================== */
-async function excluirUsuario(){
-if(!confirm("Deseja excluir este usuário?"))return
-const userId=localStorage.getItem("usuario_id_lancamentos")
-await db.from("usuarios_lancamentos").delete().eq("id",userId)
-alert("Usuário excluído")
-logout()
+/* 🔥 NÃO ALTERAR agência/conta aqui (são fixos) */
+const {error}=await db
+.from("usuarios_lancamentos")
+.update(obj)
+.eq("id",userId)
+if(error){alert("Erro ao salvar");return}
+alert("✔ Perfil atualizado")
+await carregarPerfil()
 }
 /* ================099 EDITAR USUÁRIO ADMIN================================================== */
 async function editarUsuarioAdmin(id){
