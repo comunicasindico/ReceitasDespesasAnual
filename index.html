@@ -1025,16 +1025,21 @@ usuario_id:userId
 async function iniciarSistema(){
 carregarCategorias()
 await verificarSessao()
-/* 🔥 DATA LOCAL CORRETA (SEM ERRO DE MÊS) */
+/* 🔥 DATA LOCAL REAL (100% SEM BUG DE MÊS) */
 const hoje=new Date()
-const local=new Date(hoje.getTime()-hoje.getTimezoneOffset()*60000)
-const iso=local.toISOString().slice(0,10)
-/* 🔥 FORÇA ATUALIZAÇÃO (SEM DEPENDER DE CACHE) */
+
+const ano=hoje.getFullYear()
+const mes=String(hoje.getMonth()+1).padStart(2,"0")
+const dia=String(hoje.getDate()).padStart(2,"0")
+
+const iso=`${ano}-${mes}-${dia}`
+/* 🔥 APLICAÇÃO SEGURA NOS CAMPOS */
 const dataEl=document.getElementById("data")
 const dataInicioEl=document.getElementById("dataInicio")
 const dataFimEl=document.getElementById("dataFim")
-
+/* 👉 sempre força a data principal */
 if(dataEl)dataEl.value=iso
+/* 👉 filtros só se estiverem vazios */
 if(dataInicioEl && !dataInicioEl.value)dataInicioEl.value=iso
 if(dataFimEl && !dataFimEl.value)dataFimEl.value=iso
 }
