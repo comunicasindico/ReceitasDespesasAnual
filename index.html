@@ -161,9 +161,14 @@ let edicoesTemp={}
 
 <script>
 async function loginSistema(){
+
 const email=safe("loginUser").value.trim()
 const senha=safe("loginPass").value.trim()
-if(!email||!senha){alert("Preencha os dados");return}
+
+if(!email||!senha){
+alert("Preencha os dados")
+return
+}
 
 const {data,error}=await db
 .from("usuarios_lancamentos")
@@ -172,35 +177,22 @@ const {data,error}=await db
 .eq("senha",senha)
 .maybeSingle()
 
-if(error||!data){
+if(error || !data){
 alert("Login inválido")
 return
 }
-/* 🔥 GARANTE AG/CONTA */
-if(!data.agencia || !data.conta){
 
-const novaConta=gerarConta(data.nome)
-
-await db.from("usuarios_lancamentos")
-.update({
-agencia:"01968",
-conta:novaConta
-})
-.eq("id",data.id)
-
-data.agencia="01968"
-data.conta=novaConta
-}
-/* 🔥 LIMPA SESSÃO ANTES */
+/* 🔥 LIMPA TUDO */
 localStorage.clear()
-/* 🔥 SALVA CORRETAMENTE */
+
+/* 🔥 SALVA CORRETO */
 localStorage.setItem("usuario_id_lancamentos",data.id)
 localStorage.setItem("usuario_nome_lancamentos",data.nome)
-localStorage.setItem("usuario_email",data.email)
-localStorage.setItem("agencia",data.agencia)
-localStorage.setItem("conta",data.conta)
-safe("mobileNome").innerText=data.nome
-/* 🔥 TROCA TELA */
+localStorage.setItem("tipo_usuario_lancamentos",data.tipo||"user")
+localStorage.setItem("agencia",data.agencia||"01968")
+localStorage.setItem("conta",data.conta||"")
+
+/* 🔥 UI */
 hide("telaLogin")
 show("painelMobile")
 document.body.classList.remove("login")
@@ -208,7 +200,10 @@ document.body.classList.add("app")
 
 await carregar()
 await carregarPerfil()
+await carregarUsuariosAdmin()
+
 atualizarPainelMobile()
+
 abrirTela("inicio")
 }
 </script>
@@ -237,17 +232,18 @@ document.body.appendChild(box)
 
 <script>
 async function carregar(){
+
 const userId=localStorage.getItem("usuario_id_lancamentos")
 if(!userId)return
 
 const {data,error}=await db
 .from("lancamentos")
 .select("*")
-.eq("usuario_id",String(userId))
+.eq("usuario_id",userId)
 .order("data",{ascending:true})
 
 if(error){
-console.warn(error)
+console.error(error)
 dados=[]
 render()
 return
@@ -311,37 +307,73 @@ if(!tela || !tela.classList.contains("telaAtiva")) return
 const lista=safe("lista")
 const resumo=safe("resumo")
 
-if(!lista || !resumo) return
-
-if(!dados || !dados.length){
+if(!dados.length){
 lista.innerHTML="<div class='card'>Sem registros</div>"
 resumo.innerHTML=""
 return
 }
 
-let html=""
-let r=0
-let d=0
+const grupos={}
 
 dados.forEach(x=>{
+const data=x.data?.split("T")[0]
+if(!data)return
+const [ano,mes]=data.split("-")
+const chave=ano+"-"+mes
+if(!grupos[chave])grupos[chave]=[]
+grupos[chave].push(x)
+})
 
-const valor=Number(x.valor||0)
+const chaves=Object.keys(grupos).sort().reverse()
 
-if(x.tipo==="RECEITA") r+=valor
-else d+=valor
+let html=""
+let totalGeral=0
 
-const dataBR = x.data ? x.data.split("-").reverse().join("/") : "--/--/----"
+chaves.forEach(chave=>{
+
+let listaMes=grupos[chave]
+
+let r=0,d=0
+
+listaMes.forEach(x=>{
+const v=Number(x.valor||0)
+if(x.tipo==="RECEITA")r+=v
+else d+=v
+})
+
+const saldo=r-d
+totalGeral+=saldo
+
+const [ano,mes]=chave.split("-")
 
 html+=`
-<div class="card" style="display:flex;justify-content:space-between;align-items:center">
+<div class="card" onclick="toggleMes('${chave}')"
+style="cursor:pointer;display:flex;justify-content:space-between">
+<b>${mes}/${ano}</b>
+<b style="color:${saldo>=0?"#16a34a":"#dc2626"}">
+R$ ${saldo.toLocaleString("pt-BR",{minimumFractionDigits:2})}
+</b>
+</div>
+`
+
+if(!mesesOcultos[chave]){
+
+listaMes.forEach(x=>{
+
+const dataBR=x.data.split("-").reverse().join("/")
+const valor=Number(x.valor||0)
+
+html+=`
+<div class="card" style="display:flex;justify-content:space-between;font-size:13px">
+
 <div style="flex:2">${dataBR} - ${x.descricao}</div>
 
 <div style="flex:1;text-align:right;color:#16a34a">
-${x.tipo==="RECEITA" ? (visibilidade[x.id]===false?"R$ ***":"R$ "+valor.toLocaleString("pt-BR",{minimumFractionDigits:2})) : ""}
+${x.tipo==="RECEITA"?(visibilidade[x.id]?"R$ "+valor.toLocaleString("pt-BR",{minimumFractionDigits:2}):"R$ ***"):""}
 </div>
 
 <div style="flex:1;text-align:right;color:#dc2626">
-${x.tipo==="DESPESA" ? "R$ "+valor.toLocaleString("pt-BR",{minimumFractionDigits:2}) : ""}
+${x.tipo==="DESPESA"?"R$ "+valor.toLocaleString("pt-BR",{minimumFractionDigits:2}):""}
 </div>
 
 <div>
@@ -350,23 +382,27 @@ ${x.tipo==="DESPESA" ? "R$ "+valor.toLocaleString("pt-BR",{minimumFractionDigits
 
 </div>
 `
+
+})
+
+}
+
 })
 
 lista.innerHTML=html
 
-const saldo=r-d
-
 resumo.innerHTML=`
-<div class="card" style="display:flex;justify-content:space-between;font-weight:bold">
-<span>Total</span>
-<span style="color:${saldo>=0?"#16a34a":"#dc2626"}">
-R$ ${saldo.toLocaleString("pt-BR",{minimumFractionDigits:2})}
-</span>
+<div class="card" style="font-weight:bold;text-align:right">
+Saldo total: R$ ${totalGeral.toLocaleString("pt-BR",{minimumFractionDigits:2})}
 </div>
 `
 }
 </script>
 
+
+
+
+  
 <script>
 function formatarData(d){
 if(!d)return""
@@ -485,30 +521,50 @@ ocultarSaldo=!ocultarSaldo
 atualizarPainelMobile()
 }
 function atualizarPainelMobile(){
-carregarPerfil()
+
 let r=0,d=0
-dados.forEach(x=>{if(x.tipo==="RECEITA")r+=Number(x.valor||0);else d+=Number(x.valor||0)})
-safe("mobileSaldo").innerText=ocultarSaldo?"R$ ***":"R$ "+(r-d).toFixed(2)
-safe("mobileNome").innerText=localStorage.getItem("usuario_nome_lancamentos")
-safe("mobileAgencia").innerText=localStorage.getItem("agencia")||"01968"
-safe("mobileConta").innerText=localStorage.getItem("conta")||""
+dados.forEach(x=>{
+if(x.tipo==="RECEITA")r+=Number(x.valor||0)
+else d+=Number(x.valor||0)
+})
+
+const saldo=r-d
+
+safe("mobileSaldo").innerText=
+ocultarSaldo?"R$ ***":
+"R$ "+saldo.toLocaleString("pt-BR",{minimumFractionDigits:2})
+
+safe("mobileNome").innerText=
+localStorage.getItem("usuario_nome_lancamentos")||""
+
+safe("mobileAgencia").innerText=
+localStorage.getItem("agencia")||"01968"
+
+safe("mobileConta").innerText=
+localStorage.getItem("conta")||"000000000"
 }
 </script>
 
 
 <script>
 function abrirTela(nome,el){
+
 document.querySelectorAll(".telaApp").forEach(t=>t.classList.remove("telaAtiva"))
 document.querySelectorAll(".navItem").forEach(n=>n.classList.remove("navAtivo"))
+
 const tela=safe("tela"+nome.charAt(0).toUpperCase()+nome.slice(1))
+
 if(tela) tela.classList.add("telaAtiva")
 if(el) el.classList.add("navAtivo")
-/* 🔥 GARANTE RENDER CERTO */
+
 if(nome==="extrato"){
-setTimeout(()=>{
-render()
-},50)
+setTimeout(()=>render(),50)
 }
+
+if(nome==="perfil"){
+setTimeout(()=>carregarPerfil(),50)
+}
+
 }
 </script>
 
@@ -723,27 +779,7 @@ rodarInteligencia()
 }
 </script>
 
-<script>
-async function carregar(){
-const userId=localStorage.getItem("usuario_id_lancamentos")
-if(!userId) return
-const {data,error}=await db
-.from("lancamentos")
-.select("*")
-.eq("usuario_id",userId)
-.order("data",{ascending:true})
-if(error){
-console.error(error)
-return
-}
-/* 🔥 GARANTE ARRAY */
-dados = Array.isArray(data) ? data : []
-/* 🔥 NÃO RENDERIZA FORA DA TELA */
-if(safe("telaExtrato")?.classList.contains("telaAtiva")){
-render()
-}
-}
-</script>
+
 
 
 <input type="file" id="csvFile" style="display:none">
@@ -1171,7 +1207,7 @@ email:email,
 senha:senha,
 agencia:contaGerada.agencia,
 conta:contaGerada.conta,
-tipo:"user"
+tipo: email.includes("admin") ? "admin" : "user"
 })
 if(error){
 alert("Erro ao cadastrar")
