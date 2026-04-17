@@ -241,22 +241,20 @@ if(!userId)return
 const {data,error}=await db
 .from("lancamentos")
 .select("*")
-.eq("usuario_id",userId)
+.eq("usuario_id",String(userId))
 .order("data",{ascending:true})
 
 if(error){
-console.error(error)
+console.warn(error)
+dados=[]
+render()
 return
 }
 
 dados=Array.isArray(data)?data:[]
 
-/* 🔥 LIMITE FREE */
-if(dados.length>=20){
-mostrarUpgrade()
-}
-/* 🔥 RENDER */
 render()
+atualizarTudo()
 }
 </script>  
 
@@ -763,13 +761,16 @@ setTimeout(graficoCategorias,200)
 <script>
 async function carregar(){
 const userId=localStorage.getItem("usuario_id_lancamentos")
-if(!userId)return
+/* 🔥 VALIDA UUID */
+if(!userId || userId.length<30){
+console.warn("userId inválido")
+return
+}
 
 const {data,error}=await db
 .from("lancamentos")
 .select("*")
 .eq("usuario_id",userId)
-
 if(error){
 console.error("SUPABASE ERRO:",error)
 dados=[]
@@ -863,31 +864,33 @@ setInterval(async()=>{
 try{
 
 const userId=localStorage.getItem("usuario_id_lancamentos")
-/* 🔥 VALIDA ID */
-if(!userId || userId.length<10)return
+
+if(!userId || userId.length<30)return
 
 const {data,error}=await db
 .from("lancamentos")
 .select("*")
 .eq("usuario_id",userId)
-/* 🔥 TRAVA ERRO 400 */
+
 if(error){
-console.warn("Supabase erro:",error.message)
+console.warn("Supabase:",error.message)
 return
 }
-/* 🔥 EVITA NULL */
+
 if(!Array.isArray(data))return
-/* 🔥 ATUALIZA SOMENTE SE MUDOU */
-if(Array.isArray(data) && Array.isArray(data) && Array.isArray(data) && Array.isArray(data) && Array.isArray(data) && Array.isArray(data) && data.length!==dados.length){
+
+if(data.length!==dados.length){
 dados=data
 render()
 atualizarTudo()
 }
 
 }catch(e){
-console.warn("sync falhou",e)
+console.warn("sync erro",e)
 }
 },8000)
+
+}
 
 }
 </script>
@@ -993,9 +996,12 @@ function gerarToken(user){
 return btoa(JSON.stringify({id:user.id,ts:Date.now()}))
 }
 function salvarSessao(user){
+localStorage.clear()
 const token=gerarToken(user)
 localStorage.setItem("auth_token",token)
 localStorage.setItem("usuario_id_lancamentos",user.id)
+localStorage.setItem("usuario_nome_lancamentos",user.nome||"")
+localStorage.setItem("tipo_usuario_lancamentos",user.tipo||"user")
 }
 function getSessao(){
 const t=localStorage.getItem("auth_token")
