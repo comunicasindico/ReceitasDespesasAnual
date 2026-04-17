@@ -263,6 +263,7 @@ let mostrarGrafico=true
 let ocultarSaldo=false
 let LIMITE_USUARIO=20
 let PLANO_USUARIO="FREE"
+let ADMIN_EDIT_ID=null
 </script>
 <script>
 /* ====================================================003 – CATEGORIAS==================================================== */
@@ -1536,16 +1537,21 @@ document.body.appendChild(box)
 /* ====================================================040 – GERAR PIX PREMIUM==================================================== */
 function gerarPix(){
 const plano=(localStorage.getItem("usuario_plano")||"free").toLowerCase()
-if(plano==="pro"){alert("Seu plano já é PRO e está ativo.");return}
+if(plano==="pro"){
+alert("Você já é PRO 🚀")
+return
+}
+if(plano==="analise"){
+alert("Pagamento já enviado. Aguarde liberação.")
+return
+}
 const usuario_id=localStorage.getItem("usuario_id_lancamentos")||"000"
 const nome=localStorage.getItem("usuario_nome_lancamentos")||"Cliente"
 const chavePIX="69984311978"
 const telefone="5569984311978"
-const valor="19.90"
 const mensagem=`Olá, realizei o pagamento do PRO.%0AUsuário: ${nome}%0AID: ${usuario_id}%0AValor: R$19,90`
-const payloadPix=`00020126360014BR.GOV.BCB.PIX0114${chavePIX}5204000053039865405${valor}5802BR5920${nome.substring(0,20)}6009SAO PAULO62070503***6304`
 const img=document.getElementById("qrPix")
-if(img)img.src=`https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(payloadPix)}`
+if(img)img.src=`https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(chavePIX)}`
 const inputPix=document.getElementById("chavePix")
 if(inputPix)inputPix.value=chavePIX
 const botaoCopiar=document.getElementById("btnCopiarPix")
@@ -1558,8 +1564,7 @@ const botaoZap=document.getElementById("btnWhatsapp")
 if(botaoZap)botaoZap.onclick=function(){
 window.open(`https://wa.me/${telefone}?text=${mensagem}`,"_blank")
 }
-const box=document.getElementById("boxPix")
-if(box)box.style.display="block"
+document.getElementById("boxPix").style.display="block"
 }
 /* ==============================041 parallax  lua=================================================== */
 function iniciarParallaxLogin(){
@@ -1681,9 +1686,11 @@ lista.innerHTML=data.map(u=>`
 <div>📞 ${u.celular||"-"}</div>
 <div>🏦 ${u.agencia||"-"} • ${u.conta||"-"}</div>
 <div>Plano: ${u.plano}</div>
-<div style="margin-top:5px;display:flex;gap:5px">
-<button onclick="editarUsuarioAdmin('${u.id}')" style="background:#3b82f6;color:#fff;padding:5px;border-radius:6px">Editar</button>
-<button onclick="excluirUsuarioAdmin('${u.id}')" style="background:#ef4444;color:#fff;padding:5px;border-radius:6px">Excluir</button>
+<div style="margin-top:8px;display:flex;gap:5px;flex-wrap:wrap">
+<button onclick="editarUsuarioAdmin('${u.id}')" style="background:#3b82f6;color:#fff;padding:6px 10px;border-radius:6px">Editar</button>
+<button onclick="liberarPro('${u.id}')" style="background:#22c55e;color:#000;padding:6px 10px;border-radius:6px;font-weight:bold">🚀 Liberar PRO</button>
+<button onclick="colocarAnalise('${u.id}')" style="background:#f59e0b;color:#000;padding:6px 10px;border-radius:6px">⏳ Análise</button>
+<button onclick="excluirUsuarioAdmin('${u.id}')" style="background:#ef4444;color:#fff;padding:6px 10px;border-radius:6px">Excluir</button>
 </div>
 </div>
 `).join("")
@@ -1765,33 +1772,36 @@ if(celEl)celEl.disabled=false
 }
 /* ================097 SALVAR PERFIL ================================================== */
 async function salvarPerfil(){
-const userId=localStorage.getItem("usuario_id_lancamentos")
-if(!userId)return
-
-const obj={
-nome:document.getElementById("perfilNome").value,
-email:document.getElementById("perfilEmail").value,
-celular:document.getElementById("perfilCelular").value
+const id=ADMIN_EDIT_ID||localStorage.getItem("usuario_id_lancamentos")
+if(!id){alert("Erro: usuário não identificado");return}
+const nome=document.getElementById("perfilNome").value
+const email=document.getElementById("perfilEmail").value
+const celular=document.getElementById("perfilCelular").value
+const tipo=localStorage.getItem("tipo_usuario_lancamentos")
+let updateData={nome,email,celular}
+if(tipo==="admin"){
+const planoAtual=document.getElementById("badgePlano").innerText.toLowerCase()
+if(planoAtual.includes("pro"))updateData.plano="pro"
+if(planoAtual.includes("análise"))updateData.plano="analise"
+if(planoAtual.includes("free"))updateData.plano="free"
 }
-
-const {error}=await db
-.from("usuarios_lancamentos")
-.update(obj)
-.eq("id",userId)
-
-if(error){alert("Erro ao salvar");return}
-
-alert("Perfil atualizado")
-carregarPerfil()
+await db.from("usuarios_lancamentos").update(updateData).eq("id",id)
+alert("✅ Salvo com sucesso")
+ADMIN_EDIT_ID=null
+if(tipo==="admin"){
+await carregarAdminUsuarios()
+abrirTela("admin")
+}else{
+await carregarPerfil()
+}
 }
 /* ================099 EDITAR USUÁRIO ADMIN================================================== */
 async function editarUsuarioAdmin(id){
 const {data}=await db.from("usuarios_lancamentos").select("*").eq("id",id).limit(1)
 if(!data||!data.length){alert("Usuário não encontrado");return}
 const u=data[0]
-
+ADMIN_EDIT_ID=id
 abrirTela("perfil")
-
 setTimeout(()=>{
 const nome=document.getElementById("perfilNome")
 const email=document.getElementById("perfilEmail")
@@ -1799,13 +1809,11 @@ const celular=document.getElementById("perfilCelular")
 const agencia=document.getElementById("boxAgencia")
 const conta=document.getElementById("boxConta")
 const plano=document.getElementById("badgePlano")
-
 if(nome)nome.value=u.nome||""
 if(email)email.value=u.email||""
 if(celular)celular.value=u.celular||""
 if(agencia)agencia.innerText=u.agencia||"-"
 if(conta)conta.innerText=u.conta||"-"
-
 if(plano){
 if(u.plano==="pro"){
 plano.innerText="🟢 PRO"
@@ -1821,7 +1829,6 @@ plano.style.background="#111827"
 plano.style.color="#94a3b8"
 }
 }
-
 },200)
 }
 /* ================100 ABRIR PERFIL================================================= */
@@ -1837,6 +1844,25 @@ if(userId){
 carregarPerfil()
 }
 })
+/* ====================================================005.1 – LIBERAR PRO==================================================== */
+async function liberarPro(id){
+if(!id){alert("ID inválido");return}
+await db.from("usuarios_lancamentos").update({plano:"pro"}).eq("id",id)
+alert("✅ Usuário liberado como PRO")
+carregarAdminUsuarios()
+}
+/* ====================================================005.2 – COLOCAR EM ANÁLISE==================================================== */
+async function colocarAnalise(id){
+if(!id){alert("ID inválido");return}
+await db.from("usuarios_lancamentos").update({plano:"analise"}).eq("id",id)
+alert("⏳ Usuário colocado em análise")
+carregarAdminUsuarios()
+}
+/* ====================================================005.3 – SAFE UPDATE==================================================== */
+async function updatePlanoSeguro(id,plano){
+if(!id||!plano)return
+await db.from("usuarios_lancamentos").update({plano}).eq("id",id)
+}
 /* ====================================================999 – ANTI ERRO GLOBAL==================================================== */
 window.addEventListener("error",function(e){
 console.log("Erro capturado:",e.message)
