@@ -437,8 +437,9 @@ else if(saldo>0){scoreBox.innerText="🟡 Atenção";scoreBox.style.background="
 else{scoreBox.innerText="🔴 Risco";scoreBox.style.background="#7f1d1d"}
 }
 }
-/* ====================================================120 – ABRIR FINANCEIRO (MULTI BOTÃO CORRETO)==================================================== */
+/* ====================================================120 – ABRIR FINANCEIRO (MOBILE CORRETO)==================================================== */
 function abrirFinanceiro(btn){
+
 if(btn){
 if(btn.disabled)return
 btn.disabled=true
@@ -451,17 +452,12 @@ btn.style.opacity="1"
 btn.innerText=txt
 },800)
 }
-const painel=document.getElementById("painelMobile")
-const app=document.getElementById("appSistema")
-if(painel) painel.style.display="none"
-if(app) app.style.display="block"
-if(!app){
-console.warn("appSistema não encontrado")
-return
-}
+/* 🔥 IR PARA EXTRATO (TELA FINANCEIRA MOBILE) */
+abrirTela("extrato")
+
 window.scrollTo(0,0)
 }
-/* ============================= */
+/* ============================================================================= */
 function abrirMobile(){
 const painel=document.getElementById("painelMobile")
 if(painel) painel.style.display="block"
