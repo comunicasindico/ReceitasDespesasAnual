@@ -882,39 +882,28 @@ addMsgIA("💡 Corte sugerido: reduza "+maior[0],"bot")
 <script>
 if(!window._syncRodando){
 window._syncRodando=true
-
 setInterval(async()=>{
 try{
-
 const userId=localStorage.getItem("usuario_id_lancamentos")
-
 if(!userId || userId.length<30)return
-
 const {data,error}=await db
 .from("lancamentos")
 .select("*")
 .eq("usuario_id",userId)
-
 if(error){
 console.warn("Supabase:",error.message)
 return
 }
-
 if(!Array.isArray(data))return
-
 if(data.length!==dados.length){
 dados=data
 render()
 atualizarTudo()
 }
-
 }catch(e){
 console.warn("sync erro",e)
 }
 },8000)
-
-}
-
 }
 </script>
 
