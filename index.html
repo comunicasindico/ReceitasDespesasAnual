@@ -90,17 +90,20 @@ function setValue(id,val){const el=safe(id);if(el)el.value=val}
 </head>
 <body class="login">
 
+<!-- ====================================================001 – FUNDO==================================================== -->
 <div class="vialactea"></div>
 <div class="nebula"></div>
 
-<!-- LOGIN -->
+<!-- ====================================================002 – LOGIN==================================================== -->
 <div id="telaLogin">
 <div id="loginBg"></div>
+
 <div style="position:absolute;top:18%;left:50%;transform:translateX(-50%);text-align:center;z-index:2">
-<button onclick="abrirCadastro()" style="background:#ef4444;color:#fff;padding:14px 28px;font-size:16px;font-weight:bold;border-radius:12px;border:none;box-shadow:0 0 25px rgba(239,68,68,.6);cursor:pointer;transition:.2s">
+<button onclick="abrirCadastro()" style="background:#ef4444;color:#fff;padding:14px 28px;font-size:16px;font-weight:bold;border-radius:12px;border:none;box-shadow:0 0 25px rgba(239,68,68,.6)">
 Criar Conta Grátis Agora
 </button>
 </div>
+
 <div id="loginCard">
 <h2>Acesso</h2>
 <input id="loginUser" placeholder="Usuário">
@@ -109,7 +112,7 @@ Criar Conta Grátis Agora
 </div>
 </div>
 
-<!-- MODAL CADASTRO -->
+<!-- ====================================================003 – MODAL CADASTRO==================================================== -->
 <div id="modalCadastro" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.7);z-index:10001;align-items:center;justify-content:center">
 <div style="background:#111827;padding:25px;border-radius:12px;width:300px;display:flex;flex-direction:column;gap:10px">
 <h3 style="margin:0;text-align:center">Criar conta</h3>
@@ -121,26 +124,22 @@ Criar Conta Grátis Agora
 </div>
 </div>
 
-<!-- PAINEL MOBILE -->
+<!-- ====================================================004 – PAINEL MOBILE==================================================== -->
 <div id="painelMobile" style="display:none">
 
-<!-- INÍCIO -->
+<!-- ====================================================005 – INÍCIO==================================================== -->
 <div id="telaInicio" class="telaApp telaAtiva">
-<div style="padding:20px;background:linear-gradient(180deg,#1e3a8a,#020617);border-bottom-left-radius:25px;border-bottom-right-radius:25px;position:relative">
 
-<div style="display:flex;align-items:center;gap:10px;justify-content:space-between">
+<div style="padding:20px;background:linear-gradient(180deg,#1e3a8a,#020617);border-bottom-left-radius:25px;border-bottom-right-radius:25px">
+
+<div style="display:flex;justify-content:space-between;align-items:center">
 <div style="display:flex;align-items:center;gap:10px">
-<button class="btnFloat" onclick="abrirMobile()">🏠</button>
-<div style="font-size:18px">
-Olá, <span id="mobileNome"></span>
+<div style="font-size:18px">Olá, <span id="mobileNome"></span></div>
 </div>
-</div>
-<button onclick="logout()" style="background:#ef4444;color:#fff;border:none;border-radius:8px;padding:6px 10px;font-size:12px">
-🚪 Sair
-</button>
+<button onclick="logout()" style="background:#ef4444;color:#fff;border:none;border-radius:8px;padding:6px 10px;font-size:12px">🚪 Sair</button>
 </div>
 
-<div style="font-size:22px;font-weight:bold;display:flex;align-items:center;gap:10px;margin-top:10px">
+<div style="font-size:22px;font-weight:bold;margin-top:10px">
 <span id="mobileSaldo"></span>
 <button id="btnToggleSaldo" onclick="toggleSaldo()" style="background:none;border:none;color:#fff;font-size:18px">👁</button>
 </div>
@@ -166,7 +165,7 @@ Entrar no Financeiro
 
 </div>
 
-<!-- ADMIN (AGORA CORRETO) -->
+<!-- ====================================================006 – ADMIN==================================================== -->
 <div id="telaAdmin" class="telaApp">
 <div class="topBarMobile">
 <button class="btnVoltar" onclick="irInicio()">←</button>
@@ -177,55 +176,64 @@ Entrar no Financeiro
 </div>
 </div>
 
-<!-- EXTRATO -->
+<!-- ====================================================007 – EXTRATO==================================================== -->
 <div id="telaExtrato" class="telaApp">
 <div class="topBarMobile">
 <button class="btnVoltar" onclick="irInicio()">←</button>
 <b>Extrato</b>
 </div>
 <div style="padding:15px">
-<button onclick="abrirFinanceiro()" style="width:100%;padding:12px;background:#22c55e;border-radius:10px">Abrir completo</button>
+<button onclick="abrirFinanceiro()" style="width:100%;padding:12px;background:#22c55e;border-radius:10px">
+Abrir completo
+</button>
 </div>
 </div>
 
-<!-- PERFIL -->
+<!-- ====================================================008 – PERFIL==================================================== -->
 <div id="telaPerfil" class="telaApp">
 <div class="topBarMobile">
 <button class="btnVoltar" onclick="irInicio()">←</button>
 <b>👤 Perfil</b>
 </div>
+
 <div style="padding:15px;display:flex;flex-direction:column;gap:8px">
 <input id="perfilNome" placeholder="Nome">
 <input id="perfilEmail" placeholder="Email">
 <input id="perfilCelular" placeholder="Celular">
+
 <div style="font-size:12px;opacity:.7;margin-top:10px">Agência</div>
-<div id="boxAgencia" style="background:#020617;border:1px solid rgba(255,255,255,.15);padding:12px;border-radius:10px;font-weight:bold;color:#e2e8f0">--</div>
+<div id="boxAgencia" style="background:#020617;border:1px solid rgba(255,255,255,.15);padding:12px;border-radius:10px;font-weight:bold">--</div>
+
 <div style="font-size:12px;opacity:.7;margin-top:10px">Conta</div>
-<div id="boxConta" style="background:#020617;border:1px solid rgba(255,255,255,.15);padding:12px;border-radius:10px;font-weight:bold;color:#e2e8f0">--</div>
+<div id="boxConta" style="background:#020617;border:1px solid rgba(255,255,255,.15);padding:12px;border-radius:10px;font-weight:bold">--</div>
+
 <div style="font-size:12px;opacity:.7;margin-top:10px">Plano</div>
 <div id="badgePlano" style="padding:10px;border-radius:10px;text-align:center;font-weight:bold">--</div>
+
 <div style="display:flex;gap:5px;margin-top:10px">
 <button onclick="salvarPerfil()" style="flex:1;background:#22c55e;color:#000;padding:10px;border-radius:10px">Salvar</button>
 <button onclick="excluirUsuario()" style="flex:1;background:#ef4444;color:#fff;padding:10px;border-radius:10px">Excluir</button>
 </div>
+
 </div>
 </div>
 
-<!-- IA -->
+<!-- ====================================================009 – COMUNICA IA==================================================== -->
 <div id="telaIA" class="telaApp">
+
 <div class="topBarMobile">
 <button class="btnVoltar" onclick="irInicio()">←</button>
 <b>🤖 Comunica IA</b>
 </div>
 
-<div style="display:flex;flex-direction:column;height:100vh;padding:10px;padding-bottom:80px">
-<!-- CHAT -->
-<div id="chatIA" style="flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:8px;padding-bottom:120px">
-<!-- INPUT -->
+<div style="display:flex;flex-direction:column;height:100vh;padding:10px;padding-bottom:100px">
+
+<div id="chatIA" style="flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:8px;padding-bottom:120px"></div>
+
 <div style="position:fixed;bottom:70px;left:0;width:100%;padding:10px;background:#020617;display:flex;gap:8px">
 
 <textarea id="perguntaIA" rows="2" placeholder="Pergunte algo..."
-style="flex:1;padding:10px;border-radius:10px;border:none;background:#111827;color:#fff;resize:none;outline:none"></textarea>
+style="flex:1;padding:10px;border-radius:10px;border:none;background:#111827;color:#fff"></textarea>
 
 <button onclick="responderIA()" id="btnIA"
 style="background:#22c55e;color:#000;padding:10px 14px;border-radius:10px;font-weight:bold">
@@ -237,7 +245,7 @@ style="background:#22c55e;color:#000;padding:10px 14px;border-radius:10px;font-w
 </div>
 </div>
 
-<!-- MENU -->
+<!-- ====================================================010 – MENU==================================================== -->
 <div class="bottomNav">
 <div class="navItem" id="btnAdmin" onclick="abrirTela('admin',this)" style="display:none"><span>👑</span>Admin</div>
 <div class="navItem navAtivo" onclick="abrirTela('inicio',this)"><span>🏠</span>Início</div>
