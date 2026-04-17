@@ -714,12 +714,31 @@ container.id="containerExtrato"
 container.style.padding="10px"
 container.style.maxWidth="900px"
 container.style.margin="auto"
+container.style.background="transparent"
 
 container.innerHTML=`
-<canvas id="graficoResumo" height="200"></canvas>
-<canvas id="graficoMensal" height="200" style="margin-top:20px"></canvas>
-<div id="lista"></div>
+<div style="display:flex;flex-direction:column;gap:12px">
+
+<div id="boxGraficos" style="
+background:#020617;
+padding:10px;
+border-radius:12px;
+">
+
+<canvas id="graficoResumo" height="180"></canvas>
+<canvas id="graficoMensal" height="180" style="margin-top:10px"></canvas>
+
+</div>
+
+<div id="lista" style="
+display:flex;
+flex-direction:column;
+gap:6px;
+"></div>
+
 <div id="resumo"></div>
+
+</div>
 `
 
 tela.appendChild(container)
