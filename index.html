@@ -58,8 +58,27 @@ function setValue(id,val){const el=safe(id);if(el)el.value=val}
 </head>
 
 <body class="login">
-<div id="telaLogin" style="position:fixed;top:0;left:0;width:100%;height:100%;display:flex;align-items:center;justify-content:center">
-<div id="loginCard">
+<div id="telaLogin" style="
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+display:flex;
+align-items:center;
+justify-content:center;
+background:#f1f5f9;
+">
+<div id="loginCard" style="
+width:280px;
+background:#ffffff;
+padding:20px;
+border-radius:16px;
+box-shadow:0 10px 30px rgba(0,0,0,0.15);
+display:flex;
+flex-direction:column;
+gap:10px;
+">
 <h2 style="text-align:center">Acesso</h2>
 <input id="loginUser" placeholder="Usuário">
 <input id="loginPass" type="password" placeholder="Senha">
@@ -378,9 +397,17 @@ const [ano,mes]=chave.split("-")
 html+=`
 <div class="card" onclick="toggleMes('${chave}')" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center">
 <b>${mes}/${ano}</b>
+<div style="display:flex;align-items:center;gap:6px">
+
 <b style="color:${saldo>=0?"#16a34a":"#dc2626"}">
 ${ocultarSaldo?"R$ ***":formatarMoeda(saldo)}
 </b>
+
+<button onclick="event.stopPropagation();toggleSaldo()" style="background:none">
+👁
+</button>
+
+</div>
 </div>
 `
 
@@ -483,7 +510,7 @@ if(!areaGrafico){
 areaGrafico=document.createElement("div")
 areaGrafico.id="areaGrafico"
 areaGrafico.style.textAlign="center"
-areaGrafico.style.marginBottom="10px"
+areaGrafico.style.marginBottom="4px"
 container.prepend(areaGrafico)
 }
 /* 🔥 LIMPA SÓ O GRÁFICO */
@@ -491,10 +518,10 @@ areaGrafico.innerHTML=""
 
 const canvas=document.createElement("canvas")
 
-canvas.style.width="180px"
-canvas.style.height="180px"
-canvas.style.maxWidth="220px"
-canvas.style.maxHeight="220px"
+canvas.style.width="140px"
+canvas.style.height="140px"
+canvas.style.maxWidth="140px"
+canvas.style.maxHeight="140px"
 canvas.style.display="block"
 canvas.style.margin="10px auto"
 
