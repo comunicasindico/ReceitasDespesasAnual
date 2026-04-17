@@ -342,17 +342,24 @@ else d+=v
 })
 
 const saldo=r-d
-totalGeral+=saldo
 
-const [ano,mes]=chave.split("-")
+resumo.innerHTML=`
+<div class="card" style="display:flex;justify-content:space-between;align-items:center">
+<b>Total</b>
 
-html+=`
-<div class="card" onclick="toggleMes('${chave}')"
-style="cursor:pointer;display:flex;justify-content:space-between">
-<b>${mes}/${ano}</b>
-<b style="color:${saldo>=0?"#16a34a":"#dc2626"}">
-R$ ${saldo.toLocaleString("pt-BR",{minimumFractionDigits:2})}
-</b>
+<div style="display:flex;align-items:center;gap:8px">
+el.style.transition="all .2s"
+el.style.transform="scale(1.05)"
+setTimeout(()=>el.style.transform="scale(1)",150)
+<span style="font-weight:bold;color:${saldo>=0?"#16a34a":"#dc2626"}">
+${ocultarSaldo?"R$ ***":moeda(saldo)}
+</span>
+
+<button onclick="toggleSaldo()" style="background:none;font-size:16px">
+👁
+</button>
+
+</div>
 </div>
 `
 
@@ -442,10 +449,15 @@ container.prepend(areaGrafico)
 areaGrafico.innerHTML=""
 
 const canvas=document.createElement("canvas")
-canvas.style.maxWidth="280px"
-canvas.style.height="160px"
-canvas.style.margin="auto"
+
+canvas.style.width="220px"
+canvas.style.height="220px"
+canvas.style.maxWidth="220px"
+canvas.style.maxHeight="220px"
 canvas.style.display="block"
+canvas.style.margin="10px auto"
+
+areaGrafico.style.textAlign="center"
 
 areaGrafico.appendChild(canvas)
 
@@ -470,7 +482,7 @@ backgroundColor:["#22c55e","#ef4444"]
 }]
 },
 options:{
-responsive:true,
+responsive:false,
 maintainAspectRatio:false,
 plugins:{legend:{position:"bottom"}},
 cutout:"70%"
