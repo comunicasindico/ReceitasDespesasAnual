@@ -162,16 +162,48 @@ async function loginSistema(){
 const email=safe("loginUser").value.trim()
 const senha=safe("loginPass").value.trim()
 if(!email||!senha){alert("Preencha os dados");return}
-const {data}=await db.from("usuarios_lancamentos").select("*").eq("email",email).eq("senha",senha).limit(1)
-if(!data||!data.length){alert("Login inválido");return}
-const user=data[0]
-localStorage.setItem("usuario_id_lancamentos",user.id)
-localStorage.setItem("usuario_nome_lancamentos",user.nome)
-localStorage.setItem("tipo_usuario_lancamentos",user.tipo||"user")
+
+const {data,error}=await db
+.from("usuarios_lancamentos")
+.select("*")
+.eq("email",email)
+.eq("senha",senha)
+.maybeSingle()
+
+if(error||!data){
+alert("Login inválido")
+return
+}
+/* 🔥 GARANTE AG/CONTA */
+if(!data.agencia || !data.conta){
+
+const novaConta=gerarConta(data.nome)
+
+await db.from("usuarios_lancamentos")
+.update({
+agencia:"01968",
+conta:novaConta
+})
+.eq("id",data.id)
+
+data.agencia="01968"
+data.conta=novaConta
+}
+/* 🔥 LIMPA SESSÃO ANTES */
+localStorage.clear()
+/* 🔥 SALVA CORRETAMENTE */
+localStorage.setItem("usuario_id_lancamentos",data.id)
+localStorage.setItem("usuario_nome_lancamentos",data.nome)
+localStorage.setItem("usuario_email",data.email)
+localStorage.setItem("agencia",data.agencia)
+localStorage.setItem("conta",data.conta)
+safe("mobileNome").innerText=data.nome
+/* 🔥 TROCA TELA */
 hide("telaLogin")
 show("painelMobile")
 document.body.classList.remove("login")
 document.body.classList.add("app")
+
 await carregar()
 await carregarPerfil()
 atualizarPainelMobile()
@@ -462,20 +494,27 @@ plugins:{legend:{display:false}}
 async function carregarPerfil(){
 const id=localStorage.getItem("usuario_id_lancamentos")
 if(!id)return
+
 const {data,error}=await db
 .from("usuarios_lancamentos")
 .select("*")
 .eq("id",id)
-.single()
-if(error||!data){
-console.log(error)
-return
-}
+.maybeSingle()
+
+if(error||!data)return
+
 setValue("perfilNome",data.nome||"")
 setValue("perfilEmail",data.email||"")
 setValue("perfilCelular",data.celular||"")
-setHTML("boxAgencia",data.agencia||"0001")
-setHTML("boxConta",data.conta||"123456-7")
+
+/* 🔥 AQUI ESTAVA FALTANDO */
+setHTML("boxAgencia",data.agencia||"0000")
+setHTML("boxConta",data.conta||"000000")
+
+/* 🔥 MOBILE */
+safe("mobileAgencia").innerText=data.agencia||"0000"
+safe("mobileConta").innerText=data.conta||"000000"
+safe("mobileNome").innerText=data.nome||""
 }
 </script>
 
@@ -502,6 +541,8 @@ let r=0,d=0
 dados.forEach(x=>{if(x.tipo==="RECEITA")r+=Number(x.valor||0);else d+=Number(x.valor||0)})
 safe("mobileSaldo").innerText=ocultarSaldo?"R$ ***":"R$ "+(r-d).toFixed(2)
 safe("mobileNome").innerText=localStorage.getItem("usuario_nome_lancamentos")
+safe("mobileAgencia").innerText=localStorage.getItem("agencia")||"01968"
+safe("mobileConta").innerText=localStorage.getItem("conta")||""
 }
 </script>
 
@@ -645,12 +686,23 @@ safe("alertaFinanceiro").innerText=msg
 <script>
 function calcularScore(){
 let r=0,d=0
-dados.forEach(x=>{if(x.tipo==="RECEITA")r+=Number(x.valor||0);else d+=Number(x.valor||0)})
+
+dados.forEach(x=>{
+if(x.tipo==="RECEITA")r+=Number(x.valor||0)
+else d+=Number(x.valor||0)
+})
+
 let score=0
-if(r>0)score=Math.max(0,Math.min(100,100-(d/r*100)))
+if(r>0){
+score=Math.max(0,Math.min(100,100-(d/r*100)))
+}
+
+/* 🔥 GARANTE ELEMENTO */
 const el=safe("scoreBox")
 if(!el)return
+
 el.innerText="Score: "+score.toFixed(0)
+
 if(score>70)el.style.background="#dcfce7"
 else if(score>40)el.style.background="#fef9c3"
 else el.style.background="#fee2e2"
@@ -717,16 +769,19 @@ const {data,error}=await db
 .from("lancamentos")
 .select("*")
 .eq("usuario_id",userId)
-.order("data",{ascending:true})
 
 if(error){
-console.error(error)
+console.error("SUPABASE ERRO:",error)
+dados=[]
+render()
 return
 }
 
+/* 🔥 EVITA NULL */
 dados=Array.isArray(data)?data:[]
 
 render()
+atualizarTudo()
 }
 </script>
 
@@ -1096,7 +1151,59 @@ addMsgIA("Erro ao conectar IA","bot")
 }
 </script>
 
+<script>
+function gerarConta(nome){
+const hoje=new Date()
+const dd=String(hoje.getDate()).padStart(2,"0")
+const mm=String(hoje.getMonth()+1).padStart(2,"0")
+const yyyy=hoje.getFullYear()
 
+let prefixo="004"
+
+if(nome.toLowerCase().includes("admin"))prefixo="001"
+else if(nome.toLowerCase().includes("neto"))prefixo="002"
+else if(nome.toLowerCase().includes("larissa"))prefixo="003"
+
+return prefixo+dd+mm+yyyy
+}
+</script>
+
+<script>
+async function abrirCadastro(){
+
+const nome=prompt("Nome completo:")
+if(!nome)return
+
+const email=prompt("Email:")
+if(!email)return
+
+const senha=prompt("Senha:")
+if(!senha)return
+
+/* 🔥 GERAR AGÊNCIA E CONTA */
+const agencia="01968"
+const conta=gerarConta(nome)
+
+const {error}=await db.from("usuarios_lancamentos").insert({
+nome:nome,
+email:email,
+senha:senha,
+agencia:agencia,
+conta:conta,
+tipo:"user"
+})
+
+if(error){
+alert("Erro ao cadastrar")
+console.error(error)
+return
+}
+
+alert("Conta criada com sucesso!")
+
+}
+</script>
+  
 <script>
 console.time("render")
 setTimeout(()=>console.timeEnd("render"),1000)
