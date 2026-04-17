@@ -777,7 +777,15 @@ function atualizarTudo(){
 atualizarPainelMobile()
 alertaInteligente()
 calcularScore()
+if(!window._graficoRodou){
+window._graficoRodou=true
 setTimeout(graficoCategorias,200)
+}
+if(Number(x.valor)>5000 && x.tipo==="DESPESA")
+if(!window._fraudeExecutada){
+detectarFraude()
+rodarInteligencia()
+}
 }
 </script>
 
@@ -986,26 +994,22 @@ carregar()
 
 <script>
 function detectarFraude(){
+if(window._fraudeExecutada)return
+window._fraudeExecutada=true
 dados.forEach(x=>{
-if(x.valor>5000){
+if(Number(x.valor)>5000 && x.tipo==="DESPESA"){
 console.warn("🚨 possível fraude:",x)
 }
 })
 }
-</script>
 
-<script>
-function ultra(){
-sugerirCortes()
-detectarFraude()
-}
-if(!window._fraudeRodando){
-window._fraudeRodando=true
+function rodarInteligencia(){
+if(window._inteligenciaRodou)return
+window._inteligenciaRodou=true
 setTimeout(()=>{
 sugerirCortes()
 detectarFraude()
 },3000)
-
 }
 </script>
 
