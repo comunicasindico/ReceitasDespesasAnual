@@ -689,23 +689,42 @@ filtroFim=`${ano}-${mes}-${String(ultimoDia).padStart(2,"0")}`
 modoAnoCompleto=false
 render()
 }
-/* ====================================================021 – RENDER CONTÁBIL CORRIGIDO==================================================== */
+/* ====================================================021 – RENDER FINAL COMPLETO==================================================== */
 function render(){
+
+/* 🔒 CONTROLE GLOBAL */
 if(visibilidadeTotal['GERAL']===undefined)visibilidadeTotal['GERAL']=true
+
+/* 🔥 GARANTE ESTRUTURA DA TELA (CORREÇÃO CRÍTICA) */
+let tela=document.getElementById("telaExtrato")
+if(tela && !document.getElementById("lista")){
+tela.innerHTML=`
+<div style="padding:10px;max-width:900px;margin:auto">
+<canvas id="graficoResumo" height="200"></canvas>
+<canvas id="graficoMensal" height="200" style="margin-top:20px"></canvas>
+<div id="lista"></div>
+<div id="resumo"></div>
+</div>
+`
+}
+
+/* 🔥 ELEMENTOS */
 const lista=document.getElementById("lista")
 const resumoEl=document.getElementById("resumo")
 if(!lista||!resumoEl)return
 
+/* 🔥 FILTRO */
 let listaFiltrada=[...dados]
 
 if(filtroInicio)listaFiltrada=listaFiltrada.filter(x=>x.data>=filtroInicio)
 if(filtroFim)listaFiltrada=listaFiltrada.filter(x=>x.data<=filtroFim)
 
-/* 🔥 AGRUPAR */
+/* 🔥 AGRUPAMENTO CORRIGIDO (ANTI BUG DATA) */
 const grupos={}
 listaFiltrada.forEach(x=>{
 if(!x.data)return
-const [ano,mes]=x.data.split("-")
+const limpa=x.data.split("T")[0]
+const [ano,mes]=limpa.split("-")
 const chave=`${ano}-${mes}`
 if(!grupos[chave])grupos[chave]=[]
 grupos[chave].push(x)
@@ -713,26 +732,31 @@ grupos[chave].push(x)
 
 const chaves=Object.keys(grupos).sort().reverse()
 
+/* 🔥 RESET */
 lista.innerHTML=""
 
 let totalGeralR=0
 let totalGeralD=0
 
+/* ==================================================== LOOP MESES ==================================================== */
 chaves.forEach(chave=>{
+
 let listaMes=grupos[chave]
 
+/* 🔥 ORDENAÇÃO */
 listaMes.sort((a,b)=>{
 if(a.tipo==="RECEITA"&&b.tipo!=="RECEITA")return-1
 if(a.tipo!=="RECEITA"&&b.tipo==="RECEITA")return 1
 return(a.data||"").localeCompare(b.data||"")
 })
 
+/* 🔥 TOTAIS */
 let totalR=0
 let totalD=0
 
 listaMes.forEach(x=>{
 const v=Number(x.valor||0)
-if(x.tipo==="RECEITA") totalR+=v
+if(x.tipo==="RECEITA")totalR+=v
 else totalD+=v
 })
 
@@ -740,153 +764,114 @@ totalGeralR+=totalR
 totalGeralD+=totalD
 
 const saldo=totalR-totalD
-
 const [ano,mes]=chave.split("-")
 
-/* ===================== CABEÇALHO DO MÊS ===================== */
+/* 🔥 HEADER DO MÊS */
 lista.innerHTML+=`
-<div style="margin-top:15px;background:#020617;padding:10px;border-radius:10px;border-left:4px solid #38bdf8;
-display:grid;
-grid-template-columns:100px 1.5fr 110px 110px 110px;
-gap:4px;
-max-width:900px;
-margin:auto;
-align-items:center;font-size:12px">
+<div style="
+margin-top:15px;
+background:#020617;
+padding:10px;
+border-radius:10px;
+border-left:4px solid #38bdf8;
+display:flex;
+justify-content:space-between;
+align-items:center;
+font-size:13px
+">
 
 <div style="display:flex;align-items:center;gap:8px">
 <button onclick="toggleMes('${chave}')" style="
-width:28px;
-height:28px;
-border-radius:6px;
-border:none;
 background:#22c55e;
-color:#fff;
-font-size:14px;
-cursor:pointer;
-display:flex;
-align-items:center;
-justify-content:center;
-">
+border:none;
+border-radius:6px;
+width:28px;height:28px;
+color:#fff;cursor:pointer">
 ${mesesOcultos[chave]?"▶":"▼"}
 </button>
-<span style="font-weight:bold">
-${formatarMesNome(mes)}/${ano}
+
+<b>${formatarMesNome(mes)}/${ano}</b>
+</div>
+
+<div style="display:flex;gap:15px">
+
+<span style="color:#22c55e">
+R$ ${formatarMoeda(totalR)}
 </span>
-</div>
 
-<div></div>
-
-<div style="text-align:right;color:#fff;font-weight:bold">
-${visibilidadeTotal[chave]?"R$ "+formatarMoeda(totalR):"R$ ***"}
-<button onclick="toggleTotal('${chave}')" style="margin-left:5px;background:#3b82f6;color:#fff;border:none;border-radius:6px;padding:2px 6px">${visibilidadeTotal[chave]?"🙈":"👁"}</button>
-</div>
-
-<div style="text-align:right;color:#ef4444;font-weight:bold">
+<span style="color:#ef4444">
 R$ ${formatarMoeda(totalD)}
-</div>
+</span>
 
-<div style="text-align:right;color:${saldo>=0?"#22c55e":"#ef4444"};font-weight:bold">
+<span style="color:${saldo>=0?"#22c55e":"#ef4444"};font-weight:bold">
 R$ ${formatarMoeda(saldo)}
-</div>
+</span>
 
+</div>
 </div>
 `
 
-/* ===================== ITENS ===================== */
+/* ==================================================== ITENS ==================================================== */
 if(!mesesOcultos[chave]){
+
 listaMes.forEach(x=>{
+
 const isReceita=x.tipo==="RECEITA"
 
 lista.innerHTML+=`
-<div style="display:grid;
-grid-template-columns:100px 1.5fr 110px 110px 140px;
-gap:4px;
-max-width:900px;
-margin:auto;
-gap:6px;
+<div style="
+display:flex;
+justify-content:space-between;
+padding:6px 10px;
 background:${isReceita?"#052e16":"#1e293b"};
-padding:3px 6px;
-margin:1px 0;
-border-radius:6px;font-size:12px">
+margin:2px 0;
+border-radius:6px;
+font-size:12px
+">
 
 <div>
-${modoEdicao
-? `<input type="date" value="${x.data||""}" onchange="editTemp('${x.id}','data',this.value)">`
-: formatarDataBR(x.data)
-}
+${formatarDataBR(x.data)} • ${x.descricao}
 </div>
 
-<div>
-${modoEdicao
-? `<input type="text" value="${String(x.descricao||"").replace(/"/g,"&quot;")}" onchange="editTemp('${x.id}','descricao',this.value)">`
-: `${isReceita?"+ ":"- "}${x.descricao||""}`
-}
+<div style="color:${isReceita?"#22c55e":"#ef4444"};font-weight:bold">
+R$ ${formatarMoeda(x.valor)}
 </div>
 
-<!-- RECEITA (ESQUERDA / BRANCO) -->
-<div style="text-align:right;color:#fff;font-weight:bold">
-${isReceita
-? (modoEdicao
-    ? `<input type="number" value="${x.valor}" onchange="editTemp('${x.id}','valor',this.value)" style="width:100px">`
-    : (visibilidade[x.id] ? "R$ "+formatarMoeda(x.valor) : "R$ ***"))
-: ""
-}
-</div>
-
-<!-- DESPESA (DIREITA / VERMELHO) -->
-<div style="text-align:right;color:#ef4444;font-weight:bold">
-${!isReceita
-? (modoEdicao
-    ? `<input type="number" value="${x.valor}" onchange="editTemp('${x.id}','valor',this.value)" style="width:100px">`
-    : "R$ "+formatarMoeda(x.valor))
-: ""
-}
-</div>
-<!-- STATUS -->
-<div style="display:flex;justify-content:flex-end;gap:6px">
-${isReceita && !modoEdicao ? `
-<button onclick="toggleValor('${x.id}')" style="background:#3b82f6;color:#fff">${visibilidadeTotal[chave]?"🙈":"👁"}</button>
-` : ""}
-${modoEdicao ? `
-<button onclick="salvarEdicao('${x.id}')" style="background:#22c55e;color:#000">💾</button>
-` : ""}
-<button onclick="marcarPago('${x.id}')" style="background:${x.pago?"#22c55e":"#ef4444"};color:#000">
-${x.pago?"OK":"PEND"}
-</button>
-<button onclick="delConfirm('${x.id}')" style="background:#ef4444;color:#fff">
-🗑
-</button>
-</div>
 </div>
 `
+
 })
+
 }
+
 })
-/* ===================== RESUMO GERAL ===================== */
+
+/* ==================================================== RESUMO ==================================================== */
 const saldoGeral=totalGeralR-totalGeralD
+
 resumoEl.innerHTML=`
-<div style="margin-top:10px;background:#020617;padding:10px;border-radius:10px;
-display:grid;
-grid-template-columns:100px 1.5fr 110px 110px 140px;
-gap:4px;
-max-width:900px;
-margin:auto;
-align-items:center;font-size:13px;font-weight:bold">
-<div style="color:#fff">TOTAL</div>
-<div></div>
-<div style="text-align:right;color:#fff">
-${visibilidadeTotal['GERAL']?"R$ "+formatarMoeda(totalGeralR):"R$ ***"}
-<button onclick="toggleTotal('GERAL')" style="margin-left:5px;background:#3b82f6;color:#fff;border:none;border-radius:6px;padding:2px 6px">${visibilidadeTotal['GERAL']?"🙈":"👁"}</button>
-</div>
-<div style="text-align:right;color:#ef4444">
-R$ ${formatarMoeda(totalGeralD)}
-</div>
-<div style="text-align:right;color:${saldoGeral>=0?"#22c55e":"#ef4444"}">
+<div style="
+margin-top:10px;
+background:#020617;
+padding:12px;
+border-radius:10px;
+display:flex;
+justify-content:space-between;
+font-weight:bold;
+font-size:14px
+">
+<span>TOTAL</span>
+<span style="color:${saldoGeral>=0?"#22c55e":"#ef4444"}">
 R$ ${formatarMoeda(saldoGeral)}
-</div>
+</span>
 </div>
 `
-if(mostrarGrafico)atualizarDashboard()
+
+/* 🔥 GRÁFICO COM DELAY (ANTI BUG DOM) */
+if(mostrarGrafico){
+setTimeout(()=>atualizarDashboard(),120)
+}
+
 }
 /* =========================================================================== */
 function formatarMesNome(m){
@@ -899,26 +884,34 @@ if(confirm("Deseja excluir este registro?")){
 del(id)
 }
 }
-/* ====================================================022 – DASHBOARD (NUBANK / CONTÁBIL)==================================================== */
+/* ====================================================022 – DASHBOARD FINAL CORRIGIDO==================================================== */
 function atualizarDashboard(){
-/* ====================================================022.1 – BLOQUEIO DUPLO RENDER==================================================== */
+
+/* ====================================================022.1 – BLOQUEIO==================================================== */
 if(window._chartLock)return
 window._chartLock=true
-/* ====================================================022.2 – VALIDAÇÃO CHART==================================================== */
+
+try{
+
+/* ====================================================022.2 – VALIDAÇÃO==================================================== */
 if(typeof Chart==="undefined"){
 window._chartLock=false
 return
 }
-/* ====================================================022.3 – ELEMENTOS DOM==================================================== */
+
+/* ====================================================022.3 – DOM==================================================== */
 const elResumo=document.getElementById("graficoResumo")
 const elMensal=document.getElementById("graficoMensal")
+
 if(!elResumo||!elMensal){
 window._chartLock=false
 return
 }
+
 const ctxResumo=elResumo.getContext("2d")
 const ctxMensal=elMensal.getContext("2d")
-/* ====================================================022.4 – DESTRUIR CHARTS (SEGURO)==================================================== */
+
+/* ====================================================022.4 – DESTRUIR (SEGURO)==================================================== */
 if(graficoResumo){
 try{graficoResumo.destroy()}catch(e){}
 graficoResumo=null
@@ -927,29 +920,51 @@ if(graficoMensal){
 try{graficoMensal.destroy()}catch(e){}
 graficoMensal=null
 }
-/* ====================================================022.5 – FILTRO DE DADOS==================================================== */
+
+/* ====================================================022.5 – FILTRO==================================================== */
 let listaFiltrada=[...dados]
+
 if(filtroInicio)listaFiltrada=listaFiltrada.filter(x=>x.data>=filtroInicio)
 if(filtroFim)listaFiltrada=listaFiltrada.filter(x=>x.data<=filtroFim)
-/* ====================================================022.6 – CONSOLIDAÇÃO==================================================== */
+
+/* 🔥 SE NÃO TEM DADOS → EVITA QUEBRAR */
+if(!listaFiltrada.length){
+window._chartLock=false
+return
+}
+
+/* ====================================================022.6 – CONSOLIDAÇÃO CORRIGIDA==================================================== */
 let r=0
 let d=0
 let meses={}
+
 listaFiltrada.forEach(x=>{
+
 if(!x.data)return
-const m=getMesBase(x)
-if(m===undefined)return
-if(!meses[m])meses[m]={r:0,d:0}
+
+/* 🔥 REMOVE T DO TIMESTAMP */
+const limpa=x.data.split("T")[0]
+const partes=limpa.split("-")
+if(partes.length<2)return
+
+const mesIndex=parseInt(partes[1])-1
+if(isNaN(mesIndex))return
+
+if(!meses[mesIndex])meses[mesIndex]={r:0,d:0}
+
 const v=Number(x.valor||0)
+
 if(x.tipo==="RECEITA"){
 r+=v
-meses[m].r+=v
+meses[mesIndex].r+=v
 }else{
 d+=v
-meses[m].d+=v
+meses[mesIndex].d+=v
 }
+
 })
-/* ====================================================022.7 – GRÁFICO RESUMO (DOUGHNUT)==================================================== */
+
+/* ====================================================022.7 – DOUGHNUT==================================================== */
 graficoResumo=new Chart(ctxResumo,{
 type:"doughnut",
 data:{
@@ -964,7 +979,9 @@ borderWidth:0
 }]
 },
 options:{
-cutout:"60%",
+responsive:true,
+maintainAspectRatio:false,
+cutout:"65%",
 plugins:{
 legend:{display:false},
 tooltip:{
@@ -973,6 +990,7 @@ label:(ctx)=>ctx.label+": R$ "+formatarMoeda(ctx.raw)
 }
 }
 },
+animation:{duration:600},
 onClick:(evt,elements)=>{
 if(elements.length){
 const i=elements[0].index
@@ -983,7 +1001,8 @@ alert(`${tipo}: R$ ${formatarMoeda(valor)}`)
 }
 }
 })
-/* ====================================================022.8 – GRÁFICO MENSAL (BARRAS)==================================================== */
+
+/* ====================================================022.8 – BARRAS MENSAIS==================================================== */
 graficoMensal=new Chart(ctxMensal,{
 type:"bar",
 data:{
@@ -1004,22 +1023,26 @@ borderRadius:6
 ]
 },
 options:{
+responsive:true,
+maintainAspectRatio:false,
 plugins:{
 legend:{labels:{color:"#fff"}}
 },
 scales:{
 x:{ticks:{color:"#fff"}},
 y:{ticks:{color:"#fff"}}
-}
+},
+animation:{duration:700}
 }
 })
-/* ====================================================022.9 – LIBERAÇÃO LOCK==================================================== */
+
+}catch(e){
+console.error("Erro no dashboard:",e)
+}
+
+/* ====================================================022.9 – LIBERA==================================================== */
 window._chartLock=false
 }
-/* ====================================================999 – FINAL SCRIPT==================================================== */
-
-
-
 /* ====================================================023 – COPIAR MÊS==================================================== */
 async function copiarMesAnterior(){
 const userId=localStorage.getItem("usuario_id_lancamentos")
