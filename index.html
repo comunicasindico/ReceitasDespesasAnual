@@ -299,11 +299,41 @@ return true
 </script>  
 
 <script>
+function moeda(v){
+return Number(v||0).toLocaleString("pt-BR",{style:"currency",currency:"BRL"})
+}
+</script>  
+
+
+  
+<script>
+function formatarMoeda(v){
+return Number(v||0).toLocaleString("pt-BR",{style:"currency",currency:"BRL"})
+}
+</script>  
+
+
+<script>
+function formatarDataBR(data){
+if(!data)return ""
+const d=data.split("T")[0]
+const [ano,mes,dia]=d.split("-")
+return dia+"/"+mes+"/"+ano
+}
+</script>  
+
+
+  
+<script>
 function render(){
+try{
+
 const tela=safe("telaExtrato")
 if(!tela||!tela.classList.contains("telaAtiva"))return
+
 const lista=safe("lista")
 const resumo=safe("resumo")
+
 if(!dados||!dados.length){
 lista.innerHTML="<div class='card'>Sem registros</div>"
 resumo.innerHTML=""
@@ -330,6 +360,9 @@ let totalGeralD=0
 chaves.forEach(chave=>{
 const listaMes=grupos[chave]
 
+/* 🔥 ORDENAR POR DATA */
+listaMes.sort((a,b)=>(a.data||"").localeCompare(b.data||""))
+
 /* 🔥 SOMA */
 let r=0,d=0
 listaMes.forEach(x=>{
@@ -344,12 +377,12 @@ totalGeralD+=d
 const saldo=r-d
 const [ano,mes]=chave.split("-")
 
-/* 🔥 HEADER DO MÊS */
+/* 🔥 HEADER */
 html+=`
-<div class="card" onclick="toggleMes('${chave}')" style="cursor:pointer;display:flex;justify-content:space-between">
+<div class="card" onclick="toggleMes('${chave}')" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center">
 <b>${mes}/${ano}</b>
 <b style="color:${saldo>=0?"#16a34a":"#dc2626"}">
-${ocultarSaldo?"R$ ***":moeda(saldo)}
+${ocultarSaldo?"R$ ***":formatarMoeda(saldo)}
 </b>
 </div>
 `
@@ -361,18 +394,18 @@ const valor=Number(x.valor||0)
 const vis=visibilidade[x.id]===false
 
 html+=`
-<div class="card" style="padding:8px;margin-top:4px;display:flex;justify-content:space-between;align-items:center">
+<div class="card" style="padding:6px;margin-top:4px;display:flex;justify-content:space-between;align-items:center">
 
-<div style="flex:2">
+<div style="flex:2;font-size:13px">
 ${formatarDataBR(x.data)} - ${x.descricao}
 </div>
 
-<div style="flex:1;text-align:right;color:${x.tipo==="RECEITA"?"#16a34a":"#dc2626"}">
-${vis?"R$ ***":moeda(valor)}
+<div style="flex:1;text-align:right;font-weight:bold;color:${x.tipo==="RECEITA"?"#16a34a":"#dc2626"}">
+${vis?"R$ ***":formatarMoeda(valor)}
 </div>
 
-<div style="display:flex;gap:5px">
-<button onclick="event.stopPropagation();toggleValor('${x.id}')">👁</button>
+<div style="display:flex;gap:4px">
+<button onclick="event.stopPropagation();toggleValor('${x.id}')" style="padding:4px 6px">👁</button>
 </div>
 
 </div>
@@ -384,23 +417,24 @@ ${vis?"R$ ***":moeda(valor)}
 
 lista.innerHTML=html
 
-/* 🔥 TOTAL GERAL */
+/* 🔥 TOTAL */
 const saldoTotal=totalGeralR-totalGeralD
 
 resumo.innerHTML=`
 <div class="card" style="display:flex;justify-content:space-between;align-items:center">
-
 <b>Total Geral</b>
-
 <div style="display:flex;align-items:center;gap:8px">
 <b style="color:${saldoTotal>=0?"#16a34a":"#dc2626"}">
-${ocultarSaldo?"R$ ***":moeda(saldoTotal)}
+${ocultarSaldo?"R$ ***":formatarMoeda(saldoTotal)}
 </b>
 <button onclick="toggleSaldo()" style="background:none">👁</button>
 </div>
-
 </div>
 `
+
+}catch(e){
+console.error("ERRO RENDER:",e)
+}
 }
 </script>
 
