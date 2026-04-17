@@ -437,9 +437,9 @@ else if(saldo>0){scoreBox.innerText="🟡 Atenção";scoreBox.style.background="
 else{scoreBox.innerText="🔴 Risco";scoreBox.style.background="#7f1d1d"}
 }
 }
-/* ====================================================120 – ABRIR FINANCEIRO (COM RENDER)==================================================== */
-function abrirFinanceiro(btn){
-
+/* ====================================================120 – ABRIR FINANCEIRO (CORRIGIDO DEFINITIVO)==================================================== */
+async function abrirFinanceiro(btn){
+/* 🔒 BLOQUEIO BOTÃO */
 if(btn){
 if(btn.disabled)return
 btn.disabled=true
@@ -452,22 +452,35 @@ btn.style.opacity="1"
 btn.innerText=txt
 },800)
 }
-/* PERÍODO PADRÃO */
+/* ==================================================== PERÍODO PADRÃO ==================================================== */
 if(!filtroInicio || !filtroFim){
 const hoje=new Date()
 const inicio=new Date(hoje.getFullYear(),hoje.getMonth(),1)
 const fim=new Date(hoje.getFullYear(),hoje.getMonth()+1,0)
-filtroInicio=inicio.toISOString().slice(0,10)
-filtroFim=fim.toISOString().slice(0,10)
+/* 🔥 CORREÇÃO TIMEZONE */
+const i=new Date(inicio.getTime()-inicio.getTimezoneOffset()*60000)
+const f=new Date(fim.getTime()-fim.getTimezoneOffset()*60000)
+
+filtroInicio=i.toISOString().slice(0,10)
+filtroFim=f.toISOString().slice(0,10)
 }
+/* ==================================================== ABRIR TELA ==================================================== */
 abrirTela("extrato")
 
-/* 🔥 GARANTE CARREGAMENTO CORRETO */
-setTimeout(async()=>{
-await carregar()
-},50)
+/* ==================================================== GARANTIR DOM + DADOS ==================================================== */
+await new Promise(requestAnimationFrame)
 
-window.scrollTo(0,0)
+/* 🔥 CARREGA DADOS */
+await carregar()
+
+/* 🔥 FORÇA RENDER (GARANTIA FINAL) */
+if(typeof render==="function"){
+render()
+}
+
+/* ==================================================== SCROLL ==================================================== */
+window.scrollTo({top:0,behavior:"smooth"})
+
 }
 /* ============================================================================= */
 function abrirMobile(){
@@ -548,8 +561,13 @@ return
 }
 /* 🔥 RENDER SOMENTE SE EXTRATO ABERTO */
 const telaExtrato=document.getElementById("telaExtrato")
-if(telaExtrato && telaExtrato.classList.contains("telaAtiva")){
-render()
+/* 🔥 GARANTE ELEMENTOS SEM BLOQUEAR */
+let lista=document.getElementById("lista")
+let resumoEl=document.getElementById("resumo")
+
+if(!lista || !resumoEl){
+console.warn("Extrato ainda não montado")
+return
 }
 }
 /* ====================================================008 – SALVAR==================================================== */
