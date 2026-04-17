@@ -300,25 +300,22 @@ return true
 
 <script>
 function render(){
-
 const tela=safe("telaExtrato")
-if(!tela || !tela.classList.contains("telaAtiva")) return
-
+if(!tela||!tela.classList.contains("telaAtiva"))return
 const lista=safe("lista")
 const resumo=safe("resumo")
-
-if(!dados.length){
+if(!dados||!dados.length){
 lista.innerHTML="<div class='card'>Sem registros</div>"
 resumo.innerHTML=""
 return
 }
 
+/* 🔥 AGRUPAR POR MÊS */
 const grupos={}
-
 dados.forEach(x=>{
-const data=x.data?.split("T")[0]
-if(!data)return
-const [ano,mes]=data.split("-")
+if(!x.data)return
+const d=x.data.split("T")[0]
+const [ano,mes]=d.split("-")
 const chave=ano+"-"+mes
 if(!grupos[chave])grupos[chave]=[]
 grupos[chave].push(x)
@@ -327,80 +324,81 @@ grupos[chave].push(x)
 const chaves=Object.keys(grupos).sort().reverse()
 
 let html=""
-let totalGeral=0
+let totalGeralR=0
+let totalGeralD=0
 
 chaves.forEach(chave=>{
+const listaMes=grupos[chave]
 
-let listaMes=grupos[chave]
-
+/* 🔥 SOMA */
 let r=0,d=0
-
 listaMes.forEach(x=>{
 const v=Number(x.valor||0)
 if(x.tipo==="RECEITA")r+=v
 else d+=v
 })
 
+totalGeralR+=r
+totalGeralD+=d
+
 const saldo=r-d
+const [ano,mes]=chave.split("-")
 
-resumo.innerHTML=`
-<div class="card" style="display:flex;justify-content:space-between;align-items:center">
-<b>Total</b>
-
-<div style="display:flex;align-items:center;gap:8px">
-el.style.transition="all .2s"
-el.style.transform="scale(1.05)"
-setTimeout(()=>el.style.transform="scale(1)",150)
-<span style="font-weight:bold;color:${saldo>=0?"#16a34a":"#dc2626"}">
+/* 🔥 HEADER DO MÊS */
+html+=`
+<div class="card" onclick="toggleMes('${chave}')" style="cursor:pointer;display:flex;justify-content:space-between">
+<b>${mes}/${ano}</b>
+<b style="color:${saldo>=0?"#16a34a":"#dc2626"}">
 ${ocultarSaldo?"R$ ***":moeda(saldo)}
-</span>
-
-<button onclick="toggleSaldo()" style="background:none;font-size:16px">
-👁
-</button>
-
-</div>
+</b>
 </div>
 `
 
+/* 🔥 ITENS */
 if(!mesesOcultos[chave]){
-
 listaMes.forEach(x=>{
-
-const dataBR=x.data.split("-").reverse().join("/")
 const valor=Number(x.valor||0)
+const vis=visibilidade[x.id]===false
 
 html+=`
-<div class="card" style="display:flex;justify-content:space-between;font-size:13px">
+<div class="card" style="padding:8px;margin-top:4px;display:flex;justify-content:space-between;align-items:center">
 
-<div style="flex:2">${dataBR} - ${x.descricao}</div>
-
-<div style="flex:1;text-align:right;color:#16a34a">
-${x.tipo==="RECEITA"?(visibilidade[x.id]?"R$ "+valor.toLocaleString("pt-BR",{minimumFractionDigits:2}):"R$ ***"):""}
+<div style="flex:2">
+${formatarDataBR(x.data)} - ${x.descricao}
 </div>
 
-<div style="flex:1;text-align:right;color:#dc2626">
-${x.tipo==="DESPESA"?"R$ "+valor.toLocaleString("pt-BR",{minimumFractionDigits:2}):""}
+<div style="flex:1;text-align:right;color:${x.tipo==="RECEITA"?"#16a34a":"#dc2626"}">
+${vis?"R$ ***":moeda(valor)}
 </div>
 
-<div>
-<button onclick="toggleValor('${x.id}')">👁</button>
+<div style="display:flex;gap:5px">
+<button onclick="event.stopPropagation();toggleValor('${x.id}')">👁</button>
 </div>
 
 </div>
 `
-
 })
-
 }
 
 })
 
 lista.innerHTML=html
 
+/* 🔥 TOTAL GERAL */
+const saldoTotal=totalGeralR-totalGeralD
+
 resumo.innerHTML=`
-<div class="card" style="font-weight:bold;text-align:right">
-Saldo total: R$ ${totalGeral.toLocaleString("pt-BR",{minimumFractionDigits:2})}
+<div class="card" style="display:flex;justify-content:space-between;align-items:center">
+
+<b>Total Geral</b>
+
+<div style="display:flex;align-items:center;gap:8px">
+<b style="color:${saldoTotal>=0?"#16a34a":"#dc2626"}">
+${ocultarSaldo?"R$ ***":moeda(saldoTotal)}
+</b>
+<button onclick="toggleSaldo()" style="background:none">👁</button>
+</div>
+
 </div>
 `
 }
@@ -411,29 +409,27 @@ Saldo total: R$ ${totalGeral.toLocaleString("pt-BR",{minimumFractionDigits:2})}
 
   
 <script>
-function formatarData(d){
-if(!d)return""
-const limpa=d.split("T")[0]
-const[a,m,dd]=limpa.split("-")
-return`${dd}/${m}/${a}`
+function toggleMes(chave){
+mesesOcultos[chave]=!mesesOcultos[chave]
+render()
 }
 function toggleValor(id){
 visibilidade[id]=!visibilidade[id]
 render()
 }
-function toggleMes(mes){
-mesesOcultos[mes]=!mesesOcultos[mes]
-render()
+function formatarDataBR(data){
+if(!data)return ""
+const d=data.split("T")[0]
+const [ano,mes,dia]=d.split("-")
+return dia+"/"+mes+"/"+ano
 }
 </script>
 
+  
 <script>
 function atualizarDashboard(){
-
 if(!dados.length)return
-
 const container=safe("containerExtrato")
-
 /* 🔥 CRIA ÁREA FIXA PARA GRÁFICO */
 let areaGrafico=safe("areaGrafico")
 
@@ -444,7 +440,6 @@ areaGrafico.style.textAlign="center"
 areaGrafico.style.marginBottom="10px"
 container.prepend(areaGrafico)
 }
-
 /* 🔥 LIMPA SÓ O GRÁFICO */
 areaGrafico.innerHTML=""
 
