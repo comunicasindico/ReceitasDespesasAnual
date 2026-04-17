@@ -85,7 +85,12 @@ html,body{width:100%;height:100%;overflow-x:hidden}
 const SUPABASE_URL="https://gspdlrenyrzbkxlvyugc.supabase.co"
 const SUPABASE_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdzcGRscmVueXJ6Ymt4bHZ5dWdjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ4ODU0NzAsImV4cCI6MjA5MDQ2MTQ3MH0.UWfkWvOh4qMDEcByVL-KZ6ejJ80V7wJlDOFH76TywaI"
 window.db=supabase.createClient(SUPABASE_URL,SUPABASE_KEY)
-
+/* ====================================================000 – SAFE DOM==================================================== */
+function safe(id){return document.getElementById(id)}
+function show(id){const el=safe(id);if(el)el.style.display="block"}
+function hide(id){const el=safe(id);if(el)el.style.display="none"}
+function setHTML(id,html){const el=safe(id);if(el)el.innerHTML=html}
+function setValue(id,val){const el=safe(id);if(el)el.value=val}
 
 </script>
 </head>
@@ -129,11 +134,16 @@ Criar Conta Grátis Agora
 <div id="telaInicio" class="telaApp telaAtiva">
 <div style="padding:20px;background:linear-gradient(180deg,#1e3a8a,#020617);border-bottom-left-radius:25px;border-bottom-right-radius:25px;position:relative">
 
+<div style="display:flex;align-items:center;gap:10px;justify-content:space-between">
 <div style="display:flex;align-items:center;gap:10px">
 <button onclick="abrirMobile()" style="background:rgba(0,0,0,.4);color:#fff;border:none;border-radius:8px;padding:6px 10px">🏠</button>
 <div style="font-size:18px">
 Olá, <span id="mobileNome"></span>
 </div>
+</div>
+<button onclick="logout()" style="background:#ef4444;color:#fff;border:none;border-radius:8px;padding:6px 10px;font-size:12px">
+🚪 Sair
+</button>
 </div>
 
 <div style="font-size:22px;font-weight:bold;display:flex;align-items:center;gap:10px;margin-top:10px">
@@ -279,9 +289,9 @@ localStorage.setItem("usuario_id_lancamentos",user.id)
 localStorage.setItem("usuario_nome_lancamentos",user.nome)
 localStorage.setItem("tipo_usuario_lancamentos",user.tipo)
 localStorage.setItem("usuario_plano",(user.plano||"free").toLowerCase())
-document.getElementById("telaLogin").style.display="none"
-document.getElementById("appSistema").style.display="none"
-document.getElementById("painelMobile").style.display="block"
+hide("telaLogin")
+hide("appSistema")
+show("painelMobile")
 document.body.classList.remove("login")
 document.body.classList.add("app")
 PLANO_USUARIO=(localStorage.getItem("usuario_plano")||"free").toLowerCase()
@@ -1609,7 +1619,7 @@ limite:999999
 alert("Usuário liberado como PRO 💰")
 carregarUsuarios()
 }
-
+/* ==========FUNCTION ========================== */
 async function recusarPagamento(id){
 await db
 .from("usuarios_lancamentos")
@@ -1623,18 +1633,20 @@ carregarUsuarios()
 
 window.loginSistema = loginSistema;
 window.abrirCadastro = abrirCadastro;
-/* ====================================================091 – NAVEGAÇÃO MOBILE==================================================== */
+/* ====================================================091 – NAVEGAÇÃO MOBILE (SAFE)==================================================== */
 function abrirTela(nome,el){
 document.querySelectorAll(".telaApp").forEach(t=>t.classList.remove("telaAtiva"))
 document.querySelectorAll(".navItem").forEach(n=>n.classList.remove("navAtivo"))
-if(nome==="inicio")document.getElementById("telaInicio").classList.add("telaAtiva")
-if(nome==="extrato")document.getElementById("telaExtrato").classList.add("telaAtiva")
-if(nome==="perfil")document.getElementById("telaPerfil").classList.add("telaAtiva")
-if(nome==="ia")document.getElementById("telaIA").classList.add("telaAtiva")
-if(nome==="admin")document.getElementById("telaAdmin").classList.add("telaAtiva")
+
+if(nome==="inicio"){const t=safe("telaInicio");if(t)t.classList.add("telaAtiva")}
+if(nome==="extrato"){const t=safe("telaExtrato");if(t)t.classList.add("telaAtiva")}
+if(nome==="perfil"){const t=safe("telaPerfil");if(t)t.classList.add("telaAtiva")}
+if(nome==="ia"){const t=safe("telaIA");if(t)t.classList.add("telaAtiva")}
+if(nome==="admin"){const t=safe("telaAdmin");if(t)t.classList.add("telaAtiva")}
+
 if(el)el.classList.add("navAtivo")
 }
-
+/* ==========FUNCTION ========================== */
 function irInicio(){
 abrirTela("inicio",document.querySelectorAll(".navItem")[0])
 }
@@ -1647,9 +1659,7 @@ el.value=num.toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigi
 }
 /* ====================================================093 – VOLTAR INÍCIO==================================================== */
 function voltarInicio(){
-document.getElementById("painelMobile").style.display="block"
-document.getElementById("appSistema").style.display="none"
-window.scrollTo(0,0)
+abrirTela("inicio")
 }
 /* ====================================================094 – ADMIN VISIBILIDADE==================================================== */
 function verificarAdmin(){
@@ -1661,23 +1671,19 @@ if(btn)btn.style.display="flex"
 }
 /* ====================================================095 – ADMIN LISTA==================================================== */
 async function carregarAdminUsuarios(){
-const lista=document.getElementById("listaAdminUsuarios")
-if(!lista)return
-const {data,error}=await db.from("usuarios_lancamentos").select("*").order("nome",{ascending:true})
-if(error||!data){lista.innerHTML="Erro ao carregar usuários";return}
+const {data}=await db.from("usuarios_lancamentos").select("*")
+const lista=safe("listaAdminUsuarios")
+if(!lista||!data)return
 lista.innerHTML=data.map(u=>`
-<div style="background:#020617;padding:12px;border-radius:10px;margin-bottom:8px;border:1px solid rgba(255,255,255,.05)">
-<div><b>${u.nome||"-"}</b></div>
-<div style="font-size:12px;opacity:.8">${u.email||"-"}</div>
-<div style="font-size:12px">📞 ${u.celular||"-"}</div>
-<div style="font-size:12px">🏦 ${u.agencia||"-"} • ${u.conta||"-"}</div>
-<div style="font-size:12px;color:${u.plano==="pro"?"#22c55e":"#f59e0b"}">
-Plano: ${(u.plano||"free").toUpperCase()}
-</div>
-<div style="font-size:12px">Tipo: ${u.tipo||"user"}</div>
-<div style="margin-top:6px;display:flex;gap:6px">
-<button onclick="editarUsuarioAdmin('${u.id}')" style="flex:1;background:#3b82f6;color:#fff;padding:6px;border-radius:6px">Editar</button>
-<button onclick="excluirUsuarioAdmin('${u.id}')" style="flex:1;background:#ef4444;color:#fff;padding:6px;border-radius:6px">Excluir</button>
+<div style="background:#020617;padding:12px;border-radius:10px;margin-bottom:8px">
+<div><b>${u.nome}</b></div>
+<div>${u.email}</div>
+<div>📞 ${u.celular||"-"}</div>
+<div>🏦 ${u.agencia||"-"} • ${u.conta||"-"}</div>
+<div>Plano: ${u.plano}</div>
+<div style="margin-top:5px;display:flex;gap:5px">
+<button onclick="editarUsuarioAdmin('${u.id}')" style="background:#3b82f6;color:#fff;padding:5px;border-radius:6px">Editar</button>
+<button onclick="excluirUsuarioAdmin('${u.id}')" style="background:#ef4444;color:#fff;padding:5px;border-radius:6px">Excluir</button>
 </div>
 </div>
 `).join("")
@@ -1711,38 +1717,50 @@ conta:contaGerada
 
 return carregarPerfil()
 }
-/* 🔥 PREENCHER CAMPOS */
-document.getElementById("perfilNome").value=data.nome||""
-document.getElementById("perfilEmail").value=data.email||""
-document.getElementById("perfilCelular").value=data.celular||""
-/* 🔥 NOVO VISUAL */
-document.getElementById("boxAgencia").innerText=data.agencia||"-"
-document.getElementById("boxConta").innerText=data.conta||"-"
+/* 🔥 PREENCHER CAMPOS (SAFE) */
+setValue("perfilNome",data.nome||"")
+setValue("perfilEmail",data.email||"")
+setValue("perfilCelular",data.celular||"")
+/* 🔥 VISUAL */
+setHTML("boxAgencia",data.agencia||"-")
+setHTML("boxConta",data.conta||"-")
 /* 🔥 BADGE PLANO */
-const badge=document.getElementById("badgePlano")
+const badge=safe("badgePlano")
+if(badge){
 if(data.plano==="pro"){
 badge.innerText="🟢 PRO"
 badge.style.background="#052e16"
 badge.style.color="#4ade80"
+}else if(data.plano==="analise"){
+badge.innerText="🟠 EM ANÁLISE"
+badge.style.background="#7c2d12"
+badge.style.color="#fb923c"
 }else{
 badge.innerText="🟡 FREE"
 badge.style.background="#78350f"
 badge.style.color="#facc15"
 }
+}
+/* 🔥 PERMISSÕES */
 const tipo=localStorage.getItem("tipo_usuario_lancamentos")
 
-if(tipo!=="admin"){
-document.getElementById("perfilPlano").style.display="none"
+const planoSel=safe("perfilPlano")
+if(planoSel && tipo!=="admin"){
+planoSel.style.display="none"
 }
+
+const nomeEl=safe("perfilNome")
+const emailEl=safe("perfilEmail")
+const celEl=safe("perfilCelular")
+
 if(tipo!=="admin"){
-document.getElementById("perfilNome").disabled=true
-document.getElementById("perfilEmail").disabled=true
-document.getElementById("perfilCelular").disabled=true
-}
-if(tipo==="admin"){
-document.getElementById("perfilNome").disabled=false
-document.getElementById("perfilEmail").disabled=false
-document.getElementById("perfilCelular").disabled=false
+if(nomeEl)nomeEl.disabled=true
+if(emailEl)emailEl.disabled=true
+if(celEl)celEl.disabled=true
+}else{
+if(nomeEl)nomeEl.disabled=false
+if(emailEl)emailEl.disabled=false
+if(celEl)celEl.disabled=false
 }
 }
 /* ================097 SALVAR PERFIL ================================================== */
@@ -1789,7 +1807,13 @@ if(userId){
 carregarPerfil()
 }
 })
-
+/* ====================================================999 – ANTI ERRO GLOBAL==================================================== */
+window.addEventListener("error",function(e){
+console.log("Erro capturado:",e.message)
+})
+window.addEventListener("unhandledrejection",function(e){
+console.log("Promise erro:",e.reason)
+})
 
 </script>
 
