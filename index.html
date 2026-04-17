@@ -37,7 +37,11 @@ canvas{background:#fff;border-radius:12px}
 .telaApp{padding:0;margin:0}
 .card{margin:4px 0}
 button{min-height:36px}
-
+#areaGrafico canvas,
+#areaGraficoCat canvas{
+width:130px !important;
+height:130px !important;
+}
   
 </style>
 
@@ -54,6 +58,8 @@ function show(id){const el=safe(id);if(el)el.style.display="block"}
 function hide(id){const el=safe(id);if(el)el.style.display="none"}
 function setHTML(id,html){const el=safe(id);if(el)el.innerHTML=html}
 function setValue(id,val){const el=safe(id);if(el)el.value=val}
+/* 🔥 TAMANHO PADRÃO DOS GRÁFICOS */
+const TAM_GRAFICO = 130
 </script>
 </head>
 
@@ -533,8 +539,8 @@ areaGrafico.innerHTML=""
 
 /* 🔥 CANVAS CONTROLADO DE VERDADE */
 const canvas=document.createElement("canvas")
-canvas.width=120
-canvas.height=120
+canvas.width=TAM_GRAFICO
+canvas.height=TAM_GRAFICO
 canvas.style.display="block"
 canvas.style.margin="0 auto"
 
@@ -749,16 +755,52 @@ return map
 
 <script>
 function graficoCategorias(){
+
 const mapa=resumoCategorias()
 const labels=Object.keys(mapa)
 const valores=Object.values(mapa)
-const el=document.createElement("canvas")
-safe("containerExtrato").prepend(el)
-new Chart(el,{
+
+const container=safe("containerExtrato")
+
+let areaCat=safe("areaGraficoCat")
+
+if(!areaCat){
+areaCat=document.createElement("div")
+areaCat.id="areaGraficoCat"
+areaCat.style.textAlign="center"
+areaCat.style.marginBottom="4px"
+container.prepend(areaCat)
+}
+
+areaCat.innerHTML=""
+
+/* 🔥 CANVAS PADRONIZADO */
+const canvas=document.createElement("canvas")
+canvas.width=TAM_GRAFICO
+canvas.height=TAM_GRAFICO
+canvas.style.display="block"
+canvas.style.margin="0 auto"
+
+areaCat.appendChild(canvas)
+
+new Chart(canvas,{
 type:"doughnut",
-data:{labels,datasets:[{data:valores}]},
-options:{plugins:{legend:{position:"bottom"}}}
+data:{
+labels:labels,
+datasets:[{
+data:valores
+}]
+},
+options:{
+responsive:false,
+maintainAspectRatio:false,
+cutout:"70%",
+plugins:{
+legend:{position:"bottom"}
+}
+}
 })
+
 }
 </script>
 
