@@ -6,7 +6,7 @@
 <title>ReceitasDespesasAnual PRO</title>
 <link rel="icon" href="data:,">
 <style>
-html,body{margin:0;padding:0;min-height:100%;overflow-x:hidden}
+html,body{margin:0;padding:0;width:100%;min-height:100%;overflow-x:hidden;overflow-y:auto}
 body{font-family:Arial;color:#fff;padding:20px;background:radial-gradient(circle at 20% 30%,rgba(99,102,241,0.25),transparent 40%),radial-gradient(circle at 80% 70%,rgba(236,72,153,0.25),transparent 40%),radial-gradient(circle at 50% 50%,#020617,#020617 60%,#000 100%);position:relative}
 body::before{content:"";position:fixed;top:0;left:0;width:100%;height:100%;background-image:radial-gradient(2px 2px at 20px 30px,#fff,transparent),radial-gradient(2px 2px at 100px 150px,#fff,transparent),radial-gradient(1px 1px at 200px 80px,#fff,transparent),radial-gradient(2px 2px at 300px 200px,#fff,transparent),radial-gradient(1px 1px at 400px 120px,#fff,transparent);background-repeat:repeat;animation:starsMove 60s linear infinite;opacity:.4;z-index:0;pointer-events:none}
 body>*{position:relative;z-index:1}
@@ -15,6 +15,7 @@ body>*{position:relative;z-index:1}
 h1{text-align:center}
 input,select,button{padding:8px;margin:5px;border-radius:6px;border:none}
 button{cursor:pointer;background:#22c55e;color:#000}
+button:hover{transform:scale(1.05)}
 .delete{background:#ef4444;color:#fff}
 .edit{background:#3b82f6;color:#fff}
 .topo{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
@@ -29,96 +30,42 @@ button{cursor:pointer;background:#22c55e;color:#000}
 @keyframes nebulaMove{0%{transform:scale(1) translate(0,0)}100%{transform:scale(1.2) translate(-50px,50px)}}
 body.app .vialactea{position:fixed;top:0;left:0;width:100%;height:100%;background:linear-gradient(120deg,transparent 20%,rgba(255,255,255,0.15) 40%,rgba(168,85,247,0.25) 50%,rgba(59,130,246,0.25) 60%,transparent 80%),radial-gradient(circle at 30% 60%,rgba(255,255,255,0.12),transparent 60%),radial-gradient(circle at 70% 40%,rgba(168,85,247,0.18),transparent 60%);filter:blur(30px);opacity:.9;transform:rotate(-25deg) scale(1.5);animation:galaxyMove 35s ease-in-out infinite alternate;pointer-events:none}
 @keyframes galaxyMove{0%{transform:rotate(-25deg) scale(1.4) translate(0,0)}100%{transform:rotate(-20deg) scale(1.6) translate(-80px,60px)}}
+
+/* LOGIN */
 body.login{background:#000!important;padding:0}
-body.login::before{display:none!important}
-body.login .vialactea{display:none!important}
-body.login .nebula{display:none!important}
-body.login .shooting-star{display:none!important}
+body.login::before,body.login .vialactea,body.login .nebula,body.login .shooting-star{display:none!important}
 #telaLogin{position:fixed;top:0;left:0;width:100%;height:100%;display:flex;align-items:center;justify-content:center;z-index:9999;overflow:hidden}
-#loginBg{position:absolute;top:-40px;left:-40px;width:calc(100% + 80px);height:calc(100% + 80px);background:url("img/lua.jpeg") no-repeat center center;background-size:cover;transform:translate3d(0,0,0) scale(1.08);will-change:transform;transition:transform .08s linear;z-index:0}
+#loginBg{position:absolute;top:-40px;left:-40px;width:calc(100% + 80px);height:calc(100% + 80px);background:url("img/lua.jpeg") no-repeat center center;background-size:cover;transform:scale(1.08);z-index:0}
 #loginBg::after{content:"";position:absolute;inset:0;background:rgba(0,0,0,.28)}
-#loginCard{position:relative;background:rgba(17,24,39,.82);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);padding:30px;border-radius:16px;width:320px;display:flex;flex-direction:column;gap:12px;box-shadow:0 0 40px rgba(0,0,0,.6);border:1px solid rgba(255,255,255,.1);z-index:1}
-#loginCard h2{text-align:center;margin:0 0 6px 0}
-#appSistema{position:relative;z-index:2}
-/* ====================================================MENU USUÁRIO PREMIUM==================================================== */
-#menuUsuario{
-display:none;
-opacity:0;
-transform:translateY(-10px);
-transition:opacity .15s ease, transform .15s ease;
-position:absolute;
-top:55px;
-right:0;
-background:#020617;
-border-radius:10px;
-padding:10px;
-width:180px;
-box-shadow:0 10px 30px rgba(0,0,0,.6);
-border:1px solid rgba(255,255,255,.1);
-backdrop-filter:blur(8px);
-}
-button:hover{transform:scale(1.05)}
-/* ====================================================003C – EFEITO 3D GRÁFICO==================================================== */
-#graficoResumo{filter:drop-shadow(0 10px 20px rgba(0,0,0,.6));}
+#loginCard{position:relative;background:rgba(17,24,39,.82);backdrop-filter:blur(12px);padding:30px;border-radius:16px;width:320px;display:flex;flex-direction:column;gap:12px;box-shadow:0 0 40px rgba(0,0,0,.6);border:1px solid rgba(255,255,255,.1);z-index:1}
+
+/* MENU */
+#menuUsuario{display:none;opacity:0;transform:translateY(-10px);transition:.15s;position:absolute;top:55px;right:0;background:#020617;border-radius:10px;padding:10px;width:180px;box-shadow:0 10px 30px rgba(0,0,0,.6);border:1px solid rgba(255,255,255,.1);backdrop-filter:blur(8px)}
+
+/* GRÁFICOS */
+#graficoResumo{filter:drop-shadow(0 10px 20px rgba(0,0,0,.6))}
 #topoSaaS{overflow-x:auto}
-/* ====================================================090 – MOBILE APP==================================================== */
-.bottomNav{
-position:fixed;
-bottom:0;
-left:0;
-width:100%;
-height:65px;
-background:#020617;
-display:flex;
-justify-content:space-around;
-align-items:center;
-z-index:99999;
-border-top:1px solid rgba(255,255,255,.1)
-}
+
+/* MOBILE */
+.bottomNav{position:fixed;bottom:0;left:0;width:100%;height:65px;background:#020617;display:flex;justify-content:space-around;align-items:center;z-index:99999;border-top:1px solid rgba(255,255,255,.1)}
 .navItem{display:flex;flex-direction:column;align-items:center;font-size:11px;color:#94a3b8}
 .navItem span{font-size:20px}
 .navAtivo{color:#22c55e}
-.telaApp{
-display:none;
-min-height:100vh;
-padding-bottom:90px;
-box-sizing:border-box;
-}
-.telaAtiva{
-display:block !important;
-}
+
+.telaApp{display:none;min-height:100vh;padding-bottom:90px;box-sizing:border-box}
+.telaAtiva{display:block!important}
+
 .topBarMobile{display:flex;align-items:center;gap:10px;padding:10px;background:#020617}
 .btnVoltar{background:#111827;border:none;color:#fff;padding:6px 10px;border-radius:8px}
-html,body{
-width:100%;
-min-height:100%;
-overflow-x:hidden;
-overflow-y:auto;
-}
-#painelMobile{min-height:100vh;overflow-y:auto}
-#painelMobile{scroll-behavior:smooth}
-.telaApp{display:none;padding-bottom:80px;min-height:100vh}
-.telaApp.telaAtiva{display:block!important}
+
+#painelMobile{min-height:100vh;overflow-y:auto;scroll-behavior:smooth}
+
 #chatIA::-webkit-scrollbar{width:4px}
 #chatIA::-webkit-scrollbar-thumb{background:#22c55e;border-radius:4px}
-.bottomNav{display:flex !important}
-.btnFloat{
-position:fixed;
-bottom:90px;
-right:20px;
-z-index:1000;
-background:#22c55e;
-color:#000;
-border:none;
-border-radius:50%;
-width:55px;
-height:55px;
-font-size:20px;
-box-shadow:0 0 10px rgba(0,0,0,.4);
-display:flex;
-align-items:center;
-justify-content:center;
-}
+
+/* BOTÃO FLUTUANTE */
+.btnFloat{position:fixed;bottom:90px;right:20px;z-index:1000;background:#22c55e;color:#000;border:none;border-radius:50%;width:55px;height:55px;font-size:20px;box-shadow:0 0 10px rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center}
+
 
 
 </style>
