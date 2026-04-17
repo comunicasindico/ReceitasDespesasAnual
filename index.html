@@ -427,20 +427,32 @@ if(!dados.length)return
 
 const container=safe("containerExtrato")
 
-/* 🔥 REMOVE GRÁFICOS ANTIGOS */
-container.querySelectorAll("canvas").forEach(c=>c.remove())
+/* 🔥 CRIA ÁREA FIXA PARA GRÁFICO */
+let areaGrafico=safe("areaGrafico")
+
+if(!areaGrafico){
+areaGrafico=document.createElement("div")
+areaGrafico.id="areaGrafico"
+areaGrafico.style.textAlign="center"
+areaGrafico.style.marginBottom="10px"
+container.prepend(areaGrafico)
+}
+
+/* 🔥 LIMPA SÓ O GRÁFICO */
+areaGrafico.innerHTML=""
 
 const canvas=document.createElement("canvas")
-canvas.style.maxWidth="320px"
-canvas.style.height="180px"
-canvas.style.margin="10px auto"
+canvas.style.maxWidth="280px"
+canvas.style.height="160px"
+canvas.style.margin="auto"
 canvas.style.display="block"
 
-container.prepend(canvas)
+areaGrafico.appendChild(canvas)
 
 const ctx=canvas.getContext("2d")
 
 let r=0,d=0
+
 dados.forEach(x=>{
 if(x.tipo==="RECEITA")r+=Number(x.valor||0)
 else d+=Number(x.valor||0)
@@ -464,9 +476,14 @@ plugins:{legend:{position:"bottom"}},
 cutout:"70%"
 }
 })
+
 }
 </script>
 
+
+
+
+  
 <script>
 async function carregarPerfil(){
 
@@ -558,11 +575,14 @@ if(tela) tela.classList.add("telaAtiva")
 if(el) el.classList.add("navAtivo")
 
 if(nome==="extrato"){
-setTimeout(()=>render(),50)
+setTimeout(()=>{
+render()
+atualizarDashboard()
+},100)
 }
 
 if(nome==="perfil"){
-setTimeout(()=>carregarPerfil(),50)
+setTimeout(()=>carregarPerfil(),100)
 }
 
 }
@@ -582,17 +602,24 @@ setTimeout(()=>carregarPerfil(),50)
 
 
 <script>
-async function abrirFinanceiro(btn){
-if(btn){btn.disabled=true;btn.innerText="Carregando..."}
-abrirTela("extrato")
-await carregar()
-if(btn){btn.disabled=false;btn.innerText="Entrar no Financeiro"}
-}
-</script>
+aasync function abrirFinanceiro(btn){
 
-<script>
-function moeda(v){
-return Number(v||0).toLocaleString("pt-BR",{minimumFractionDigits:2})
+if(btn){
+btn.disabled=true
+btn.innerText="Carregando..."
+}
+
+abrirTela("extrato")
+
+await carregar()
+
+render()
+atualizarDashboard()
+
+if(btn){
+btn.disabled=false
+btn.innerText="Entrar no Financeiro"
+}
 }
 </script>
 
@@ -615,16 +642,7 @@ safe("mobileNome").innerText=localStorage.getItem("usuario_nome_lancamentos")
 
 
 
-<script>
-function abrirTela(nome,el){
-document.querySelectorAll(".telaApp").forEach(t=>t.classList.remove("telaAtiva"))
-document.querySelectorAll(".navItem").forEach(n=>n.classList.remove("navAtivo"))
-const tela=safe("tela"+nome.charAt(0).toUpperCase()+nome.slice(1))
-if(tela)tela.classList.add("telaAtiva")
-if(el)el.classList.add("navAtivo")
-if(nome==="extrato"){setTimeout(atualizarDashboard,200)}
-}
-</script>
+
 
 <style>
 html{scroll-behavior:smooth}
