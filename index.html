@@ -79,7 +79,9 @@ function setValue(id,val){const el=safe(id);if(el)el.value=val}
 <button onclick="toggleSaldo()" style="background:none">👁</button>
 </div>
 <div style="font-size:12px;margin-top:5px;color:#64748b">
-Agência: <span id="mobileAgencia"></span> • Conta: <span id="mobileConta"></span>
+<div style="font-size:12px;margin-top:5px;color:#64748b">
+🏦 Ag: <b id="mobileAgencia"></b> • Conta: <b id="mobileConta"></b>
+</div>
 </div>
 </div>
 <div id="alertaFinanceiro" class="card"></div>
@@ -457,32 +459,46 @@ render()
 
 <script>
 function atualizarDashboard(){
+
 if(!dados.length)return
+
+const container=safe("containerExtrato")
+
+/* 🔥 REMOVE GRÁFICOS ANTIGOS */
+container.querySelectorAll("canvas").forEach(c=>c.remove())
+
+const canvas=document.createElement("canvas")
+canvas.style.maxWidth="320px"
+canvas.style.height="180px"
+canvas.style.margin="10px auto"
+canvas.style.display="block"
+
+container.prepend(canvas)
+
+const ctx=canvas.getContext("2d")
+
 let r=0,d=0
 dados.forEach(x=>{
 if(x.tipo==="RECEITA")r+=Number(x.valor||0)
 else d+=Number(x.valor||0)
 })
-let container=safe("graficoBox")
-if(!container){
-container=document.createElement("div")
-container.id="graficoBox"
-container.style.maxWidth="320px"
-container.style.margin="20px auto"
-safe("containerExtrato").prepend(container)
-}
-container.innerHTML="<canvas id='graficoResumo'></canvas>"
-const ctx=safe("graficoResumo").getContext("2d")
+
 if(graficoResumo)graficoResumo.destroy()
+
 graficoResumo=new Chart(ctx,{
 type:"doughnut",
 data:{
 labels:["Receitas","Despesas"],
-datasets:[{data:[r,d],backgroundColor:["#22c55e","#ef4444"]}]
+datasets:[{
+data:[r,d],
+backgroundColor:["#22c55e","#ef4444"]
+}]
 },
 options:{
-cutout:"70%",
-plugins:{legend:{display:false}}
+responsive:true,
+maintainAspectRatio:false,
+plugins:{legend:{position:"bottom"}},
+cutout:"70%"
 }
 })
 }
@@ -490,6 +506,7 @@ plugins:{legend:{display:false}}
 
 <script>
 async function carregarPerfil(){
+
 const id=localStorage.getItem("usuario_id_lancamentos")
 if(!id)return
 
@@ -497,22 +514,28 @@ const {data,error}=await db
 .from("usuarios_lancamentos")
 .select("*")
 .eq("id",id)
-.maybeSingle()
+.single()
 
-if(error||!data)return
+if(error || !data){
+console.warn("Perfil erro",error)
+return
+}
 
+/* 🔥 HEADER */
+safe("mobileAgencia").innerText=data.agencia||"01968"
+safe("mobileConta").innerText=data.conta||"000000000"
+
+/* 🔥 PERFIL */
 setValue("perfilNome",data.nome||"")
 setValue("perfilEmail",data.email||"")
 setValue("perfilCelular",data.celular||"")
 
-/* 🔥 AQUI ESTAVA FALTANDO */
-setHTML("boxAgencia",data.agencia||"0000")
-setHTML("boxConta",data.conta||"000000")
+setHTML("boxAgencia",data.agencia||"01968")
+setHTML("boxConta",data.conta||"000000000")
 
-/* 🔥 MOBILE */
-safe("mobileAgencia").innerText=data.agencia||"0000"
-safe("mobileConta").innerText=data.conta||"000000"
-safe("mobileNome").innerText=data.nome||""
+/* 🔥 PLANO */
+setHTML("badgePlano",(data.plano||"FREE").toUpperCase())
+
 }
 </script>
 
@@ -580,7 +603,7 @@ if(btn){btn.disabled=false;btn.innerText="Entrar no Financeiro"}
 
 <script>
 function moeda(v){
-return Number(v||0).toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2})
+return Number(v||0).toLocaleString("pt-BR",{minimumFractionDigits:2})
 }
 </script>
 
@@ -987,7 +1010,14 @@ function ultra(){
 sugerirCortes()
 detectarFraude()
 }
-setTimeout(ultra,3000)
+if(!window._fraudeRodando){
+window._fraudeRodando=true
+setTimeout(()=>{
+sugerirCortes()
+detectarFraude()
+},3000)
+
+}
 </script>
 
 
@@ -1188,50 +1218,66 @@ const hoje=new Date()
 const dd=String(hoje.getDate()).padStart(2,"0")
 const mm=String(hoje.getMonth()+1).padStart(2,"0")
 const yyyy=hoje.getFullYear()
-
 let prefixo="004"
-
 if(nome.toLowerCase().includes("admin"))prefixo="001"
 else if(nome.toLowerCase().includes("neto"))prefixo="002"
 else if(nome.toLowerCase().includes("larissa"))prefixo="003"
-
 return prefixo+dd+mm+yyyy
+}
+
+function gerarContaUsuario(email){
+const hoje=new Date()
+const dd=String(hoje.getDate()).padStart(2,"0")
+const mm=String(hoje.getMonth()+1).padStart(2,"0")
+const yyyy=hoje.getFullYear()
+let prefixo="004"
+if(email.includes("admin"))prefixo="001"
+else if(email.includes("neto"))prefixo="002"
+else if(email.includes("larissa"))prefixo="003"
+return {
+agencia:"01968",
+conta:prefixo+dd+mm+yyyy
+}
 }
 </script>
 
 <script>
 async function abrirCadastro(){
-
 const nome=prompt("Nome completo:")
 if(!nome)return
-
 const email=prompt("Email:")
 if(!email)return
-
 const senha=prompt("Senha:")
 if(!senha)return
-
+/* 🔥 VERIFICA SE EMAIL JÁ EXISTE */
+const {data:existe}=await db
+.from("usuarios_lancamentos")
+.select("id")
+.eq("email",email)
+.limit(1)
+if(existe && existe.length){
+alert("Email já cadastrado")
+return
+}
 /* 🔥 GERAR AGÊNCIA E CONTA */
-const agencia="01968"
-const conta=gerarConta(nome)
-
-const {error}=await db.from("usuarios_lancamentos").insert({
+const contaGerada=gerarContaUsuario(email)
+/* 🔥 INSERT (AQUI É O INSERT) */
+const {error}=await db
+.from("usuarios_lancamentos")
+.insert({
 nome:nome,
 email:email,
 senha:senha,
-agencia:agencia,
-conta:conta,
+agencia:contaGerada.agencia,
+conta:contaGerada.conta,
 tipo:"user"
 })
-
 if(error){
 alert("Erro ao cadastrar")
 console.error(error)
 return
 }
-
 alert("Conta criada com sucesso!")
-
 }
 </script>
   
