@@ -1934,7 +1934,7 @@ resolve()
 },15)
 })
 }
-/* ====================================================202 – IA REAL GPT==================================================== */
+/* ====================================================202 – IA SUPABASE==================================================== */
 async function responderIA(){
 const input=document.getElementById("perguntaIA")
 const btn=document.getElementById("btnIA")
@@ -1950,30 +1950,21 @@ btn.disabled=true
 
 try{
 
-const res=await fetch("https://api.openai.com/v1/chat/completions",{
+const res=await fetch("https://gspdlrenyrzbkxlvyugc.functions.supabase.co/ia-chat",{
 method:"POST",
 headers:{
-"Content-Type":"application/json",
-"Authorization":"Bearer "+OPENAI_KEY
+"Content-Type":"application/json"
 },
-body:JSON.stringify({
-model:"gpt-4o-mini",
-messages:[
-{role:"system",content:"Você é um assistente financeiro inteligente do app ReceitasDespesasAnual. Seja direto, claro e útil."},
-{role:"user",content:pergunta}
-]
-})
+body:JSON.stringify({pergunta})
 })
 
 const json=await res.json()
 
-let resposta="Erro ao responder"
-
-if(json.choices && json.choices.length){
-resposta=json.choices[0].message.content
+if(json && json.resposta){
+await typingIA(json.resposta)
+}else{
+await typingIA("Não consegui responder agora 😕")
 }
-
-await typingIA(resposta)
 
 }catch(e){
 await typingIA("Erro ao conectar com IA 😕")
