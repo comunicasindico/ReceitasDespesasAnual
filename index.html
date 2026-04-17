@@ -260,6 +260,37 @@ atualizarTudo()
 }
 </script>  
 
+  
+<script>
+async function carregarUsuariosAdmin(){
+const tipo=localStorage.getItem("tipo_usuario_lancamentos")
+if(tipo!=="admin")return
+const {data,error}=await db
+.from("usuarios_lancamentos")
+.select("nome,email,conta,agencia,tipo")
+.order("nome",{ascending:true})
+if(error){
+console.error(error)
+return
+}
+const div=document.createElement("div")
+div.className="card"
+div.style.marginTop="10px"
+div.innerHTML="<b>👥 Usuários cadastrados</b><br><br>"
+data.forEach(u=>{
+div.innerHTML+=`
+<div style="padding:6px;border-bottom:1px solid #e2e8f0">
+<b>${u.nome}</b><br>
+${u.email}<br>
+🏦 ${u.agencia} / ${u.conta}<br>
+👤 ${u.tipo}
+</div>
+`
+})
+safe("telaInicio").appendChild(div)
+}
+</script>  
+
 <script>
 function podeAdicionar(){
 const plano="free"
@@ -558,6 +589,7 @@ ocultarSaldo=!ocultarSaldo
 atualizarPainelMobile()
 }
 function atualizarPainelMobile(){
+carregarPerfil()
 let r=0,d=0
 dados.forEach(x=>{if(x.tipo==="RECEITA")r+=Number(x.valor||0);else d+=Number(x.valor||0)})
 safe("mobileSaldo").innerText=ocultarSaldo?"R$ ***":"R$ "+(r-d).toFixed(2)
@@ -777,13 +809,14 @@ function atualizarTudo(){
 atualizarPainelMobile()
 alertaInteligente()
 calcularScore()
+/* 🔥 GRÁFICO UMA VEZ */
 if(!window._graficoRodou){
 window._graficoRodou=true
 setTimeout(graficoCategorias,200)
 }
-if(Number(x.valor)>5000 && x.tipo==="DESPESA")
-if(!window._fraudeExecutada){
-detectarFraude()
+/* 🔥 INTELIGÊNCIA UMA VEZ */
+if(!window._inteligenciaRodou){
+window._inteligenciaRodou=true
 rodarInteligencia()
 }
 }
@@ -792,28 +825,22 @@ rodarInteligencia()
 <script>
 async function carregar(){
 const userId=localStorage.getItem("usuario_id_lancamentos")
-/* 🔥 VALIDA UUID */
-if(!userId || userId.length<30){
-console.warn("userId inválido")
-return
-}
-
+if(!userId)return
 const {data,error}=await db
 .from("lancamentos")
 .select("*")
 .eq("usuario_id",userId)
+.order("data",{ascending:true})
 if(error){
-console.error("SUPABASE ERRO:",error)
+console.error(error)
 dados=[]
 render()
 return
 }
-
-/* 🔥 EVITA NULL */
 dados=Array.isArray(data)?data:[]
-
 render()
 atualizarTudo()
+carregarUsuariosAdmin()
 }
 </script>
 
@@ -1046,6 +1073,7 @@ hide("telaLogin")
 show("painelMobile")
 document.body.classList.remove("login")
 await carregar()
+await carregarPerfil()
 atualizarPainelMobile()
 }
 </script>
