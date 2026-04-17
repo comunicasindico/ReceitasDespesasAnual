@@ -75,6 +75,9 @@ html,body{width:100%;height:100%;overflow-x:hidden}
 #painelMobile{scroll-behavior:smooth}
 .telaApp{display:none;padding-bottom:90px;min-height:100vh}
 .telaApp.telaAtiva{display:block!important}
+#chatIA::-webkit-scrollbar{width:4px}
+#chatIA::-webkit-scrollbar-thumb{background:#22c55e;border-radius:4px}
+
 
 </style>
 
@@ -221,14 +224,25 @@ Entrar no Financeiro
 <div id="telaIA" class="telaApp">
 <div class="topBarMobile">
 <button class="btnVoltar" onclick="irInicio()">←</button>
-<b>Comunica IA</b>
+<b>🤖 Comunica IA</b>
 </div>
-<div style="padding:15px">
-<input id="perguntaIA" placeholder="Pergunte algo..." style="width:100%;padding:10px;border-radius:10px">
-<button onclick="responderIA()" style="margin-top:5px;width:100%;background:#22c55e;padding:10px;border-radius:10px">
-Perguntar
+
+<div style="display:flex;flex-direction:column;height:calc(100vh - 120px);padding:10px">
+
+<!-- CHAT -->
+<div id="chatIA" style="flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:8px;padding-bottom:10px"></div>
+
+<!-- INPUT -->
+<div style="display:flex;gap:8px">
+<textarea id="perguntaIA" rows="2" placeholder="Pergunte algo..."
+style="flex:1;padding:10px;border-radius:10px;border:none;background:#111827;color:#fff;resize:none;outline:none"></textarea>
+
+<button onclick="responderIA()" id="btnIA"
+style="background:#22c55e;color:#000;padding:10px 14px;border-radius:10px;font-weight:bold">
+➤
 </button>
-<div id="respostaIA" style="margin-top:8px;font-size:12px"></div>
+</div>
+
 </div>
 </div>
 
@@ -1863,6 +1877,104 @@ async function updatePlanoSeguro(id,plano){
 if(!id||!plano)return
 await db.from("usuarios_lancamentos").update({plano}).eq("id",id)
 }
+/* ====================================================200 – CHAT UI==================================================== */
+function addMsgIA(texto,tipo){
+const chat=document.getElementById("chatIA")
+if(!chat)return
+
+const div=document.createElement("div")
+div.style.maxWidth="80%"
+div.style.padding="10px"
+div.style.borderRadius="12px"
+div.style.fontSize="13px"
+div.style.lineHeight="1.4"
+
+if(tipo==="user"){
+div.style.alignSelf="flex-end"
+div.style.background="#22c55e"
+div.style.color="#000"
+}else{
+div.style.alignSelf="flex-start"
+div.style.background="#111827"
+div.style.color="#fff"
+}
+
+div.innerText=texto
+chat.appendChild(div)
+
+chat.scrollTop=chat.scrollHeight
+}
+/* ====================================================201 – TYPING==================================================== */
+function typingIA(texto){
+return new Promise(resolve=>{
+const chat=document.getElementById("chatIA")
+const div=document.createElement("div")
+
+div.style.maxWidth="80%"
+div.style.padding="10px"
+div.style.borderRadius="12px"
+div.style.background="#111827"
+div.style.color="#fff"
+div.style.alignSelf="flex-start"
+
+chat.appendChild(div)
+
+let i=0
+const intervalo=setInterval(()=>{
+div.innerText=texto.slice(0,i)
+i++
+chat.scrollTop=chat.scrollHeight
+
+if(i>texto.length){
+clearInterval(intervalo)
+resolve()
+}
+},15)
+})
+}
+/* ====================================================202 – IA CORE==================================================== */
+async function responderIA(){
+const input=document.getElementById("perguntaIA")
+const btn=document.getElementById("btnIA")
+
+const pergunta=input.value.trim()
+if(!pergunta)return
+
+addMsgIA(pergunta,"user")
+input.value=""
+
+btn.innerText="..."
+btn.disabled=true
+// 🔥 RESPOSTA MOCK INTELIGENTE (pode trocar por API depois)
+let resposta=""
+
+if(pergunta.toLowerCase().includes("saldo")){
+resposta="Seu saldo atual está disponível na tela inicial."
+}
+else if(pergunta.toLowerCase().includes("gastei")){
+resposta="Analise suas despesas recentes no extrato para entender melhor seus gastos."
+}
+else{
+resposta="Entendi sua pergunta. Em breve teremos IA mais avançada integrada aqui 🚀"
+}
+// efeito digitando
+await typingIA(resposta)
+
+btn.innerText="➤"
+btn.disabled=false
+}
+/* ====================================================203 – ENTER==================================================== */
+document.addEventListener("DOMContentLoaded",()=>{
+const input=document.getElementById("perguntaIA")
+if(input){
+input.addEventListener("keydown",(e)=>{
+if(e.key==="Enter" && !e.shiftKey){
+e.preventDefault()
+responderIA()
+}
+})
+}
+})
 /* ====================================================999 – ANTI ERRO GLOBAL==================================================== */
 window.addEventListener("error",function(e){
 console.log("Erro capturado:",e.message)
