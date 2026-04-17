@@ -161,49 +161,39 @@ let edicoesTemp={}
 
 <script>
 async function loginSistema(){
-
 const email=safe("loginUser").value.trim()
 const senha=safe("loginPass").value.trim()
-
 if(!email||!senha){
 alert("Preencha os dados")
 return
 }
-
 const {data,error}=await db
 .from("usuarios_lancamentos")
 .select("*")
 .eq("email",email)
 .eq("senha",senha)
 .maybeSingle()
-
 if(error || !data){
 alert("Login inválido")
 return
 }
-
 /* 🔥 LIMPA TUDO */
 localStorage.clear()
-
 /* 🔥 SALVA CORRETO */
 localStorage.setItem("usuario_id_lancamentos",data.id)
 localStorage.setItem("usuario_nome_lancamentos",data.nome)
 localStorage.setItem("tipo_usuario_lancamentos",data.tipo||"user")
 localStorage.setItem("agencia",data.agencia||"01968")
 localStorage.setItem("conta",data.conta||"")
-
 /* 🔥 UI */
 hide("telaLogin")
 show("painelMobile")
 document.body.classList.remove("login")
 document.body.classList.add("app")
-
 await carregar()
 await carregarPerfil()
 await carregarUsuariosAdmin()
-
 atualizarPainelMobile()
-
 abrirTela("inicio")
 }
 </script>
@@ -666,23 +656,6 @@ btn.innerText="Entrar no Financeiro"
 
 
 
-<script>
-function atualizarPainelMobile(){
-let r=0,d=0
-dados.forEach(x=>{if(x.tipo==="RECEITA")r+=Number(x.valor||0);else d+=Number(x.valor||0)})
-const saldo=r-d
-const el=safe("mobileSaldo")
-if(!el)return
-el.style.transition="all .3s"
-el.style.transform="scale(1.05)"
-setTimeout(()=>el.style.transform="scale(1)",200)
-el.innerText=ocultarSaldo?"R$ ***":moeda(saldo)
-safe("mobileNome").innerText=localStorage.getItem("usuario_nome_lancamentos")
-}
-</script>
-
-
-
 
 
 <style>
@@ -1035,23 +1008,6 @@ try{return JSON.parse(atob(t))}catch{return null}
 }
 </script>
 
-
-<script>
-async function loginSistema(){
-const email=safe("loginUser").value.trim()
-const senha=safe("loginPass").value.trim()
-const {data}=await db.from("usuarios_lancamentos").select("*").eq("email",email).eq("senha",senha).limit(1)
-if(!data||!Array.isArray(data) && Array.isArray(data) && Array.isArray(data) && Array.isArray(data) && Array.isArray(data) && Array.isArray(data) && data.length){alert("Login inválido");return}
-const user=data[0]
-salvarSessao(user)
-hide("telaLogin")
-show("painelMobile")
-document.body.classList.remove("login")
-await carregar()
-await carregarPerfil()
-atualizarPainelMobile()
-}
-</script>
 
 
 <script>
