@@ -460,13 +460,12 @@ const fim=new Date(hoje.getFullYear(),hoje.getMonth()+1,0)
 filtroInicio=inicio.toISOString().slice(0,10)
 filtroFim=fim.toISOString().slice(0,10)
 }
-/* IR PARA EXTRATO */
 abrirTela("extrato")
 
-/* 🔥 GARANTIR DADOS NA TELA */
-if(typeof render==="function"){
-render()
-}
+/* 🔥 GARANTE CARREGAMENTO CORRETO */
+setTimeout(async()=>{
+await carregar()
+},50)
 
 window.scrollTo(0,0)
 }
@@ -547,13 +546,10 @@ if(resumo)resumo.innerHTML=""
 /* 🔥 NÃO CHAMA RENDER */
 return
 }
-/* ==================================================== RENDER SEGURO ==================================================== */
-if(!window._renderLock){
-window._renderLock=true
-requestAnimationFrame(()=>{
+/* 🔥 RENDER SOMENTE SE EXTRATO ABERTO */
+const telaExtrato=document.getElementById("telaExtrato")
+if(telaExtrato && telaExtrato.classList.contains("telaAtiva")){
 render()
-window._renderLock=false
-})
 }
 }
 /* ====================================================008 – SALVAR==================================================== */
@@ -734,7 +730,11 @@ render()
 }
 /* ====================================================021 – RENDER FINAL COMPLETO==================================================== */
 function render(){
-
+/* 🔥 SÓ RODA SE ESTIVER NA TELA EXTRATO */
+const telaExtrato=document.getElementById("telaExtrato")
+if(!telaExtrato || !telaExtrato.classList.contains("telaAtiva")){
+return
+}
 /* 🔒 CONTROLE GLOBAL */
 if(visibilidadeTotal['GERAL']===undefined)visibilidadeTotal['GERAL']=true
 
