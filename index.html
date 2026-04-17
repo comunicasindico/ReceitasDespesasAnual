@@ -10,6 +10,7 @@
 <!-- ====================================================002 – STYLE LIGHT FINTECH (CORRIGIDO)==================================================== -->
 <style>
 html,body{margin:0;padding:0;width:100%;min-height:100%;overflow-x:hidden}
+*{box-sizing:border-box}
 body{font-family:Arial;color:#0f172a;padding:20px;background:#f1f5f9}
 
 /* 🔥 REMOVE FUNDO ESCURO */
@@ -114,6 +115,16 @@ display:flex;
 align-items:center;
 justify-content:center
 }
+/* ====================================================FIX RESPONSIVO==================================================== */
+#containerExtrato{max-width:100%;width:100%;padding:10px;margin:auto}
+#lista{width:100%;max-width:100%}
+#lista div{max-width:100%;word-break:break-word}
+.card{width:100%;max-width:100%}
+@media(max-width:768px){
+body{padding:10px}
+.card{padding:10px}
+}
+
 </style>
 
 <!-- ====================================================003 – LIBS==================================================== -->
@@ -755,24 +766,35 @@ render()
 /* ====================================================021 – RENDER FINAL COMPLETO PROFISSIONAL==================================================== */
 function render(){
 const telaExtrato=document.getElementById("telaExtrato")
-if(!telaExtrato||!telaExtrato.classList.contains("telaAtiva"))return
+if(!telaExtrato)return
+/* 🔥 PATCH EXTRATO (INSERIR AQUI) */
+if(!document.getElementById("lista")){
+telaExtrato.innerHTML=`
+<div id="containerExtrato" style="padding:10px">
+<div class="card">
+<canvas id="graficoResumo" height="180"></canvas>
+<canvas id="graficoMensal" height="180" style="margin-top:10px"></canvas>
+</div>
+<div id="lista" style="margin-top:10px"></div>
+<div id="resumo"></div>
+</div>
+`
+}
+/* 🔥 CONTINUA NORMAL */
 if(visibilidadeTotal['GERAL']===undefined)visibilidadeTotal['GERAL']=true
 let lista=document.getElementById("lista")
 let resumoEl=document.getElementById("resumo")
 if(!lista||!resumoEl)return
-
 /* ====================================================021.1 – FILTRO==================================================== */
 let listaFiltrada=[...dados]
 if(filtroInicio)listaFiltrada=listaFiltrada.filter(x=>x.data>=filtroInicio)
 if(filtroFim)listaFiltrada=listaFiltrada.filter(x=>x.data<=filtroFim)
-
 /* ====================================================021.2 – SEM DADOS==================================================== */
 if(!listaFiltrada.length){
 lista.innerHTML=`<div class="card" style="text-align:center">Nenhum registro encontrado</div>`
 resumoEl.innerHTML=""
 return
 }
-
 /* ====================================================021.3 – AGRUPAMENTO==================================================== */
 const grupos={}
 listaFiltrada.forEach(x=>{
@@ -783,13 +805,11 @@ const chave=`${ano}-${mes}`
 if(!grupos[chave])grupos[chave]=[]
 grupos[chave].push(x)
 })
-
 const chaves=Object.keys(grupos).sort().reverse()
 lista.innerHTML=""
 
 let totalGeralR=0
 let totalGeralD=0
-
 /* ====================================================021.4 – LOOP MESES==================================================== */
 chaves.forEach(chave=>{
 let listaMes=grupos[chave]
@@ -2015,18 +2035,20 @@ console.log("Promise erro:",e.reason)
 
 <button onclick="voltarInicio()" style="
 position:fixed;
-bottom:20px;
-right:20px;
-z-index:9999;
+bottom:85px;
+right:15px;
+z-index:999999;
 background:#22c55e;
 color:#000;
 border:none;
 border-radius:50%;
-width:55px;
-height:55px;
-font-size:20px;
-box-shadow:0 0 20px rgba(0,0,0,.5);
-cursor:pointer;
+width:58px;
+height:58px;
+font-size:22px;
+box-shadow:0 6px 25px rgba(0,0,0,.25);
+display:flex;
+align-items:center;
+justify-content:center;
 ">
 🏠
 </button>
