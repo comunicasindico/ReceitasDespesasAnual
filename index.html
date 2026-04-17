@@ -577,14 +577,14 @@ if(!telaExtrato)return
 /* ====================================================007.5 – RENDER SEGURO==================================================== */
 if(!window._renderLock){
 window._renderLock=true
-requestAnimationFrame(()=>{
+setTimeout(()=>{
 try{
 render()
 }catch(e){
 console.error("Erro no render:",e)
 }
 window._renderLock=false
-})
+},50)
 }
 }
 /* ====================================================008 – SALVAR==================================================== */
@@ -765,6 +765,9 @@ render()
 }
 /* ====================================================021 – RENDER FINAL COMPLETO PROFISSIONAL==================================================== */
 function render(){
+/* 🔒 BLOQUEIO DUPLO RENDER */
+if(window._rendering)return
+window._rendering=true
 const telaExtrato=document.getElementById("telaExtrato")
 if(!telaExtrato)return
 /* 🔥 PATCH EXTRATO (INSERIR AQUI) */
@@ -790,9 +793,13 @@ let listaFiltrada=[...dados]
 if(filtroInicio)listaFiltrada=listaFiltrada.filter(x=>x.data>=filtroInicio)
 if(filtroFim)listaFiltrada=listaFiltrada.filter(x=>x.data<=filtroFim)
 /* ====================================================021.2 – SEM DADOS==================================================== */
+/* 🔥 NÃO APAGA SE JÁ TEM DADO NA TELA */
 if(!listaFiltrada.length){
-lista.innerHTML=`<div class="card" style="text-align:center">Nenhum registro encontrado</div>`
+if(!lista.innerHTML){
+lista.innerHTML=`<div class="card">Nenhum registro encontrado</div>`
 resumoEl.innerHTML=""
+}
+window._rendering=false
 return
 }
 /* ====================================================021.3 – AGRUPAMENTO==================================================== */
@@ -890,7 +897,6 @@ ${x.pago?"✔":"⏳"}
 })
 }
 })
-
 /* ====================================================021.7 – RESUMO==================================================== */
 const saldoGeral=totalGeralR-totalGeralD
 
@@ -902,11 +908,18 @@ R$ ${formatarMoeda(saldoGeral)}
 </span>
 </div>
 `
-
 /* ====================================================021.8 – DASHBOARD==================================================== */
 if(mostrarGrafico){
-setTimeout(()=>atualizarDashboard(),120)
+if(!window._dashRunning){
+window._dashRunning=true
+setTimeout(()=>{
+atualizarDashboard()
+window._dashRunning=false
+},120)
 }
+}
+/* 🔓 LIBERA RENDER */
+window._rendering=false
 }
 /* =========================================================================== */
 function formatarMesNome(m){
