@@ -566,7 +566,12 @@ let lista=document.getElementById("lista")
 let resumoEl=document.getElementById("resumo")
 
 if(!lista || !resumoEl){
-console.warn("Extrato ainda não montado")
+
+/* 🔥 TENTA NOVAMENTE NO PRÓXIMO FRAME */
+requestAnimationFrame(()=>{
+render()
+})
+
 return
 }
 }
