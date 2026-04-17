@@ -696,21 +696,41 @@ function render(){
 if(visibilidadeTotal['GERAL']===undefined)visibilidadeTotal['GERAL']=true
 
 /* 🔥 GARANTE ESTRUTURA DA TELA (CORREÇÃO CRÍTICA) */
-let tela=document.getElementById("telaExtrato")
-if(tela && !document.getElementById("lista")){
-tela.innerHTML=`
-<div style="padding:10px;max-width:900px;margin:auto">
+/* 🔥 GARANTE ESTRUTURA SEM APAGAR TELA */
+let lista=document.getElementById("lista")
+let resumoEl=document.getElementById("resumo")
+
+if(!lista || !resumoEl){
+
+const tela=document.getElementById("telaExtrato")
+if(!tela)return
+
+/* 🔥 CRIA CONTAINER SEM DESTRUIR O RESTO */
+let container=document.getElementById("containerExtrato")
+
+if(!container){
+container=document.createElement("div")
+container.id="containerExtrato"
+container.style.padding="10px"
+container.style.maxWidth="900px"
+container.style.margin="auto"
+
+container.innerHTML=`
 <canvas id="graficoResumo" height="200"></canvas>
 <canvas id="graficoMensal" height="200" style="margin-top:20px"></canvas>
 <div id="lista"></div>
 <div id="resumo"></div>
-</div>
 `
+
+tela.appendChild(container)
 }
 
-/* 🔥 ELEMENTOS */
-const lista=document.getElementById("lista")
-const resumoEl=document.getElementById("resumo")
+/* 🔥 RECAPTURA */
+lista=document.getElementById("lista")
+resumoEl=document.getElementById("resumo")
+}
+
+/* 🔒 SEGURANÇA */
 if(!lista||!resumoEl)return
 
 /* 🔥 FILTRO */
