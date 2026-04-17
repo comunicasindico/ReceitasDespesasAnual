@@ -304,167 +304,63 @@ return true
 
 <script>
 function render(){
+
 const tela=safe("telaExtrato")
-if(!tela||!tela.classList.contains("telaAtiva"))return
+if(!tela || !tela.classList.contains("telaAtiva")) return
+
 const lista=safe("lista")
 const resumo=safe("resumo")
-if(!lista||!resumo)return
-if(!dados.length){
+
+if(!lista || !resumo) return
+
+if(!dados || !dados.length){
 lista.innerHTML="<div class='card'>Sem registros</div>"
 resumo.innerHTML=""
 return
 }
 
-/* 🔥 AGRUPAMENTO */
-const grupos={}
-dados.forEach(x=>{
-if(!x.data)return
-const limpa=x.data.split("T")[0]
-const[a,m]=limpa.split("-")
-const chave=`${a}-${m}`
-if(!grupos[chave])grupos[chave]=[]
-grupos[chave].push(x)
-})
-
-const chaves=Object.keys(grupos).sort().reverse()
-
 let html=""
-let totalR=0,totalD=0
-let saldoAcumulado=0
+let r=0
+let d=0
 
-chaves.forEach(chave=>{
-const listaMes=grupos[chave]
+dados.forEach(x=>{
 
-let r=0,d=0
-
-listaMes.forEach(x=>{
-const v=Number(x.valor||0)
-if(x.tipo==="RECEITA")r+=v
-else d+=v
-})
-
-totalR+=r
-totalD+=d
-
-saldoAcumulado+=r-d
-
-const[ano,mes]=chave.split("-")
-
-/* 🔥 HEADER PREMIUM */
-html+=`
-<div onclick="toggleMes('${chave}')" style="
-margin-top:10px;
-padding:10px;
-border-radius:12px;
-background:#e2e8f0;
-cursor:pointer;
-display:flex;
-justify-content:space-between;
-align-items:center;
-transition:.2s
-">
-<div>
-<b>${mes}/${ano}</b><br>
-<small style="color:#64748b">Saldo acumulado: R$ ${moeda(saldoAcumulado)}</small>
-</div>
-
-<div style="text-align:right">
-<div style="color:#16a34a">+ ${moeda(r)}</div>
-<div style="color:#dc2626">- ${moeda(d)}</div>
-</div>
-</div>
-`
-
-/* 🔥 MINI GRÁFICO */
-if(!mesesOcultos[chave]){
-html+=`<div style="max-width:280px;margin:8px auto"><canvas id="mini_${chave}"></canvas></div>`
-}
-
-/* 🔥 ITENS */
-if(!mesesOcultos[chave]){
-listaMes.forEach(x=>{
-const data=formatarData(x.data)
 const valor=Number(x.valor||0)
-const isReceita=x.tipo==="RECEITA"
+
+if(x.tipo==="RECEITA") r+=valor
+else d+=valor
+
+const dataBR = x.data ? x.data.split("-").reverse().join("/") : "--/--/----"
 
 html+=`
-<div style="
-display:grid;
-grid-template-columns:80px 1fr 110px 110px;
-gap:6px;
-padding:6px;
-font-size:12px;
-align-items:center;
-border-bottom:1px solid #e2e8f0;
-opacity:0;
-transform:translateY(10px);
-animation:fadeIn .3s forwards
-">
+<div class="card" style="display:flex;justify-content:space-between;align-items:center">
+<div style="flex:2">${dataBR} - ${x.descricao}</div>
 
-<div>${data}</div>
-
-<div style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
-${x.descricao}
+<div style="flex:1;text-align:right;color:#16a34a">
+${x.tipo==="RECEITA" ? (visibilidade[x.id]===false?"R$ ***":"R$ "+valor.toLocaleString("pt-BR",{minimumFractionDigits:2})) : ""}
 </div>
 
-<div style="text-align:right;color:#16a34a">
-${isReceita?(visibilidade[x.id]?"R$ "+moeda(valor):"R$ ***"):""}
-${isReceita?`<button onclick="toggleValor('${x.id}')">👁</button>`:""}
+<div style="flex:1;text-align:right;color:#dc2626">
+${x.tipo==="DESPESA" ? "R$ "+valor.toLocaleString("pt-BR",{minimumFractionDigits:2}) : ""}
 </div>
 
-<div style="text-align:right;color:#dc2626">
-${!isReceita?"R$ "+moeda(valor):""}
+<div>
+<button onclick="toggleValor('${x.id}')">👁</button>
 </div>
 
 </div>
 `
-})
-}
-
 })
 
 lista.innerHTML=html
 
-/* 🔥 RENDER MINI GRÁFICOS */
-setTimeout(()=>{
-chaves.forEach(chave=>{
-if(mesesOcultos[chave])return
-const listaMes=grupos[chave]
-let r=0,d=0
-listaMes.forEach(x=>{
-if(x.tipo==="RECEITA")r+=Number(x.valor||0)
-else d+=Number(x.valor||0)
-})
-const el=document.getElementById("mini_"+chave)
-if(!el)return
-new Chart(el,{
-type:"doughnut",
-data:{
-labels:["R","D"],
-datasets:[{data:[r,d],backgroundColor:["#22c55e","#ef4444"]}]
-},
-options:{
-cutout:"70%",
-plugins:{legend:{display:false}},
-responsive:true
-}
-})
-})
-},200)
-
-/* 🔥 RESUMO FINAL */
-const saldo=totalR-totalD
+const saldo=r-d
 
 resumo.innerHTML=`
-<div class="card" style="
-display:flex;
-justify-content:space-between;
-font-weight:bold;
-font-size:16px
-">
+<div class="card" style="display:flex;justify-content:space-between;font-weight:bold">
 <span>Total</span>
 <span style="color:${saldo>=0?"#16a34a":"#dc2626"}">
-R$ ${moeda(saldo)}
+R$ ${saldo.toLocaleString("pt-BR",{minimumFractionDigits:2})}
 </span>
 </div>
 `
@@ -604,11 +500,16 @@ safe("mobileConta").innerText=localStorage.getItem("conta")||""
 function abrirTela(nome,el){
 document.querySelectorAll(".telaApp").forEach(t=>t.classList.remove("telaAtiva"))
 document.querySelectorAll(".navItem").forEach(n=>n.classList.remove("navAtivo"))
-safe("tela"+nome.charAt(0).toUpperCase()+nome.slice(1)).classList.add("telaAtiva")
-if(el)el.classList.add("navAtivo")
+const tela=safe("tela"+nome.charAt(0).toUpperCase()+nome.slice(1))
+if(tela) tela.classList.add("telaAtiva")
+if(el) el.classList.add("navAtivo")
+/* 🔥 GARANTE RENDER CERTO */
+if(nome==="extrato"){
+setTimeout(()=>{
+render()
+},50)
 }
-function irInicio(){abrirTela("inicio")}
-function logout(){localStorage.clear();location.reload()}
+}
 </script>
 
 
@@ -825,7 +726,7 @@ rodarInteligencia()
 <script>
 async function carregar(){
 const userId=localStorage.getItem("usuario_id_lancamentos")
-if(!userId)return
+if(!userId) return
 const {data,error}=await db
 .from("lancamentos")
 .select("*")
@@ -833,14 +734,14 @@ const {data,error}=await db
 .order("data",{ascending:true})
 if(error){
 console.error(error)
-dados=[]
-render()
 return
 }
-dados=Array.isArray(data)?data:[]
+/* 🔥 GARANTE ARRAY */
+dados = Array.isArray(data) ? data : []
+/* 🔥 NÃO RENDERIZA FORA DA TELA */
+if(safe("telaExtrato")?.classList.contains("telaAtiva")){
 render()
-atualizarTudo()
-carregarUsuariosAdmin()
+}
 }
 </script>
 
@@ -917,28 +818,7 @@ addMsgIA("💡 Corte sugerido: reduza "+maior[0],"bot")
 <script>
 if(!window._syncRodando){
 window._syncRodando=true
-setInterval(async()=>{
-try{
-const userId=localStorage.getItem("usuario_id_lancamentos")
-if(!userId || userId.length<30)return
-const {data,error}=await db
-.from("lancamentos")
-.select("*")
-.eq("usuario_id",userId)
-if(error){
-console.warn("Supabase:",error.message)
-return
-}
-if(!Array.isArray(data))return
-if(data.length!==dados.length){
-dados=data
-render()
-atualizarTudo()
-}
-}catch(e){
-console.warn("sync erro",e)
-}
-},8000)
+
 }
 </script>
 
