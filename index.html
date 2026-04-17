@@ -514,9 +514,11 @@ return dia+"/"+mes+"/"+ano
   
 <script>
 function atualizarDashboard(){
+
 if(!dados.length)return
+
 const container=safe("containerExtrato")
-/* 🔥 CRIA ÁREA FIXA PARA GRÁFICO */
+
 let areaGrafico=safe("areaGrafico")
 
 if(!areaGrafico){
@@ -526,23 +528,15 @@ areaGrafico.style.textAlign="center"
 areaGrafico.style.marginBottom="4px"
 container.prepend(areaGrafico)
 }
-/* 🔥 LIMPA SÓ O GRÁFICO */
+
 areaGrafico.innerHTML=""
 
+/* 🔥 CANVAS CONTROLADO DE VERDADE */
 const canvas=document.createElement("canvas")
-canvas.width=140
-canvas.height=140
+canvas.width=120
+canvas.height=120
 canvas.style.display="block"
 canvas.style.margin="0 auto"
-
-canvas.style.width="140px"
-canvas.style.height="140px"
-canvas.style.maxWidth="140px"
-canvas.style.maxHeight="140px"
-canvas.style.display="block"
-canvas.style.margin="10px auto"
-
-areaGrafico.style.textAlign="center"
 
 areaGrafico.appendChild(canvas)
 
@@ -567,15 +561,16 @@ backgroundColor:["#22c55e","#ef4444"]
 }]
 },
 options:{
-responsive:true,
-maintainAspectRatio:true,
-plugins:{legend:{position:"bottom"}},
-cutout:"70%"
-}
+responsive:false,
+maintainAspectRatio:false,
+cutout:"70%",
 plugins:{
 legend:{position:"bottom"},
 tooltip:{enabled:true}
 }
+}
+})
+
 }
 </script>
 
