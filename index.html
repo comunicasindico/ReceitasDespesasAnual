@@ -1,143 +1,49 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-<!-- ====================================================001 – META==================================================== -->
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <title>ReceitasDespesasAnual PRO</title>
 <link rel="icon" href="data:,">
 
-<!-- ====================================================002 – STYLE LIGHT FINTECH (CORRIGIDO)==================================================== -->
 <style>
 html,body{margin:0;padding:0;width:100%;min-height:100%;overflow-x:hidden}
 *{box-sizing:border-box}
 body{font-family:Arial;color:#0f172a;padding:20px;background:#f1f5f9}
-
-/* 🔥 REMOVE FUNDO ESCURO */
 body::before,.nebula,.vialactea,.shooting-star{display:none!important}
-
-/* 🔥 LOGIN LIMPO */
-body.login{background:#f1f5f9!important}
-#loginCard{background:#ffffff!important;color:#0f172a;border:1px solid #e2e8f0;box-shadow:0 10px 30px rgba(0,0,0,0.08)}
-#loginBg{display:none}
-
-/* 🔥 INPUTS */
+.card{background:#ffffff;border:1px solid #e2e8f0;border-radius:14px;padding:15px;box-shadow:0 4px 12px rgba(0,0,0,0.05)}
+.resumo{background:#ffffff;border:1px solid #e2e8f0;border-radius:12px;padding:12px}
 input,select{width:100%;padding:12px;border-radius:10px;border:1px solid #e2e8f0;background:#fff;color:#0f172a}
-
-/* 🔥 BOTÕES */
 button{cursor:pointer;background:#22c55e;color:#000;font-weight:bold;border:none;border-radius:10px;padding:10px}
-button:hover{transform:scale(1.03)}
-
-/* 🔥 CARDS CLAROS (PADRÃO NOVO) */
-.card{
-background:#ffffff;
-border:1px solid #e2e8f0;
-border-radius:14px;
-padding:15px;
-box-shadow:0 4px 12px rgba(0,0,0,0.05);
-transition:0.2s
-}
-.card:hover{transform:translateY(-2px)}
-
-/* 🔥 RESUMO */
-.resumo{
-background:#ffffff;
-border:1px solid #e2e8f0;
-border-radius:12px;
-padding:12px
-}
-
-/* 🔥 LINHAS */
-.linha-receita{background:#ecfdf5!important;border-left:4px solid #22c55e}
-.linha-receita-topo{background:#d1fae5!important;border-left:4px solid #16a34a;font-weight:bold}
-
-/* 🔥 MENU MOBILE */
-.bottomNav{
-position:fixed;
-bottom:0;
-left:0;
-width:100%;
-height:65px;
-background:#ffffff;
-display:flex;
-justify-content:space-around;
-align-items:center;
-z-index:99999;
-border-top:1px solid #e2e8f0
-}
+.bottomNav{position:fixed;bottom:0;left:0;width:100%;height:65px;background:#ffffff;display:flex;justify-content:space-around;align-items:center;z-index:99999;border-top:1px solid #e2e8f0}
 .navItem{display:flex;flex-direction:column;align-items:center;font-size:11px;color:#64748b}
 .navItem span{font-size:20px}
 .navAtivo{color:#22c55e}
-
-/* 🔥 TOP BAR */
-.topBarMobile{
-display:flex;
-align-items:center;
-gap:10px;
-padding:10px;
-background:#ffffff;
-border-bottom:1px solid #e2e8f0
-}
-
-/* 🔥 BOXES */
-#boxAgencia,#boxConta{
-background:#ffffff;
-border:1px solid #e2e8f0;
-padding:12px;
-border-radius:10px
-}
-
-/* 🔥 KPI */
-#scoreBox{
-border-radius:10px;
-background:#f8fafc;
-border:1px solid #e2e8f0
-}
-
-/* 🔥 GRÁFICOS */
+.topBarMobile{display:flex;align-items:center;gap:10px;padding:10px;background:#ffffff;border-bottom:1px solid #e2e8f0}
+#boxAgencia,#boxConta{background:#ffffff;border:1px solid #e2e8f0;padding:12px;border-radius:10px}
+#scoreBox{border-radius:10px;background:#f8fafc;border:1px solid #e2e8f0}
 canvas{background:#fff;border-radius:12px}
-
-/* 🔥 BOTÃO FLOAT */
-.btnFloat{
-position:fixed;
-bottom:90px;
-right:20px;
-z-index:1000;
-background:#22c55e;
-color:#000;
-border:none;
-border-radius:50%;
-width:55px;
-height:55px;
-font-size:20px;
-box-shadow:0 4px 15px rgba(0,0,0,.15);
-display:flex;
-align-items:center;
-justify-content:center
-}
-/* ====================================================FIX RESPONSIVO==================================================== */
+.btnFloat{display:none}
+#telaIA textarea{background:#ffffff!important;color:#0f172a!important;border:1px solid #e2e8f0}
+#telaIA div[style*="background:#020617"]{background:#ffffff!important}
+#containerExtrato .card:first-child{display:none}
 #containerExtrato{max-width:100%;width:100%;padding:10px;margin:auto}
 #lista{width:100%;max-width:100%}
 #lista div{max-width:100%;word-break:break-word}
-.card{width:100%;max-width:100%}
-@media(max-width:768px){
-body{padding:10px}
-.card{padding:10px}
-}
+@media(max-width:768px){body{padding:10px}.card{padding:10px}}
+#painelMobile{max-width:100%;overflow-x:hidden}
+#containerExtrato{width:100%;max-width:100%}
 
 </style>
 
-<!-- ====================================================003 – LIBS==================================================== -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-<!-- ====================================================004 – CONFIG (BLINDADO)==================================================== -->
+
 <script>
 const SUPABASE_URL="https://gspdlrenyrzbkxlvyugc.supabase.co"
 const SUPABASE_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdzcGRscmVueXJ6Ymt4bHZ5dWdjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ4ODU0NzAsImV4cCI6MjA5MDQ2MTQ3MH0.UWfkWvOh4qMDEcByVL-KZ6ejJ80V7wJlDOFH76TywaI"
 window.db=supabase.createClient(SUPABASE_URL,SUPABASE_KEY)
-
-/* 🔒 SAFE DOM */
 function safe(id){return document.getElementById(id)}
 function show(id){const el=safe(id);if(el)el.style.display="block"}
 function hide(id){const el=safe(id);if(el)el.style.display="none"}
@@ -147,2071 +53,955 @@ function setValue(id,val){const el=safe(id);if(el)el.value=val}
 </head>
 
 <body class="login">
-
-<!-- ====================================================005 – LOGIN==================================================== -->
 <div id="telaLogin" style="position:fixed;top:0;left:0;width:100%;height:100%;display:flex;align-items:center;justify-content:center">
-
 <div id="loginCard">
 <h2 style="text-align:center">Acesso</h2>
-
 <input id="loginUser" placeholder="Usuário">
 <input id="loginPass" type="password" placeholder="Senha">
-
 <button onclick="loginSistema()">Entrar</button>
-
-<button onclick="abrirCadastro()" style="background:#ef4444;color:#fff">
-Criar Conta
-</button>
-
+<button onclick="abrirCadastro()" style="background:#ef4444;color:#fff">Criar Conta</button>
 </div>
 </div>
 
-<!-- ====================================================006 – PAINEL MOBILE==================================================== -->
 <div id="painelMobile" style="display:none">
 
-<!-- ====================================================007 – INÍCIO==================================================== -->
 <div id="telaInicio" class="telaApp telaAtiva">
-
-<div class="card">
-
+<div class="card" style="border-radius:18px;padding:20px">
 <div style="display:flex;justify-content:space-between;align-items:center">
-<div>Olá, <b id="mobileNome"></b></div>
+<div style="font-size:14px">Olá, <b id="mobileNome"></b></div>
 <button onclick="logout()" style="background:#ef4444;color:#fff">Sair</button>
 </div>
-
-<div style="font-size:22px;font-weight:bold;margin-top:10px">
+<div style="font-size:28px;font-weight:bold;margin-top:10px">
 <span id="mobileSaldo"></span>
 <button onclick="toggleSaldo()" style="background:none">👁</button>
 </div>
-
-<div style="font-size:12px;margin-top:5px">
+<div style="font-size:12px;margin-top:5px;color:#64748b">
 Agência: <span id="mobileAgencia"></span> • Conta: <span id="mobileConta"></span>
 </div>
-
 </div>
-
 <div id="alertaFinanceiro" class="card"></div>
-
 <div class="card">
 <div>Score financeiro</div>
 <div id="scoreBox">--</div>
 </div>
-
-<div style="padding:15px">
-<button onclick="abrirFinanceiro(this)" style="width:100%">
-Entrar no Financeiro
+<div style="padding:15px;display:flex;flex-direction:column;gap:10px">
+<button onclick="abrirFinanceiro(this)" style="width:100%">Entrar no Financeiro</button>
+<button onclick="alert('Pagamento via PIX em breve')" style="background:#0ea5e9;color:#fff;width:100%">
+💰 Virar PRO
 </button>
 </div>
-
 </div>
 
-<!-- ====================================================006 – ADMIN==================================================== -->
-<div id="telaAdmin" class="telaApp">
-<div class="topBarMobile">
-<button class="btnVoltar" onclick="irInicio()">←</button>
-<b>👑 Administração</b>
-</div>
-<div style="padding:15px">
-<div id="listaAdminUsuarios"></div>
-</div>
-</div>
 
-<!-- ====================================================008 – EXTRATO==================================================== -->
 <div id="telaExtrato" class="telaApp">
 <div class="topBarMobile"><button class="btnVoltar" onclick="irInicio()">←</button><b>Extrato</b></div>
-<div id="containerExtrato" style="padding:10px;max-width:900px;margin:auto">
-<div class="card"><canvas id="graficoResumo" height="180"></canvas><canvas id="graficoMensal" height="180" style="margin-top:10px"></canvas></div>
-<div id="lista" style="margin-top:10px"></div>
+<div id="containerExtrato">
+<div id="lista"></div>
 <div id="resumo"></div>
 </div>
 </div>
 
-<!-- ====================================================008 – PERFIL==================================================== -->
-<div id="telaPerfil" class="telaApp">
-<div class="topBarMobile">
-<button class="btnVoltar" onclick="irInicio()">←</button>
-<b>👤 Perfil</b>
-</div>
 
+<div id="telaPerfil" class="telaApp">
+<div class="topBarMobile"><button class="btnVoltar" onclick="irInicio()">←</button><b>👤 Perfil</b></div>
 <div style="padding:15px;display:flex;flex-direction:column;gap:8px">
 <input id="perfilNome" placeholder="Nome">
 <input id="perfilEmail" placeholder="Email">
 <input id="perfilCelular" placeholder="Celular">
-
-<div style="font-size:12px;opacity:.7;margin-top:10px">Agência</div>
-<div id="boxAgencia" style="background:#020617;border:1px solid rgba(255,255,255,.15);padding:12px;border-radius:10px;font-weight:bold">--</div>
-
-<div style="font-size:12px;opacity:.7;margin-top:10px">Conta</div>
-<div id="boxConta" style="background:#020617;border:1px solid rgba(255,255,255,.15);padding:12px;border-radius:10px;font-weight:bold">--</div>
-
-<div style="font-size:12px;opacity:.7;margin-top:10px">Plano</div>
-<div id="badgePlano" style="padding:10px;border-radius:10px;text-align:center;font-weight:bold">--</div>
-
-<div style="display:flex;gap:5px;margin-top:10px">
-<button onclick="salvarPerfil()" style="flex:1;background:#22c55e;color:#000;padding:10px;border-radius:10px">Salvar</button>
-<button onclick="excluirUsuario()" style="flex:1;background:#ef4444;color:#fff;padding:10px;border-radius:10px">Excluir</button>
+<div style="font-size:12px">Agência</div>
+<div id="boxAgencia">--</div>
+<div style="font-size:12px">Conta</div>
+<div id="boxConta">--</div>
+<div id="badgePlano">--</div>
+<div style="display:flex;gap:5px">
+<button onclick="salvarPerfil()" style="flex:1;background:#22c55e">Salvar</button>
+<button onclick="excluirUsuario()" style="flex:1;background:#ef4444;color:#fff">Excluir</button>
 </div>
-
 </div>
 </div>
 
-<!-- ====================================================009 – COMUNICA IA==================================================== -->
+
 <div id="telaIA" class="telaApp">
-
-<div class="topBarMobile">
-<button class="btnVoltar" onclick="irInicio()">←</button>
-<b>🤖 Comunica IA</b>
-</div>
-
+<div class="topBarMobile"><button class="btnVoltar" onclick="irInicio()">←</button><b>🤖 Comunica IA</b></div>
 <div style="display:flex;flex-direction:column;height:100vh;padding:10px;padding-bottom:100px">
-
-<div id="chatIA" style="flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:8px;padding-bottom:120px"></div>
-
-<div style="position:fixed;bottom:70px;left:0;width:100%;padding:10px;background:#020617;display:flex;gap:8px">
-
-<textarea id="perguntaIA" rows="2" placeholder="Pergunte algo..."
-style="flex:1;padding:10px;border-radius:10px;border:none;background:#111827;color:#fff"></textarea>
-
-<button onclick="responderIA()" id="btnIA"
-style="background:#22c55e;color:#000;padding:10px 14px;border-radius:10px;font-weight:bold">
-➤
-</button>
-
+<div id="chatIA" style="flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:8px"></div>
+<div style="position:fixed;bottom:70px;left:0;width:100%;padding:10px;background:#ffffff;display:flex;gap:8px">
+<textarea id="perguntaIA" rows="2" placeholder="Pergunte algo..." style="flex:1"></textarea>
+<button onclick="responderIA()" id="btnIA">➤</button>
 </div>
-
 </div>
 </div>
 
-<!-- ====================================================010 – MENU==================================================== -->
 <div class="bottomNav">
-<div class="navItem" id="btnAdmin" onclick="abrirTela('admin',this)" style="display:none"><span>👑</span>Admin</div>
 <div class="navItem navAtivo" onclick="abrirTela('inicio',this)"><span>🏠</span>Início</div>
 <div class="navItem" onclick="abrirTela('extrato',this)"><span>📄</span>Extrato</div>
 <div class="navItem" onclick="abrirTela('perfil',this)"><span>👤</span>Perfil</div>
-<div class="navItem" onclick="abrirTela('ia',this)"><span>🤖</span>ComunicaIA</div>
-</div>
-
+<div class="navItem" onclick="abrirTela('ia',this)"><span>🤖</span>IA</div>
 </div>
 
 <script>
-/* ====================================================002 – ESTADO==================================================== */
-let mesesOcultos={}
 let dados=[]
-let editando=null
-let mostrarValores=true
+let mesesOcultos={}
 let visibilidade={}
 let visibilidadeTotal={}
 let graficoResumo=null
 let graficoMensal=null
-let modoEdicao=false
-let edicoesTemp={}
 let filtroInicio=null
 let filtroFim=null
-let modoAnoCompleto=false
-let mesOffset=0
-let mostrarGrafico=true
-let ocultarSaldo=false
-let LIMITE_USUARIO=20
-let PLANO_USUARIO="FREE"
-let ADMIN_EDIT_ID=null
-let canalRealtime=null
+let ocultarSaldo=true
+let modoEdicao=false
+let edicoesTemp={}
 </script>
+
+
 <script>
-/* ====================================================003 – CATEGORIAS==================================================== */
-const CATEGORIAS=["GERAL","TCERO/Cripto","CASA","SAÚDE","EDUCAÇÃO","LAZER"]
-function carregarCategorias(){
-const sel=document.getElementById("categoria")
-if(!sel)return
-sel.innerHTML=CATEGORIAS.map(c=>`<option>${c}</option>`).join("")
-}
-/* ====================================================003A – TOGGLE MÊS==================================================== */
-function toggleMes(mes){
-mesesOcultos[mes]=!mesesOcultos[mes]
-render()
-}
-/* ====================================================004 – LOGIN==================================================== */
 async function loginSistema(){
-const email=document.getElementById("loginUser").value.trim()
-const senha=document.getElementById("loginPass").value.trim()
-if(!email||!senha){alert("Preencha e-mail e senha");return}
-const {data,error}=await db.from("usuarios_lancamentos").select("*").eq("email",email).eq("senha",senha).limit(1)
-if(error||!data||data.length===0){alert("Usuário inválido");return}
+const email=safe("loginUser").value.trim()
+const senha=safe("loginPass").value.trim()
+if(!email||!senha){alert("Preencha os dados");return}
+const {data}=await db.from("usuarios_lancamentos").select("*").eq("email",email).eq("senha",senha).limit(1)
+if(!data||!data.length){alert("Login inválido");return}
 const user=data[0]
 localStorage.setItem("usuario_id_lancamentos",user.id)
 localStorage.setItem("usuario_nome_lancamentos",user.nome)
-localStorage.setItem("tipo_usuario_lancamentos",user.tipo)
-localStorage.setItem("usuario_plano",(user.plano||"free").toLowerCase())
+localStorage.setItem("tipo_usuario_lancamentos",user.tipo||"user")
 hide("telaLogin")
-hide("appSistema")
 show("painelMobile")
 document.body.classList.remove("login")
 document.body.classList.add("app")
-PLANO_USUARIO=(localStorage.getItem("usuario_plano")||"free").toLowerCase()
-setUserUI()
-iniciarRealtime()
+await carregar()
 atualizarPainelMobile()
-const btnAdmin=document.getElementById("btnAdmin")
-if(user.tipo==="admin"){if(btnAdmin)btnAdmin.style.display="flex"}else{if(btnAdmin)btnAdmin.style.display="none"}
-/* 🔥 SEMPRE RESETAR TELAS */
-document.querySelectorAll(".telaApp").forEach(t=>t.classList.remove("telaAtiva"))
-/* 🔥 ADMIN */
-if(user.tipo==="admin"){
-await carregarAdminUsuarios()
-document.getElementById("telaAdmin").classList.add("telaAtiva")
-}
-/* 🔥 USUÁRIO NORMAL */
-else{
-await carregar()
-await gerarRecorrentes()
-await carregar()
-gerarDadosBancarios()
-await carregarPerfil()
-document.getElementById("telaInicio").classList.add("telaAtiva")
-}
-}
-/* ====================================================005 – SESSÃO==================================================== */
-async function verificarSessao(){
-const userId=localStorage.getItem("usuario_id_lancamentos")
-if(!userId){
-const telaLogin=document.getElementById("telaLogin")
-const appSistema=document.getElementById("appSistema")
-if(telaLogin)telaLogin.style.display="flex"
-if(appSistema)appSistema.style.display="none"
-document.body.classList.add("login")
-document.body.classList.remove("app")
-return
-}
-const {data,error}=await db.from("usuarios_lancamentos").select("*").eq("id",userId).limit(1)
-if(error||!data||!data.length){
-localStorage.clear()
-location.reload()
-return
-}
-const user=data[0]
-localStorage.setItem("usuario_plano",(user.plano||"free").toLowerCase())
-localStorage.setItem("tipo_usuario_lancamentos",user.tipo||"user")
-localStorage.setItem("usuario_nome_lancamentos",user.nome||"Usuário")
-const telaLogin=document.getElementById("telaLogin")
-const painelMobile=document.getElementById("painelMobile")
-if(telaLogin)telaLogin.style.display="none"
-if(painelMobile)painelMobile.style.display="block"
-document.body.classList.remove("login")
-document.body.classList.add("app")
-setUserUI()
-iniciarRealtime()
-PLANO_USUARIO=(localStorage.getItem("usuario_plano")||"free").toLowerCase()
-atualizarPainelMobile()
-const btnAdmin=document.getElementById("btnAdmin")
-if(user.tipo==="admin"){if(btnAdmin)btnAdmin.style.display="flex"}else{if(btnAdmin)btnAdmin.style.display="none"}
-document.querySelectorAll(".telaApp").forEach(t=>t.classList.remove("telaAtiva"))
-if(user.tipo==="admin"){
-await carregarAdminUsuarios()
-const telaAdmin=document.getElementById("telaAdmin")
-if(telaAdmin)telaAdmin.classList.add("telaAtiva")
-}else{
-await carregar()
-await gerarRecorrentes()
-await carregar()
-gerarDadosBancarios()
-await carregarPerfil()
-const telaInicio=document.getElementById("telaInicio")
-if(telaInicio)telaInicio.classList.add("telaAtiva")
-}
-}
-/* ====================================================050 – GERAR DADOS BANCÁRIOS==================================================== */
-function gerarDadosBancarios(){
-const userId=localStorage.getItem("usuario_id_lancamentos")
-if(!userId)return
-
-let agencia=localStorage.getItem("agencia_"+userId)
-let conta=localStorage.getItem("conta_"+userId)
-
-if(!agencia || !conta){
-
-const hoje=new Date()
-
-const dd=String(hoje.getDate()).padStart(2,"0")
-const mm=String(hoje.getMonth()+1).padStart(2,"0")
-const yyyy=hoje.getFullYear()
-
-const dataBase=dd+mm+yyyy
-
-/* 🔥 contador incremental */
-let contador=parseInt(localStorage.getItem("contador_conta")||"1")
-
-const contaGerada=String(contador).padStart(3,"0")+dataBase
-
-agencia="1968-6"
-
-localStorage.setItem("agencia_"+userId,agencia)
-localStorage.setItem("conta_"+userId,contaGerada)
-
-localStorage.setItem("contador_conta",contador+1)
-}
-}
-/* ====================================================051 – UI MOBILE==================================================== */
-function atualizarPainelMobile(){
-const nome=localStorage.getItem("usuario_nome_lancamentos")||"Usuário"
-const userId=localStorage.getItem("usuario_id_lancamentos")
-const agencia=localStorage.getItem("agencia_"+userId)
-const conta=localStorage.getItem("conta_"+userId)
-let r=0,d=0
-dados.forEach(x=>{
-if(x.tipo==="RECEITA")r+=Number(x.valor||0)
-else d+=Number(x.valor||0)
-})
-const saldo=r-d
-document.getElementById("mobileNome").innerText=nome
-document.getElementById("mobileAgencia").innerText=agencia
-document.getElementById("mobileConta").innerText=conta
-document.getElementById("mobileSaldo").innerText=ocultarSaldo?"R$ ***":"R$ "+formatarMoeda(saldo)
-const aviso=document.getElementById("alertaFinanceiro")
-if(aviso){
-if(saldo<0){aviso.innerText="⚠️ Atenção: saldo negativo"}
-else{aviso.innerText="✔️ Situação financeira ok"}
-}
-const scoreBox=document.getElementById("scoreBox")
-if(scoreBox){
-if(saldo>1000){scoreBox.innerText="🟢 Excelente";scoreBox.style.background="#052e16"}
-else if(saldo>0){scoreBox.innerText="🟡 Atenção";scoreBox.style.background="#78350f"}
-else{scoreBox.innerText="🔴 Risco";scoreBox.style.background="#7f1d1d"}
-}
-}
-/* ====================================================120 – ABRIR FINANCEIRO (CORRIGIDO DEFINITIVO)==================================================== */
-async function abrirFinanceiro(btn){
-/* 🔒 BLOQUEIO BOTÃO */
-if(btn){
-if(btn.disabled)return
-btn.disabled=true
-btn.style.opacity="0.6"
-const txt=btn.innerText
-btn.innerText="Carregando..."
-setTimeout(()=>{
-btn.disabled=false
-btn.style.opacity="1"
-btn.innerText=txt
-},800)
-}
-/* ==================================================== PERÍODO PADRÃO ==================================================== */
-if(!filtroInicio || !filtroFim){
-const hoje=new Date()
-const inicio=new Date(hoje.getFullYear(),hoje.getMonth(),1)
-const fim=new Date(hoje.getFullYear(),hoje.getMonth()+1,0)
-/* 🔥 CORREÇÃO TIMEZONE */
-const i=new Date(inicio.getTime()-inicio.getTimezoneOffset()*60000)
-const f=new Date(fim.getTime()-fim.getTimezoneOffset()*60000)
-
-filtroInicio=i.toISOString().slice(0,10)
-filtroFim=f.toISOString().slice(0,10)
-}
-/* ==================================================== ABRIR TELA ==================================================== */
-abrirTela("extrato")
-
-/* ==================================================== GARANTIR DOM + DADOS ==================================================== */
-await new Promise(requestAnimationFrame)
-
-/* 🔥 CARREGA DADOS */
-await carregar()
-
-/* 🔥 FORÇA RENDER (GARANTIA FINAL) */
-if(typeof render==="function"){
-render()
-}
-
-/* ==================================================== SCROLL ==================================================== */
-window.scrollTo({top:0,behavior:"smooth"})
-
-}
-/* ============================================================================= */
-function abrirMobile(){
-const painel=document.getElementById("painelMobile")
-if(painel) painel.style.display="block"
-const app=document.getElementById("appSistema")
-if(app) app.style.display="none"
-}
-/* ============================= */
-function toggleSaldo(){
-ocultarSaldo=!ocultarSaldo
-const btn=document.getElementById("btnToggleSaldo")
-if(btn){
-btn.innerText=ocultarSaldo?"🙈":"👁"
-}
-atualizarPainelMobile()
-}
-/* ====================================================006 – LOGOUT==================================================== */
-function logout(){
-localStorage.clear()
-location.reload()
-}
-/* ====================================================007 – CARREGAR FINAL PROFISSIONAL (BLINDADO)==================================================== */
-async function carregar(){
-/* 🔒 EVITA DUPLA EXECUÇÃO */
-if(window._loading)return
-window._loading=true
-
-try{
-
-const tipo=localStorage.getItem("tipo_usuario_lancamentos")
-const userId=localStorage.getItem("usuario_id_lancamentos")
-
-if(!userId){
-console.warn("Sem usuário")
-window._loading=false
-return
-}
-/* ====================================================007.1 – QUERY==================================================== */
-let query=db.from("lancamentos").select("*").order("data",{ascending:true})
-
-if(tipo!=="admin"){
-query=query.eq("usuario_id",userId)
-}
-
-const {data,error}=await query
-
-if(error){
-console.error("Erro ao carregar:",error)
-alert("Erro ao carregar dados")
-window._loading=false
-return
-}
-/* ====================================================007.2 – NORMALIZAÇÃO==================================================== */
-const novosDados=Array.isArray(data)?data:[]
-
-/* 🔥 EVITA RELOAD DESNECESSÁRIO */
-const mudou=true
-dados=novosDados
-/* ====================================================007.3 – TELA EXTRATO==================================================== */
-const telaExtrato=document.getElementById("telaExtrato")
-
-if(!telaExtrato){
-window._loading=false
-return
-}
-/* ====================================================007.4 – SEM DADOS (SEM APAGAR TELA JÁ RENDERIZADA)==================================================== */
-if(!dados.length){
-
-const lista=document.getElementById("lista")
-const resumo=document.getElementById("resumo")
-
-if(lista && !lista.dataset.loaded){
-lista.innerHTML=`<div class="card">Nenhum registro encontrado</div>`
-lista.dataset.loaded="1"
-}
-
-if(resumo)resumo.innerHTML=""
-
-window._loading=false
-return
-}
-/* ====================================================007.5 – RENDER CONTROLADO==================================================== */
-if(mudou){
-
-if(!window._renderLock){
-window._renderLock=true
-
-setTimeout(()=>{
-try{
-render()
-}catch(e){
-console.error("Erro no render:",e)
-}
-window._renderLock=false
-},80)
-
-}
-
-}
-
-}catch(e){
-console.error("Erro geral carregar:",e)
-}
-
-/* 🔓 LIBERA */
-window._loading=false
-}
-/* ====================================================007.6 – REALTIME SUPABASE==================================================== */
-function iniciarRealtime(){
-
-const userId=localStorage.getItem("usuario_id_lancamentos")
-const tipo=localStorage.getItem("tipo_usuario_lancamentos")
-
-if(!userId)return
-
-/* 🔥 REMOVE CANAL ANTIGO */
-if(canalRealtime){
-try{db.removeChannel(canalRealtime)}catch(e){}
-canalRealtime=null
-}
-
-/* 🔥 CRIA NOVO */
-canalRealtime=db.channel("lancamentos-sync")
-
-canalRealtime.on(
-"postgres_changes",
-{
-event:"*",
-schema:"public",
-table:"lancamentos"
-},
-(payload)=>{
-
-/* 🔥 FILTRO POR USUÁRIO */
-if(tipo!=="admin"){
-if(String(payload.new?.usuario_id)!==String(userId) &&
-String(payload.old?.usuario_id)!==String(userId)){
-return
-}
-}
-
-/* 🔥 ATUALIZAÇÃO INTELIGENTE */
-if(payload.eventType==="INSERT"){
-dados.push(payload.new)
-}
-
-if(payload.eventType==="UPDATE"){
-const i=dados.findIndex(x=>String(x.id)===String(payload.new.id))
-if(i!==-1)dados[i]=payload.new
-}
-
-if(payload.eventType==="DELETE"){
-dados=dados.filter(x=>String(x.id)!==String(payload.old.id))
-}
-
-/* 🔥 RENDER CONTROLADO */
-if(!window._renderLock){
-window._renderLock=true
-setTimeout(()=>{
-render()
-window._renderLock=false
-},80)
-}
-
-})
-
-canalRealtime.subscribe()
-
-}
-/* ====================================================008 – SALVAR==================================================== */
-async function salvarRegistro(obj){
-let response
-if(obj.id){
-response=await db.from("lancamentos").update(obj).eq("id",obj.id)
-}else{
-response=await db.from("lancamentos").insert(obj)
-}
-if(response.error){
-console.error("ERRO AO SALVAR:",response.error)
-alert("Erro ao salvar: "+response.error.message)
-return
-}
-await carregar()
-}
-/* ====================================================009 – EXCLUIR==================================================== */
-async function del(id){
-await db.from("lancamentos").delete().eq("id",id)
-await carregar()
-}
-/* ====================================================010 – MARCAR PAGO==================================================== */
-async function marcarPago(id){
-const item=dados.find(x=>String(x.id)===String(id))
-if(!item)return
-if(item.pago&&!modoEdicao){
-alert("Item já está pago. Para alterar, ative o modo edição.")
-return
-}
-const novoStatus=!item.pago
-const dataLocal=hojeLocal()
-await db.from("lancamentos").update({
-pago:novoStatus,
-data_pagamento:novoStatus?dataLocal:null
-}).eq("id",id)
-await carregar()
-}
-/* ====================================================011 – EDITAR==================================================== */
-function editarPorId(id){
-const x=dados.find(d=>String(d.id)===String(id))
-if(!x)return
-editando=x.id
-document.getElementById("data").value=(x.data||"").split("T")[0]
-document.getElementById("desc").value=x.descricao||""
-document.getElementById("tipo").value=x.tipo||"DESPESA"
-document.getElementById("categoria").value=x.categoria||"GERAL"
-document.getElementById("valor").value=x.valor||0
-}
-/* =============012 – ADD==================================================== */
-async function add(){
-const userId=localStorage.getItem("usuario_id_lancamentos")
-if(!userId){alert("Usuário não autenticado");return}
-/* 🔥 PLANO (DECLARADO UMA ÚNICA VEZ) */
-const planoAtual=(localStorage.getItem("usuario_plano")||"free").toLowerCase()
-if(planoAtual!=="pro" && dados.length>=LIMITE_USUARIO){
-mostrarUpgrade()
-return
-}
-const dataEl=document.getElementById("data")
-const descEl=document.getElementById("desc")
-const tipoEl=document.getElementById("tipo")
-const categoriaEl=document.getElementById("categoria")
-const valorEl=document.getElementById("valor")
-const recorrenteEl=document.getElementById("recorrente")
-const diaEl=document.getElementById("diaPadrao")
-const dataStr=dataEl.value.split("T")[0]
-/* 🔥 TRATAR VALOR */
-let valorBr=valorEl.value||"0"
-valorBr=valorBr.replace(/\s/g,"").replace(",",".")
-const valorNum=Number(valorBr)
-if(isNaN(valorNum)){
-alert("Valor inválido")
-return
-}
-const obj={
-data:dataStr,
-descricao:descEl.value.trim(),
-tipo:tipoEl.value,
-categoria:categoriaEl.value||"GERAL",
-valor:valorNum,
-recorrente:(recorrenteEl&&recorrenteEl.checked)||false,
-dia_padrao:parseInt((diaEl&&diaEl.value)||0)||null,
-dia_vencimento:dataStr?Number(dataStr.split("-")[2]):null,
-pago:false,
-data_pagamento:null,
-usuario_id:userId
-}
-if(!obj.data||!obj.descricao){
-alert("Preencha data e descrição")
-return
-}
-if(obj.valor<=0){
-alert("Valor deve ser maior que zero")
-return
-}
-await salvarRegistro(obj)
-document.getElementById("desc").value=""
-document.getElementById("valor").value=""
-document.getElementById("recorrente").checked=false
-document.getElementById("diaPadrao").value=""
-}
-/* ====================================================013 – NORMALIZAR DATA==================================================== */
-function normalizarDataLocal(dataStr){
-if(!dataStr)return null
-const [ano,mes,dia]=dataStr.split("-")
-return `${ano}-${mes}-${dia}`
-}
-/* ====================================================014 – FORMATADORES==================================================== */
-function formatarMoeda(v){
-return Number(v||0).toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2})
-}
-/* ============================= */
-function formatarDataBR(d){
-if(!d)return""
-/* 🔥 REMOVE QUALQUER COISA APÓS T (timezone) */
-const limpa=d.split("T")[0]
-const [ano,mes,dia]=limpa.split("-")
-return `${dia}/${mes}/${ano}`
-}
-/* ====================================================015 – DATA LOCAL==================================================== */
-function hojeLocal(){
-const d=new Date()
-const local=new Date(d.getTime()-d.getTimezoneOffset()*60000)
-return local.toISOString().slice(0,10)
-}
-/* ====================================================016 – MÊS BASE==================================================== */
-function getMesBase(x){
-if(!x.data)return
-const [ano,mes]=x.data.split("-")
-return Number(mes)-1
-}
-/* ====================================================017 – MODO EDIÇÃO==================================================== */
-function toggleModoEdicao(){
-modoEdicao=!modoEdicao
-const btnSalvar=document.getElementById("btnSalvar")
-const btnEditar=document.getElementById("btnEditar")
-if(btnSalvar)btnSalvar.style.display=modoEdicao?"inline-block":"none"
-if(btnEditar)btnEditar.innerText=modoEdicao?"❌ Cancelar":"✏️ Editar"
-if(!modoEdicao)edicoesTemp={}
-render()
-}
-/* ====================================================018 – EDIT TEMP==================================================== */
-function editTemp(id,campo,valor){
-if(!edicoesTemp[id])edicoesTemp[id]={}
-edicoesTemp[id][campo]=valor
-}
-/* ====================================================019 – SALVAR EDIÇÃO==================================================== */
-async function salvarEdicao(id){
-const original=dados.find(x=>String(x.id)===String(id))
-if(!original)return
-const alteracoes=edicoesTemp[id]||{}
-const atualizado={
-...original,
-...alteracoes,
-valor:parseFloat(alteracoes.valor??original.valor)
-}
-await db.from("lancamentos").update(atualizado).eq("id",id)
-delete edicoesTemp[id]
-await carregar()
-}
-/* ==========020 – TOGGLE ITEM==================================================== */
-function toggleValor(id){
-visibilidade[id]=!visibilidade[id]
-render()
-}
-/* ====================================================021 – APLICAR OFFSET==================================================== */
-function aplicarMesOffset(){
-const hoje=new Date()
-const data=new Date(hoje.getFullYear(),hoje.getMonth()+mesOffset,1)
-const ano=data.getFullYear()
-const mes=String(data.getMonth()+1).padStart(2,"0")
-const ultimoDia=new Date(data.getFullYear(),data.getMonth()+1,0).getDate()
-filtroInicio=`${ano}-${mes}-01`
-filtroFim=`${ano}-${mes}-${String(ultimoDia).padStart(2,"0")}`
-modoAnoCompleto=false
-render()
-}
-/* ====================================================022 – RENDER FINAL COMPLETO PROFISSIONAL (BLINDADO)==================================================== */
-function render(){
-
-if(window._rendering)return
-window._rendering=true
-
-try{
-
-const telaExtrato=document.getElementById("telaExtrato")
-if(!telaExtrato || !telaExtrato.classList.contains("telaAtiva")){
-window._rendering=false
-return
-}
-
-if(visibilidadeTotal['GERAL']===undefined)visibilidadeTotal['GERAL']=true
-
-let lista=document.getElementById("lista")
-let resumoEl=document.getElementById("resumo")
-
-if(!lista || !resumoEl){
-window._rendering=false
-return
-}
-
-/* ====================================================022.1 – FILTRO==================================================== */
-let listaFiltrada=Array.isArray(dados)?[...dados]:[]
-
-if(filtroInicio)listaFiltrada=listaFiltrada.filter(x=>x.data>=filtroInicio)
-if(filtroFim)listaFiltrada=listaFiltrada.filter(x=>x.data<=filtroFim)
-
-/* ====================================================022.2 – SEM DADOS==================================================== */
-if(!listaFiltrada.length){
-if(!lista.dataset.loaded){
-lista.innerHTML=`<div class="card">Nenhum registro encontrado</div>`
-resumoEl.innerHTML=""
-lista.dataset.loaded="1"
-}
-window._rendering=false
-return
-}
-
-/* ====================================================022.3 – AGRUPAMENTO==================================================== */
-const grupos={}
-listaFiltrada.forEach(x=>{
-if(!x.data)return
-const limpa=x.data.split("T")[0]
-const partes=limpa.split("-")
-if(partes.length<2)return
-const chave=partes[0]+"-"+partes[1]
-if(!grupos[chave])grupos[chave]=[]
-grupos[chave].push(x)
-})
-
-const chaves=Object.keys(grupos).sort().reverse()
-
-let htmlFinal=""
-let totalGeralR=0
-let totalGeralD=0
-
-/* ====================================================022.4 – LOOP MESES==================================================== */
-for(const chave of chaves){
-
-let listaMes=grupos[chave]
-
-listaMes.sort((a,b)=>{
-if(a.tipo==="RECEITA"&&b.tipo!=="RECEITA")return-1
-if(a.tipo!=="RECEITA"&&b.tipo==="RECEITA")return 1
-return(a.data||"").localeCompare(b.data||"")
-})
-
-let totalR=0
-let totalD=0
-
-for(const x of listaMes){
-const v=Number(x.valor||0)
-if(x.tipo==="RECEITA")totalR+=v
-else totalD+=v
-}
-
-totalGeralR+=totalR
-totalGeralD+=totalD
-
-const saldo=totalR-totalD
-const[ano,mes]=chave.split("-")
-
-htmlFinal+=`
-<div class="card" style="margin-top:12px;display:flex;justify-content:space-between;align-items:center">
-<div style="display:flex;align-items:center;gap:8px">
-<button onclick="toggleMes('${chave}')" style="width:28px;height:28px;border-radius:6px">
-${mesesOcultos[chave]?"▶":"▼"}
-</button>
-<b>${formatarMesNome(mes)}/${ano}</b>
-</div>
-<div style="display:flex;gap:10px">
-<span style="color:#16a34a">R$ ${formatarMoeda(totalR)}</span>
-<span style="color:#dc2626">R$ ${formatarMoeda(totalD)}</span>
-<span style="font-weight:bold;color:${saldo>=0?"#16a34a":"#dc2626"}">R$ ${formatarMoeda(saldo)}</span>
-</div>
-</div>
-`
-
-if(!mesesOcultos[chave]){
-for(const x of listaMes){
-
-const isReceita=x.tipo==="RECEITA"
-const vis=visibilidade[x.id]
-
-htmlFinal+=`
-<div style="display:flex;justify-content:space-between;align-items:center;padding:8px;margin-top:4px;background:${isReceita?"#ecfdf5":"#fee2e2"};border-radius:8px">
-
-<div style="flex:2">
-${formatarDataBR(x.data)} • ${x.descricao}
-</div>
-
-<div style="flex:1;text-align:right;font-weight:bold;color:${isReceita?"#16a34a":"#dc2626"}">
-${vis===false?"R$ ***":"R$ "+formatarMoeda(x.valor)}
-</div>
-
-<div style="display:flex;gap:4px;margin-left:10px">
-
-<button onclick="toggleValor('${x.id}')">👁</button>
-
-${modoEdicao?`
-<button onclick="editarPorId('${x.id}')">✏️</button>
-<button onclick="delConfirm('${x.id}')">🗑️</button>
-`:``}
-
-<button onclick="marcarPago('${x.id}')" style="background:${x.pago?"#22c55e":"#e2e8f0"}">
-${x.pago?"✔":"⏳"}
-</button>
-
-</div>
-
-</div>
-`
-}
-}
-
-}
-
-/* ====================================================022.5 – APPLY DOM (ANTI FLICKER)==================================================== */
-if(lista.innerHTML!==htmlFinal){
-lista.innerHTML=htmlFinal
-lista.dataset.loaded="1"
-}
-
-/* ====================================================022.6 – RESUMO==================================================== */
-const saldoGeral=totalGeralR-totalGeralD
-
-const resumoHTML=`
-<div class="card" style="margin-top:12px;display:flex;justify-content:space-between;font-weight:bold">
-<span>TOTAL</span>
-<span style="color:${saldoGeral>=0?"#16a34a":"#dc2626"}">
-R$ ${formatarMoeda(saldoGeral)}
-</span>
-</div>
-`
-
-if(resumoEl.innerHTML!==resumoHTML){
-resumoEl.innerHTML=resumoHTML
-}
-
-/* ====================================================022.7 – DASHBOARD (ANTI LOOP)==================================================== */
-if(mostrarGrafico){
-if(!window._dashRunning){
-window._dashRunning=true
-setTimeout(()=>{
-atualizarDashboard()
-window._dashRunning=false
-},180)
-}
-}
-
-}catch(e){
-console.error("Erro no render:",e)
-}
-
-/* 🔓 LIBERA */
-window._rendering=false
-}
-/* =========================================================================== */
-function formatarMesNome(m){
-const nomes=["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"]
-return nomes[Number(m)-1]||m
-}
-/* =========================================================================== */
-function delConfirm(id){
-if(confirm("Deseja excluir este registro?")){
-del(id)
-}
-}
-/* ====================================================022 – DASHBOARD FINAL PROFISSIONAL (BLINDADO)==================================================== */
-function atualizarDashboard(){
-
-if(window._chartLock)return
-window._chartLock=true
-
-try{
-
-/* ====================================================022.1 – VALIDAÇÃO==================================================== */
-if(typeof Chart==="undefined"){
-window._chartLock=false
-return
-}
-
-/* 🔥 SÓ RODA SE EXTRATO ATIVO */
-const telaExtrato=document.getElementById("telaExtrato")
-if(!telaExtrato || !telaExtrato.classList.contains("telaAtiva")){
-window._chartLock=false
-return
-}
-
-/* ====================================================022.2 – ELEMENTOS==================================================== */
-const elResumo=document.getElementById("graficoResumo")
-const elMensal=document.getElementById("graficoMensal")
-
-if(!elResumo||!elMensal){
-window._chartLock=false
-return
-}
-
-/* 🔥 EVITA RECRIAÇÃO CONSTANTE */
-if(!elResumo.offsetParent || !elMensal.offsetParent){
-window._chartLock=false
-return
-}
-
-const ctxResumo=elResumo.getContext("2d")
-const ctxMensal=elMensal.getContext("2d")
-
-/* ====================================================022.3 – FILTRO==================================================== */
-let listaFiltrada=Array.isArray(dados)?[...dados]:[]
-
-if(filtroInicio)listaFiltrada=listaFiltrada.filter(x=>x.data>=filtroInicio)
-if(filtroFim)listaFiltrada=listaFiltrada.filter(x=>x.data<=filtroFim)
-
-if(!listaFiltrada.length){
-window._chartLock=false
-return
-}
-
-/* ====================================================022.4 – CONSOLIDAÇÃO==================================================== */
-let r=0
-let d=0
-let meses={}
-
-for(const x of listaFiltrada){
-
-if(!x.data)continue
-
-const limpa=x.data.split("T")[0]
-const partes=limpa.split("-")
-if(partes.length<2)continue
-
-const mesIndex=parseInt(partes[1])-1
-if(isNaN(mesIndex))continue
-
-if(!meses[mesIndex])meses[mesIndex]={r:0,d:0}
-
-const v=Number(x.valor||0)
-
-if(x.tipo==="RECEITA"){
-r+=v
-meses[mesIndex].r+=v
-}else{
-d+=v
-meses[mesIndex].d+=v
-}
-
-}
-
-/* ====================================================022.5 – DESTROY CONTROLADO==================================================== */
-if(graficoResumo){
-try{graficoResumo.destroy()}catch(e){}
-graficoResumo=null
-}
-if(graficoMensal){
-try{graficoMensal.destroy()}catch(e){}
-graficoMensal=null
-}
-
-/* ====================================================022.6 – DOUGHNUT==================================================== */
-graficoResumo=new Chart(ctxResumo,{
-type:"doughnut",
-data:{
-labels:["Receitas","Despesas"],
-datasets:[{
-data:[r,d],
-backgroundColor:["#16a34a","#dc2626"],
-borderWidth:0
-}]
-},
-options:{
-responsive:true,
-maintainAspectRatio:false,
-cutout:"70%",
-plugins:{
-legend:{display:false},
-tooltip:{
-callbacks:{
-label:(ctx)=>ctx.label+": R$ "+formatarMoeda(ctx.raw)
-}
-}
-},
-animation:false /* 🔥 REMOVE ANIMAÇÃO = ZERO PISCADA */
-}
-})
-
-/* ====================================================022.7 – BARRAS==================================================== */
-graficoMensal=new Chart(ctxMensal,{
-type:"bar",
-data:{
-labels:["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"],
-datasets:[
-{
-label:"Receitas",
-data:Array.from({length:12},(_,i)=>meses[i]?.r||0),
-backgroundColor:"#16a34a",
-borderRadius:6
-},
-{
-label:"Despesas",
-data:Array.from({length:12},(_,i)=>meses[i]?.d||0),
-backgroundColor:"#dc2626",
-borderRadius:6
-}
-]
-},
-options:{
-responsive:true,
-maintainAspectRatio:false,
-plugins:{
-legend:{labels:{color:"#334155"}}
-},
-scales:{
-x:{ticks:{color:"#334155"}},
-y:{ticks:{color:"#334155"}}
-},
-animation:false /* 🔥 REMOVE ANIMAÇÃO */
-}
-})
-
-}catch(e){
-console.error("Erro no dashboard:",e)
-}
-
-/* ====================================================022.8 – LIBERA==================================================== */
-setTimeout(()=>{window._chartLock=false},100)
-}
-/* ====================================================023 – COPIAR MÊS==================================================== */
-async function copiarMesAnterior(){
-const userId=localStorage.getItem("usuario_id_lancamentos")
-if(!userId)return
-
-const ano=new Date().getFullYear()
-const mes=parseInt(document.getElementById("mesBase")?.value||new Date().getMonth()+1)-1
-const mesAnterior=mes-1
-if(mesAnterior<0){alert("Sem mês anterior");return}
-
-const {data:anteriores}=await db.from("lancamentos").select("*")
-.eq("usuario_id",userId)
-.gte("data",`${ano}-${String(mesAnterior+1).padStart(2,"0")}-01`)
-.lte("data",`${ano}-${String(mesAnterior+1).padStart(2,"0")}-31`)
-
-const {data:atuais}=await db.from("lancamentos").select("*")
-.eq("usuario_id",userId)
-.gte("data",`${ano}-${String(mes+1).padStart(2,"0")}-01`)
-.lte("data",`${ano}-${String(mes+1).padStart(2,"0")}-31`)
-
-const existentes=new Set((atuais||[]).map(x=>x.descricao))
-
-for(const x of (anteriores||[])){
-if(!existentes.has(x.descricao)){
-const dia=x.data.split("-")[2]
-await db.from("lancamentos").insert({
-data:`${ano}-${String(mes+1).padStart(2,"0")}-${dia}`,
-descricao:x.descricao,
-tipo:x.tipo,
-categoria:x.categoria,
-valor:x.valor,
-pago:false,
-usuario_id:userId
-})
-}
-}
-alert("Mês criado com sucesso")
-await carregar()
-}
-
-/* ====================================================024 – FILTROS==================================================== */
-function filtrarPeriodo(){
-filtroInicio=document.getElementById("dataInicio").value||null
-filtroFim=document.getElementById("dataFim").value||null
-modoAnoCompleto=false
-render()
-}
-function limparPeriodo(){
-filtroInicio=null
-filtroFim=null
-document.getElementById("dataInicio").value=""
-document.getElementById("dataFim").value=""
-render()
-}
-function limparFiltros(){
-modoAnoCompleto=true
-filtroInicio=null
-filtroFim=null
-render()
-}
-
-/* ====================================================025 – UI CONTROLES==================================================== */
-function toggleInsercao(){
-const el=document.getElementById("boxInsercao")
-if(el)el.style.display=el.style.display==="none"?"flex":"none"
-}
-function toggleGrafico(){
-mostrarGrafico=!mostrarGrafico
-document.getElementById("graficoResumo")?.parentElement.classList.toggle("oculto",!mostrarGrafico)
-document.getElementById("graficoMensal")?.parentElement.classList.toggle("oculto",!mostrarGrafico)
-render()
-}
-function toggleTotal(chave){
-visibilidadeTotal[chave]=!visibilidadeTotal[chave]
-render()
-}
-function modoMesAtual(){
-mesOffset=0
-modoAnoCompleto=false
-filtroInicio=null
-filtroFim=null
-render()
-}
-function mesAnterior(){
-mesOffset--
-aplicarMesOffset()
-}
-
-/* ====================================================026 – SALVAR TUDO==================================================== */
-async function salvarTudo(){
-for(const id in edicoesTemp){
-const original=dados.find(x=>String(x.id)===String(id))
-if(!original)continue
-const alteracoes=edicoesTemp[id]
-const atualizado={...original,...alteracoes,valor:parseFloat(alteracoes.valor??original.valor)}
-await db.from("lancamentos").update(atualizado).eq("id",id)
-}
-edicoesTemp={}
-modoEdicao=false
-document.getElementById("btnSalvar").style.display="none"
-document.getElementById("btnEditar").innerText="✏️ Editar"
-await carregar()
-}
-
-/* ====================================================027 – RECORRÊNCIA CORRIGIDA==================================================== */
-async function gerarRecorrentes(){
-const userId=localStorage.getItem("usuario_id_lancamentos")
-if(!userId)return
-
-const hoje=new Date()
-const ano=hoje.getFullYear()
-const mes=hoje.getMonth()+1
-
-const primeiroDiaMes=`${ano}-${String(mes).padStart(2,"0")}-01`
-
-const {data:rec}=await db.from("lancamentos")
-.select("*")
-.eq("recorrente",true)
-.eq("usuario_id",userId)
-.lt("data",primeiroDiaMes)
-
-for(const r of (rec||[])){
-const dia=Number(r.dia_padrao||1)
-const nova=`${ano}-${String(mes).padStart(2,"0")}-${String(dia).padStart(2,"0")}`
-
-const {data:existente}=await db.from("lancamentos")
-.select("id")
-.eq("usuario_id",userId)
-.eq("data",nova)
-.eq("descricao",r.descricao)
-.limit(1)
-
-if(existente && existente.length>0)continue
-
-await db.from("lancamentos").insert({
-data:nova,
-descricao:r.descricao,
-tipo:r.tipo,
-categoria:r.categoria,
-valor:r.valor,
-recorrente:true,
-dia_padrao:dia,
-pago:false,
-usuario_id:userId
-})
-}
-}
-/* ====================================================028 – SISTEMA==================================================== */
-async function iniciarSistema(){
-carregarCategorias()
-verificarAdmin()
-await verificarSessao()
-/* 🔥 DATA LOCAL REAL (100% SEM BUG DE MÊS) */
-const hoje=new Date()
-
-const ano=hoje.getFullYear()
-const mes=String(hoje.getMonth()+1).padStart(2,"0")
-const dia=String(hoje.getDate()).padStart(2,"0")
-
-const iso=`${ano}-${mes}-${dia}`
-/* 🔥 APLICAÇÃO SEGURA NOS CAMPOS */
-const dataEl=document.getElementById("data")
-const dataInicioEl=document.getElementById("dataInicio")
-const dataFimEl=document.getElementById("dataFim")
-/* 👉 sempre força a data principal */
-if(dataEl){
-dataEl.value=""
-setTimeout(()=>{dataEl.value=iso},10)
-}
-/* 👉 filtros só se estiverem vazios */
-if(dataInicioEl && !dataInicioEl.value)dataInicioEl.value=iso
-if(dataFimEl && !dataFimEl.value)dataFimEl.value=iso
-if(localStorage.getItem("tipo_usuario")==="admin"){
-carregarAdminUsuarios()
-}
-}
-/* ====================================================029 – CADASTRO MODAL==================================================== */
-function abrirCadastro(){
-document.getElementById("modalCadastro").style.display="flex"
-}
-function fecharCadastro(){
-document.getElementById("modalCadastro").style.display="none"
-}
-
-/* ====================================================030 – CADASTRAR==================================================== */
-async function cadastrar(){
-const nome=document.getElementById("cad_nome").value
-const email=document.getElementById("cad_email").value
-const senha=document.getElementById("cad_senha").value
-
-if(!nome||!email||!senha){alert("Preencha tudo");return}
-
-await db.from("usuarios_lancamentos").insert({
-nome,email,senha,status:"pendente",tipo:"user",plano:"free"
-})
-
-alert("Cadastro enviado! Aguarde aprovação.")
-fecharCadastro()
-}
-
-/* ====================================================031 – ADMIN PROFISSIONAL==================================================== */
-async function carregarUsuarios(){
-const {data}=await db
-.from("usuarios_lancamentos")
-.select("*")
-.order("criado_em")
-
-const lista=document.getElementById("listaUsuarios")
-if(!lista)return
-
-lista.innerHTML=""
-
-for(const u of data){
-
-let cor="#f59e0b"
-let badge="FREE"
-
-if(u.plano==="pro"){cor="#22c55e";badge="🚀 PRO"}
-if(u.plano==="analise"){cor="#eab308";badge="⏳ EM ANÁLISE"}
-
-lista.innerHTML+=`
-<div style="background:#0f172a;padding:14px;margin:8px 0;border-radius:12px;border-left:4px solid ${cor};display:flex;justify-content:space-between;align-items:center">
-
-<div>
-<div style="font-weight:bold">${u.nome}</div>
-<div style="font-size:12px;opacity:.7">${u.email}</div>
-<div style="font-size:11px;margin-top:4px;color:${cor};font-weight:bold">${badge}</div>
-</div>
-
-<div style="display:flex;gap:6px">
-
-${u.plano!=="pro"?`
-<button onclick="tornarPro('${u.id}')" style="background:#22c55e;color:#000;padding:6px 10px;border-radius:8px;font-size:11px">
-Liberar PRO
-</button>`:""}
-
-<button onclick="aprovarUsuario('${u.id}')" style="background:#3b82f6;color:#fff;padding:6px 10px;border-radius:8px;font-size:11px">
-Resetar
-</button>
-
-</div>
-
-</div>
-`
-}
-}
-/* ==========================031A APROVAR USUARIO========================================= */
-async function aprovarUsuario(id){
-await db.from("usuarios_lancamentos").update({status:"aprovado",
-plano:"free"}).eq("id",id)
-await criarPadraoUsuario(id)
-alert("Usuário aprovado")
-carregarUsuarios()
-}
-/* ==============031B TORNAR PRO================================================ */
-async function tornarPro(id){
-await db
-.from("usuarios_lancamentos")
-.update({
-plano:"pro",
-limite:999999,
-status:"aprovado"
-})
-.eq("id",id)
-
-alert("Usuário agora é PRO 🚀")
-
-/* 🔥 SE FOR O USUÁRIO LOGADO → ATUALIZA NA HORA */
-const usuarioAtual=localStorage.getItem("usuario_id_lancamentos")
-if(String(usuarioAtual)===String(id)){
-localStorage.setItem("usuario_plano","pro")
-setUserUI()
-}
-
-carregarUsuarios()
-}
-/* ====================================================032 – PADRÃO INICIAL==================================================== */
-async function criarPadraoUsuario(usuarioId){
-const hoje=hojeLocal()
-
-const padrao=[
-{tipo:"RECEITA",categoria:"Salário"},
-{tipo:"RECEITA",categoria:"Renda Extra"},
-{tipo:"DESPESA",categoria:"Moradia"},
-{tipo:"DESPESA",categoria:"Alimentação"},
-{tipo:"DESPESA",categoria:"Transporte"},
-{tipo:"DESPESA",categoria:"Saúde"}
-]
-
-for(const p of padrao){
-await db.from("lancamentos").insert({
-data:hoje,
-descricao:"Inicial",
-tipo:p.tipo,
-categoria:p.categoria,
-valor:0,
-pago:false,
-usuario_id:usuarioId
-})
-}
-}
-
-/* ====================================================033 – USER UI (PROFISSIONAL)==================================================== */
-function setUserUI(){
-const nome=localStorage.getItem("usuario_nome_lancamentos")||"Usuário"
-const tipo=localStorage.getItem("tipo_usuario_lancamentos")||"user"
-const plano=(localStorage.getItem("usuario_plano")||"free").toLowerCase()
-console.log("PLANO ATUAL:",plano)
-
-const elNome=document.getElementById("userNome")
-const elMeta=document.getElementById("userMeta")
-const avatar=document.getElementById("userAvatar")
-
-/* 🔥 PEGAR BOTÕES CORRETOS (SEM RISCO) */
-const btnPro=document.getElementById("btnAssinarPro")
-const btnPago=document.getElementById("btnJaPaguei")
-
-if(!elNome||!elMeta||!avatar)return
-
-elNome.innerText=nome
-
-let badgePlano=""
-let corPlano="#f59e0b"
-
-/* 🔥 STATUS INTELIGENTE */
-if(plano==="pro"){
-badgePlano="🚀 PRO"
-corPlano="#22c55e"
-}else if(plano==="analise"){
-badgePlano="⏳ EM ANÁLISE"
-corPlano="#eab308"
-}else{
-badgePlano="💎 FREE"
-corPlano="#f59e0b"
-}
-
-let badgeTipo=tipo==="admin"?"👑 ADMIN":"👤 USER"
-
-elMeta.innerHTML=`<span style="color:${corPlano};font-weight:bold">${badgePlano}</span> • ${badgeTipo}`
-
-avatar.innerText=nome.charAt(0).toUpperCase()
-avatar.style.background=tipo==="admin"?"#f59e0b":corPlano
-
-/* 🔥 CONTROLE DE BOTÕES */
-if(btnPro && btnPago){
-
-if(plano==="pro"){
-btnPro.style.display="none"
-btnPago.style.display="none"
-}
-
-else if(plano==="analise"){
-btnPro.style.display="inline-block"
-btnPro.innerText="⏳ Em análise"
-btnPro.style.background="#eab308"
-btnPro.style.color="#000"
-
-btnPago.style.display="none"
-}
-
-else{
-btnPro.style.display="inline-block"
-btnPro.innerText="💰 Assinar PRO"
-btnPro.style.background="linear-gradient(135deg,#22c55e,#16a34a)"
-btnPro.style.color="#000"
-
-btnPago.style.display="inline-block"
-}
-
-}
-}
-/* ===============033A toggleadmin e rebaixarfree ================================================ */
-function toggleAdminMenu(id){
-const menu=document.getElementById("menu_"+id)
-menu.style.display=menu.style.display==="block"?"none":"block"
-}
-
-async function rebaixarFree(id){
-await db.from("usuarios_lancamentos").update({plano:"free",limite:20}).eq("id",id)
-alert("Usuário voltou para FREE")
-carregarUsuarios()
-}
-/* ====================================================034 – MENU==================================================== */
-function toggleMenuUsuario(){
-const menu=document.getElementById("menuUsuario")
-if(!menu)return
-
-if(menu.style.display==="block"){
-menu.style.opacity="0"
-setTimeout(()=>menu.style.display="none",150)
-}else{
-menu.style.display="block"
-setTimeout(()=>menu.style.opacity="1",10)
-}
-}
-/* ====================================================035 – INIT==================================================== */
-document.addEventListener("DOMContentLoaded",async()=>{
-await iniciarSistema()
-iniciarParallaxLogin()
-})
-
-/* ====================================================036 – ESTRELAS==================================================== */
-function criarEstrela(){
-if(!document.body.classList.contains("app"))return
-const star=document.createElement("div")
-star.className="shooting-star"
-star.style.left=Math.random()*window.innerWidth+"px"
-document.body.appendChild(star)
-setTimeout(()=>star.remove(),4000)
-}
-setInterval(criarEstrela,2000)
-/* ====================================================034 – MENU GLOBAL CLICK==================================================== */
-document.addEventListener("click",(e)=>{
-const box=document.getElementById("userBox")
-const menu=document.getElementById("menuUsuario")
-
-if(!box||!menu)return
-
-const clicouDentroBox=box.contains(e.target)
-const clicouDentroMenu=menu.contains(e.target)
-
-if(!clicouDentroBox && !clicouDentroMenu){
-menu.style.display="none"
-}
-})
-/* =================================035 MOSTRAR UPGRADE==================================================== */
-function mostrarUpgrade(){
-/* 🔥 BLOQUEIO SE FOR PRO */
-const planoAtual=(localStorage.getItem("usuario_plano")||"free").toLowerCase()
-if(planoAtual==="pro")return
-let box=document.getElementById("upgradeBox")
-if(box)return
-
-box=document.createElement("div")
-box.id="upgradeBox"
-
-box.style.position="fixed"
-box.style.top="50%"
-box.style.left="50%"
-box.style.transform="translate(-50%,-50%)"
-box.style.background="#020617"
-box.style.padding="25px"
-box.style.borderRadius="16px"
-box.style.boxShadow="0 0 50px rgba(0,0,0,.9)"
-box.style.zIndex="99999"
-box.style.textAlign="center"
-
-box.innerHTML=`
-<div style="font-size:18px;font-weight:bold;margin-bottom:10px">🚀 Upgrade necessário</div>
-<div style="font-size:13px;opacity:.8;margin-bottom:15px">
-Plano FREE atingiu limite
-</div>
-<button onclick="gerarPix()" style="background:#22c55e;color:#000;padding:10px 16px;border-radius:10px;font-weight:bold">
-💰 Virar PRO agora
-</button>
-<br><br>
-<button onclick="this.parentElement.remove()" style="background:#ef4444;color:#fff;padding:6px 12px;border-radius:8px">
-Fechar
-</button>
-`
-document.body.appendChild(box)
-}
-/* ==================036  UPGRADE==================================================== */
-async function upgradePlano(){
-const usuario_id=localStorage.getItem("usuario_id_lancamentos")
-const email=prompt("Confirme seu email para pagamento:")
-if(!email){
-alert("Email obrigatório")
-return
-}
-try{
-const res=await fetch("http://localhost:3000/criar-pagamento",{
-method:"POST",
-headers:{
-"Content-Type":"application/json"
-},
-body:JSON.stringify({
-email,
-usuario_id
-})
-})
-const data=await res.json()
-if(!data.qr_code){
-alert("Erro ao gerar pagamento")
-return
-}
-/* 🧾 MOSTRAR PIX */
-mostrarPIX(data.qr_base64)
-}catch(err){
-console.error(err)
-alert("Erro ao conectar pagamento")
-}
-}
-/* ==================037 mostraPIX==================================================== */
-function mostrarPIX(base64){
-let box=document.getElementById("pixBox")
-if(box) box.remove()
-box=document.createElement("div")
-box.id="pixBox"
-box.style.position="fixed"
-box.style.top="50%"
-box.style.left="50%"
-box.style.transform="translate(-50%,-50%)"
-box.style.background="#020617"
-box.style.padding="20px"
-box.style.borderRadius="12px"
-box.style.boxShadow="0 0 30px rgba(0,0,0,.7)"
-box.style.zIndex="10000"
-box.style.textAlign="center"
-box.innerHTML=`
-<h3>💳 Pagamento PIX</h3>
-<img src="data:image/png;base64,${base64}" style="width:200px;margin:10px 0">
-<br>
-<button onclick="this.parentElement.remove()" style="background:#ef4444;color:#fff">Fechar</button>
-`
-document.body.appendChild(box)
-}
-/* ====================================================040 – GERAR PIX PREMIUM==================================================== */
-function gerarPix(){
-const plano=(localStorage.getItem("usuario_plano")||"free").toLowerCase()
-if(plano==="pro"){
-alert("Você já é PRO 🚀")
-return
-}
-if(plano==="analise"){
-alert("Pagamento já enviado. Aguarde liberação.")
-return
-}
-const usuario_id=localStorage.getItem("usuario_id_lancamentos")||"000"
-const nome=localStorage.getItem("usuario_nome_lancamentos")||"Cliente"
-const chavePIX="69984311978"
-const telefone="5569984311978"
-const mensagem=`Olá, realizei o pagamento do PRO.%0AUsuário: ${nome}%0AID: ${usuario_id}%0AValor: R$19,90`
-const img=document.getElementById("qrPix")
-if(img)img.src=`https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(chavePIX)}`
-const inputPix=document.getElementById("chavePix")
-if(inputPix)inputPix.value=chavePIX
-const botaoCopiar=document.getElementById("btnCopiarPix")
-if(botaoCopiar)botaoCopiar.onclick=function(){
-navigator.clipboard.writeText(chavePIX)
-botaoCopiar.innerText="✔ Copiado!"
-setTimeout(()=>botaoCopiar.innerText="📋 Copiar chave PIX",2000)
-}
-const botaoZap=document.getElementById("btnWhatsapp")
-if(botaoZap)botaoZap.onclick=function(){
-window.open(`https://wa.me/${telefone}?text=${mensagem}`,"_blank")
-}
-document.getElementById("boxPix").style.display="block"
-}
-/* ==============================041 parallax  lua=================================================== */
-function iniciarParallaxLogin(){
-const bg=document.getElementById("loginBg")
-if(!bg)return
-
-document.addEventListener("mousemove",(e)=>{
-const x=(e.clientX/window.innerWidth-0.5)*20
-const y=(e.clientY/window.innerHeight-0.5)*20
-bg.style.transform=`translate(${x}px,${y}px) scale(1.08)`
-})
-}
-/* ======================042 CONFIRMAR PAGAMENTO=================================================== */
-async function confirmarPagamento(){
-const usuario_id=localStorage.getItem("usuario_id_lancamentos")
-const plano=(localStorage.getItem("usuario_plano")||"free").toLowerCase()
-if(!usuario_id){alert("Usuário não encontrado");return}
-if(plano==="pro"){alert("Seu plano já está ativo como PRO.");return}
-if(plano==="analise"){alert("Seu pagamento já está em análise.");return}
-const {error}=await db.from("usuarios_lancamentos").update({plano:"analise"}).eq("id",usuario_id)
-if(error){alert("Erro ao enviar para análise");console.log(error);return}
-localStorage.setItem("usuario_plano","analise")
-alert("Pagamento enviado! Aguarde liberação do Banco Admin.")
-setUserUI()
-}
-/* ===============043 RESPONDER IA================================================== */
-async function responderIA(){
-
-const input=document.getElementById("perguntaIA")
-const btn=document.getElementById("btnIA")
-
-const pergunta=input.value.trim()
-if(!pergunta)return
-
-addMsgIA(pergunta,"user")
-input.value=""
-
-btn.innerText="..."
-btn.disabled=true
-
-try{
-
-/* 🔥 TEMPORÁRIO: IA DESATIVADA (REMOVE CORS) */
-await typingIA("🤖 IA temporariamente indisponível")
-
-}catch(e){
-console.error(e)
-await typingIA("Erro ao conectar IA")
-}
-
-btn.innerText="➤"
-btn.disabled=false
-}
-/* =============044 APROVAR OU RECUSAR PAGAMENTO=================================================== */
-async function aprovarPagamento(id){
-await db
-.from("usuarios_lancamentos")
-.update({
-status_pagamento:"pro",
-plano:"pro",
-limite:999999
-})
-.eq("id",id)
-alert("Usuário liberado como PRO 💰")
-carregarUsuarios()
-}
-/* ==========FUNCTION ========================== */
-async function recusarPagamento(id){
-await db
-.from("usuarios_lancamentos")
-.update({
-status_pagamento:"free"
-})
-.eq("id",id)
-alert("Pagamento recusado")
-carregarUsuarios()
-}
-
-window.loginSistema = loginSistema;
-window.abrirCadastro = abrirCadastro;
-/* ====================================================091 – NAVEGAÇÃO MOBILE (SAFE)==================================================== */
-function abrirTela(nome,el){
-document.querySelectorAll(".telaApp").forEach(t=>t.classList.remove("telaAtiva"))
-document.querySelectorAll(".navItem").forEach(n=>n.classList.remove("navAtivo"))
-
-if(nome==="inicio"){const t=safe("telaInicio");if(t)t.classList.add("telaAtiva")}
-if(nome==="extrato"){const t=safe("telaExtrato");if(t)t.classList.add("telaAtiva")}
-if(nome==="perfil"){const t=safe("telaPerfil");if(t)t.classList.add("telaAtiva")}
-if(nome==="ia"){const t=safe("telaIA");if(t)t.classList.add("telaAtiva")}
-if(nome==="admin"){const t=safe("telaAdmin");if(t)t.classList.add("telaAtiva")}
-
-if(el)el.classList.add("navAtivo")
-}
-/* ==========FUNCTION ========================== */
-function irInicio(){
-abrirTela("inicio",document.querySelectorAll(".navItem")[0])
-}
-/* =========092 – FORMATAR INPUT VALOR=================================================== */
-function formatarInputValor(el){
-let v=el.value.replace(",",".")
-let num=Number(v)
-if(isNaN(num)){el.value="";return}
-el.value=num.toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2})
-}
-/* ====================================================093 – VOLTAR INÍCIO==================================================== */
-function voltarInicio(){
 abrirTela("inicio")
 }
-/* ====================================================094 – ADMIN VISIBILIDADE==================================================== */
-function verificarAdmin(){
-const tipo=localStorage.getItem("tipo_usuario")
-if(tipo==="admin"){
-const btn=document.getElementById("btnAdmin")
-if(btn)btn.style.display="flex"
+</script>
+  
+<script>
+function mostrarUpgrade(){
+const box=document.createElement("div")
+box.style.position="fixed"
+box.style.top="50%"
+box.style.left="50%"
+box.style.transform="translate(-50%,-50%)"
+box.style.background="#fff"
+box.style.padding="20px"
+box.style.borderRadius="12px"
+box.style.boxShadow="0 0 20px rgba(0,0,0,.2)"
+box.style.zIndex="99999"
+
+box.innerHTML=`
+<b>🚀 Plano FREE atingido</b><br><br>
+<button onclick="this.parentElement.remove()" style="background:#22c55e">OK</button>
+`
+
+document.body.appendChild(box)
 }
-}
-/* ====================================================095 – ADMIN LISTA==================================================== */
-async function carregarAdminUsuarios(){
-const {data}=await db.from("usuarios_lancamentos").select("*")
-const lista=safe("listaAdminUsuarios")
-if(!lista||!data)return
-lista.innerHTML=data.map(u=>`
-<div style="background:#020617;padding:12px;border-radius:10px;margin-bottom:8px">
-<div><b>${u.nome}</b></div>
-<div>${u.email}</div>
-<div>📞 ${u.celular||"-"}</div>
-<div>🏦 ${u.agencia||"-"} • ${u.conta||"-"}</div>
-<div>Plano: ${u.plano}</div>
-<div style="margin-top:8px;display:flex;gap:5px;flex-wrap:wrap">
-<button onclick="editarUsuarioAdmin('${u.id}')" style="background:#3b82f6;color:#fff;padding:6px 10px;border-radius:6px">Editar</button>
-<button onclick="liberarPro('${u.id}')" style="background:#22c55e;color:#000;padding:6px 10px;border-radius:6px;font-weight:bold">🚀 Liberar PRO</button>
-<button onclick="colocarAnalise('${u.id}')" style="background:#f59e0b;color:#000;padding:6px 10px;border-radius:6px">⏳ Análise</button>
-<button onclick="excluirUsuarioAdmin('${u.id}')" style="background:#ef4444;color:#fff;padding:6px 10px;border-radius:6px">Excluir</button>
-</div>
-</div>
-`).join("")
-}
-/* ===============================096 – CARREGAR PERFIL==================================================== */
-async function carregarPerfil(){
+</script>  
+
+<script>
+async function carregar(){
 const userId=localStorage.getItem("usuario_id_lancamentos")
 if(!userId)return
 
 const {data,error}=await db
-.from("usuarios_lancamentos")
+.from("lancamentos")
 .select("*")
-.eq("id",userId)
-.single()
+.eq("usuario_id",userId)
+.order("data",{ascending:true})
 
-if(error){console.log(error);return}
-/* 🔥 GERAR AGÊNCIA/CONTA SE NÃO EXISTIR */
-if(!data.agencia || !data.conta){
-const hoje=new Date()
-const dd=String(hoje.getDate()).padStart(2,"0")
-const mm=String(hoje.getMonth()+1).padStart(2,"0")
-const yyyy=hoje.getFullYear()
-const contaGerada="001"+dd+mm+yyyy
-
-await db.from("usuarios_lancamentos")
-.update({
-agencia:"1968-6",
-conta:contaGerada
-})
-.eq("id",userId)
-
-return carregarPerfil()
-}
-/* 🔥 PREENCHER CAMPOS (SAFE) */
-setValue("perfilNome",data.nome||"")
-setValue("perfilEmail",data.email||"")
-setValue("perfilCelular",data.celular||"")
-/* 🔥 VISUAL */
-setHTML("boxAgencia",data.agencia||"-")
-setHTML("boxConta",data.conta||"-")
-/* 🔥 BADGE PLANO */
-const badge=safe("badgePlano")
-if(badge){
-if(data.plano==="pro"){
-badge.innerText="🟢 PRO"
-badge.style.background="#052e16"
-badge.style.color="#4ade80"
-}else if(data.plano==="analise"){
-badge.innerText="🟠 EM ANÁLISE"
-badge.style.background="#7c2d12"
-badge.style.color="#fb923c"
-}else{
-badge.innerText="🟡 FREE"
-badge.style.background="#78350f"
-badge.style.color="#facc15"
-}
-}
-/* 🔥 PERMISSÕES */
-const tipo=localStorage.getItem("tipo_usuario_lancamentos")
-
-const planoSel=safe("perfilPlano")
-if(planoSel && tipo!=="admin"){
-planoSel.style.display="none"
+if(error){
+console.error(error)
+return
 }
 
-const nomeEl=safe("perfilNome")
-const emailEl=safe("perfilEmail")
-const celEl=safe("perfilCelular")
+dados=Array.isArray(data)?data:[]
 
-if(tipo!=="admin"){
-if(nomeEl)nomeEl.disabled=true
-if(emailEl)emailEl.disabled=true
-if(celEl)celEl.disabled=true
-}else{
-if(nomeEl)nomeEl.disabled=false
-if(emailEl)emailEl.disabled=false
-if(celEl)celEl.disabled=false
+/* 🔥 LIMITE FREE */
+if(dados.length>=20){
+mostrarUpgrade()
 }
-}
-/* ================097 SALVAR PERFIL ================================================== */
-async function salvarPerfil(){
-const id=ADMIN_EDIT_ID||localStorage.getItem("usuario_id_lancamentos")
-if(!id){alert("Erro: usuário não identificado");return}
-const nome=document.getElementById("perfilNome").value
-const email=document.getElementById("perfilEmail").value
-const celular=document.getElementById("perfilCelular").value
-const tipo=localStorage.getItem("tipo_usuario_lancamentos")
-let updateData={nome,email,celular}
-if(tipo==="admin"){
-const planoAtual=document.getElementById("badgePlano").innerText.toLowerCase()
-if(planoAtual.includes("pro"))updateData.plano="pro"
-if(planoAtual.includes("análise"))updateData.plano="analise"
-if(planoAtual.includes("free"))updateData.plano="free"
-}
-await db.from("usuarios_lancamentos").update(updateData).eq("id",id)
-alert("✅ Salvo com sucesso")
-ADMIN_EDIT_ID=null
-if(tipo==="admin"){
-await carregarAdminUsuarios()
-abrirTela("admin")
-}else{
-await carregarPerfil()
-}
-}
-/* ================099 EDITAR USUÁRIO ADMIN================================================== */
-async function editarUsuarioAdmin(id){
-const {data}=await db.from("usuarios_lancamentos").select("*").eq("id",id).limit(1)
-if(!data||!data.length){alert("Usuário não encontrado");return}
-const u=data[0]
-ADMIN_EDIT_ID=id
-abrirTela("perfil")
-setTimeout(()=>{
-const nome=document.getElementById("perfilNome")
-const email=document.getElementById("perfilEmail")
-const celular=document.getElementById("perfilCelular")
-const agencia=document.getElementById("boxAgencia")
-const conta=document.getElementById("boxConta")
-const plano=document.getElementById("badgePlano")
-if(nome)nome.value=u.nome||""
-if(email)email.value=u.email||""
-if(celular)celular.value=u.celular||""
-if(agencia)agencia.innerText=u.agencia||"-"
-if(conta)conta.innerText=u.conta||"-"
-if(plano){
-if(u.plano==="pro"){
-plano.innerText="🟢 PRO"
-plano.style.background="#052e16"
-plano.style.color="#4ade80"
-}else if(u.plano==="analise"){
-plano.innerText="🟡 EM ANÁLISE"
-plano.style.background="#78350f"
-plano.style.color="#facc15"
-}else{
-plano.innerText="⚪ FREE"
-plano.style.background="#111827"
-plano.style.color="#94a3b8"
-}
-}
-},200)
-}
-/* ================100 ABRIR PERFIL================================================= */
-function abrirPerfil(){
-document.getElementById("painelMobile").style.display="none"
-document.getElementById("appSistema").style.display="none"
-document.getElementById("telaPerfil").style.display="block"
-carregarPerfil()
-}
-document.addEventListener("DOMContentLoaded",()=>{
-const userId=localStorage.getItem("usuario_id_lancamentos")
-if(userId){
-carregarPerfil()
-}
-})
-/* ====================================================005.1 – LIBERAR PRO==================================================== */
-async function liberarPro(id){
-if(!id){alert("ID inválido");return}
-await db.from("usuarios_lancamentos").update({plano:"pro"}).eq("id",id)
-alert("✅ Usuário liberado como PRO")
-carregarAdminUsuarios()
-}
-/* ====================================================005.2 – COLOCAR EM ANÁLISE==================================================== */
-async function colocarAnalise(id){
-if(!id){alert("ID inválido");return}
-await db.from("usuarios_lancamentos").update({plano:"analise"}).eq("id",id)
-alert("⏳ Usuário colocado em análise")
-carregarAdminUsuarios()
-}
-/* ====================================================005.3 – SAFE UPDATE==================================================== */
-async function updatePlanoSeguro(id,plano){
-if(!id||!plano)return
-await db.from("usuarios_lancamentos").update({plano}).eq("id",id)
-}
-/* ====================================================200 – CHAT UI==================================================== */
-function addMsgIA(texto,tipo){
-const chat=document.getElementById("chatIA")
-if(!chat)return
-
-const div=document.createElement("div")
-div.style.maxWidth="80%"
-div.style.padding="10px"
-div.style.borderRadius="12px"
-div.style.fontSize="13px"
-div.style.lineHeight="1.4"
-
-if(tipo==="user"){
-div.style.alignSelf="flex-end"
-div.style.background="#22c55e"
-div.style.color="#000"
-}else{
-div.style.alignSelf="flex-start"
-div.style.background="#111827"
-div.style.color="#fff"
+/* 🔥 RENDER */
+render()
 }
 
-div.innerText=texto
-chat.appendChild(div)
-
-chat.scrollTop=chat.scrollHeight
+function podeAdicionar(){
+const plano="free"
+if(plano==="free" && dados.length>=20){
+alert("Limite do plano FREE atingido.")
+return false
 }
-/* ====================================================201 – TYPING==================================================== */
-function typingIA(texto){
-return new Promise(resolve=>{
-const chat=document.getElementById("chatIA")
-const div=document.createElement("div")
-
-div.style.maxWidth="80%"
-div.style.padding="10px"
-div.style.borderRadius="12px"
-div.style.background="#111827"
-div.style.color="#fff"
-div.style.alignSelf="flex-start"
-
-chat.appendChild(div)
-
-let i=0
-const intervalo=setInterval(()=>{
-div.innerText=texto.slice(0,i)
-i++
-chat.scrollTop=chat.scrollHeight
-
-if(i>texto.length){
-clearInterval(intervalo)
-resolve()
+return true
 }
-},15)
-})
+  
+function render(){
+const tela=safe("telaExtrato")
+if(!tela||!tela.classList.contains("telaAtiva"))return
+
+if(!podeAdicionar())return
+
+const lista=safe("lista")
+const resumo=safe("resumo")
+
+if(!lista||!resumo)return
+
+if(!dados||!dados.length){
+lista.innerHTML="<div class='card'>Sem registros</div>"
+resumo.innerHTML=""
+return
 }
-/* ====================================================202 – IA SUPABASE==================================================== */
-async function responderIA(){
-const input=document.getElementById("perguntaIA")
-const btn=document.getElementById("btnIA")
 
-const pergunta=input.value.trim()
-if(!pergunta)return
+let html=""
+let r=0
+let d=0
 
-addMsgIA(pergunta,"user")
-input.value=""
+dados.forEach(x=>{
+const valor=Number(x.valor||0)
 
-btn.innerText="..."
-btn.disabled=true
+if(x.tipo==="RECEITA")r+=valor
+else d+=valor
 
-try{
-
-const res=await fetch("https://gspdlrenyrzbkxlvyugc.functions.supabase.co/ia-chat",{
-method:"POST",
-headers:{
-"Content-Type":"application/json"
-},
-body:JSON.stringify({pergunta})
+html+=`
+<div class="card" style="display:flex;justify-content:space-between;align-items:center">
+<div>${x.descricao}</div>
+<div style="color:${x.tipo==="RECEITA"?"#16a34a":"#dc2626"}">
+${visibilidade[x.id]===false?"R$ ***":"R$ "+valor.toFixed(2)}
+</div>
+</div>
+`
 })
 
-const json=await res.json()
+lista.innerHTML=html
 
-if(json && json.resposta){
-await typingIA(json.resposta)
-}else{
-await typingIA("Não consegui responder agora 😕")
-}
+const saldo=r-d
 
-}catch(e){
-await typingIA("Erro ao conectar com IA 😕")
+resumo.innerHTML=`
+<div class="card" style="display:flex;justify-content:space-between;font-weight:bold">
+<span>Total</span>
+<span style="color:${saldo>=0?"#16a34a":"#dc2626"}">
+R$ ${saldo.toFixed(2)}
+</span>
+</div>
+`
 }
-
-btn.innerText="➤"
-btn.disabled=false
-}
-/* ====================================================203 – ENTER==================================================== */
-document.addEventListener("DOMContentLoaded",()=>{
-const input=document.getElementById("perguntaIA")
-if(input){
-input.addEventListener("keydown",(e)=>{
-if(e.key==="Enter" && !e.shiftKey){
-e.preventDefault()
-responderIA()
-}
-})
-}
-})
-/* ====================================================999 – ANTI ERRO GLOBAL==================================================== */
-window.addEventListener("error",function(e){
-console.log("Erro capturado:",e.message)
-})
-window.addEventListener("unhandledrejection",function(e){
-console.log("Promise erro:",e.reason)
-})
-
 </script>
 
-<div id="boxPix" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#020617;padding:20px;border-radius:12px;z-index:99999;text-align:center">
-<h3>💳 PIX</h3>
-<img id="qrPix" style="width:200px">
-<input id="chavePix" readonly style="width:100%;margin-top:10px">
-<button id="btnCopiarPix">Copiar</button>
-<button id="btnWhatsapp">WhatsApp</button>
-</div>
+<script>
+function atualizarDashboard(){
+if(!dados.length)return
+const ctx=safe("graficoResumo")
+if(!ctx)return
+let r=0,d=0
+dados.forEach(x=>{if(x.tipo==="RECEITA")r+=Number(x.valor||0);else d+=Number(x.valor||0)})
+if(graficoResumo)graficoResumo.destroy()
+graficoResumo=new Chart(ctx,{type:"doughnut",data:{labels:["Receitas","Despesas"],datasets:[{data:[r,d],backgroundColor:["#16a34a","#dc2626"]}]}})
+}
+</script>
 
-<button onclick="voltarInicio()" style="
-position:fixed;
-bottom:80px;
-right:15px;
-z-index:1000;
-background:#22c55e;
-color:#000;
-border:none;
-border-radius:50%;
-width:58px;
-height:58px;
-font-size:22px;
-box-shadow:0 6px 25px rgba(0,0,0,.25);
-display:flex;
-align-items:center;
-justify-content:center;
-">
-🏠
-</button>
+<script>
+async function carregarPerfil(){
+const id=localStorage.getItem("usuario_id_lancamentos")
+const {data}=await db.from("usuarios_lancamentos").select("*").eq("id",id).single()
+if(!data)return
+setValue("perfilNome",data.nome)
+setValue("perfilEmail",data.email)
+setValue("perfilCelular",data.celular||"")
+setHTML("boxAgencia",data.agencia||"-")
+setHTML("boxConta",data.conta||"-")
+}
+</script>
+
+<script>
+document.addEventListener("input",e=>{
+if(e.target.id==="perfilCelular"){
+let v=e.target.value.replace(/\D/g,"").slice(0,11)
+if(v.length>10)v=v.replace(/^(\d{2})(\d{1})(\d{4})(\d{4}).*/,"($1) $2 $3-$4")
+else if(v.length>6)v=v.replace(/^(\d{2})(\d{4})(\d{0,4}).*/,"($1) $2-$3")
+else if(v.length>2)v=v.replace(/^(\d{2})(\d*)/,"($1) $2")
+else v=v.replace(/^(\d*)/,"($1")
+e.target.value=v
+}
+})
+</script>
+
+<script>
+function toggleSaldo(){
+ocultarSaldo=!ocultarSaldo
+atualizarPainelMobile()
+}
+function atualizarPainelMobile(){
+let r=0,d=0
+dados.forEach(x=>{if(x.tipo==="RECEITA")r+=Number(x.valor||0);else d+=Number(x.valor||0)})
+safe("mobileSaldo").innerText=ocultarSaldo?"R$ ***":"R$ "+(r-d).toFixed(2)
+safe("mobileNome").innerText=localStorage.getItem("usuario_nome_lancamentos")
+}
+</script>
+
+
+<script>
+function abrirTela(nome,el){
+document.querySelectorAll(".telaApp").forEach(t=>t.classList.remove("telaAtiva"))
+document.querySelectorAll(".navItem").forEach(n=>n.classList.remove("navAtivo"))
+safe("tela"+nome.charAt(0).toUpperCase()+nome.slice(1)).classList.add("telaAtiva")
+if(el)el.classList.add("navAtivo")
+}
+function irInicio(){abrirTela("inicio")}
+function logout(){localStorage.clear();location.reload()}
+</script>
+
+
+<style>
+.card{transition:all .2s ease}
+.card:hover{transform:translateY(-3px);box-shadow:0 10px 25px rgba(0,0,0,.08)}
+</style>
+
+
+<style>
+.telaApp{opacity:0;transform:translateY(10px);transition:.25s}
+.telaAtiva{opacity:1;transform:translateY(0)}
+</style>
+
+
+<script>
+async function abrirFinanceiro(btn){
+if(btn){btn.disabled=true;btn.innerText="Carregando..."}
+abrirTela("extrato")
+await carregar()
+if(btn){btn.disabled=false;btn.innerText="Entrar no Financeiro"}
+}
+</script>
+
+<script>
+function moeda(v){
+return Number(v||0).toLocaleString("pt-BR",{style:"currency",currency:"BRL"})
+}
+</script>
+
+<script>
+function render(){
+const tela=safe("telaExtrato")
+if(!tela||!tela.classList.contains("telaAtiva"))return
+const lista=safe("lista")
+const resumo=safe("resumo")
+if(!dados.length){lista.innerHTML="<div class='card'>Sem registros</div>";resumo.innerHTML="";return}
+let r=0,d=0
+dados.forEach(x=>{if(x.tipo==="RECEITA")r+=Number(x.valor||0);else d+=Number(x.valor||0)})
+lista.innerHTML=dados.map(x=>`
+<div class="card" style="display:flex;justify-content:space-between;align-items:center">
+<div>${x.descricao}</div>
+<div style="color:${x.tipo==="RECEITA"?"#16a34a":"#dc2626"}">
+${visibilidade[x.id]===false?"***":moeda(x.valor)}
+</div>
+</div>`).join("")
+resumo.innerHTML=`<div class="card"><b>Total:</b> ${moeda(r-d)}</div>`
+}
+</script>
+
+
+<script>
+function atualizarPainelMobile(){
+let r=0,d=0
+dados.forEach(x=>{if(x.tipo==="RECEITA")r+=Number(x.valor||0);else d+=Number(x.valor||0)})
+const saldo=r-d
+const el=safe("mobileSaldo")
+if(!el)return
+el.style.transition="all .3s"
+el.style.transform="scale(1.05)"
+setTimeout(()=>el.style.transform="scale(1)",200)
+el.innerText=ocultarSaldo?"R$ ***":moeda(saldo)
+safe("mobileNome").innerText=localStorage.getItem("usuario_nome_lancamentos")
+}
+</script>
+
+
+<script>
+function atualizarDashboard(){
+if(!dados.length)return
+const el=document.createElement("canvas")
+el.id="graficoResumo"
+safe("containerExtrato").prepend(el)
+const ctx=el.getContext("2d")
+let r=0,d=0
+dados.forEach(x=>{if(x.tipo==="RECEITA")r+=Number(x.valor||0);else d+=Number(x.valor||0)})
+if(graficoResumo)graficoResumo.destroy()
+graficoResumo=new Chart(ctx,{
+type:"doughnut",
+data:{labels:["Receitas","Despesas"],datasets:[{data:[r,d],backgroundColor:["#22c55e","#ef4444"]}]},
+options:{cutout:"70%",plugins:{legend:{display:false}}}
+})
+}
+</script>
+
+
+<script>
+function abrirTela(nome,el){
+document.querySelectorAll(".telaApp").forEach(t=>t.classList.remove("telaAtiva"))
+document.querySelectorAll(".navItem").forEach(n=>n.classList.remove("navAtivo"))
+const tela=safe("tela"+nome.charAt(0).toUpperCase()+nome.slice(1))
+if(tela)tela.classList.add("telaAtiva")
+if(el)el.classList.add("navAtivo")
+if(nome==="extrato"){setTimeout(atualizarDashboard,200)}
+}
+</script>
+
+<style>
+html{scroll-behavior:smooth}
+</style>
+
+
+<style>
+button:active{transform:scale(0.96)}
+</style>
+
+
+<script>
+function detectarCategoria(desc){
+desc=desc.toLowerCase()
+if(desc.includes("mercado")||desc.includes("super"))return "Alimentação"
+if(desc.includes("uber")||desc.includes("99"))return "Transporte"
+if(desc.includes("farmacia"))return "Saúde"
+if(desc.includes("netflix")||desc.includes("spotify"))return "Lazer"
+if(desc.includes("salario"))return "Receita"
+return "Outros"
+}
+</script>
+
+
+<script>
+function resumoCategorias(){
+let map={}
+dados.forEach(x=>{
+let cat=detectarCategoria(x.descricao||"")
+if(!map[cat])map[cat]=0
+map[cat]+=Number(x.valor||0)*(x.tipo==="DESPESA"?1:0)
+})
+return map
+}
+</script>
+
+
+<script>
+function graficoCategorias(){
+const mapa=resumoCategorias()
+const labels=Object.keys(mapa)
+const valores=Object.values(mapa)
+const el=document.createElement("canvas")
+safe("containerExtrato").prepend(el)
+new Chart(el,{
+type:"doughnut",
+data:{labels,datasets:[{data:valores}]},
+options:{plugins:{legend:{position:"bottom"}}}
+})
+}
+</script>
+
+
+
+<script>
+function alertaInteligente(){
+let r=0,d=0
+dados.forEach(x=>{if(x.tipo==="RECEITA")r+=Number(x.valor||0);else d+=Number(x.valor||0)})
+let msg=""
+if(d>r)msg="⚠️ Você está gastando mais do que ganha"
+else if(d>r*0.7)msg="⚠️ Alto nível de gastos"
+else msg="✔️ Controle financeiro saudável"
+safe("alertaFinanceiro").innerText=msg
+}
+</script>
+
+
+
+<script>
+function calcularScore(){
+let r=0,d=0
+dados.forEach(x=>{if(x.tipo==="RECEITA")r+=Number(x.valor||0);else d+=Number(x.valor||0)})
+let score=0
+if(r>0)score=Math.max(0,Math.min(100,100-(d/r*100)))
+const el=safe("scoreBox")
+if(!el)return
+el.innerText="Score: "+score.toFixed(0)
+if(score>70)el.style.background="#dcfce7"
+else if(score>40)el.style.background="#fef9c3"
+else el.style.background="#fee2e2"
+}
+</script>
+
+
+<script>
+function previsao(){
+let saldo=0
+dados.forEach(x=>{saldo+=x.tipo==="RECEITA"?Number(x.valor): -Number(x.valor)})
+let proj=saldo*1.2
+const div=document.createElement("div")
+div.className="card"
+div.innerText="📊 Projeção: "+moeda(proj)
+safe("telaInicio").appendChild(div)
+}
+</script>
+
+
+<script>
+function meta(){
+let meta=1000
+let atual=0
+dados.forEach(x=>{if(x.tipo==="RECEITA")atual+=Number(x.valor)})
+const pct=Math.min(100,(atual/meta)*100)
+const div=document.createElement("div")
+div.className="card"
+div.innerHTML=`Meta: ${pct.toFixed(0)}%`
+safe("telaInicio").appendChild(div)
+}
+</script>
+
+
+<script>
+function responderIA(){
+const pergunta=safe("perguntaIA").value.toLowerCase()
+let r=0,d=0
+dados.forEach(x=>{if(x.tipo==="RECEITA")r+=Number(x.valor||0);else d+=Number(x.valor||0)})
+let resp=""
+if(pergunta.includes("gasto"))resp="Você gastou "+moeda(d)
+else if(pergunta.includes("saldo"))resp="Seu saldo é "+moeda(r-d)
+else if(pergunta.includes("categoria")){
+let map=resumoCategorias()
+resp=JSON.stringify(map)
+}
+else resp="Pergunte sobre saldo, gasto ou categoria"
+addMsgIA(resp,"bot")
+}
+</script>
+
+
+<script>
+function addMsgIA(msg,tipo){
+const chat=safe("chatIA")
+const div=document.createElement("div")
+div.className="card"
+div.style.alignSelf=tipo==="bot"?"flex-start":"flex-end"
+div.innerText=msg
+chat.appendChild(div)
+chat.scrollTop=chat.scrollHeight
+}
+</script>
+
+
+<script>
+function atualizarTudo(){
+atualizarPainelMobile()
+alertaInteligente()
+calcularScore()
+setTimeout(graficoCategorias,200)
+}
+</script>
+
+<script>
+async function carregar(){
+const userId=localStorage.getItem("usuario_id_lancamentos")
+if(!userId)return
+
+const {data,error}=await db
+.from("lancamentos")
+.select("*")
+.eq("usuario_id",userId)
+.order("data",{ascending:true})
+
+if(error){
+console.error(error)
+return
+}
+
+dados=Array.isArray(data)?data:[]
+
+render()
+}
+</script>
+
+
+<input type="file" id="csvFile" style="display:none">
+<button onclick="document.getElementById('csvFile').click()">📥 Importar Extrato</button>
+<script>
+document.getElementById("csvFile").addEventListener("change",async e=>{
+const file=e.target.files[0]
+if(!file)return
+const txt=await file.text()
+const linhas=txt.split("\n").slice(1)
+for(const l of linhas){
+if(!l.trim())continue
+const c=l.split(",")
+await db.from("lancamentos").insert({
+data:c[0],
+descricao:c[1],
+valor:parseFloat(c[2]),
+tipo:parseFloat(c[2])>0?"RECEITA":"DESPESA",
+usuario_id:localStorage.getItem("usuario_id_lancamentos")
+})
+}
+carregar()
+})
+</script>
+
+
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5"></script>
+<input type="file" id="fotoNota">
+<script>
+document.getElementById("fotoNota").addEventListener("change",async e=>{
+const file=e.target.files[0]
+const {data:{text}}=await Tesseract.recognize(file,"por")
+let valor=text.match(/\d+,\d{2}/)
+if(valor){
+await db.from("lancamentos").insert({
+data:new Date().toISOString().slice(0,10),
+descricao:"OCR",
+valor:parseFloat(valor[0].replace(",", ".")),
+tipo:"DESPESA",
+usuario_id:localStorage.getItem("usuario_id_lancamentos")
+})
+carregar()
+}
+})
+</script>
+
+
+<script>
+function gerarPix(){
+const chave="69984311978"
+const img=document.createElement("img")
+img.src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data="+chave
+const box=document.createElement("div")
+box.className="card"
+box.innerHTML="<h3>PIX</h3>"
+box.appendChild(img)
+document.body.appendChild(box)
+}
+</script>
+
+
+<script>
+function sugerirCortes(){
+let map=resumoCategorias()
+let maior=Object.entries(map).sort((a,b)=>b[1]-a[1])[0]
+if(!maior)return
+addMsgIA("💡 Corte sugerido: reduza "+maior[0],"bot")
+}
+</script>
+
+
+<script>
+setInterval(async()=>{
+const userId=localStorage.getItem("usuario_id_lancamentos")
+const {data}=await db.from("lancamentos").select("*").eq("usuario_id",userId)
+if(data.length!==dados.length){
+dados=data
+render()
+atualizarTudo()
+}
+},5000)
+</script>
+
+
+<script>
+let LIMITE=2000
+function validarLimite(valor){
+let total=0
+dados.forEach(x=>{if(x.tipo==="DESPESA")total+=Number(x.valor)})
+if(total+valor>LIMITE){
+alert("⚠️ Limite de gastos atingido")
+return false
+}
+return true
+}
+</script>
+
+
+<script>
+async function salvarRegistroSeguro(obj){
+if(obj.tipo==="DESPESA"&&!validarLimite(obj.valor))return
+await db.from("lancamentos").insert(obj)
+carregar()
+}
+</script>
+
+
+<script>
+function backup(){
+localStorage.setItem("backup_financeiro",JSON.stringify(dados))
+}
+setInterval(backup,10000)
+</script>
+
+
+<script>
+function restaurar(){
+const b=localStorage.getItem("backup_financeiro")
+if(!b)return
+dados=JSON.parse(b)
+render()
+}
+</script>
+
+
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+<script>
+function exportarPDF(){
+const {jsPDF}=window.jspdf
+const doc=new jsPDF()
+doc.text("Relatório Financeiro",10,10)
+let y=20
+dados.forEach(x=>{
+doc.text(`${x.descricao} - ${moeda(x.valor)}`,10,y)
+y+=6
+})
+doc.save("relatorio.pdf")
+}
+</script>
+
+
+<script>
+function toggleDark(){
+document.body.classList.toggle("dark")
+}
+</script>
+<style>
+body.dark{background:#020617;color:#fff}
+body.dark .card{background:#111827;color:#fff}
+</style>
+
+
+<script>
+function trocarConta(id){
+localStorage.setItem("usuario_id_lancamentos",id)
+carregar()
+}
+</script>
+
+
+<script>
+function detectarFraude(){
+dados.forEach(x=>{
+if(x.valor>5000){
+console.warn("🚨 possível fraude:",x)
+}
+})
+}
+</script>
+
+<script>
+function ultra(){
+sugerirCortes()
+detectarFraude()
+}
+setTimeout(ultra,3000)
+</script>
+
+
+<script>
+function gerarToken(user){
+return btoa(JSON.stringify({id:user.id,ts:Date.now()}))
+}
+function salvarSessao(user){
+const token=gerarToken(user)
+localStorage.setItem("auth_token",token)
+localStorage.setItem("usuario_id_lancamentos",user.id)
+}
+function getSessao(){
+const t=localStorage.getItem("auth_token")
+if(!t)return null
+try{return JSON.parse(atob(t))}catch{return null}
+}
+</script>
+
+
+<script>
+async function loginSistema(){
+const email=safe("loginUser").value.trim()
+const senha=safe("loginPass").value.trim()
+const {data}=await db.from("usuarios_lancamentos").select("*").eq("email",email).eq("senha",senha).limit(1)
+if(!data||!data.length){alert("Login inválido");return}
+const user=data[0]
+salvarSessao(user)
+hide("telaLogin")
+show("painelMobile")
+document.body.classList.remove("login")
+await carregar()
+atualizarPainelMobile()
+}
+</script>
+
+
+<script>
+document.addEventListener("DOMContentLoaded",async()=>{
+const userId=localStorage.getItem("usuario_id_lancamentos")
+if(userId){
+hide("telaLogin")
+show("painelMobile")
+document.body.classList.remove("login")
+document.body.classList.add("app")
+await carregar()
+atualizarPainelMobile()
+}else{
+show("telaLogin")
+hide("painelMobile")
+}
+})
+</script>
+
+
+<script>
+function setEmpresa(id){
+localStorage.setItem("empresa_id",id)
+}
+function getEmpresa(){
+return localStorage.getItem("empresa_id")
+}
+</script>
+
+
+<script>
+async function carregar(){
+const userId=localStorage.getItem("usuario_id_lancamentos")
+const empresa=getEmpresa()
+let query=db.from("lancamentos").select("*").eq("usuario_id",userId)
+if(empresa)query=query.eq("empresa_id",empresa)
+const {data}=await query.order("data",{ascending:true})
+dados=Array.isArray(data)?data:[]
+render()
+atualizarTudo()
+}
+</script>
+
+
+<script>
+async function salvarRegistro(obj){
+obj.usuario_id=localStorage.getItem("usuario_id_lancamentos")
+obj.empresa_id=getEmpresa()
+await db.from("lancamentos").insert(obj)
+carregar()
+}
+</script>
+
+
+<script>
+function encrypt(text){
+return btoa(unescape(encodeURIComponent(text)))
+}
+function decrypt(text){
+return decodeURIComponent(escape(atob(text)))
+}
+</script>
+
+<script>
+function protegerDados(){
+dados=dados.map(x=>{
+return {...x,descricao:decrypt(x.descricao||"")}
+})
+}
+</script>
+
+
+<script>
+function logout(){
+localStorage.removeItem("auth_token")
+localStorage.removeItem("usuario_id_lancamentos")
+location.reload()
+}
+</script>
+
+
+<script>
+let lastAction=0
+function podeExecutar(){
+const agora=Date.now()
+if(agora-lastAction<1000)return false
+lastAction=agora
+return true
+}
+</script>
+
+
+<script>
+async function salvarSeguro(obj){
+if(!podeExecutar()){alert("Aguarde...");return}
+await salvarRegistro(obj)
+}
+</script>
+
+
+<script>
+async function logAcao(tipo){
+await db.from("logs").insert({
+usuario_id:localStorage.getItem("usuario_id_lancamentos"),
+acao:tipo,
+data:new Date().toISOString()
+})
+}
+</script>
+
+<script>
+async function salvarRegistro(obj){
+await db.from("lancamentos").insert(obj)
+await logAcao("INSERT")
+carregar()
+}
+</script>
+
+<style>
+.blur{filter:blur(6px)}
+</style>
+
+<script>
+function privacidade(){
+document.querySelectorAll(".valor").forEach(el=>el.classList.toggle("blur"))
+}
+</script>
+
+<script>
+setInterval(()=>{
+const s=getSessao()
+if(!s)return
+if(Date.now()-s.ts>3600000){
+alert("Sessão expirada")
+logout()
+}
+},60000)
+</script>
+
+<script>
+async function api(path,data){
+return fetch("https://gspdlrenyrzbkxlvyugc.functions.supabase.co/"+path,{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify(data)
+})
+}
+</script>
+
+<script>
+async function responderIA(){
+const pergunta=safe("perguntaIA").value
+addMsgIA(pergunta,"user")
+const res=await api("ia-chat",{pergunta})
+const json=await res.json()
+addMsgIA(json.resposta||"Erro","bot")
+}
+</script>
+
+
+<script>
+console.time("render")
+setTimeout(()=>console.timeEnd("render"),1000)
+</script>
+
+
+<script>
+if('caches'in window){
+caches.keys().then(keys=>keys.forEach(k=>caches.delete(k)))
+}
+</script>
+
+
 
 </body>
 </html>
+
+
+
+
+
