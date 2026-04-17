@@ -856,15 +856,40 @@ addMsgIA("💡 Corte sugerido: reduza "+maior[0],"bot")
 
 
 <script>
+if(!window._syncRodando){
+window._syncRodando=true
+
 setInterval(async()=>{
+try{
+
 const userId=localStorage.getItem("usuario_id_lancamentos")
-const {data}=await db.from("lancamentos").select("*").eq("usuario_id",userId)
-if(data.length!==dados.length){
+/* 🔥 VALIDA ID */
+if(!userId || userId.length<10)return
+
+const {data,error}=await db
+.from("lancamentos")
+.select("*")
+.eq("usuario_id",userId)
+/* 🔥 TRAVA ERRO 400 */
+if(error){
+console.warn("Supabase erro:",error.message)
+return
+}
+/* 🔥 EVITA NULL */
+if(!Array.isArray(data))return
+/* 🔥 ATUALIZA SOMENTE SE MUDOU */
+if(Array.isArray(data) && Array.isArray(data) && Array.isArray(data) && Array.isArray(data) && Array.isArray(data) && Array.isArray(data) && data.length!==dados.length){
 dados=data
 render()
 atualizarTudo()
 }
-},5000)
+
+}catch(e){
+console.warn("sync falhou",e)
+}
+},8000)
+
+}
 </script>
 
 
@@ -985,7 +1010,7 @@ async function loginSistema(){
 const email=safe("loginUser").value.trim()
 const senha=safe("loginPass").value.trim()
 const {data}=await db.from("usuarios_lancamentos").select("*").eq("email",email).eq("senha",senha).limit(1)
-if(!data||!data.length){alert("Login inválido");return}
+if(!data||!Array.isArray(data) && Array.isArray(data) && Array.isArray(data) && Array.isArray(data) && Array.isArray(data) && Array.isArray(data) && data.length){alert("Login inválido");return}
 const user=data[0]
 salvarSessao(user)
 hide("telaLogin")
