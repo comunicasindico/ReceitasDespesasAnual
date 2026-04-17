@@ -314,6 +314,7 @@ let ocultarSaldo=false
 let LIMITE_USUARIO=20
 let PLANO_USUARIO="FREE"
 let ADMIN_EDIT_ID=null
+let canalRealtime=null
 </script>
 <script>
 /* ====================================================003 – CATEGORIAS==================================================== */
@@ -347,6 +348,7 @@ document.body.classList.remove("login")
 document.body.classList.add("app")
 PLANO_USUARIO=(localStorage.getItem("usuario_plano")||"free").toLowerCase()
 setUserUI()
+iniciarRealtime()
 atualizarPainelMobile()
 const btnAdmin=document.getElementById("btnAdmin")
 if(user.tipo==="admin"){if(btnAdmin)btnAdmin.style.display="flex"}else{if(btnAdmin)btnAdmin.style.display="none"}
@@ -396,6 +398,7 @@ if(painelMobile)painelMobile.style.display="block"
 document.body.classList.remove("login")
 document.body.classList.add("app")
 setUserUI()
+iniciarRealtime()
 PLANO_USUARIO=(localStorage.getItem("usuario_plano")||"free").toLowerCase()
 atualizarPainelMobile()
 const btnAdmin=document.getElementById("btnAdmin")
@@ -540,43 +543,79 @@ function logout(){
 localStorage.clear()
 location.reload()
 }
-/* ====================================================007 – CARREGAR FINAL PROFISSIONAL==================================================== */
+/* ====================================================007 – CARREGAR FINAL PROFISSIONAL (BLINDADO)==================================================== */
 async function carregar(){
+
+/* 🔒 EVITA DUPLA EXECUÇÃO */
+if(window._loading)return
+window._loading=true
+
+try{
+
 const tipo=localStorage.getItem("tipo_usuario_lancamentos")
 const userId=localStorage.getItem("usuario_id_lancamentos")
-if(!userId){console.warn("Sem usuário");return}
 
-/* ====================================================007.1 – QUERY SEGURA==================================================== */
+if(!userId){
+console.warn("Sem usuário")
+window._loading=false
+return
+}
+
+/* ====================================================007.1 – QUERY==================================================== */
 let query=db.from("lancamentos").select("*").order("data",{ascending:true})
-if(tipo!=="admin")query=query.eq("usuario_id",userId)
+
+if(tipo!=="admin"){
+query=query.eq("usuario_id",userId)
+}
 
 const {data,error}=await query
 
 if(error){
 console.error("Erro ao carregar:",error)
 alert("Erro ao carregar dados")
+window._loading=false
 return
 }
 
 /* ====================================================007.2 – NORMALIZAÇÃO==================================================== */
-dados=Array.isArray(data)?data:[]
+const novosDados=Array.isArray(data)?data:[]
 
-/* ====================================================007.3 – SEM DADOS==================================================== */
-if(!dados.length){
-const lista=document.getElementById("lista")
-const resumo=document.getElementById("resumo")
-if(lista)lista.innerHTML=`<div class="card">Nenhum registro encontrado</div>`
-if(resumo)resumo.innerHTML=""
+/* 🔥 EVITA RELOAD DESNECESSÁRIO */
+const mudou=JSON.stringify(novosDados)!==JSON.stringify(dados)
+
+dados=novosDados
+
+/* ====================================================007.3 – TELA EXTRATO==================================================== */
+const telaExtrato=document.getElementById("telaExtrato")
+
+if(!telaExtrato){
+window._loading=false
 return
 }
 
-/* ====================================================007.4 – GARANTE TELA==================================================== */
-const telaExtrato=document.getElementById("telaExtrato")
-if(!telaExtrato)return
+/* ====================================================007.4 – SEM DADOS (SEM APAGAR TELA JÁ RENDERIZADA)==================================================== */
+if(!dados.length){
 
-/* ====================================================007.5 – RENDER SEGURO==================================================== */
+const lista=document.getElementById("lista")
+const resumo=document.getElementById("resumo")
+
+if(lista && !lista.dataset.loaded){
+lista.innerHTML=`<div class="card">Nenhum registro encontrado</div>`
+lista.dataset.loaded="1"
+}
+
+if(resumo)resumo.innerHTML=""
+
+window._loading=false
+return
+}
+
+/* ====================================================007.5 – RENDER CONTROLADO==================================================== */
+if(mudou){
+
 if(!window._renderLock){
 window._renderLock=true
+
 setTimeout(()=>{
 try{
 render()
@@ -584,8 +623,80 @@ render()
 console.error("Erro no render:",e)
 }
 window._renderLock=false
-},50)
+},80)
+
 }
+
+}
+
+}catch(e){
+console.error("Erro geral carregar:",e)
+}
+
+/* 🔓 LIBERA */
+window._loading=false
+}
+/* ====================================================007.6 – REALTIME SUPABASE==================================================== */
+function iniciarRealtime(){
+
+const userId=localStorage.getItem("usuario_id_lancamentos")
+const tipo=localStorage.getItem("tipo_usuario_lancamentos")
+
+if(!userId)return
+
+/* 🔥 REMOVE CANAL ANTIGO */
+if(canalRealtime){
+try{db.removeChannel(canalRealtime)}catch(e){}
+canalRealtime=null
+}
+
+/* 🔥 CRIA NOVO */
+canalRealtime=db.channel("lancamentos-sync")
+
+canalRealtime.on(
+"postgres_changes",
+{
+event:"*",
+schema:"public",
+table:"lancamentos"
+},
+(payload)=>{
+
+/* 🔥 FILTRO POR USUÁRIO */
+if(tipo!=="admin"){
+if(String(payload.new?.usuario_id)!==String(userId) &&
+String(payload.old?.usuario_id)!==String(userId)){
+return
+}
+}
+
+/* 🔥 ATUALIZAÇÃO INTELIGENTE */
+if(payload.eventType==="INSERT"){
+dados.push(payload.new)
+}
+
+if(payload.eventType==="UPDATE"){
+const i=dados.findIndex(x=>String(x.id)===String(payload.new.id))
+if(i!==-1)dados[i]=payload.new
+}
+
+if(payload.eventType==="DELETE"){
+dados=dados.filter(x=>String(x.id)!==String(payload.old.id))
+}
+
+/* 🔥 RENDER CONTROLADO */
+if(!window._renderLock){
+window._renderLock=true
+setTimeout(()=>{
+render()
+window._renderLock=false
+},80)
+}
+
+})
+
+canalRealtime.subscribe()
+
 }
 /* ====================================================008 – SALVAR==================================================== */
 async function salvarRegistro(obj){
@@ -763,65 +874,70 @@ filtroFim=`${ano}-${mes}-${String(ultimoDia).padStart(2,"0")}`
 modoAnoCompleto=false
 render()
 }
-/* ====================================================021 – RENDER FINAL COMPLETO PROFISSIONAL==================================================== */
+/* ====================================================022 – RENDER FINAL COMPLETO PROFISSIONAL (BLINDADO)==================================================== */
 function render(){
-/* 🔒 BLOQUEIO DUPLO RENDER */
+
 if(window._rendering)return
 window._rendering=true
+
+try{
+
 const telaExtrato=document.getElementById("telaExtrato")
-if(!telaExtrato)return
-/* 🔥 PATCH EXTRATO (INSERIR AQUI) */
-if(!document.getElementById("lista")){
-telaExtrato.innerHTML=`
-<div id="containerExtrato" style="padding:10px">
-<div class="card">
-<canvas id="graficoResumo" height="180"></canvas>
-<canvas id="graficoMensal" height="180" style="margin-top:10px"></canvas>
-</div>
-<div id="lista" style="margin-top:10px"></div>
-<div id="resumo"></div>
-</div>
-`
+if(!telaExtrato || !telaExtrato.classList.contains("telaAtiva")){
+window._rendering=false
+return
 }
-/* 🔥 CONTINUA NORMAL */
+
 if(visibilidadeTotal['GERAL']===undefined)visibilidadeTotal['GERAL']=true
+
 let lista=document.getElementById("lista")
 let resumoEl=document.getElementById("resumo")
-if(!lista||!resumoEl)return
-/* ====================================================021.1 – FILTRO==================================================== */
-let listaFiltrada=[...dados]
+
+if(!lista || !resumoEl){
+window._rendering=false
+return
+}
+
+/* ====================================================022.1 – FILTRO==================================================== */
+let listaFiltrada=Array.isArray(dados)?[...dados]:[]
+
 if(filtroInicio)listaFiltrada=listaFiltrada.filter(x=>x.data>=filtroInicio)
 if(filtroFim)listaFiltrada=listaFiltrada.filter(x=>x.data<=filtroFim)
-/* ====================================================021.2 – SEM DADOS==================================================== */
-/* 🔥 NÃO APAGA SE JÁ TEM DADO NA TELA */
+
+/* ====================================================022.2 – SEM DADOS==================================================== */
 if(!listaFiltrada.length){
-if(!lista.innerHTML){
+if(!lista.dataset.loaded){
 lista.innerHTML=`<div class="card">Nenhum registro encontrado</div>`
 resumoEl.innerHTML=""
+lista.dataset.loaded="1"
 }
 window._rendering=false
 return
 }
-/* ====================================================021.3 – AGRUPAMENTO==================================================== */
+
+/* ====================================================022.3 – AGRUPAMENTO==================================================== */
 const grupos={}
 listaFiltrada.forEach(x=>{
 if(!x.data)return
 const limpa=x.data.split("T")[0]
-const[ano,mes]=limpa.split("-")
-const chave=`${ano}-${mes}`
+const partes=limpa.split("-")
+if(partes.length<2)return
+const chave=partes[0]+"-"+partes[1]
 if(!grupos[chave])grupos[chave]=[]
 grupos[chave].push(x)
 })
-const chaves=Object.keys(grupos).sort().reverse()
-lista.innerHTML=""
 
+const chaves=Object.keys(grupos).sort().reverse()
+
+let htmlFinal=""
 let totalGeralR=0
 let totalGeralD=0
-/* ====================================================021.4 – LOOP MESES==================================================== */
-chaves.forEach(chave=>{
+
+/* ====================================================022.4 – LOOP MESES==================================================== */
+for(const chave of chaves){
+
 let listaMes=grupos[chave]
 
-/* 🔥 ORDENAÇÃO */
 listaMes.sort((a,b)=>{
 if(a.tipo==="RECEITA"&&b.tipo!=="RECEITA")return-1
 if(a.tipo!=="RECEITA"&&b.tipo==="RECEITA")return 1
@@ -831,11 +947,11 @@ return(a.data||"").localeCompare(b.data||"")
 let totalR=0
 let totalD=0
 
-listaMes.forEach(x=>{
+for(const x of listaMes){
 const v=Number(x.valor||0)
 if(x.tipo==="RECEITA")totalR+=v
 else totalD+=v
-})
+}
 
 totalGeralR+=totalR
 totalGeralD+=totalD
@@ -843,8 +959,7 @@ totalGeralD+=totalD
 const saldo=totalR-totalD
 const[ano,mes]=chave.split("-")
 
-/* ====================================================021.5 – HEADER MÊS==================================================== */
-lista.innerHTML+=`
+htmlFinal+=`
 <div class="card" style="margin-top:12px;display:flex;justify-content:space-between;align-items:center">
 <div style="display:flex;align-items:center;gap:8px">
 <button onclick="toggleMes('${chave}')" style="width:28px;height:28px;border-radius:6px">
@@ -860,13 +975,13 @@ ${mesesOcultos[chave]?"▶":"▼"}
 </div>
 `
 
-/* ====================================================021.6 – ITENS==================================================== */
 if(!mesesOcultos[chave]){
-listaMes.forEach(x=>{
+for(const x of listaMes){
+
 const isReceita=x.tipo==="RECEITA"
 const vis=visibilidade[x.id]
 
-lista.innerHTML+=`
+htmlFinal+=`
 <div style="display:flex;justify-content:space-between;align-items:center;padding:8px;margin-top:4px;background:${isReceita?"#ecfdf5":"#fee2e2"};border-radius:8px">
 
 <div style="flex:2">
@@ -894,13 +1009,21 @@ ${x.pago?"✔":"⏳"}
 
 </div>
 `
-})
 }
-})
-/* ====================================================021.7 – RESUMO==================================================== */
+}
+
+}
+
+/* ====================================================022.5 – APPLY DOM (ANTI FLICKER)==================================================== */
+if(lista.innerHTML!==htmlFinal){
+lista.innerHTML=htmlFinal
+lista.dataset.loaded="1"
+}
+
+/* ====================================================022.6 – RESUMO==================================================== */
 const saldoGeral=totalGeralR-totalGeralD
 
-resumoEl.innerHTML=`
+const resumoHTML=`
 <div class="card" style="margin-top:12px;display:flex;justify-content:space-between;font-weight:bold">
 <span>TOTAL</span>
 <span style="color:${saldoGeral>=0?"#16a34a":"#dc2626"}">
@@ -908,17 +1031,27 @@ R$ ${formatarMoeda(saldoGeral)}
 </span>
 </div>
 `
-/* ====================================================021.8 – DASHBOARD==================================================== */
+
+if(resumoEl.innerHTML!==resumoHTML){
+resumoEl.innerHTML=resumoHTML
+}
+
+/* ====================================================022.7 – DASHBOARD (ANTI LOOP)==================================================== */
 if(mostrarGrafico){
 if(!window._dashRunning){
 window._dashRunning=true
 setTimeout(()=>{
 atualizarDashboard()
 window._dashRunning=false
-},120)
+},180)
 }
 }
-/* 🔓 LIBERA RENDER */
+
+}catch(e){
+console.error("Erro no render:",e)
+}
+
+/* 🔓 LIBERA */
 window._rendering=false
 }
 /* =========================================================================== */
@@ -932,22 +1065,28 @@ if(confirm("Deseja excluir este registro?")){
 del(id)
 }
 }
-/* ====================================================022 – DASHBOARD FINAL PROFISSIONAL==================================================== */
+/* ====================================================022 – DASHBOARD FINAL PROFISSIONAL (BLINDADO)==================================================== */
 function atualizarDashboard(){
 
-/* ====================================================022.1 – LOCK==================================================== */
 if(window._chartLock)return
 window._chartLock=true
 
 try{
 
-/* ====================================================022.2 – VALIDAÇÃO==================================================== */
+/* ====================================================022.1 – VALIDAÇÃO==================================================== */
 if(typeof Chart==="undefined"){
 window._chartLock=false
 return
 }
 
-/* ====================================================022.3 – ELEMENTOS==================================================== */
+/* 🔥 SÓ RODA SE EXTRATO ATIVO */
+const telaExtrato=document.getElementById("telaExtrato")
+if(!telaExtrato || !telaExtrato.classList.contains("telaAtiva")){
+window._chartLock=false
+return
+}
+
+/* ====================================================022.2 – ELEMENTOS==================================================== */
 const elResumo=document.getElementById("graficoResumo")
 const elMensal=document.getElementById("graficoMensal")
 
@@ -956,44 +1095,41 @@ window._chartLock=false
 return
 }
 
+/* 🔥 EVITA RECRIAÇÃO CONSTANTE */
+if(!elResumo.offsetParent || !elMensal.offsetParent){
+window._chartLock=false
+return
+}
+
 const ctxResumo=elResumo.getContext("2d")
 const ctxMensal=elMensal.getContext("2d")
 
-/* ====================================================022.4 – DESTROY SEGURO==================================================== */
-if(graficoResumo){
-try{graficoResumo.destroy()}catch(e){}
-graficoResumo=null
-}
-if(graficoMensal){
-try{graficoMensal.destroy()}catch(e){}
-graficoMensal=null
-}
+/* ====================================================022.3 – FILTRO==================================================== */
+let listaFiltrada=Array.isArray(dados)?[...dados]:[]
 
-/* ====================================================022.5 – FILTRO==================================================== */
-let listaFiltrada=[...dados]
 if(filtroInicio)listaFiltrada=listaFiltrada.filter(x=>x.data>=filtroInicio)
 if(filtroFim)listaFiltrada=listaFiltrada.filter(x=>x.data<=filtroFim)
 
-/* ====================================================022.6 – SEM DADOS==================================================== */
 if(!listaFiltrada.length){
 window._chartLock=false
 return
 }
 
-/* ====================================================022.7 – CONSOLIDAÇÃO==================================================== */
+/* ====================================================022.4 – CONSOLIDAÇÃO==================================================== */
 let r=0
 let d=0
 let meses={}
 
-listaFiltrada.forEach(x=>{
-if(!x.data)return
+for(const x of listaFiltrada){
+
+if(!x.data)continue
 
 const limpa=x.data.split("T")[0]
 const partes=limpa.split("-")
-if(partes.length<2)return
+if(partes.length<2)continue
 
 const mesIndex=parseInt(partes[1])-1
-if(isNaN(mesIndex))return
+if(isNaN(mesIndex))continue
 
 if(!meses[mesIndex])meses[mesIndex]={r:0,d:0}
 
@@ -1006,9 +1142,20 @@ meses[mesIndex].r+=v
 d+=v
 meses[mesIndex].d+=v
 }
-})
 
-/* ====================================================022.8 – DOUGHNUT==================================================== */
+}
+
+/* ====================================================022.5 – DESTROY CONTROLADO==================================================== */
+if(graficoResumo){
+try{graficoResumo.destroy()}catch(e){}
+graficoResumo=null
+}
+if(graficoMensal){
+try{graficoMensal.destroy()}catch(e){}
+graficoMensal=null
+}
+
+/* ====================================================022.6 – DOUGHNUT==================================================== */
 graficoResumo=new Chart(ctxResumo,{
 type:"doughnut",
 data:{
@@ -1022,7 +1169,7 @@ borderWidth:0
 options:{
 responsive:true,
 maintainAspectRatio:false,
-cutout:"65%",
+cutout:"70%",
 plugins:{
 legend:{display:false},
 tooltip:{
@@ -1031,11 +1178,11 @@ label:(ctx)=>ctx.label+": R$ "+formatarMoeda(ctx.raw)
 }
 }
 },
-animation:{duration:600}
+animation:false /* 🔥 REMOVE ANIMAÇÃO = ZERO PISCADA */
 }
 })
 
-/* ====================================================022.9 – BARRAS MENSAIS==================================================== */
+/* ====================================================022.7 – BARRAS==================================================== */
 graficoMensal=new Chart(ctxMensal,{
 type:"bar",
 data:{
@@ -1065,7 +1212,7 @@ scales:{
 x:{ticks:{color:"#334155"}},
 y:{ticks:{color:"#334155"}}
 },
-animation:{duration:700}
+animation:false /* 🔥 REMOVE ANIMAÇÃO */
 }
 })
 
@@ -1073,8 +1220,8 @@ animation:{duration:700}
 console.error("Erro no dashboard:",e)
 }
 
-/* ====================================================022.10 – LIBERA==================================================== */
-window._chartLock=false
+/* ====================================================022.8 – LIBERA==================================================== */
+setTimeout(()=>{window._chartLock=false},100)
 }
 /* ====================================================023 – COPIAR MÊS==================================================== */
 async function copiarMesAnterior(){
