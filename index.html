@@ -545,7 +545,6 @@ location.reload()
 }
 /* ====================================================007 – CARREGAR FINAL PROFISSIONAL (BLINDADO)==================================================== */
 async function carregar(){
-
 /* 🔒 EVITA DUPLA EXECUÇÃO */
 if(window._loading)return
 window._loading=true
@@ -560,7 +559,6 @@ console.warn("Sem usuário")
 window._loading=false
 return
 }
-
 /* ====================================================007.1 – QUERY==================================================== */
 let query=db.from("lancamentos").select("*").order("data",{ascending:true})
 
@@ -576,15 +574,12 @@ alert("Erro ao carregar dados")
 window._loading=false
 return
 }
-
 /* ====================================================007.2 – NORMALIZAÇÃO==================================================== */
 const novosDados=Array.isArray(data)?data:[]
 
 /* 🔥 EVITA RELOAD DESNECESSÁRIO */
-const mudou=JSON.stringify(novosDados)!==JSON.stringify(dados)
-
+const mudou=true
 dados=novosDados
-
 /* ====================================================007.3 – TELA EXTRATO==================================================== */
 const telaExtrato=document.getElementById("telaExtrato")
 
@@ -592,7 +587,6 @@ if(!telaExtrato){
 window._loading=false
 return
 }
-
 /* ====================================================007.4 – SEM DADOS (SEM APAGAR TELA JÁ RENDERIZADA)==================================================== */
 if(!dados.length){
 
@@ -609,7 +603,6 @@ if(resumo)resumo.innerHTML=""
 window._loading=false
 return
 }
-
 /* ====================================================007.5 – RENDER CONTROLADO==================================================== */
 if(mudou){
 
@@ -1797,25 +1790,32 @@ alert("Pagamento enviado! Aguarde liberação do Banco Admin.")
 setUserUI()
 }
 /* ===============043 RESPONDER IA================================================== */
-function responderIA(){
-const pergunta=document.getElementById("perguntaIA").value.toLowerCase()
-let r=0,d=0
-dados.forEach(x=>{
-if(x.tipo==="RECEITA") r+=Number(x.valor||0)
-else d+=Number(x.valor||0)
-})
-const saldo=r-d
-let resposta=""
-if(pergunta.includes("saldo")){
-resposta="Seu saldo é R$ "+formatarMoeda(saldo)
+async function responderIA(){
+
+const input=document.getElementById("perguntaIA")
+const btn=document.getElementById("btnIA")
+
+const pergunta=input.value.trim()
+if(!pergunta)return
+
+addMsgIA(pergunta,"user")
+input.value=""
+
+btn.innerText="..."
+btn.disabled=true
+
+try{
+
+/* 🔥 TEMPORÁRIO: IA DESATIVADA (REMOVE CORS) */
+await typingIA("🤖 IA temporariamente indisponível")
+
+}catch(e){
+console.error(e)
+await typingIA("Erro ao conectar IA")
 }
-else if(pergunta.includes("gasto")){
-resposta="Você gastou R$ "+formatarMoeda(d)
-}
-else{
-resposta="Não entendi, tente: saldo ou gasto"
-}
-document.getElementById("respostaIA").innerText=resposta
+
+btn.innerText="➤"
+btn.disabled=false
 }
 /* =============044 APROVAR OU RECUSAR PAGAMENTO=================================================== */
 async function aprovarPagamento(id){
@@ -2195,9 +2195,9 @@ console.log("Promise erro:",e.reason)
 
 <button onclick="voltarInicio()" style="
 position:fixed;
-bottom:85px;
+bottom:80px;
 right:15px;
-z-index:999999;
+z-index:1000;
 background:#22c55e;
 color:#000;
 border:none;
