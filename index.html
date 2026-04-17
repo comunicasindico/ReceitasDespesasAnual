@@ -36,7 +36,7 @@ canvas{background:#fff;border-radius:12px}
 @keyframes fadeIn{to{opacity:1;transform:translateY(0)}}
 .telaApp{padding:0;margin:0}
 .card{margin:4px 0}
-
+button{min-height:36px}
 
   
 </style>
@@ -63,27 +63,36 @@ position:fixed;
 top:0;
 left:0;
 width:100%;
-height:100%;
+height:100vh;
 display:flex;
 align-items:center;
 justify-content:center;
 background:#f1f5f9;
+z-index:9999;
 ">
-<div id="loginCard" style="
-width:280px;
-background:#ffffff;
+
+<div style="
+width:260px;
+background:#fff;
 padding:20px;
-border-radius:16px;
-box-shadow:0 10px 30px rgba(0,0,0,0.15);
+border-radius:14px;
+box-shadow:0 10px 25px rgba(0,0,0,.15);
 display:flex;
 flex-direction:column;
 gap:10px;
 ">
-<h2 style="text-align:center">Acesso</h2>
+
+<h3 style="text-align:center;margin:0">Acesso</h3>
+
 <input id="loginUser" placeholder="Usuário">
 <input id="loginPass" type="password" placeholder="Senha">
+
 <button onclick="loginSistema()">Entrar</button>
-<button onclick="abrirCadastro()" style="background:#ef4444;color:#fff">Criar Conta</button>
+
+<button onclick="abrirCadastro()" style="background:#ef4444;color:#fff">
+Criar Conta
+</button>
+
 </div>
 </div>
 
@@ -403,10 +412,14 @@ html+=`
 ${ocultarSaldo?"R$ ***":formatarMoeda(saldo)}
 </b>
 
-<button onclick="event.stopPropagation();toggleSaldo()" style="background:none">
+<button onclick="event.stopPropagation();toggleSaldo()" style="
+background:#e2e8f0;
+border-radius:8px;
+padding:6px 10px;
+font-size:14px;
+">
 👁
 </button>
-
 </div>
 </div>
 `
@@ -517,6 +530,10 @@ container.prepend(areaGrafico)
 areaGrafico.innerHTML=""
 
 const canvas=document.createElement("canvas")
+canvas.width=140
+canvas.height=140
+canvas.style.display="block"
+canvas.style.margin="0 auto"
 
 canvas.style.width="140px"
 canvas.style.height="140px"
@@ -550,10 +567,14 @@ backgroundColor:["#22c55e","#ef4444"]
 }]
 },
 options:{
-responsive:false,
-maintainAspectRatio:false,
+responsive:true,
+maintainAspectRatio:true,
 plugins:{legend:{position:"bottom"}},
 cutout:"70%"
+}
+plugins:{
+legend:{position:"bottom"},
+tooltip:{enabled:true}
 }
 })
 
@@ -615,28 +636,24 @@ e.target.value=v
 <script>
 function toggleSaldo(){
 ocultarSaldo=!ocultarSaldo
+render()
 atualizarPainelMobile()
 }
-function atualizarPainelMobile(){
 
+function atualizarPainelMobile(){
 let r=0,d=0
 dados.forEach(x=>{
 if(x.tipo==="RECEITA")r+=Number(x.valor||0)
 else d+=Number(x.valor||0)
 })
-
 const saldo=r-d
-
 safe("mobileSaldo").innerText=
 ocultarSaldo?"R$ ***":
 "R$ "+saldo.toLocaleString("pt-BR",{minimumFractionDigits:2})
-
 safe("mobileNome").innerText=
 localStorage.getItem("usuario_nome_lancamentos")||""
-
 safe("mobileAgencia").innerText=
 localStorage.getItem("agencia")||"01968"
-
 safe("mobileConta").innerText=
 localStorage.getItem("conta")||"000000000"
 }
@@ -645,26 +662,20 @@ localStorage.getItem("conta")||"000000000"
 
 <script>
 function abrirTela(nome,el){
-
 document.querySelectorAll(".telaApp").forEach(t=>t.classList.remove("telaAtiva"))
 document.querySelectorAll(".navItem").forEach(n=>n.classList.remove("navAtivo"))
-
 const tela=safe("tela"+nome.charAt(0).toUpperCase()+nome.slice(1))
-
 if(tela) tela.classList.add("telaAtiva")
 if(el) el.classList.add("navAtivo")
-
 if(nome==="extrato"){
 setTimeout(()=>{
 render()
 atualizarDashboard()
 },100)
 }
-
 if(nome==="perfil"){
 setTimeout(()=>carregarPerfil(),100)
 }
-
 }
 </script>
 
