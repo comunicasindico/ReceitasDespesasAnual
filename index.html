@@ -33,6 +33,9 @@ canvas{background:#fff;border-radius:12px}
 @media(max-width:768px){body{padding:10px}.card{padding:10px}}
 #painelMobile{max-width:100%;overflow-x:hidden}
 #containerExtrato{width:100%;max-width:100%}
+@keyframes fadeIn{
+to{opacity:1;transform:translateY(0)}
+}
 
 </style>
 
@@ -223,7 +226,9 @@ mostrarUpgrade()
 /* 🔥 RENDER */
 render()
 }
+</script>  
 
+<script>
 function podeAdicionar(){
 const plano="free"
 if(plano==="free" && dados.length>=20){
@@ -232,7 +237,9 @@ return false
 }
 return true
 }
-  
+</script>  
+
+<script>
 function render(){
 const tela=safe("telaExtrato")
 if(!tela||!tela.classList.contains("telaAtiva"))return
@@ -244,33 +251,157 @@ lista.innerHTML="<div class='card'>Sem registros</div>"
 resumo.innerHTML=""
 return
 }
-let html=""
-let r=0,d=0
+
+/* 🔥 AGRUPAMENTO */
+const grupos={}
 dados.forEach(x=>{
-const valor=Number(x.valor||0)
-const data=formatarData(x.data)
-const isReceita=x.tipo==="RECEITA"
-if(isReceita)r+=valor
-else d+=valor
+if(!x.data)return
+const limpa=x.data.split("T")[0]
+const[a,m]=limpa.split("-")
+const chave=`${a}-${m}`
+if(!grupos[chave])grupos[chave]=[]
+grupos[chave].push(x)
+})
+
+const chaves=Object.keys(grupos).sort().reverse()
+
+let html=""
+let totalR=0,totalD=0
+let saldoAcumulado=0
+
+chaves.forEach(chave=>{
+const listaMes=grupos[chave]
+
+let r=0,d=0
+
+listaMes.forEach(x=>{
+const v=Number(x.valor||0)
+if(x.tipo==="RECEITA")r+=v
+else d+=v
+})
+
+totalR+=r
+totalD+=d
+
+saldoAcumulado+=r-d
+
+const[ano,mes]=chave.split("-")
+
+/* 🔥 HEADER PREMIUM */
 html+=`
-<div class="card" style="display:flex;justify-content:space-between;align-items:center">
-<div>${data} • ${x.descricao}</div>
-<div style="display:flex;align-items:center;gap:6px">
-<div style="color:${isReceita?"#16a34a":"#dc2626"}">
-${isReceita?(visibilidade[x.id]?"R$ "+valor.toFixed(2):"R$ ***"):"R$ "+valor.toFixed(2)}
+<div onclick="toggleMes('${chave}')" style="
+margin-top:10px;
+padding:10px;
+border-radius:12px;
+background:#e2e8f0;
+cursor:pointer;
+display:flex;
+justify-content:space-between;
+align-items:center;
+transition:.2s
+">
+<div>
+<b>${mes}/${ano}</b><br>
+<small style="color:#64748b">Saldo acumulado: R$ ${moeda(saldoAcumulado)}</small>
 </div>
-${isReceita?`<button onclick="toggleValor('${x.id}')">👁</button>`:""}
+
+<div style="text-align:right">
+<div style="color:#16a34a">+ ${moeda(r)}</div>
+<div style="color:#dc2626">- ${moeda(d)}</div>
 </div>
 </div>
 `
+
+/* 🔥 MINI GRÁFICO */
+if(!mesesOcultos[chave]){
+html+=`<div style="max-width:280px;margin:8px auto"><canvas id="mini_${chave}"></canvas></div>`
+}
+
+/* 🔥 ITENS */
+if(!mesesOcultos[chave]){
+listaMes.forEach(x=>{
+const data=formatarData(x.data)
+const valor=Number(x.valor||0)
+const isReceita=x.tipo==="RECEITA"
+
+html+=`
+<div style="
+display:grid;
+grid-template-columns:80px 1fr 110px 110px;
+gap:6px;
+padding:6px;
+font-size:12px;
+align-items:center;
+border-bottom:1px solid #e2e8f0;
+opacity:0;
+transform:translateY(10px);
+animation:fadeIn .3s forwards
+">
+
+<div>${data}</div>
+
+<div style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
+${x.descricao}
+</div>
+
+<div style="text-align:right;color:#16a34a">
+${isReceita?(visibilidade[x.id]?"R$ "+moeda(valor):"R$ ***"):""}
+${isReceita?`<button onclick="toggleValor('${x.id}')">👁</button>`:""}
+</div>
+
+<div style="text-align:right;color:#dc2626">
+${!isReceita?"R$ "+moeda(valor):""}
+</div>
+
+</div>
+`
 })
+}
+
+})
+
 lista.innerHTML=html
-const saldo=r-d
+
+/* 🔥 RENDER MINI GRÁFICOS */
+setTimeout(()=>{
+chaves.forEach(chave=>{
+if(mesesOcultos[chave])return
+const listaMes=grupos[chave]
+let r=0,d=0
+listaMes.forEach(x=>{
+if(x.tipo==="RECEITA")r+=Number(x.valor||0)
+else d+=Number(x.valor||0)
+})
+const el=document.getElementById("mini_"+chave)
+if(!el)return
+new Chart(el,{
+type:"doughnut",
+data:{
+labels:["R","D"],
+datasets:[{data:[r,d],backgroundColor:["#22c55e","#ef4444"]}]
+},
+options:{
+cutout:"70%",
+plugins:{legend:{display:false}},
+responsive:true
+}
+})
+})
+},200)
+
+/* 🔥 RESUMO FINAL */
+const saldo=totalR-totalD
+
 resumo.innerHTML=`
-<div class="card" style="display:flex;justify-content:space-between;font-weight:bold">
+<div class="card" style="
+display:flex;
+justify-content:space-between;
+font-weight:bold;
+font-size:16px
+">
 <span>Total</span>
 <span style="color:${saldo>=0?"#16a34a":"#dc2626"}">
-R$ ${saldo.toFixed(2)}
+R$ ${moeda(saldo)}
 </span>
 </div>
 `
@@ -286,6 +417,10 @@ return`${dd}/${m}/${a}`
 }
 function toggleValor(id){
 visibilidade[id]=!visibilidade[id]
+render()
+}
+function toggleMes(mes){
+mesesOcultos[mes]=!mesesOcultos[mes]
 render()
 }
 </script>
@@ -406,7 +541,7 @@ if(btn){btn.disabled=false;btn.innerText="Entrar no Financeiro"}
 
 <script>
 function moeda(v){
-return Number(v||0).toLocaleString("pt-BR",{style:"currency",currency:"BRL"})
+return Number(v||0).toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2})
 }
 </script>
 
