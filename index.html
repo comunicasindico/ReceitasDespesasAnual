@@ -491,20 +491,63 @@ function logout(){
 localStorage.clear()
 location.reload()
 }
-/* ====================================================007 – CARREGAR==================================================== */
+/* ====================================================007 – CARREGAR (CORRIGIDO PROFISSIONAL)==================================================== */
 async function carregar(){
-const {data,error}=await db.from("lancamentos").select("*").order("data",{ascending:true})
-if(error){alert("Erro ao carregar");return}
 
-dados=data||[]
-
+/* 🔒 CONTEXTO */
 const tipo=localStorage.getItem("tipo_usuario_lancamentos")
 const userId=localStorage.getItem("usuario_id_lancamentos")
 
-if(tipo!=="admin"){
-dados=dados.filter(x=>String(x.usuario_id)===String(userId))
+/* 🚨 BLOQUEIO TOTAL SEM LOGIN */
+if(!userId){
+console.warn("⚠️ Usuário não autenticado")
+return
 }
 
+/* ==================================================== BUSCA NO BANCO (CORRETA) ==================================================== */
+let query=db.from("lancamentos").select("*").order("data",{ascending:true})
+
+/* 🔥 FILTRO NO BANCO (NÃO NO FRONT) */
+if(tipo!=="admin"){
+query=query.eq("usuario_id",userId)
+}
+
+const {data,error}=await query
+
+if(error){
+console.error("Erro ao carregar:",error)
+alert("Erro ao carregar dados")
+return
+}
+
+/* 🔥 GARANTE ARRAY */
+dados=Array.isArray(data)?data:[]
+
+/* ==================================================== USUÁRIO SEM DADOS ==================================================== */
+if(dados.length===0){
+
+const lista=document.getElementById("lista")
+const resumo=document.getElementById("resumo")
+if(lista){
+lista.innerHTML=`
+<div style="
+margin-top:20px;
+background:#020617;
+padding:20px;
+border-radius:12px;
+text-align:center;
+opacity:.8
+">
+<div style="font-size:18px;margin-bottom:10px">📊 Nenhum registro encontrado</div>
+<div style="font-size:13px">Adicione sua primeira receita ou despesa</div>
+</div>
+`
+}
+if(resumo)resumo.innerHTML=""
+/* 🔥 NÃO CHAMA RENDER */
+return
+}
+/* ==================================================== RENDER SEGURO ==================================================== */
 if(!window._renderLock){
 window._renderLock=true
 requestAnimationFrame(()=>{
