@@ -158,7 +158,7 @@ Agência: <span id="mobileAgencia"></span> • Conta: <span id="mobileConta"></s
 </div>
 
 <div style="padding:15px">
-<button onclick="abrirFinanceiro()" style="width:100%;padding:15px;background:#22c55e;color:#000;border-radius:12px;font-weight:bold">
+<button onclick="abrirFinanceiro(this)" style="width:100%;padding:15px;background:#22c55e;color:#000;border-radius:12px;font-weight:bold">
 Entrar no Financeiro
 </button>
 </div>
@@ -183,7 +183,7 @@ Entrar no Financeiro
 <b>Extrato</b>
 </div>
 <div style="padding:15px">
-<button onclick="abrirFinanceiro()" style="width:100%;padding:12px;background:#22c55e;border-radius:10px">
+<button onclick="abrirFinanceiro(this)" style="width:100%;padding:12px;background:#22c55e;border-radius:10px">
 Abrir completo
 </button>
 </div>
@@ -437,18 +437,38 @@ else if(saldo>0){scoreBox.innerText="🟡 Atenção";scoreBox.style.background="
 else{scoreBox.innerText="🔴 Risco";scoreBox.style.background="#7f1d1d"}
 }
 }
-function abrirFinanceiro(){
-document.getElementById("painelMobile").style.display="none"
-document.getElementById("appSistema").style.display="block"
+/* ====================================================120 – ABRIR FINANCEIRO (MULTI BOTÃO CORRETO)==================================================== */
+function abrirFinanceiro(btn){
+if(btn){
+if(btn.disabled)return
+btn.disabled=true
+btn.style.opacity="0.6"
+const txt=btn.innerText
+btn.innerText="Carregando..."
+setTimeout(()=>{
+btn.disabled=false
+btn.style.opacity="1"
+btn.innerText=txt
+},800)
+}
+const painel=document.getElementById("painelMobile")
+const app=document.getElementById("appSistema")
+if(painel) painel.style.display="none"
+if(app) app.style.display="block"
+if(!app){
+console.warn("appSistema não encontrado")
+return
+}
 window.scrollTo(0,0)
 }
+/* ============================= */
 function abrirMobile(){
 const painel=document.getElementById("painelMobile")
 if(painel) painel.style.display="block"
-
 const app=document.getElementById("appSistema")
 if(app) app.style.display="none"
 }
+/* ============================= */
 function toggleSaldo(){
 ocultarSaldo=!ocultarSaldo
 const btn=document.getElementById("btnToggleSaldo")
@@ -508,29 +528,23 @@ await carregar()
 async function marcarPago(id){
 const item=dados.find(x=>String(x.id)===String(id))
 if(!item)return
-
 if(item.pago&&!modoEdicao){
 alert("Item já está pago. Para alterar, ative o modo edição.")
 return
 }
-
 const novoStatus=!item.pago
 const dataLocal=hojeLocal()
-
 await db.from("lancamentos").update({
 pago:novoStatus,
 data_pagamento:novoStatus?dataLocal:null
 }).eq("id",id)
-
 await carregar()
 }
 /* ====================================================011 – EDITAR==================================================== */
 function editarPorId(id){
 const x=dados.find(d=>String(d.id)===String(id))
 if(!x)return
-
 editando=x.id
-
 document.getElementById("data").value=(x.data||"").split("T")[0]
 document.getElementById("desc").value=x.descricao||""
 document.getElementById("tipo").value=x.tipo||"DESPESA"
@@ -559,12 +573,10 @@ const dataStr=dataEl.value.split("T")[0]
 let valorBr=valorEl.value||"0"
 valorBr=valorBr.replace(/\s/g,"").replace(",",".")
 const valorNum=Number(valorBr)
-
 if(isNaN(valorNum)){
 alert("Valor inválido")
 return
 }
-
 const obj={
 data:dataStr,
 descricao:descEl.value.trim(),
@@ -587,7 +599,6 @@ alert("Valor deve ser maior que zero")
 return
 }
 await salvarRegistro(obj)
-
 document.getElementById("desc").value=""
 document.getElementById("valor").value=""
 document.getElementById("recorrente").checked=false
@@ -603,6 +614,7 @@ return `${ano}-${mes}-${dia}`
 function formatarMoeda(v){
 return Number(v||0).toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2})
 }
+/* ============================= */
 function formatarDataBR(d){
 if(!d)return""
 /* 🔥 REMOVE QUALQUER COISA APÓS T (timezone) */
@@ -625,64 +637,47 @@ return Number(mes)-1
 /* ====================================================017 – MODO EDIÇÃO==================================================== */
 function toggleModoEdicao(){
 modoEdicao=!modoEdicao
-
 const btnSalvar=document.getElementById("btnSalvar")
 const btnEditar=document.getElementById("btnEditar")
-
 if(btnSalvar)btnSalvar.style.display=modoEdicao?"inline-block":"none"
 if(btnEditar)btnEditar.innerText=modoEdicao?"❌ Cancelar":"✏️ Editar"
-
 if(!modoEdicao)edicoesTemp={}
-
 render()
 }
-
 /* ====================================================018 – EDIT TEMP==================================================== */
 function editTemp(id,campo,valor){
 if(!edicoesTemp[id])edicoesTemp[id]={}
 edicoesTemp[id][campo]=valor
 }
-
 /* ====================================================019 – SALVAR EDIÇÃO==================================================== */
 async function salvarEdicao(id){
 const original=dados.find(x=>String(x.id)===String(id))
 if(!original)return
-
 const alteracoes=edicoesTemp[id]||{}
-
 const atualizado={
 ...original,
 ...alteracoes,
 valor:parseFloat(alteracoes.valor??original.valor)
 }
-
 await db.from("lancamentos").update(atualizado).eq("id",id)
-
 delete edicoesTemp[id]
-
 await carregar()
 }
-
 /* ==========020 – TOGGLE ITEM==================================================== */
 function toggleValor(id){
 visibilidade[id]=!visibilidade[id]
 render()
 }
-
 /* ====================================================021 – APLICAR OFFSET==================================================== */
 function aplicarMesOffset(){
 const hoje=new Date()
 const data=new Date(hoje.getFullYear(),hoje.getMonth()+mesOffset,1)
-
 const ano=data.getFullYear()
 const mes=String(data.getMonth()+1).padStart(2,"0")
 const ultimoDia=new Date(data.getFullYear(),data.getMonth()+1,0).getDate()
-
 filtroInicio=`${ano}-${mes}-01`
 filtroFim=`${ano}-${mes}-${String(ultimoDia).padStart(2,"0")}`
-
 modoAnoCompleto=false
-
 render()
 }
 /* ====================================================021 – RENDER CONTÁBIL CORRIGIDO==================================================== */
