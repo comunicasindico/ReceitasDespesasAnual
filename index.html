@@ -88,6 +88,8 @@ html,body{width:100%;height:100%;overflow-x:hidden}
 const SUPABASE_URL="https://gspdlrenyrzbkxlvyugc.supabase.co"
 const SUPABASE_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdzcGRscmVueXJ6Ymt4bHZ5dWdjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ4ODU0NzAsImV4cCI6MjA5MDQ2MTQ3MH0.UWfkWvOh4qMDEcByVL-KZ6ejJ80V7wJlDOFH76TywaI"
 window.db=supabase.createClient(SUPABASE_URL,SUPABASE_KEY)
+/* ====================================================002 – OPENAI==================================================== */
+const OPENAI_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdzcGRscmVueXJ6Ymt4bHZ5dWdjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ4ODU0NzAsImV4cCI6MjA5MDQ2MTQ3MH0.UWfkWvOh4qMDEcByVL-KZ6ejJ80V7wJlDOFH76TywaI"
 /* ====================================================000 – SAFE DOM==================================================== */
 function safe(id){return document.getElementById(id)}
 function show(id){const el=safe(id);if(el)el.style.display="block"}
@@ -227,13 +229,12 @@ Entrar no Financeiro
 <b>🤖 Comunica IA</b>
 </div>
 
-<div style="display:flex;flex-direction:column;height:calc(100vh - 120px);padding:10px">
-
+<div style="display:flex;flex-direction:column;height:100vh;padding:10px;padding-bottom:80px">
 <!-- CHAT -->
-<div id="chatIA" style="flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:8px;padding-bottom:10px"></div>
-
+<div id="chatIA" style="flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:8px;padding-bottom:120px">
 <!-- INPUT -->
-<div style="display:flex;gap:8px">
+<div style="position:fixed;bottom:70px;left:0;width:100%;padding:10px;background:#020617;display:flex;gap:8px">
+
 <textarea id="perguntaIA" rows="2" placeholder="Pergunte algo..."
 style="flex:1;padding:10px;border-radius:10px;border:none;background:#111827;color:#fff;resize:none;outline:none"></textarea>
 
@@ -241,6 +242,7 @@ style="flex:1;padding:10px;border-radius:10px;border:none;background:#111827;col
 style="background:#22c55e;color:#000;padding:10px 14px;border-radius:10px;font-weight:bold">
 ➤
 </button>
+
 </div>
 
 </div>
@@ -1932,7 +1934,7 @@ resolve()
 },15)
 })
 }
-/* ====================================================202 – IA CORE==================================================== */
+/* ====================================================202 – IA REAL GPT==================================================== */
 async function responderIA(){
 const input=document.getElementById("perguntaIA")
 const btn=document.getElementById("btnIA")
@@ -1945,20 +1947,37 @@ input.value=""
 
 btn.innerText="..."
 btn.disabled=true
-// 🔥 RESPOSTA MOCK INTELIGENTE (pode trocar por API depois)
-let resposta=""
 
-if(pergunta.toLowerCase().includes("saldo")){
-resposta="Seu saldo atual está disponível na tela inicial."
+try{
+
+const res=await fetch("https://api.openai.com/v1/chat/completions",{
+method:"POST",
+headers:{
+"Content-Type":"application/json",
+"Authorization":"Bearer "+OPENAI_KEY
+},
+body:JSON.stringify({
+model:"gpt-4o-mini",
+messages:[
+{role:"system",content:"Você é um assistente financeiro inteligente do app ReceitasDespesasAnual. Seja direto, claro e útil."},
+{role:"user",content:pergunta}
+]
+})
+})
+
+const json=await res.json()
+
+let resposta="Erro ao responder"
+
+if(json.choices && json.choices.length){
+resposta=json.choices[0].message.content
 }
-else if(pergunta.toLowerCase().includes("gastei")){
-resposta="Analise suas despesas recentes no extrato para entender melhor seus gastos."
-}
-else{
-resposta="Entendi sua pergunta. Em breve teremos IA mais avançada integrada aqui 🚀"
-}
-// efeito digitando
+
 await typingIA(resposta)
+
+}catch(e){
+await typingIA("Erro ao conectar com IA 😕")
+}
 
 btn.innerText="➤"
 btn.disabled=false
