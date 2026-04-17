@@ -1771,8 +1771,7 @@ if(!userId)return
 const obj={
 nome:document.getElementById("perfilNome").value,
 email:document.getElementById("perfilEmail").value,
-celular:document.getElementById("perfilCelular").value,
-plano:document.getElementById("perfilPlano").value
+celular:document.getElementById("perfilCelular").value
 }
 
 const {error}=await db
@@ -1787,13 +1786,44 @@ carregarPerfil()
 }
 /* ================099 EDITAR USUÁRIO ADMIN================================================== */
 async function editarUsuarioAdmin(id){
-const {data}=await db.from("usuarios_lancamentos").select("*").eq("id",id).single()
-document.getElementById("perfilNome").value=data.nome
-document.getElementById("perfilEmail").value=data.email
-document.getElementById("perfilCelular").value=data.celular
-document.getElementById("perfilPlano").value=data.plano
+const {data}=await db.from("usuarios_lancamentos").select("*").eq("id",id).limit(1)
+if(!data||!data.length){alert("Usuário não encontrado");return}
+const u=data[0]
+
 abrirTela("perfil")
-}  
+
+setTimeout(()=>{
+const nome=document.getElementById("perfilNome")
+const email=document.getElementById("perfilEmail")
+const celular=document.getElementById("perfilCelular")
+const agencia=document.getElementById("boxAgencia")
+const conta=document.getElementById("boxConta")
+const plano=document.getElementById("badgePlano")
+
+if(nome)nome.value=u.nome||""
+if(email)email.value=u.email||""
+if(celular)celular.value=u.celular||""
+if(agencia)agencia.innerText=u.agencia||"-"
+if(conta)conta.innerText=u.conta||"-"
+
+if(plano){
+if(u.plano==="pro"){
+plano.innerText="🟢 PRO"
+plano.style.background="#052e16"
+plano.style.color="#4ade80"
+}else if(u.plano==="analise"){
+plano.innerText="🟡 EM ANÁLISE"
+plano.style.background="#78350f"
+plano.style.color="#facc15"
+}else{
+plano.innerText="⚪ FREE"
+plano.style.background="#111827"
+plano.style.color="#94a3b8"
+}
+}
+
+},200)
+}
 /* ================100 ABRIR PERFIL================================================= */
 function abrirPerfil(){
 document.getElementById("painelMobile").style.display="none"
