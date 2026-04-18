@@ -439,6 +439,14 @@ render()
 }
 /* ====================================================033 – RENDER PROFISSIONAL==================================================== */
 function render(){
+const hoje=new Date()
+const expira=new Date(usuario.plano_expira_em)
+
+if(usuario.plano!=="pro"||expira<hoje){
+alert("🔒 Seu plano expirou")
+return
+}
+
 try{
 
 const tela=safe("telaExtrato")
