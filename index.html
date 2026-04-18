@@ -447,10 +447,8 @@ safe("txtEdicao").innerText=modoEdicao?"✔️ Salvar":"✏️ Editar"
 render()
 }
 /* ====================================================================================================== */
-let usuario = {
-plano: localStorage.getItem("usuario_plano") || "free",
-plano_expira_em: localStorage.getItem("plano_expira_em") || null
-}
+usuario.plano = localStorage.getItem("usuario_plano") || usuario.plano || "free"
+usuario.plano_expira_em = localStorage.getItem("plano_expira_em") || usuario.plano_expira_em || null
 /* ====================================================033 – RENDER PROFISSIONAL==================================================== */
 function render(){
 const hoje=new Date()
@@ -911,8 +909,15 @@ return
 }
 window.dados=data||[]
 render()
+
+if(!window._initUI){
+window._initUI=true
 atualizarTudo()
 }
+}
+
+
+
 /* 🔹 LOGOUT */
 function logout(){
 localStorage.clear()
