@@ -812,6 +812,74 @@ alert("Erro ao iniciar pagamento")
 }
 
 }
+/* ====================================================050 – FUNÇÕES FALTANTES==================================================== */
+
+/* 🔹 CARREGAR DADOS */
+async function carregar(){
+
+const usuario_id=localStorage.getItem("usuario_id_lancamentos")
+
+if(!usuario_id)return
+
+const {data,error}=await db
+.from("lancamentos")
+.select("*")
+.eq("usuario_id",usuario_id)
+.order("data",{ascending:false})
+
+if(error){
+console.error(error)
+return
+}
+
+window.dados=data||[]
+
+render()
+atualizarTudo()
+}
+
+/* 🔹 LOGOUT */
+function logout(){
+localStorage.clear()
+location.reload()
+}
+
+/* 🔹 ABRIR FINANCEIRO */
+function abrirFinanceiro(){
+abrirTela("extrato")
+}
+
+/* 🔹 ABRIR TELA */
+function abrirTela(nome){
+
+document.querySelectorAll(".telaApp").forEach(t=>{
+t.classList.remove("telaAtiva")
+t.style.display="none"
+})
+
+const tela=safe("tela"+nome.charAt(0).toUpperCase()+nome.slice(1))
+if(tela){
+tela.style.display="block"
+tela.classList.add("telaAtiva")
+}
+
+}
+
+/* 🔹 PLACEHOLD (evita erro até implementar IA) */
+function rodarInteligencia(){}
+function alertaInteligente(){}
+function calcularScore(){}
+function atualizarPainelMobile(){}
+function carregarPerfil(){}
+function toggleSaldo(){}
+function toggleMes(){}
+function resumoCategorias(){return{}}
+function editarCampo(){}
+function toggleValor(){}
+function mostrarUpgrade(){}
+function formatarMoeda(v){return "R$ "+Number(v||0).toFixed(2)}
+function formatarDataBR(d){return d}
+
 </script>
 </body>
 
