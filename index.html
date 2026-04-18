@@ -109,16 +109,21 @@ const TAM_GRAFICO=180
 </head>
 <body class="login">
 
-<div style="display:flex;justify-content:center;margin-top:-10px;margin-bottom:10px">
-<button onclick="abrirCadastro()" style="background:#ef4444;color:#fff;width:100%;max-width:200px">Criar Conta</button>
-</div>
-  
 <div id="telaLogin">
 <div style="width:260px;background:#fff;padding:20px;border-radius:14px;box-shadow:0 10px 25px rgba(0,0,0,.15);display:flex;flex-direction:column;gap:10px">
+
 <h3 style="text-align:center;margin:0">Acesso</h3>
+
 <input id="loginUser" placeholder="Usuário">
 <input id="loginPass" type="password" placeholder="Senha">
+
 <button onclick="loginSistema()">Entrar</button>
+
+<div style="display:flex;justify-content:center;margin-top:10px">
+<button onclick="abrirCadastro()" style="background:#ef4444;color:#fff;width:100%;max-width:200px">
+Criar Conta
+</button>
+</div>
 
 </div>
 </div>
