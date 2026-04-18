@@ -125,7 +125,23 @@ const TAM_GRAFICO=180
 
 <!-- ====================================================020 – TELA INICIO==================================================== -->
 <div id="telaInicio" class="telaApp telaAtiva">
+<div id="dashboardBanco" class="card" style="display:flex;gap:10px;flex-wrap:wrap">
 
+<div style="flex:1;background:#dcfce7;padding:10px;border-radius:10px">
+<div>Receitas</div>
+<b id="dashReceitas">R$ 0</b>
+</div>
+
+<div style="flex:1;background:#fee2e2;padding:10px;border-radius:10px">
+<div>Despesas</div>
+<b id="dashDespesas">R$ 0</b>
+</div>
+
+<div style="flex:1;background:#e0f2fe;padding:10px;border-radius:10px">
+<div>Saldo</div>
+<b id="dashSaldo">R$ 0</b>
+</div>
+</div>
 <div class="card">
 <div style="display:flex;justify-content:space-between;align-items:center">
 <div style="font-size:14px">Olá, <b id="mobileNome"></b></div>
@@ -153,7 +169,7 @@ const TAM_GRAFICO=180
 
 <div style="padding:10px;display:flex;flex-direction:column;gap:8px">
 <button onclick="abrirFinanceiro(this)">Entrar no Financeiro</button>
-<button onclick="alert('Pagamento via PIX em breve')" style="background:#0ea5e9;color:#fff">
+<button onclick="assinarPlano()" style="background:#0ea5e9;color:#fff">
 💰 Virar PRO
 </button>
 </div>
@@ -329,6 +345,10 @@ lista.innerHTML+=`
 ${u.plano==="pro"?"PRO":"FREE"}
 </button>
 
+<button onclick="aprovarUsuario('${u.id}','${u.status}')" style="background:#f59e0b;color:#fff">
+${u.status==="aprovado"?"OK":"Aprovar"}
+</button>
+
 </div>
 
 </div>
@@ -380,6 +400,8 @@ carregarUsuariosAdmin()
 /* ====================================================030 – INSERIR LANÇAMENTO==================================================== */
 async function inserirLancamento(){
 
+if(!podeAdicionar())return
+
 const tipo=safe("tipoNovo").value
 const categoria=safe("categoriaNova").value
 const desc=safe("descNovo").value
@@ -401,7 +423,6 @@ usuario_id:localStorage.getItem("usuario_id_lancamentos")
 safe("formInsercao").style.display="none"
 carregar()
 }
-
 /* ====================================================031 – ABRIR INSERÇÃO==================================================== */
 function abrirInsercao(){
 const f=safe("formInsercao")
@@ -655,9 +676,18 @@ window._inteligenciaRodou=true
 rodarInteligencia()
 }
 
+/* 🔥 DASHBOARD BANCO */
+atualizarDashboardBanco()
+
+/* 🔥 PATCH 10 – ESCONDER BOTÃO PRO PARA QUEM JÁ É PRO */
+if(localStorage.getItem("usuario_plano")==="pro"){
+document.querySelectorAll("button").forEach(b=>{
+if(b.innerText.includes("Virar PRO"))b.style.display="none"
+})
 }
 
-/* ====================================================038 – LOGIN FINAL AJUSTADO==================================================== */
+}
+/* ====================================================040 – LOGIN SaaS==================================================== */
 async function loginSistema(){
 
 const email=safe("loginUser").value.trim()
@@ -680,19 +710,23 @@ alert("Login inválido")
 return
 }
 
+/* 🔒 BLOQUEIO POR APROVAÇÃO */
+if(data.status!=="aprovado"){
+alert("⏳ Conta aguardando aprovação do administrador")
+return
+}
+
 localStorage.clear()
 
 localStorage.setItem("usuario_id_lancamentos",data.id)
 localStorage.setItem("usuario_nome_lancamentos",data.nome)
 localStorage.setItem("tipo_usuario_lancamentos",data.tipo||"user")
+localStorage.setItem("usuario_plano",data.plano||"free")
 localStorage.setItem("agencia",data.agencia||"01968")
 localStorage.setItem("conta",data.conta||"")
 
 hide("telaLogin")
 show("painelMobile")
-
-document.body.classList.remove("login")
-document.body.classList.add("app")
 
 await carregar()
 await carregarPerfil()
@@ -701,5 +735,72 @@ await carregarUsuariosAdmin()
 aplicarPerfilUI()
 atualizarPainelMobile()
 abrirTela("inicio")
+
+}
+/* ====================================================041 – BLOQUEIO FREE==================================================== */
+function podeAdicionar(){
+
+const plano=localStorage.getItem("usuario_plano")||"free"
+
+if(plano==="free" && dados.length>=20){
+mostrarUpgrade()
+return false
+}
+
+return true
+}
+/* ====================================================042 – APROVAR USUÁRIO==================================================== */
+async function aprovarUsuario(id,status){
+
+const novo=status==="aprovado"?"pendente":"aprovado"
+
+await db
+.from("usuarios_lancamentos")
+.update({status:novo})
+.eq("id",id)
+
+carregarUsuariosAdmin()
+}
+/* ====================================================043 – DASHBOARD BANCO==================================================== */
+function atualizarDashboardBanco(){
+
+let r=0,d=0
+
+dados.forEach(x=>{
+if(x.tipo==="RECEITA")r+=Number(x.valor||0)
+else d+=Number(x.valor||0)
+})
+
+const saldo=r-d
+
+safe("dashReceitas").innerText=formatarMoeda(r)
+safe("dashDespesas").innerText=formatarMoeda(d)
+safe("dashSaldo").innerText=formatarMoeda(saldo)
+
+}
+/* ====================================================044 ASSINAR PLANO==================================================== */
+async function assinarPlano(){
+
+const email = localStorage.getItem("usuario_email_lancamentos") || "teste@email.com"
+const usuario_id = localStorage.getItem("usuario_id_lancamentos")
+
+const res = await fetch("https://gspdlrenyrzbkxlvyugc.supabase.co/functions/v1/criar-checkout",{
+method:"POST",
+headers:{
+"Content-Type":"application/json"
+},
+body: JSON.stringify({
+email,
+usuario_id
+})
+})
+
+const json = await res.json()
+
+if(json.url){
+window.location.href = json.url
+}else{
+alert("Erro ao iniciar pagamento")
+}
 
 }
