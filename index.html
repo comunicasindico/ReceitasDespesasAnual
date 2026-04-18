@@ -91,6 +91,8 @@ body{padding:10px}
 
 <script>
 let ocultarSaldo = true
+let mesesOcultos={}
+let visibilidade={}
 /* ====================================================014 – CONFIG==================================================== */
 const SUPABASE_URL="https://gspdlrenyrzbkxlvyugc.supabase.co"
 const SUPABASE_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdzcGRscmVueXJ6Ymt4bHZ5dWdjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ4ODU0NzAsImV4cCI6MjA5MDQ2MTQ3MH0.UWfkWvOh4qMDEcByVL-KZ6ejJ80V7wJlDOFH76TywaI"
@@ -437,18 +439,25 @@ modoEdicao=!modoEdicao
 safe("txtEdicao").innerText=modoEdicao?"✔️ Salvar":"✏️ Editar"
 render()
 }
+/* ====================================================================================================== */
+let usuario = {
+plano: localStorage.getItem("usuario_plano") || "free",
+plano_expira_em: localStorage.getItem("plano_expira_em") || null
+}
 /* ====================================================033 – RENDER PROFISSIONAL==================================================== */
 function render(){
 const hoje=new Date()
-const expira=new Date(usuario.plano_expira_em)
+const expira=usuario.plano_expira_em?new Date(usuario.plano_expira_em):null
 
-if(usuario.plano!=="pro"||expira<hoje){
-alert("🔒 Seu plano expirou")
+if(usuario.plano!=="pro"){
+alert("🔒 Plano FREE")
 return
 }
-
+if(expira && expira<hoje){
+alert("⛔ Plano expirado")
+return
+}
 try{
-
 const tela=safe("telaExtrato")
 if(!tela||!tela.classList.contains("telaAtiva"))return
 
@@ -741,6 +750,12 @@ localStorage.setItem("usuario_id_lancamentos",data.id)
 localStorage.setItem("usuario_nome_lancamentos",data.nome)
 localStorage.setItem("tipo_usuario_lancamentos",data.tipo||"user")
 localStorage.setItem("usuario_plano",data.plano||"free")
+localStorage.setItem("plano_expira_em",data.plano_expira_em||"")
+/* 🔥 ATUALIZA OBJETO GLOBAL */
+usuario={
+plano:data.plano||"free",
+plano_expira_em:data.plano_expira_em||null
+}
 localStorage.setItem("agencia",data.agencia||"01968")
 localStorage.setItem("conta",data.conta||"")
 localStorage.setItem("usuario_email_lancamentos",data.email)
