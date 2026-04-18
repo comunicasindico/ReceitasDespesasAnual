@@ -94,6 +94,9 @@ let usuario={}
 let ocultarSaldo = true
 let mesesOcultos={}
 let visibilidade={}
+let modoEdicao = false
+let visibilidade = {}
+let mesesOcultos = {}
 /* ====================================================014 – CONFIG==================================================== */
 const SUPABASE_URL="https://gspdlrenyrzbkxlvyugc.supabase.co"
 const SUPABASE_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdzcGRscmVueXJ6Ymt4bHZ5dWdjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ4ODU0NzAsImV4cCI6MjA5MDQ2MTQ3MH0.UWfkWvOh4qMDEcByVL-KZ6ejJ80V7wJlDOFH76TywaI"
@@ -916,6 +919,72 @@ atualizarTudo()
 }
 }
 
+function toggleMes(chave){
+mesesOcultos[chave] = !mesesOcultos[chave]
+render()
+}
+function toggleValor(id){
+visibilidade[id] = !visibilidade[id]
+render()
+}
+function atualizarPainelMobile(){
+const nome=localStorage.getItem("usuario_nome_lancamentos")||""
+const ag=localStorage.getItem("agencia")||"--"
+const conta=localStorage.getItem("conta")||"--"
+safe("mobileNome").innerText=nome
+safe("mobileAgencia").innerText=ag
+safe("mobileConta").innerText=conta
+let r=0,d=0
+dados.forEach(x=>{if(x.tipo==="RECEITA")r+=Number(x.valor||0);else d+=Number(x.valor||0)})
+const saldo=r-d
+safe("mobileSaldo").innerText=ocultarSaldo?"R$ ***":formatarMoeda(saldo)
+}
+function alertaInteligente(){
+let r=0,d=0
+dados.forEach(x=>{if(x.tipo==="RECEITA")r+=Number(x.valor||0);else d+=Number(x.valor||0)})
+const saldo=r-d
+let msg=""
+if(saldo<0)msg="⚠️ Você está gastando mais do que ganha"
+else if(saldo<r*0.2)msg="⚠️ Atenção: saldo baixo"
+else msg="✅ Situação financeira saudável"
+setHTML("alertaFinanceiro",msg)
+}
+function calcularScore(){
+let r=0,d=0
+dados.forEach(x=>{if(x.tipo==="RECEITA")r+=Number(x.valor||0);else d+=Number(x.valor||0)})
+if(r===0){setHTML("scoreBox","--");return}
+let score=100-(d/r*100)
+if(score<0)score=0
+if(score>100)score=100
+setHTML("scoreBox",Math.round(score)+" / 100")
+}
+function resumoCategorias(){
+const mapa={}
+dados.forEach(x=>{
+if(x.tipo==="DESPESA"){
+const cat=(x.descricao||"Outros").split(" - ")[0]
+mapa[cat]=(mapa[cat]||0)+Number(x.valor||0)
+}
+})
+return mapa
+}
+async function editarCampo(id,campo,valor){
+const update={}
+update[campo]=campo==="valor"?Number(valor):valor
+await db.from("lancamentos").update(update).eq("id",id)
+carregar()
+}
+function mostrarUpgrade(){
+alert("🔒 Plano FREE permite até 20 lançamentos. Faça upgrade para PRO.")
+}
+function formatarMoeda(v){
+return "R$ "+Number(v||0).toLocaleString("pt-BR",{minimumFractionDigits:2})
+}
+function formatarDataBR(d){
+if(!d)return"--"
+const dt=new Date(d)
+return dt.toLocaleDateString("pt-BR")
+}
 
 
 /* 🔹 LOGOUT */
@@ -941,19 +1010,7 @@ tela.classList.add("telaAtiva")
 }
 /* 🔹 PLACEHOLD (evita erro até implementar IA) */
 function rodarInteligencia(){}
-function alertaInteligente(){}
-function calcularScore(){}
-function atualizarPainelMobile(){}
 
-function toggleMes(){}
-function resumoCategorias(){return{}}
-function editarCampo(){}
-function toggleValor(){}
-function mostrarUpgrade(){}
-function formatarMoeda(v){
-return "R$ "+Number(v||0).toLocaleString("pt-BR",{minimumFractionDigits:2})
-}
-function formatarDataBR(d){return d}
 
 </script>
 </body>
