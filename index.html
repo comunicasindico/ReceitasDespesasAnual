@@ -47,11 +47,8 @@ gap:10px;
 flex-wrap:wrap;
 margin-bottom:6px;
 }
-#areaGrafico canvas,#areaGraficoCat canvas{
-width:180px !important;
-height:180px !important;
-}
-
+#areaGrafico{display:flex;justify-content:center;gap:20px;flex-wrap:wrap;}
+#areaGrafico canvas{width:200px !important;height:200px !important;}
 /* ====================================================010 – GRID ADMIN==================================================== */
 .gridUsuarios{
 display:grid;
@@ -93,6 +90,7 @@ body{padding:10px}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
+let ocultarSaldo = true
 /* ====================================================014 – CONFIG==================================================== */
 const SUPABASE_URL="https://gspdlrenyrzbkxlvyugc.supabase.co"
 const SUPABASE_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdzcGRscmVueXJ6Ymt4bHZ5dWdjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ4ODU0NzAsImV4cCI6MjA5MDQ2MTQ3MH0.UWfkWvOh4qMDEcByVL-KZ6ejJ80V7wJlDOFH76TywaI"
@@ -117,7 +115,9 @@ const TAM_GRAFICO=180
 <input id="loginUser" placeholder="Usuário">
 <input id="loginPass" type="password" placeholder="Senha">
 <button onclick="loginSistema()">Entrar</button>
-<button onclick="abrirCadastro()" style="background:#ef4444;color:#fff">Criar Conta</button>
+<div style="display:flex;justify-content:center;margin-top:-10px;margin-bottom:10px">
+<button onclick="abrirCadastro()" style="background:#ef4444;color:#fff;width:100%;max-width:200px">Criar Conta</button>
+</div>
 </div>
 </div>
 
@@ -144,7 +144,12 @@ const TAM_GRAFICO=180
 </div>
 <div class="card">
 <div style="display:flex;justify-content:space-between;align-items:center">
+<div style="display:flex;flex-direction:column">
 <div style="font-size:14px">Olá, <b id="mobileNome"></b></div>
+<div style="font-size:12px;color:#64748b">
+🏦 Ag: <b id="mobileAgencia"></b> • Conta: <b id="mobileConta"></b>
+</div>
+</div>
 <button onclick="logout()" style="background:#ef4444;color:#fff">Sair</button>
 </div>
 
@@ -360,31 +365,20 @@ ${u.status==="aprovado"?"OK":"Aprovar"}
 }
 
 /* ====================================================027 – ALTERAR PLANO==================================================== */
-async function togglePlano(id,planoAtual){
-
-const novo=planoAtual==="pro"?"free":"pro"
-
-await db
-.from("usuarios_lancamentos")
-.update({plano:novo})
-.eq("id",id)
-
-carregarUsuariosAdmin()
+function togglePlano(id,planoAtual){
+if(localStorage.getItem("tipo_usuario_lancamentos")!=="admin"){
+alert("Somente admin")
+return
 }
-
 /* ====================================================028 – EXCLUIR USUÁRIO ADMIN==================================================== */
 async function excluirUsuarioAdmin(id){
-
 if(!confirm("Excluir usuário?"))return
-
 await db
 .from("usuarios_lancamentos")
 .delete()
 .eq("id",id)
-
 carregarUsuariosAdmin()
 }
-
 /* ====================================================029 – EDITAR USUÁRIO==================================================== */
 async function editarUsuario(id){
 
@@ -540,7 +534,10 @@ ${modoEdicao
 
 ${modoEdicao
 ? `<input value="${valor}" type="number" onchange="editarCampo('${x.id}','valor',this.value)" style="width:90px;text-align:right">`
+: (x.tipo==="RECEITA"
+? (vis ? "R$ ***" : "R$ ***")
 : (vis ? "R$ ***" : formatarMoeda(valor))
+)
 }
 
 </div>
@@ -789,9 +786,9 @@ else d+=Number(x.valor||0)
 
 const saldo=r-d
 
-safe("dashReceitas").innerText=formatarMoeda(r)
-safe("dashDespesas").innerText=formatarMoeda(d)
-safe("dashSaldo").innerText=formatarMoeda(saldo)
+safe("dashReceitas").innerText="R$ ***"
+safe("dashDespesas").innerText=ocultarSaldo?"R$ ***":formatarMoeda(d)
+safe("dashSaldo").innerText=ocultarSaldo?"R$ ***":formatarMoeda(saldo)
 
 }
 /* ====================================================044 ASSINAR PLANO==================================================== */
@@ -820,72 +817,81 @@ alert("Erro ao iniciar pagamento")
 }
 
 }
-/* ====================================================050 – FUNÇÕES FALTANTES==================================================== */
-
+/* ====================================================050 – FUNÇÃO SALVAR PERFIL ==================================================== */
+async function salvarPerfil(){
+const id=localStorage.getItem("usuario_id_lancamentos")
+const nome=safe("perfilNome").value
+const email=safe("perfilEmail").value
+const celular=safe("perfilCelular").value
+await db
+.from("usuarios_lancamentos")
+.update({
+nome,
+email,
+celular
+})
+.eq("id",id)
+alert("Atualizado")
+}
+/* ====================================================051 – FUNÇÕES FALTANTES==================================================== */
+function toggleSaldo(){
+ocultarSaldo=!ocultarSaldo
+render()
+atualizarDashboardBanco()
+}
+  
 /* 🔹 CARREGAR DADOS */
 async function carregar(){
-
 const usuario_id=localStorage.getItem("usuario_id_lancamentos")
-
 if(!usuario_id)return
-
 const {data,error}=await db
 .from("lancamentos")
 .select("*")
 .eq("usuario_id",usuario_id)
 .order("data",{ascending:false})
-
 if(error){
 console.error(error)
 return
 }
-
 window.dados=data||[]
-
 render()
 atualizarTudo()
 }
-
 /* 🔹 LOGOUT */
 function logout(){
 localStorage.clear()
 location.reload()
 }
-
 /* 🔹 ABRIR FINANCEIRO */
 function abrirFinanceiro(){
 abrirTela("extrato")
 }
-
 /* 🔹 ABRIR TELA */
 function abrirTela(nome){
-
 document.querySelectorAll(".telaApp").forEach(t=>{
 t.classList.remove("telaAtiva")
 t.style.display="none"
 })
-
 const tela=safe("tela"+nome.charAt(0).toUpperCase()+nome.slice(1))
 if(tela){
 tela.style.display="block"
 tela.classList.add("telaAtiva")
 }
-
 }
-
 /* 🔹 PLACEHOLD (evita erro até implementar IA) */
 function rodarInteligencia(){}
 function alertaInteligente(){}
 function calcularScore(){}
 function atualizarPainelMobile(){}
 function carregarPerfil(){}
-function toggleSaldo(){}
 function toggleMes(){}
 function resumoCategorias(){return{}}
 function editarCampo(){}
 function toggleValor(){}
 function mostrarUpgrade(){}
-function formatarMoeda(v){return "R$ "+Number(v||0).toFixed(2)}
+function formatarMoeda(v){
+return "R$ "+Number(v||0).toLocaleString("pt-BR",{minimumFractionDigits:2})
+}
 function formatarDataBR(d){return d}
 
 </script>
