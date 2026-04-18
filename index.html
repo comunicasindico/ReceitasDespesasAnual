@@ -7,64 +7,65 @@
 <link rel="icon" href="data:,">
 
 <style>
+/* ====================================================001 – BASE==================================================== */
 html,body{margin:0;padding:0;width:100%;min-height:100%;overflow-x:hidden}
 *{box-sizing:border-box}
 body{font-family:Arial;color:#0f172a;padding:6px;background:#f1f5f9}
 body::before,.nebula,.vialactea,.shooting-star{display:none!important}
-.card{background:#ffffff;border:1px solid #e2e8f0;border-radius:14px;padding:15px;box-shadow:0 4px 12px rgba(0,0,0,0.05)}
+
+/* ====================================================002 – CARDS==================================================== */
+.card{background:#ffffff;border:1px solid #e2e8f0;border-radius:14px;padding:15px;box-shadow:0 4px 12px rgba(0,0,0,0.05);margin:4px 0}
 .resumo{background:#ffffff;border:1px solid #e2e8f0;border-radius:12px;padding:12px}
+
+/* ====================================================003 – INPUTS==================================================== */
 input,select{width:100%;padding:12px;border-radius:10px;border:1px solid #e2e8f0;background:#fff;color:#0f172a}
-button{cursor:pointer;background:#22c55e;color:#000;font-weight:bold;border:none;border-radius:10px;padding:10px}
+
+/* ====================================================004 – BOTÕES==================================================== */
+button{cursor:pointer;background:#22c55e;color:#000;font-weight:bold;border:none;border-radius:10px;padding:10px;min-height:36px}
+button:active{transform:scale(0.96)}
+
+/* ====================================================005 – NAV==================================================== */
 .bottomNav{position:fixed;bottom:0;left:0;width:100%;height:65px;background:#ffffff;display:flex;justify-content:space-around;align-items:center;z-index:99999;border-top:1px solid #e2e8f0}
 .navItem{display:flex;flex-direction:column;align-items:center;font-size:11px;color:#64748b}
 .navItem span{font-size:20px}
 .navAtivo{color:#22c55e}
+
+/* ====================================================006 – TOPO==================================================== */
 .topBarMobile{margin:0;display:flex;align-items:center;gap:10px;padding:6px;background:#ffffff;border-bottom:1px solid #e2e8f0}
+
+/* ====================================================007 – PERFIL==================================================== */
 #boxAgencia,#boxConta{background:#ffffff;border:1px solid #e2e8f0;padding:12px;border-radius:10px}
+
+/* ====================================================008 – SCORE==================================================== */
 #scoreBox{border-radius:10px;background:#f8fafc;border:1px solid #e2e8f0}
-canvas{background:#fff;border-radius:12px}
-.btnFloat{display:none}
-#telaIA textarea{background:#ffffff!important;color:#0f172a!important;border:1px solid #e2e8f0}
-#telaIA div[style*="background:#020617"]{background:#ffffff!important}
-#containerExtrato .card:first-child{display:none}
-#containerExtrato{max-width:100%;width:100%;padding:4px;margin:0}
-#lista{width:100%;max-width:100%}
-#lista div{max-width:100%;word-break:break-word}
-@media(max-width:768px){body{padding:10px}.card{padding:10px}}
-#painelMobile{max-width:100%;overflow-x:hidden}
-#containerExtrato{width:100%;max-width:100%}
-@keyframes fadeIn{to{opacity:1;transform:translateY(0)}}
-.telaApp{padding:0;margin:0}
-.card{margin:4px 0}
-button{min-height:36px}
-#areaGrafico canvas,
-#areaGraficoCat canvas{
-width:130px !important;
-height:130px !important;
+
+/* ====================================================009 – GRÁFICOS AJUSTADOS==================================================== */
+#areaGrafico,#areaGraficoCat{
+display:flex;
+justify-content:center;
+gap:10px;
+flex-wrap:wrap;
+margin-bottom:6px;
 }
-  
-</style>
+#areaGrafico canvas,#areaGraficoCat canvas{
+width:180px !important;
+height:180px !important;
+}
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+/* ====================================================010 – GRID ADMIN==================================================== */
+.gridUsuarios{
+display:grid;
+grid-template-columns:1.5fr 2fr 1fr 1fr 1fr 2fr;
+gap:6px;
+align-items:center;
+font-size:13px;
+padding:6px 0;
+border-bottom:1px solid #e2e8f0;
+}
+.gridUsuarios b{font-weight:bold}
 
-
-<script>
-const SUPABASE_URL="https://gspdlrenyrzbkxlvyugc.supabase.co"
-const SUPABASE_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdzcGRscmVueXJ6Ymt4bHZ5dWdjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ4ODU0NzAsImV4cCI6MjA5MDQ2MTQ3MH0.UWfkWvOh4qMDEcByVL-KZ6ejJ80V7wJlDOFH76TywaI"
-window.db=supabase.createClient(SUPABASE_URL,SUPABASE_KEY)
-function safe(id){return document.getElementById(id)}
-function show(id){const el=safe(id);if(el)el.style.display="block"}
-function hide(id){const el=safe(id);if(el)el.style.display="none"}
-function setHTML(id,html){const el=safe(id);if(el)el.innerHTML=html}
-function setValue(id,val){const el=safe(id);if(el)el.value=val}
-/* 🔥 TAMANHO PADRÃO DOS GRÁFICOS */
-const TAM_GRAFICO = 130
-</script>
-</head>
-
-<body class="login">
-<div id="telaLogin" style="
+/* ====================================================011 – CENTRALIZA LOGIN==================================================== */
+#telaLogin{
 position:fixed;
 top:0;
 left:0;
@@ -75,287 +76,345 @@ align-items:center;
 justify-content:center;
 background:#f1f5f9;
 z-index:9999;
-">
+}
 
-<div style="
-width:260px;
-background:#fff;
-padding:20px;
-border-radius:14px;
-box-shadow:0 10px 25px rgba(0,0,0,.15);
-display:flex;
-flex-direction:column;
-gap:10px;
-">
+/* ====================================================012 – REMOVER ESPAÇO USUÁRIO==================================================== */
+#telaExtrato{padding-top:0;margin-top:0}
 
+/* ====================================================013 – RESPONSIVO==================================================== */
+@media(max-width:768px){
+body{padding:10px}
+.card{padding:10px}
+.gridUsuarios{grid-template-columns:1fr}
+}
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+/* ====================================================014 – CONFIG==================================================== */
+const SUPABASE_URL="https://gspdlrenyrzbkxlvyugc.supabase.co"
+const SUPABASE_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdzcGRscmVueXJ6Ymt4bHZ5dWdjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ4ODU0NzAsImV4cCI6MjA5MDQ2MTQ3MH0.UWfkWvOh4qMDEcByVL-KZ6ejJ80V7wJlDOFH76TywaI"
+window.db=supabase.createClient(SUPABASE_URL,SUPABASE_KEY)
+
+/* ====================================================015 – HELPERS==================================================== */
+function safe(id){return document.getElementById(id)}
+function show(id){const el=safe(id);if(el)el.style.display="block"}
+function hide(id){const el=safe(id);if(el)el.style.display="none"}
+function setHTML(id,html){const el=safe(id);if(el)el.innerHTML=html}
+function setValue(id,val){const el=safe(id);if(el)el.value=val}
+
+/* ====================================================016 – TAMANHO GRÁFICO==================================================== */
+const TAM_GRAFICO=180
+</script>
+</head>
+<body class="login">
+
+<div id="telaLogin">
+<div style="width:260px;background:#fff;padding:20px;border-radius:14px;box-shadow:0 10px 25px rgba(0,0,0,.15);display:flex;flex-direction:column;gap:10px">
 <h3 style="text-align:center;margin:0">Acesso</h3>
-
 <input id="loginUser" placeholder="Usuário">
 <input id="loginPass" type="password" placeholder="Senha">
-
 <button onclick="loginSistema()">Entrar</button>
-
-<button onclick="abrirCadastro()" style="background:#ef4444;color:#fff">
-Criar Conta
-</button>
-
+<button onclick="abrirCadastro()" style="background:#ef4444;color:#fff">Criar Conta</button>
 </div>
 </div>
 
 <div id="painelMobile" style="display:none">
 
+<!-- ====================================================020 – TELA INICIO==================================================== -->
 <div id="telaInicio" class="telaApp telaAtiva">
-<div class="card" style="border-radius:18px;padding:20px">
+
+<div class="card">
 <div style="display:flex;justify-content:space-between;align-items:center">
 <div style="font-size:14px">Olá, <b id="mobileNome"></b></div>
 <button onclick="logout()" style="background:#ef4444;color:#fff">Sair</button>
 </div>
+
+<!-- 🔥 BLOCO USUÁRIO (OCULTAR NO ADMIN) -->
+<div id="blocoFinanceiroUsuario">
+
 <div style="font-size:28px;font-weight:bold;margin-top:10px">
 <span id="mobileSaldo"></span>
 <button onclick="toggleSaldo()" style="background:none">👁</button>
 </div>
-<div style="font-size:12px;margin-top:5px;color:#64748b">
+
 <div style="font-size:12px;margin-top:5px;color:#64748b">
 🏦 Ag: <b id="mobileAgencia"></b> • Conta: <b id="mobileConta"></b>
 </div>
-</div>
-</div>
+
 <div id="alertaFinanceiro" class="card"></div>
+
 <div class="card">
 <div>Score financeiro</div>
 <div id="scoreBox">--</div>
 </div>
-<div style="padding:15px;display:flex;flex-direction:column;gap:10px">
-<button onclick="abrirFinanceiro(this)" style="width:100%">Entrar no Financeiro</button>
-<button onclick="alert('Pagamento via PIX em breve')" style="background:#0ea5e9;color:#fff;width:100%">
+
+<div style="padding:10px;display:flex;flex-direction:column;gap:8px">
+<button onclick="abrirFinanceiro(this)">Entrar no Financeiro</button>
+<button onclick="alert('Pagamento via PIX em breve')" style="background:#0ea5e9;color:#fff">
 💰 Virar PRO
 </button>
 </div>
+
 </div>
 
+<!-- 🔥 BLOCO ADMIN -->
+<div id="blocoAdmin" style="display:none">
 
+<div class="card">
+<b>👥 Usuários cadastrados</b>
+
+<div class="gridUsuarios" style="font-weight:bold">
+<div>Nome</div>
+<div>Email</div>
+<div>Agência</div>
+<div>Conta</div>
+<div>Tipo</div>
+<div>Ações</div>
+</div>
+
+<div id="listaUsuariosAdmin"></div>
+
+</div>
+
+</div>
+
+</div>
+</div>
+
+<!-- ====================================================021 – EXTRATO==================================================== -->
 <div id="telaExtrato" class="telaApp">
-<div class="topBarMobile"><button class="btnVoltar" onclick="irInicio()">←</button><b>Extrato</b></div>
+<div class="topBarMobile"><button onclick="irInicio()">←</button><b>Extrato</b></div>
+
 <div id="containerExtrato">
-<div style="display:flex;justify-content:flex-end;margin-bottom:6px">
+
+<div style="display:flex;justify-content:flex-end;margin-bottom:6px;gap:6px">
+
 <button onclick="toggleEdicao()" style="background:#0ea5e9;color:#fff">
-${modoEdicao?"✔️ Salvar":"✏️ Editar Geral"}
+<span id="txtEdicao">✏️ Editar</span>
 </button>
+
+<button onclick="abrirInsercao()" style="background:#22c55e">
+➕ Inserir
+</button>
+
 </div>
+
+<!-- 🔥 FORM INSERÇÃO -->
+<div id="formInsercao" style="display:none" class="card">
+
+<select id="tipoNovo">
+<option value="RECEITA">Receita</option>
+<option value="DESPESA">Despesa</option>
+</select>
+
+<select id="categoriaNova">
+<option>Salário</option>
+<option>Cripto</option>
+<option>Educação</option>
+<option>Saúde</option>
+<option>Lazer</option>
+<option>Moradia</option>
+<option>Cartão</option>
+</select>
+
+<input id="descNovo" placeholder="Descrição">
+<input id="valorNovo" type="number" placeholder="Valor">
+
+<button onclick="inserirLancamento()">Salvar</button>
+
+</div>
+
 <div id="lista"></div>
 <div id="resumo"></div>
+
 </div>
 </div>
 
-
+<!-- ====================================================022 – PERFIL==================================================== -->
 <div id="telaPerfil" class="telaApp">
-<div class="topBarMobile"><button class="btnVoltar" onclick="irInicio()">←</button><b>👤 Perfil</b></div>
+<div class="topBarMobile"><button onclick="irInicio()">←</button><b>👤 Perfil</b></div>
+
 <div style="padding:15px;display:flex;flex-direction:column;gap:8px">
 <input id="perfilNome" placeholder="Nome">
 <input id="perfilEmail" placeholder="Email">
 <input id="perfilCelular" placeholder="Celular">
+
 <div style="font-size:12px">Agência</div>
 <div id="boxAgencia">--</div>
+
 <div style="font-size:12px">Conta</div>
 <div id="boxConta">--</div>
+
 <div id="badgePlano">--</div>
+
 <div style="display:flex;gap:5px">
 <button onclick="salvarPerfil()" style="flex:1;background:#22c55e">Salvar</button>
 <button onclick="excluirUsuario()" style="flex:1;background:#ef4444;color:#fff">Excluir</button>
 </div>
+
 </div>
 </div>
 
-
+<!-- ====================================================023 – IA==================================================== -->
 <div id="telaIA" class="telaApp">
-<div class="topBarMobile"><button class="btnVoltar" onclick="irInicio()">←</button><b>🤖 Comunica IA</b></div>
+<div class="topBarMobile"><button onclick="irInicio()">←</button><b>🤖 Comunica IA</b></div>
+
 <div style="display:flex;flex-direction:column;height:100vh;padding:10px;padding-bottom:100px">
 <div id="chatIA" style="flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:8px"></div>
+
 <div style="position:fixed;bottom:70px;left:0;width:100%;padding:10px;background:#ffffff;display:flex;gap:8px">
 <textarea id="perguntaIA" rows="2" placeholder="Pergunte algo..." style="flex:1"></textarea>
-<button onclick="responderIA()" id="btnIA">➤</button>
+<button onclick="responderIA()">➤</button>
 </div>
+
 </div>
 </div>
 
+<!-- ====================================================024 – NAV==================================================== -->
 <div class="bottomNav">
 <div class="navItem navAtivo" onclick="abrirTela('inicio',this)"><span>🏠</span>Início</div>
 <div class="navItem" onclick="abrirTela('extrato',this)"><span>📄</span>Extrato</div>
 <div class="navItem" onclick="abrirTela('perfil',this)"><span>👤</span>Perfil</div>
 <div class="navItem" onclick="abrirTela('ia',this)"><span>🤖</span>IA</div>
 </div>
+/* ====================================================025 – DETECTAR PERFIL==================================================== */
+function aplicarPerfilUI(){
+const tipo=localStorage.getItem("tipo_usuario_lancamentos")
 
-<script>
-let dados=[]
-let mesesOcultos={}
-let visibilidade={}
-let visibilidadeTotal={}
-let graficoResumo=null
-let graficoMensal=null
-let filtroInicio=null
-let filtroFim=null
-let ocultarSaldo=true
-let modoEdicao=false
-let edicoesTemp={}
-</script>
-
-
-<script>
-async function loginSistema(){
-const email=safe("loginUser").value.trim()
-const senha=safe("loginPass").value.trim()
-if(!email||!senha){
-alert("Preencha os dados")
-return
+if(tipo==="admin"){
+safe("blocoAdmin").style.display="block"
+safe("blocoFinanceiroUsuario").style.display="none"
+}else{
+safe("blocoAdmin").style.display="none"
+safe("blocoFinanceiroUsuario").style.display="block"
 }
-const {data,error}=await db
-.from("usuarios_lancamentos")
-.select("*")
-.eq("email",email)
-.eq("senha",senha)
-.maybeSingle()
-if(error || !data){
-alert("Login inválido")
-return
-}
-/* 🔥 LIMPA TUDO */
-localStorage.clear()
-/* 🔥 SALVA CORRETO */
-localStorage.setItem("usuario_id_lancamentos",data.id)
-localStorage.setItem("usuario_nome_lancamentos",data.nome)
-localStorage.setItem("tipo_usuario_lancamentos",data.tipo||"user")
-localStorage.setItem("agencia",data.agencia||"01968")
-localStorage.setItem("conta",data.conta||"")
-/* 🔥 UI */
-hide("telaLogin")
-show("painelMobile")
-document.body.classList.remove("login")
-document.body.classList.add("app")
-await carregar()
-await carregarPerfil()
-await carregarUsuariosAdmin()
-atualizarPainelMobile()
-abrirTela("inicio")
-}
-</script>
-  
-<script>
-function mostrarUpgrade(){
-const box=document.createElement("div")
-box.style.position="fixed"
-box.style.top="50%"
-box.style.left="50%"
-box.style.transform="translate(-50%,-50%)"
-box.style.background="#fff"
-box.style.padding="20px"
-box.style.borderRadius="12px"
-box.style.boxShadow="0 0 20px rgba(0,0,0,.2)"
-box.style.zIndex="99999"
-
-box.innerHTML=`
-<b>🚀 Plano FREE atingido</b><br><br>
-<button onclick="this.parentElement.remove()" style="background:#22c55e">OK</button>
-`
-
-document.body.appendChild(box)
-}
-</script>  
-
-<script>
-async function carregar(){
-
-const userId=localStorage.getItem("usuario_id_lancamentos")
-if(!userId)return
-
-const {data,error}=await db
-.from("lancamentos")
-.select("*")
-.eq("usuario_id",userId)
-.order("data",{ascending:true})
-
-if(error){
-console.error(error)
-dados=[]
-render()
-return
 }
 
-dados=Array.isArray(data)?data:[]
-
-render()
-atualizarTudo()
-}
-</script>  
-
-  
-<script>
+/* ====================================================026 – CARREGAR USUÁRIOS ADMIN GRID==================================================== */
 async function carregarUsuariosAdmin(){
+
 const tipo=localStorage.getItem("tipo_usuario_lancamentos")
 if(tipo!=="admin")return
+
 const {data,error}=await db
 .from("usuarios_lancamentos")
-.select("nome,email,conta,agencia,tipo")
+.select("*")
 .order("nome",{ascending:true})
-if(error){
-console.error(error)
-return
-}
-const div=document.createElement("div")
-div.className="card"
-div.style.marginTop="10px"
-div.innerHTML="<b>👥 Usuários cadastrados</b><br><br>"
+
+if(error)return console.error(error)
+
+const lista=safe("listaUsuariosAdmin")
+lista.innerHTML=""
+
 data.forEach(u=>{
-div.innerHTML+=`
-<div style="padding:6px;border-bottom:1px solid #e2e8f0">
-<b>${u.nome}</b><br>
-${u.email}<br>
-🏦 ${u.agencia} / ${u.conta}<br>
-👤 ${u.tipo}
+lista.innerHTML+=`
+<div class="gridUsuarios">
+
+<div><b>${u.nome}</b></div>
+<div>${u.email}</div>
+<div>${u.agencia||"-"}</div>
+<div>${u.conta||"-"}</div>
+<div>${u.tipo}</div>
+
+<div style="display:flex;gap:4px">
+
+<button onclick="editarUsuario('${u.id}')" style="background:#0ea5e9;color:#fff">✏️</button>
+
+<button onclick="excluirUsuarioAdmin('${u.id}')" style="background:#ef4444;color:#fff">🗑</button>
+
+<button onclick="togglePlano('${u.id}','${u.plano||"free"}')" style="background:#22c55e">
+${u.plano==="pro"?"PRO":"FREE"}
+</button>
+
+</div>
+
 </div>
 `
 })
-safe("telaInicio").appendChild(div)
+
 }
-</script>  
 
-<script>
-function podeAdicionar(){
-const plano="free"
-if(plano==="free" && dados.length>=20){
-alert("Limite do plano FREE atingido.")
-return false
+/* ====================================================027 – ALTERAR PLANO==================================================== */
+async function togglePlano(id,planoAtual){
+
+const novo=planoAtual==="pro"?"free":"pro"
+
+await db
+.from("usuarios_lancamentos")
+.update({plano:novo})
+.eq("id",id)
+
+carregarUsuariosAdmin()
 }
-return true
+
+/* ====================================================028 – EXCLUIR USUÁRIO ADMIN==================================================== */
+async function excluirUsuarioAdmin(id){
+
+if(!confirm("Excluir usuário?"))return
+
+await db
+.from("usuarios_lancamentos")
+.delete()
+.eq("id",id)
+
+carregarUsuariosAdmin()
 }
-</script>  
 
-<script>
-function moeda(v){
-return Number(v||0).toLocaleString("pt-BR",{style:"currency",currency:"BRL"})
+/* ====================================================029 – EDITAR USUÁRIO==================================================== */
+async function editarUsuario(id){
+
+const nome=prompt("Novo nome:")
+if(!nome)return
+
+await db
+.from("usuarios_lancamentos")
+.update({nome})
+.eq("id",id)
+
+carregarUsuariosAdmin()
 }
-</script>  
 
+/* ====================================================030 – INSERIR LANÇAMENTO==================================================== */
+async function inserirLancamento(){
 
-  
-<script>
-function formatarMoeda(v){
-return Number(v||0).toLocaleString("pt-BR",{style:"currency",currency:"BRL"})
+const tipo=safe("tipoNovo").value
+const categoria=safe("categoriaNova").value
+const desc=safe("descNovo").value
+const valor=parseFloat(safe("valorNovo").value||0)
+
+if(!desc||!valor){
+alert("Preencha os dados")
+return
 }
-</script>  
 
+await db.from("lancamentos").insert({
+data:new Date().toISOString().slice(0,10),
+descricao:categoria+" - "+desc,
+valor:valor,
+tipo:tipo,
+usuario_id:localStorage.getItem("usuario_id_lancamentos")
+})
 
-<script>
-function formatarDataBR(data){
-if(!data)return ""
-const d=data.split("T")[0]
-const [ano,mes,dia]=d.split("-")
-return dia+"/"+mes+"/"+ano
+safe("formInsercao").style.display="none"
+carregar()
 }
-</script>  
 
+/* ====================================================031 – ABRIR INSERÇÃO==================================================== */
+function abrirInsercao(){
+const f=safe("formInsercao")
+f.style.display=f.style.display==="none"?"block":"none"
+}
 
-  
-<script>
+/* ====================================================032 – ATUALIZAR BOTÃO EDIÇÃO==================================================== */
+function toggleEdicao(){
+modoEdicao=!modoEdicao
+safe("txtEdicao").innerText=modoEdicao?"✔️ Salvar":"✏️ Editar"
+render()
+}
+/* ====================================================033 – RENDER PROFISSIONAL==================================================== */
 function render(){
 try{
 
@@ -371,7 +430,7 @@ resumo.innerHTML=""
 return
 }
 
-/* 🔥 AGRUPAR POR MÊS */
+/* 🔥 AGRUPAMENTO */
 const grupos={}
 dados.forEach(x=>{
 if(!x.data)return
@@ -385,103 +444,112 @@ grupos[chave].push(x)
 const chaves=Object.keys(grupos).sort().reverse()
 
 let html=""
-let totalGeralR=0
-let totalGeralD=0
+let totalR=0
+let totalD=0
 
 chaves.forEach(chave=>{
+
 const listaMes=grupos[chave]
 
-/* 🔥 ORDENAR POR DATA */
 listaMes.sort((a,b)=>(a.data||"").localeCompare(b.data||""))
 
-/* 🔥 SOMA */
 let r=0,d=0
+
 listaMes.forEach(x=>{
 const v=Number(x.valor||0)
 if(x.tipo==="RECEITA")r+=v
 else d+=v
 })
 
-totalGeralR+=r
-totalGeralD+=d
+totalR+=r
+totalD+=d
 
 const saldo=r-d
 const [ano,mes]=chave.split("-")
 
-/* 🔥 HEADER */
+/* ====================================================HEADER==================================================== */
 html+=`
 <div class="card" onclick="toggleMes('${chave}')" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center">
-<b>${mes}/${ano}</b>
-<div style="display:flex;align-items:center;gap:6px">
+
+<div style="font-weight:bold">${mes}/${ano}</div>
+
+<div style="display:flex;align-items:center;gap:8px">
 
 <b style="color:${saldo>=0?"#16a34a":"#dc2626"}">
 ${ocultarSaldo?"R$ ***":formatarMoeda(saldo)}
 </b>
 
-<button onclick="event.stopPropagation();toggleSaldo()" style="
-background:#e2e8f0;
-border-radius:8px;
-padding:6px 10px;
-font-size:14px;
-">
-👁
-</button>
+<button onclick="event.stopPropagation();toggleSaldo()" style="background:#e2e8f0;padding:6px;border-radius:8px">👁</button>
+
 </div>
 </div>
 `
 
-/* 🔥 ITENS */
+/* ====================================================ITENS==================================================== */
 if(!mesesOcultos[chave]){
+
 listaMes.forEach(x=>{
+
 const valor=Number(x.valor||0)
 const vis=visibilidade[x.id]===false
 
 html+=`
-<div class="card" style="padding:6px;margin-top:4px;display:flex;justify-content:space-between;align-items:center">
+<div class="card" style="padding:8px;display:flex;justify-content:space-between;align-items:center">
 
 <div style="flex:2;font-size:13px">
+
 ${modoEdicao
-? `<input value="${x.descricao||""}" 
-onchange="editarCampo('${x.id}','descricao',this.value)" 
-style="width:100%">`
+? `<input value="${x.descricao||""}" onchange="editarCampo('${x.id}','descricao',this.value)">`
 : `${formatarDataBR(x.data)} - ${x.descricao}`
 }
+
 </div>
 
 <div style="flex:1;text-align:right;font-weight:bold;color:${x.tipo==="RECEITA"?"#16a34a":"#dc2626"}">
+
 ${modoEdicao
-? `<input value="${valor}" type="number"
-onchange="editarCampo('${x.id}','valor',this.value)"
-style="width:90px;text-align:right">`
+? `<input value="${valor}" type="number" onchange="editarCampo('${x.id}','valor',this.value)" style="width:90px;text-align:right">`
 : vis?"R$ ***":formatarMoeda(valor)
 }
+
 </div>
 
 <div style="display:flex;gap:4px">
-<button onclick="event.stopPropagation();toggleValor('${x.id}')" style="padding:4px 6px">👁</button>
+
+<button onclick="event.stopPropagation();toggleValor('${x.id}')">👁</button>
+
+${modoEdicao?`
+<button onclick="event.stopPropagation();excluirLancamento('${x.id}')" style="background:#ef4444;color:#fff">🗑</button>
+`:""}
+
 </div>
 
 </div>
 `
 })
+
 }
 
 })
 
 lista.innerHTML=html
 
-/* 🔥 TOTAL */
-const saldoTotal=totalGeralR-totalGeralD
+/* ====================================================TOTAL==================================================== */
+const saldoTotal=totalR-totalD
 
 resumo.innerHTML=`
 <div class="card" style="display:flex;justify-content:space-between;align-items:center">
+
 <b>Total Geral</b>
-<button onclick="toggleSaldo()" style="background:none">👁</button>
+
 <div style="display:flex;align-items:center;gap:8px">
+
 <b style="color:${saldoTotal>=0?"#16a34a":"#dc2626"}">
 ${ocultarSaldo?"R$ ***":formatarMoeda(saldoTotal)}
 </b>
-<button onclick="toggleSaldo()" style="background:none">👁</button>
+
+<button onclick="toggleSaldo()">👁</button>
+
 </div>
 </div>
 `
@@ -490,74 +558,45 @@ ${ocultarSaldo?"R$ ***":formatarMoeda(saldoTotal)}
 console.error("ERRO RENDER:",e)
 }
 }
-</script>
-
-
-
-
-  
-<script>
-function toggleMes(chave){
-mesesOcultos[chave]=!mesesOcultos[chave]
-render()
-}
-function toggleValor(id){
-visibilidade[id]=!visibilidade[id]
-render()
-}
-function toggleEdicao(){
-modoEdicao=!modoEdicao
-render()
-}
-function formatarDataBR(data){
-if(!data)return ""
-const d=data.split("T")[0]
-const [ano,mes,dia]=d.split("-")
-return dia+"/"+mes+"/"+ano
-}
-</script>
-
-  
-<script>
+/* ====================================================034 – DASHBOARD ALINHADO==================================================== */
 function atualizarDashboard(){
 
 if(!dados.length)return
 
 const container=safe("containerExtrato")
 
-let areaGrafico=safe("areaGrafico")
+let area=safe("areaGrafico")
 
-if(!areaGrafico){
-areaGrafico=document.createElement("div")
-areaGrafico.id="areaGrafico"
-areaGrafico.style.textAlign="center"
-areaGrafico.style.marginBottom="4px"
-container.prepend(areaGrafico)
+if(!area){
+area=document.createElement("div")
+area.id="areaGrafico"
+container.prepend(area)
 }
 
-areaGrafico.innerHTML=""
+area.innerHTML=""
 
-/* 🔥 CANVAS CONTROLADO DE VERDADE */
-const canvas=document.createElement("canvas")
-canvas.width=TAM_GRAFICO
-canvas.height=TAM_GRAFICO
-canvas.style.display="block"
-canvas.style.margin="0 auto"
+/* 🔥 DOIS CANVAS */
+const canvas1=document.createElement("canvas")
+const canvas2=document.createElement("canvas")
 
-areaGrafico.appendChild(canvas)
+canvas1.width=TAM_GRAFICO
+canvas1.height=TAM_GRAFICO
 
-const ctx=canvas.getContext("2d")
+canvas2.width=TAM_GRAFICO
+canvas2.height=TAM_GRAFICO
 
+area.appendChild(canvas1)
+area.appendChild(canvas2)
+
+/* 🔥 DADOS */
 let r=0,d=0
-
 dados.forEach(x=>{
 if(x.tipo==="RECEITA")r+=Number(x.valor||0)
 else d+=Number(x.valor||0)
 })
 
-if(graficoResumo)graficoResumo.destroy()
-
-graficoResumo=new Chart(ctx,{
+/* 🔥 RESUMO */
+new Chart(canvas1,{
 type:"doughnut",
 data:{
 labels:["Receitas","Despesas"],
@@ -566,793 +605,101 @@ data:[r,d],
 backgroundColor:["#22c55e","#ef4444"]
 }]
 },
-options:{
-responsive:false,
-maintainAspectRatio:false,
-cutout:"70%",
-plugins:{
-legend:{position:"bottom"},
-tooltip:{enabled:true}
-}
-}
+options:{responsive:false,cutout:"70%"}
 })
 
-}
-</script>
-
-
-
-
-  
-<script>
-async function carregarPerfil(){
-
-const id=localStorage.getItem("usuario_id_lancamentos")
-if(!id)return
-
-const {data,error}=await db
-.from("usuarios_lancamentos")
-.select("*")
-.eq("id",id)
-.single()
-
-if(error || !data){
-console.warn("Perfil erro",error)
-return
-}
-
-/* 🔥 HEADER */
-safe("mobileAgencia").innerText=data.agencia||"01968"
-safe("mobileConta").innerText=data.conta||"000000000"
-
-/* 🔥 PERFIL */
-setValue("perfilNome",data.nome||"")
-setValue("perfilEmail",data.email||"")
-setValue("perfilCelular",data.celular||"")
-
-setHTML("boxAgencia",data.agencia||"01968")
-setHTML("boxConta",data.conta||"000000000")
-
-/* 🔥 PLANO */
-setHTML("badgePlano",(data.plano||"FREE").toUpperCase())
-
-}
-</script>
-
-<script>
-document.addEventListener("input",e=>{
-if(e.target.id==="perfilCelular"){
-let v=e.target.value.replace(/\D/g,"").slice(0,11)
-if(v.length>10)v=v.replace(/^(\d{2})(\d{1})(\d{4})(\d{4}).*/,"($1) $2 $3-$4")
-else if(v.length>6)v=v.replace(/^(\d{2})(\d{4})(\d{0,4}).*/,"($1) $2-$3")
-else if(v.length>2)v=v.replace(/^(\d{2})(\d*)/,"($1) $2")
-else v=v.replace(/^(\d*)/,"($1")
-e.target.value=v
-}
-})
-</script>
-
-<script>
-function toggleSaldo(){
-ocultarSaldo=!ocultarSaldo
-render()
-atualizarPainelMobile()
-}
-
-function atualizarPainelMobile(){
-let r=0,d=0
-dados.forEach(x=>{
-if(x.tipo==="RECEITA")r+=Number(x.valor||0)
-else d+=Number(x.valor||0)
-})
-const saldo=r-d
-safe("mobileSaldo").innerText=
-ocultarSaldo?"R$ ***":
-"R$ "+saldo.toLocaleString("pt-BR",{minimumFractionDigits:2})
-safe("mobileNome").innerText=
-localStorage.getItem("usuario_nome_lancamentos")||""
-safe("mobileAgencia").innerText=
-localStorage.getItem("agencia")||"01968"
-safe("mobileConta").innerText=
-localStorage.getItem("conta")||"000000000"
-}
-</script>
-
-
-<script>
-function abrirTela(nome,el){
-document.querySelectorAll(".telaApp").forEach(t=>t.classList.remove("telaAtiva"))
-document.querySelectorAll(".navItem").forEach(n=>n.classList.remove("navAtivo"))
-const tela=safe("tela"+nome.charAt(0).toUpperCase()+nome.slice(1))
-if(tela) tela.classList.add("telaAtiva")
-if(el) el.classList.add("navAtivo")
-if(nome==="extrato"){
-setTimeout(()=>{
-render()
-atualizarDashboard()
-},100)
-}
-if(nome==="perfil"){
-setTimeout(()=>carregarPerfil(),100)
-}
-}
-</script>
-
-
-<style>
-.card{transition:all .2s ease}
-.card:hover{transform:translateY(-3px);box-shadow:0 10px 25px rgba(0,0,0,.08)}
-</style>
-
-
-<style>
-.telaApp{opacity:0;transform:translateY(10px);transition:.25s}
-.telaAtiva{opacity:1;transform:translateY(0)}
-</style>
-
-
-<script>
-async function abrirFinanceiro(btn){
-
-if(btn){
-btn.disabled=true
-btn.innerText="Carregando..."
-}
-
-abrirTela("extrato")
-
-await carregar()
-
-render()
-atualizarDashboard()
-
-if(btn){
-btn.disabled=false
-btn.innerText="Entrar no Financeiro"
-}
-}
-</script>
-
-
-
-
-
-<style>
-html{scroll-behavior:smooth}
-</style>
-
-
-<style>
-button:active{transform:scale(0.96)}
-</style>
-
-
-<script>
-function detectarCategoria(desc){
-desc=desc.toLowerCase()
-if(desc.includes("mercado")||desc.includes("super"))return "Alimentação"
-if(desc.includes("uber")||desc.includes("99"))return "Transporte"
-if(desc.includes("farmacia"))return "Saúde"
-if(desc.includes("netflix")||desc.includes("spotify"))return "Lazer"
-if(desc.includes("salario"))return "Receita"
-return "Outros"
-}
-</script>
-
-
-<script>
-function resumoCategorias(){
-let map={}
-dados.forEach(x=>{
-let cat=detectarCategoria(x.descricao||"")
-if(!map[cat])map[cat]=0
-map[cat]+=Number(x.valor||0)*(x.tipo==="DESPESA"?1:0)
-})
-return map
-}
-</script>
-
-
-<script>
-function graficoCategorias(){
-
+/* 🔥 CATEGORIAS */
 const mapa=resumoCategorias()
-const labels=Object.keys(mapa)
-const valores=Object.values(mapa)
 
-const container=safe("containerExtrato")
-
-let areaCat=safe("areaGraficoCat")
-
-if(!areaCat){
-areaCat=document.createElement("div")
-areaCat.id="areaGraficoCat"
-areaCat.style.textAlign="center"
-areaCat.style.marginBottom="4px"
-container.prepend(areaCat)
-}
-
-areaCat.innerHTML=""
-
-/* 🔥 CANVAS PADRONIZADO */
-const canvas=document.createElement("canvas")
-canvas.width=TAM_GRAFICO
-canvas.height=TAM_GRAFICO
-canvas.style.display="block"
-canvas.style.margin="0 auto"
-
-areaCat.appendChild(canvas)
-
-new Chart(canvas,{
+new Chart(canvas2,{
 type:"doughnut",
 data:{
-labels:labels,
+labels:Object.keys(mapa),
 datasets:[{
-data:valores
+data:Object.values(mapa)
 }]
 },
-options:{
-responsive:false,
-maintainAspectRatio:false,
-cutout:"70%",
-plugins:{
-legend:{position:"bottom"}
-}
-}
+options:{responsive:false,cutout:"70%"}
 })
 
 }
-</script>
+/* ====================================================035 – EXCLUIR LANÇAMENTO==================================================== */
+async function excluirLancamento(id){
 
+if(!confirm("Excluir lançamento?"))return
 
+await db.from("lancamentos").delete().eq("id",id)
 
-<script>
-function alertaInteligente(){
-let r=0,d=0
-dados.forEach(x=>{if(x.tipo==="RECEITA")r+=Number(x.valor||0);else d+=Number(x.valor||0)})
-let msg=""
-if(d>r)msg="⚠️ Você está gastando mais do que ganha"
-else if(d>r*0.7)msg="⚠️ Alto nível de gastos"
-else msg="✔️ Controle financeiro saudável"
-safe("alertaFinanceiro").innerText=msg
-}
-</script>
-
-
-
-<script>
-function calcularScore(){
-let r=0,d=0
-
-dados.forEach(x=>{
-if(x.tipo==="RECEITA")r+=Number(x.valor||0)
-else d+=Number(x.valor||0)
-})
-
-let score=0
-if(r>0){
-score=Math.max(0,Math.min(100,100-(d/r*100)))
+carregar()
 }
 
-/* 🔥 GARANTE ELEMENTO */
-const el=safe("scoreBox")
-if(!el)return
-
-el.innerText="Score: "+score.toFixed(0)
-
-if(score>70)el.style.background="#dcfce7"
-else if(score>40)el.style.background="#fef9c3"
-else el.style.background="#fee2e2"
+/* ====================================================036 – IR INICIO==================================================== */
+function irInicio(){
+abrirTela("inicio")
 }
-</script>
 
-
-<script>
-function previsao(){
-let saldo=0
-dados.forEach(x=>{saldo+=x.tipo==="RECEITA"?Number(x.valor): -Number(x.valor)})
-let proj=saldo*1.2
-const div=document.createElement("div")
-div.className="card"
-div.innerText="📊 Projeção: "+moeda(proj)
-safe("telaInicio").appendChild(div)
-}
-</script>
-
-
-<script>
-function meta(){
-let meta=1000
-let atual=0
-dados.forEach(x=>{if(x.tipo==="RECEITA")atual+=Number(x.valor)})
-const pct=Math.min(100,(atual/meta)*100)
-const div=document.createElement("div")
-div.className="card"
-div.innerHTML=`Meta: ${pct.toFixed(0)}%`
-safe("telaInicio").appendChild(div)
-}
-</script>
-
-
-
-<script>
-function addMsgIA(msg,tipo){
-const chat=safe("chatIA")
-const div=document.createElement("div")
-div.className="card"
-div.style.alignSelf=tipo==="bot"?"flex-start":"flex-end"
-div.innerText=msg
-chat.appendChild(div)
-chat.scrollTop=chat.scrollHeight
-}
-</script>
-
-
-<script>
+/* ====================================================037 – MELHORIAS GERAIS==================================================== */
 function atualizarTudo(){
+
 atualizarPainelMobile()
 alertaInteligente()
 calcularScore()
-/* 🔥 GRÁFICO UMA VEZ */
+
 if(!window._graficoRodou){
 window._graficoRodou=true
-setTimeout(graficoCategorias,200)
+setTimeout(atualizarDashboard,200)
 }
-/* 🔥 INTELIGÊNCIA UMA VEZ */
+
 if(!window._inteligenciaRodou){
 window._inteligenciaRodou=true
 rodarInteligencia()
 }
-}
-</script>
-
-
-
-
-<input type="file" id="csvFile" style="display:none">
-<button onclick="document.getElementById('csvFile').click()">📥 Importar Extrato</button>
-<script>
-document.getElementById("csvFile").addEventListener("change",async e=>{
-const file=e.target.files[0]
-if(!file)return
-const txt=await file.text()
-const linhas=txt.split("\n").slice(1)
-for(const l of linhas){
-if(!l.trim())continue
-const c=l.split(",")
-await db.from("lancamentos").insert({
-data:c[0],
-descricao:c[1],
-valor:parseFloat(c[2]),
-tipo:parseFloat(c[2])>0?"RECEITA":"DESPESA",
-usuario_id:localStorage.getItem("usuario_id_lancamentos")
-})
-}
-carregar()
-})
-</script>
-
-
-<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5"></script>
-<input type="file" id="fotoNota">
-<script>
-document.getElementById("fotoNota").addEventListener("change",async e=>{
-const file=e.target.files[0]
-const {data:{text}}=await Tesseract.recognize(file,"por")
-let valor=text.match(/\d+,\d{2}/)
-if(valor){
-await db.from("lancamentos").insert({
-data:new Date().toISOString().slice(0,10),
-descricao:"OCR",
-valor:parseFloat(valor[0].replace(",", ".")),
-tipo:"DESPESA",
-usuario_id:localStorage.getItem("usuario_id_lancamentos")
-})
-carregar()
-}
-})
-</script>
-
-
-<script>
-function gerarPix(){
-const chave="69984311978"
-const img=document.createElement("img")
-img.src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data="+chave
-const box=document.createElement("div")
-box.className="card"
-box.innerHTML="<h3>PIX</h3>"
-box.appendChild(img)
-document.body.appendChild(box)
-}
-</script>
-
-
-<script>
-function sugerirCortes(){
-let map=resumoCategorias()
-let maior=Object.entries(map).sort((a,b)=>b[1]-a[1])[0]
-if(!maior)return
-addMsgIA("💡 Corte sugerido: reduza "+maior[0],"bot")
-}
-</script>
-
-
-<script>
-if(!window._syncRodando){
-window._syncRodando=true
 
 }
-</script>
 
+/* ====================================================038 – LOGIN FINAL AJUSTADO==================================================== */
+async function loginSistema(){
 
-<script>
-let LIMITE=2000
-function validarLimite(valor){
-let total=0
-dados.forEach(x=>{if(x.tipo==="DESPESA")total+=Number(x.valor)})
-if(total+valor>LIMITE){
-alert("⚠️ Limite de gastos atingido")
-return false
-}
-return true
-}
-</script>
+const email=safe("loginUser").value.trim()
+const senha=safe("loginPass").value.trim()
 
-
-<script>
-async function editarCampo(id,campo,valor){
-await db.from("lancamentos")
-.update({[campo]:campo==="valor"?Number(valor):valor})
-.eq("id",id)
-
-await carregar()
-}
-async function salvarRegistroSeguro(obj){
-if(obj.tipo==="DESPESA"&&!validarLimite(obj.valor))return
-await db.from("lancamentos").insert(obj)
-carregar()
-}
-</script>
-
-
-<script>
-function backup(){
-localStorage.setItem("backup_financeiro",JSON.stringify(dados))
-}
-setInterval(backup,10000)
-</script>
-
-
-<script>
-function restaurar(){
-const b=localStorage.getItem("backup_financeiro")
-if(!b)return
-dados=JSON.parse(b)
-render()
-}
-</script>
-
-
-<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
-<script>
-function exportarPDF(){
-const {jsPDF}=window.jspdf
-const doc=new jsPDF()
-doc.text("Relatório Financeiro",10,10)
-let y=20
-dados.forEach(x=>{
-doc.text(`${x.descricao} - ${moeda(x.valor)}`,10,y)
-y+=6
-})
-doc.save("relatorio.pdf")
-}
-</script>
-
-
-<script>
-function toggleDark(){
-document.body.classList.toggle("dark")
-}
-</script>
-<style>
-body.dark{background:#020617;color:#fff}
-body.dark .card{background:#111827;color:#fff}
-</style>
-
-
-<script>
-function trocarConta(id){
-localStorage.setItem("usuario_id_lancamentos",id)
-carregar()
-}
-</script>
-
-
-<script>
-function detectarFraude(){
-if(window._fraudeExecutada)return
-window._fraudeExecutada=true
-dados.forEach(x=>{
-if(Number(x.valor)>5000 && x.tipo==="DESPESA"){
-console.warn("🚨 possível fraude:",x)
-}
-})
+if(!email||!senha){
+alert("Preencha os dados")
+return
 }
 
-function rodarInteligencia(){
-if(window._inteligenciaRodou)return
-window._inteligenciaRodou=true
-setTimeout(()=>{
-sugerirCortes()
-detectarFraude()
-},3000)
-}
-</script>
+const {data}=await db
+.from("usuarios_lancamentos")
+.select("*")
+.eq("email",email)
+.eq("senha",senha)
+.maybeSingle()
 
-
-<script>
-function gerarToken(user){
-return btoa(JSON.stringify({id:user.id,ts:Date.now()}))
+if(!data){
+alert("Login inválido")
+return
 }
-function salvarSessao(user){
+
 localStorage.clear()
-const token=gerarToken(user)
-localStorage.setItem("auth_token",token)
-localStorage.setItem("usuario_id_lancamentos",user.id)
-localStorage.setItem("usuario_nome_lancamentos",user.nome||"")
-localStorage.setItem("tipo_usuario_lancamentos",user.tipo||"user")
-}
-function getSessao(){
-const t=localStorage.getItem("auth_token")
-if(!t)return null
-try{return JSON.parse(atob(t))}catch{return null}
-}
-</script>
 
+localStorage.setItem("usuario_id_lancamentos",data.id)
+localStorage.setItem("usuario_nome_lancamentos",data.nome)
+localStorage.setItem("tipo_usuario_lancamentos",data.tipo||"user")
+localStorage.setItem("agencia",data.agencia||"01968")
+localStorage.setItem("conta",data.conta||"")
 
-
-<script>
-document.addEventListener("DOMContentLoaded",async()=>{
-const userId=localStorage.getItem("usuario_id_lancamentos")
-if(userId){
 hide("telaLogin")
 show("painelMobile")
+
 document.body.classList.remove("login")
 document.body.classList.add("app")
+
 await carregar()
+await carregarPerfil()
+await carregarUsuariosAdmin()
+
+aplicarPerfilUI()
 atualizarPainelMobile()
-}else{
-show("telaLogin")
-hide("painelMobile")
+abrirTela("inicio")
+
 }
-})
-</script>
-
-
-<script>
-function setEmpresa(id){
-localStorage.setItem("empresa_id",id)
-}
-function getEmpresa(){
-return localStorage.getItem("empresa_id")
-}
-</script>
-
-
-
-<script>
-async function salvarRegistro(obj){
-obj.usuario_id=localStorage.getItem("usuario_id_lancamentos")
-obj.empresa_id=getEmpresa()
-await db.from("lancamentos").insert(obj)
-carregar()
-}
-</script>
-
-
-<script>
-function encrypt(text){
-return btoa(unescape(encodeURIComponent(text)))
-}
-function decrypt(text){
-return decodeURIComponent(escape(atob(text)))
-}
-</script>
-
-<script>
-function protegerDados(){
-dados=dados.map(x=>{
-return {...x,descricao:decrypt(x.descricao||"")}
-})
-}
-</script>
-
-
-<script>
-function logout(){
-localStorage.removeItem("auth_token")
-localStorage.removeItem("usuario_id_lancamentos")
-location.reload()
-}
-</script>
-
-
-<script>
-let lastAction=0
-function podeExecutar(){
-const agora=Date.now()
-if(agora-lastAction<1000)return false
-lastAction=agora
-return true
-}
-</script>
-
-
-<script>
-async function salvarSeguro(obj){
-if(!podeExecutar()){alert("Aguarde...");return}
-await salvarRegistro(obj)
-}
-</script>
-
-
-<script>
-async function logAcao(tipo){
-await db.from("logs").insert({
-usuario_id:localStorage.getItem("usuario_id_lancamentos"),
-acao:tipo,
-data:new Date().toISOString()
-})
-}
-</script>
-
-<script>
-async function salvarRegistro(obj){
-await db.from("lancamentos").insert(obj)
-await logAcao("INSERT")
-carregar()
-}
-</script>
-
-<style>
-.blur{filter:blur(6px)}
-</style>
-
-<script>
-function privacidade(){
-document.querySelectorAll(".valor").forEach(el=>el.classList.toggle("blur"))
-}
-</script>
-
-<script>
-setInterval(()=>{
-const s=getSessao()
-if(!s)return
-if(Date.now()-s.ts>3600000){
-alert("Sessão expirada")
-logout()
-}
-},60000)
-</script>
-
-<script>
-async function api(path,data){
-return fetch("https://gspdlrenyrzbkxlvyugc.functions.supabase.co/"+path,{
-method:"POST",
-headers:{"Content-Type":"application/json"},
-body:JSON.stringify(data)
-})
-}
-</script>
-
-<script>
-async function responderIA(){
-const pergunta=safe("perguntaIA").value.trim()
-if(!pergunta)return
-addMsgIA(pergunta,"user")
-safe("perguntaIA").value=""
-try{
-const res=await fetch("https://gspdlrenyrzbkxlvyugc.functions.supabase.co/ia-chat",{
-method:"POST",
-headers:{"Content-Type":"application/json"},
-body:JSON.stringify({pergunta})
-})
-const json=await res.json()
-addMsgIA(json.resposta||"Sem resposta","bot")
-}catch(e){
-addMsgIA("Erro ao conectar IA","bot")
-}
-}
-</script>
-
-<script>
-function gerarConta(nome){
-const hoje=new Date()
-const dd=String(hoje.getDate()).padStart(2,"0")
-const mm=String(hoje.getMonth()+1).padStart(2,"0")
-const yyyy=hoje.getFullYear()
-let prefixo="004"
-if(nome.toLowerCase().includes("admin"))prefixo="001"
-else if(nome.toLowerCase().includes("neto"))prefixo="002"
-else if(nome.toLowerCase().includes("larissa"))prefixo="003"
-return prefixo+dd+mm+yyyy
-}
-
-function gerarContaUsuario(email){
-const hoje=new Date()
-const dd=String(hoje.getDate()).padStart(2,"0")
-const mm=String(hoje.getMonth()+1).padStart(2,"0")
-const yyyy=hoje.getFullYear()
-let prefixo="004"
-if(email.includes("admin"))prefixo="001"
-else if(email.includes("neto"))prefixo="002"
-else if(email.includes("larissa"))prefixo="003"
-return {
-agencia:"01968",
-conta:prefixo+dd+mm+yyyy
-}
-}
-</script>
-
-<script>
-async function abrirCadastro(){
-const nome=prompt("Nome completo:")
-if(!nome)return
-const email=prompt("Email:")
-if(!email)return
-const senha=prompt("Senha:")
-if(!senha)return
-/* 🔥 VERIFICA SE EMAIL JÁ EXISTE */
-const {data:existe}=await db
-.from("usuarios_lancamentos")
-.select("id")
-.eq("email",email)
-.limit(1)
-if(existe && existe.length){
-alert("Email já cadastrado")
-return
-}
-/* 🔥 GERAR AGÊNCIA E CONTA */
-const contaGerada=gerarContaUsuario(email)
-/* 🔥 INSERT (AQUI É O INSERT) */
-const {error}=await db
-.from("usuarios_lancamentos")
-.insert({
-nome:nome,
-email:email,
-senha:senha,
-agencia:contaGerada.agencia,
-conta:contaGerada.conta,
-tipo: email.includes("admin") ? "admin" : "user"
-})
-if(error){
-alert("Erro ao cadastrar")
-console.error(error)
-return
-}
-alert("Conta criada com sucesso!")
-}
-</script>
-  
-<script>
-console.time("render")
-setTimeout(()=>console.timeEnd("render"),1000)
-</script>
-
-
-<script>
-if('caches'in window){
-caches.keys().then(keys=>keys.forEach(k=>caches.delete(k)))
-}
-</script>
-
-
-
-</body>
-</html>
-
-
-
-
-
