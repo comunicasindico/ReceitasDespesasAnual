@@ -322,7 +322,6 @@ safe("blocoAdmin").style.display="none"
 safe("blocoFinanceiroUsuario").style.display="block"
 }
 }
-
 /* ====================================================026 – CARREGAR USUÁRIOS ADMIN GRID==================================================== */
 async function carregarUsuariosAdmin(){
 
@@ -370,12 +369,12 @@ ${u.status==="aprovado"?"OK":"Aprovar"}
 })
 
 }
-
 /* ====================================================027 – ALTERAR PLANO==================================================== */
 function togglePlano(id,planoAtual){
 if(localStorage.getItem("tipo_usuario_lancamentos")!=="admin"){
 alert("Somente admin")
 return
+}
 }
 /* ====================================================028 – EXCLUIR USUÁRIO ADMIN==================================================== */
 async function excluirUsuarioAdmin(id){
