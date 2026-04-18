@@ -290,12 +290,14 @@ const TAM_GRAFICO=180
 </div>
 
 <!-- ====================================================024 – NAV==================================================== -->
-<div class="bottomNav">
+<<div class="bottomNav">
 <div class="navItem navAtivo" onclick="abrirTela('inicio',this)"><span>🏠</span>Início</div>
 <div class="navItem" onclick="abrirTela('extrato',this)"><span>📄</span>Extrato</div>
 <div class="navItem" onclick="abrirTela('perfil',this)"><span>👤</span>Perfil</div>
 <div class="navItem" onclick="abrirTela('ia',this)"><span>🤖</span>IA</div>
 </div>
+
+<script>
 /* ====================================================025 – DETECTAR PERFIL==================================================== */
 function aplicarPerfilUI(){
 const tipo=localStorage.getItem("tipo_usuario_lancamentos")
@@ -530,7 +532,7 @@ ${modoEdicao
 
 ${modoEdicao
 ? `<input value="${valor}" type="number" onchange="editarCampo('${x.id}','valor',this.value)" style="width:90px;text-align:right">`
-: vis?"R$ ***":formatarMoeda(valor)
+: (vis ? "R$ ***" : formatarMoeda(valor))
 }
 
 </div>
@@ -698,12 +700,18 @@ alert("Preencha os dados")
 return
 }
 
-const {data}=await db
+const {data,error}=await db
 .from("usuarios_lancamentos")
 .select("*")
 .eq("email",email)
 .eq("senha",senha)
 .maybeSingle()
+
+if(error){
+console.error(error)
+alert("Erro no login")
+return
+}
 
 if(!data){
 alert("Login inválido")
