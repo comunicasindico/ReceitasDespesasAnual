@@ -548,11 +548,7 @@ ${modoEdicao
 
 ${modoEdicao
 ? `<input value="${valor}" type="number" onchange="editarCampo('${x.id}','valor',this.value)" style="width:90px;text-align:right">`
-(bloqueado
-? "🔒"
-: (x.tipo==="RECEITA"
-  ? "R$ ***"
-  : (vis ? "R$ ***" : formatarMoeda(valor))
+(bloqueado? "🔒": (x.tipo==="RECEITA"  ? "R$ ***"  : (vis ? "R$ ***" : formatarMoeda(valor))
 ))
 }
 
