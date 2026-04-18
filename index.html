@@ -138,18 +138,28 @@ Criar Conta
 
 <div style="flex:1;background:#dcfce7;padding:10px;border-radius:10px">
 <div>Receitas</div>
-<b id="dashReceitas">R$ 0</b>
+<div style="display:flex;align-items:center;gap:6px">
+<b id="dashReceitas">R$ ***</b>
+<button onclick="toggleSaldo()" style="background:none">👁</button>
+</div>
 </div>
 
 <div style="flex:1;background:#fee2e2;padding:10px;border-radius:10px">
 <div>Despesas</div>
-<b id="dashDespesas">R$ 0</b>
+<div style="display:flex;align-items:center;gap:6px">
+<b id="dashDespesas">R$ ***</b>
+<button onclick="toggleSaldo()" style="background:none">👁</button>
+</div>
 </div>
 
 <div style="flex:1;background:#e0f2fe;padding:10px;border-radius:10px">
 <div>Saldo</div>
-<b id="dashSaldo">R$ 0</b>
+<div style="display:flex;align-items:center;gap:6px">
+<b id="dashSaldo">R$ ***</b>
+<button onclick="toggleSaldo()" style="background:none">👁</button>
 </div>
+</div>
+  
 </div>
 <div class="card">
 <div style="display:flex;justify-content:space-between;align-items:center">
@@ -168,10 +178,6 @@ Criar Conta
 <div style="font-size:28px;font-weight:bold;margin-top:10px">
 <span id="mobileSaldo"></span>
 <button onclick="toggleSaldo()" style="background:none">👁</button>
-</div>
-
-<div style="font-size:12px;margin-top:5px;color:#64748b">
-🏦 Ag: <b id="mobileAgencia"></b> • Conta: <b id="mobileConta"></b>
 </div>
 
 <div id="alertaFinanceiro" class="card"></div>
@@ -807,10 +813,9 @@ else d+=Number(x.valor||0)
 
 const saldo=r-d
 
-safe("dashReceitas").innerText="R$ ***"
+safe("dashReceitas").innerText=ocultarSaldo?"R$ ***":formatarMoeda(r)
 safe("dashDespesas").innerText=ocultarSaldo?"R$ ***":formatarMoeda(d)
 safe("dashSaldo").innerText=ocultarSaldo?"R$ ***":formatarMoeda(saldo)
-
 }
 /* ====================================================044 ASSINAR PLANO==================================================== */
 async function assinarPlano(){
