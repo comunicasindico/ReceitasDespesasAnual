@@ -453,102 +453,93 @@ usuario.plano_expira_em = localStorage.getItem("plano_expira_em") || null
 /* ====================================================033 – RENDER PROFISSIONAL==================================================== */
 function render(){
 if(!usuario || !usuario.id){
-console.warn("Usuario ainda não carregado")
+console.warn("Usuario não carregado ainda")
 return
 }
-const hoje=new Date()
-const expira=usuario.plano_expira_em?new Date(usuario.plano_expira_em):null
+const hoje = new Date()
+const expira = usuario.plano_expira_em ? new Date(usuario.plano_expira_em) : null
+let bloqueado = false
+if(usuario.plano !== "pro"){
+bloqueado = true
+}
+if(expira && expira < hoje){
+bloqueado = true
+}
 const bloqueado = (usuario.plano!=="pro" || (expira && expira<hoje))
 try{
 const tela=safe("telaExtrato")
 if(!tela||!tela.classList.contains("telaAtiva"))return
-
 const lista=safe("lista")
 const resumo=safe("resumo")
-
 if(!dados||!dados.length){
 lista.innerHTML="<div class='card'>Sem registros</div>"
 resumo.innerHTML=""
 return
 }
-
-/* 🔥 AGRUPAMENTO */
+/* 🔥 AGRUPAMENTO CORRIGIDO */
 const grupos={}
+if(!Array.isArray(dados)||!dados.length){
+lista.innerHTML="<div class='card'>Sem registros</div>"
+resumo.innerHTML=""
+return
+}
 dados.forEach(x=>{
-if(!x.data)return
-const d=x.data.split("T")[0]
+if(!x||!x.data)return
+const d=String(x.data).split("T")[0]
+if(!d.includes("-"))return
 const [ano,mes]=d.split("-")
+if(!ano||!mes)return
 const chave=ano+"-"+mes
 if(!grupos[chave])grupos[chave]=[]
 grupos[chave].push(x)
 })
-
 const chaves=Object.keys(grupos).sort().reverse()
-
+if(!chaves.length){
+lista.innerHTML="<div class='card'>Sem dados financeiros</div>"
+resumo.innerHTML=""
+return
+}
 let html=""
 let totalR=0
 let totalD=0
-
 chaves.forEach(chave=>{
-
-const listaMes=grupos[chave]
-
+const listaMes=grupos[chave]||[]
 listaMes.sort((a,b)=>(a.data||"").localeCompare(b.data||""))
-
 let r=0,d=0
-
 listaMes.forEach(x=>{
 const v=Number(x.valor||0)
 if(x.tipo==="RECEITA")r+=v
 else d+=v
 })
-
 totalR+=r
 totalD+=d
-
 const saldo=r-d
-const [ano,mes]=chave.split("-")
-
 /* ====================================================HEADER==================================================== */
 html+=`
 <div class="card" onclick="toggleMes('${chave}')" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center">
-
 <div style="font-weight:bold">${mes}/${ano}</div>
-
 <div style="display:flex;align-items:center;gap:8px">
-
 <b style="color:${saldo>=0?"#16a34a":"#dc2626"}">
 ${bloqueado?"🔒":(ocultarSaldo?"R$ ***":formatarMoeda(saldo))}
 </b>
-
 <button onclick="event.stopPropagation();toggleSaldo()" style="background:#e2e8f0;padding:6px;border-radius:8px">👁</button>
-
 </div>
 </div>
 `
-
 /* ====================================================ITENS==================================================== */
 if(!mesesOcultos[chave]){
-
 listaMes.forEach(x=>{
-
 const valor=Number(x.valor||0)
 const vis=visibilidade[x.id]===false
-
 html+=`
 <div class="card" style="padding:8px;display:flex;justify-content:space-between;align-items:center">
-
 <div style="flex:2;font-size:13px">
-
 ${modoEdicao
 ? `<input value="${x.descricao||""}" onchange="editarCampo('${x.id}','descricao',this.value)">`
 : `${formatarDataBR(x.data)} - ${x.descricao}`
 }
-
 </div>
-
 <div style="flex:1;text-align:right;font-weight:bold;color:${x.tipo==="RECEITA"?"#16a34a":"#dc2626"}">
-
 ${modoEdicao
 ? `<input value="${valor}" type="number" onchange="editarCampo('${x.id}','valor',this.value)" style="width:90px;text-align:right">`
 : (bloqueado
@@ -558,49 +549,32 @@ ${modoEdicao
 : (vis ? "R$ ***" : formatarMoeda(valor))
 ))
 }
-
 </div>
-
 <div style="display:flex;gap:4px">
-
 <button onclick="event.stopPropagation();toggleValor('${x.id}')">👁</button>
-
 ${modoEdicao?`
 <button onclick="event.stopPropagation();excluirLancamento('${x.id}')" style="background:#ef4444;color:#fff">🗑</button>
 `:""}
-
 </div>
-
 </div>
 `
 })
-
 }
-
 })
-
 lista.innerHTML=html
-
 /* ====================================================TOTAL==================================================== */
 const saldoTotal=totalR-totalD
-
 resumo.innerHTML=`
 <div class="card" style="display:flex;justify-content:space-between;align-items:center">
-
 <b>Total Geral</b>
-
 <div style="display:flex;align-items:center;gap:8px">
-
 <b style="color:${saldoTotal>=0?"#16a34a":"#dc2626"}">
 ${ocultarSaldo?"R$ ***":formatarMoeda(saldoTotal)}
 </b>
-
 <button onclick="toggleSaldo()">👁</button>
-
 </div>
 </div>
 `
-
 }catch(e){
 console.error("ERRO RENDER:",e)
 }
@@ -711,71 +685,56 @@ document.querySelectorAll("button").forEach(b=>{
 if(b.innerText.includes("Virar PRO"))b.style.display="none"
 })
 }
-
 }
 /* ====================================================040 – LOGIN SaaS==================================================== */
 async function loginSistema(){
-
 const email=safe("loginUser").value.trim()
 const senha=safe("loginPass").value.trim()
-
 if(!email||!senha){
 alert("Preencha os dados")
 return
 }
-
 const {data,error}=await db
 .from("usuarios_lancamentos")
 .select("*")
 .eq("email",email)
 .eq("senha",senha)
 .maybeSingle()
-
 if(error){
 console.error(error)
 alert("Erro no login")
 return
 }
-
 if(!data){
 alert("Login inválido")
 return
 }
-
 /* 🔒 BLOQUEIO POR APROVAÇÃO */
 if(data.status!=="aprovado"){
 alert("⏳ Conta aguardando aprovação do administrador")
 return
 }
-
+/* 🔥 LIMPA E DEFINE SESSÃO */
 localStorage.clear()
-
-localStorage.setItem("usuario_id_lancamentos",data.id)
-localStorage.setItem("usuario_nome_lancamentos",data.nome)
-localStorage.setItem("tipo_usuario_lancamentos",data.tipo||"user")
-localStorage.setItem("usuario_plano",data.plano||"free")
-localStorage.setItem("plano_expira_em",data.plano_expira_em||"")
-/* 🔥 ATUALIZA OBJETO GLOBAL */
-usuario={
-plano:data.plano||"free",
-plano_expira_em:data.plano_expira_em||null
-}
-localStorage.setItem("agencia",data.agencia||"01968")
-localStorage.setItem("conta",data.conta||"")
-localStorage.setItem("usuario_email_lancamentos",data.email)
-usuario=data
+localStorage.setItem("usuario_id_lancamentos", data.id)
+localStorage.setItem("usuario_nome_lancamentos", data.nome)
+localStorage.setItem("usuario_email_lancamentos", data.email)
+localStorage.setItem("tipo_usuario_lancamentos", data.tipo || "user")
+/* 🔥 PLANO (CRÍTICO) */
+localStorage.setItem("usuario_plano", data.plano || "free")
+localStorage.setItem("plano_expira_em", data.plano_expira_em || "")
+/* 🔥 DADOS BANCÁRIOS */
+localStorage.setItem("agencia", data.agencia || "")
+localStorage.setItem("conta", data.conta || "")
+/* 🔥 UI */
 hide("telaLogin")
 show("painelMobile")
-
+/* 🔥 ORDEM CORRETA (CRÍTICO) */
 await carregarPerfil()
 await carregar()
-await carregarUsuariosAdmin()
-
+/* 🔥 FINALIZA UI */
 aplicarPerfilUI()
-atualizarPainelMobile()
 abrirTela("inicio")
-
-}
 /* ====================================================041 – BLOQUEIO FREE==================================================== */
 function podeAdicionar(){
 
@@ -802,19 +761,16 @@ carregarUsuariosAdmin()
 }
 /* ====================================================043 – DASHBOARD BANCO==================================================== */
 function atualizarDashboardBanco(){
-
-let r=0,d=0
-
+let r = 0
+let d = 0
 dados.forEach(x=>{
-if(x.tipo==="RECEITA")r+=Number(x.valor||0)
-else d+=Number(x.valor||0)
+if(x.tipo==="RECEITA") r += Number(x.valor||0)
+else d += Number(x.valor||0)
 })
-
-const saldo=r-d
-
-safe("dashReceitas").innerText=ocultarSaldo?"R$ ***":formatarMoeda(r)
-safe("dashDespesas").innerText=ocultarSaldo?"R$ ***":formatarMoeda(d)
-safe("dashSaldo").innerText=ocultarSaldo?"R$ ***":formatarMoeda(saldo)
+const saldo = r - d
+safe("dashReceitas").innerText = ocultarSaldo ? "R$ ***" : formatarMoeda(r)
+safe("dashDespesas").innerText = ocultarSaldo ? "R$ ***" : formatarMoeda(d)
+safe("dashSaldo").innerText = ocultarSaldo ? "R$ ***" : formatarMoeda(saldo)
 }
 /* ====================================================044 ASSINAR PLANO==================================================== */
 async function assinarPlano(){
@@ -867,16 +823,13 @@ atualizarDashboardBanco()
 
 /* ====================================================CARREGAR PERFIL SaaS==================================================== */
 async function carregarPerfil(){
-
 const id = localStorage.getItem("usuario_id_lancamentos")
 if(!id)return
-
 const {data,error} = await db
 .from("usuarios_lancamentos")
 .select("*")
 .eq("id",id)
 .maybeSingle()
-
 if(error || !data){
 console.error("Erro perfil:",error)
 return
@@ -902,10 +855,14 @@ safe("badgePlano").innerText = "Plano: " + (data.plano || "FREE")
 
 /* 🔥 ATUALIZA DASH */
 atualizarDashboardBanco()
-
+if(data.plano === "pro"){
+localStorage.setItem("usuario_plano","pro")
+}else{
+localStorage.setItem("usuario_plano","free")
 }
-  
-/* 🔹 CARREGAR DADOS */
+}
+/* ========================CARREGAR ==================================================== */
+  /* 🔹 CARREGAR DADOS */
 async function carregar(){
 const usuario_id=localStorage.getItem("usuario_id_lancamentos")
 if(!usuario_id)return
@@ -921,21 +878,22 @@ return
 window.dados = data || []
 if(!Array.isArray(window.dados)) window.dados = []
 render()
-
 if(!window._initUI){
 window._initUI=true
 atualizarTudo()
 }
 }
-
+/* ========================function  ==================================================== */
 function toggleMes(chave){
 mesesOcultos[chave] = !mesesOcultos[chave]
 render()
 }
+/* ========================function  ==================================================== */
 function toggleValor(id){
 visibilidade[id] = !visibilidade[id]
 render()
 }
+/* ========================function  ==================================================== */
 function atualizarPainelMobile(){
 const nome=localStorage.getItem("usuario_nome_lancamentos")||""
 const ag=localStorage.getItem("agencia")||"--"
@@ -948,6 +906,7 @@ dados.forEach(x=>{if(x.tipo==="RECEITA")r+=Number(x.valor||0);else d+=Number(x.v
 const saldo=r-d
 safe("mobileSaldo").innerText=ocultarSaldo?"R$ ***":formatarMoeda(saldo)
 }
+/* ========================function  ==================================================== */
 function alertaInteligente(){
 let r=0,d=0
 dados.forEach(x=>{if(x.tipo==="RECEITA")r+=Number(x.valor||0);else d+=Number(x.valor||0)})
@@ -958,6 +917,7 @@ else if(saldo<r*0.2)msg="⚠️ Atenção: saldo baixo"
 else msg="✅ Situação financeira saudável"
 setHTML("alertaFinanceiro",msg)
 }
+/* ========================function  ==================================================== */
 function calcularScore(){
 let r=0,d=0
 dados.forEach(x=>{if(x.tipo==="RECEITA")r+=Number(x.valor||0);else d+=Number(x.valor||0)})
@@ -967,6 +927,7 @@ if(score<0)score=0
 if(score>100)score=100
 setHTML("scoreBox",Math.round(score)+" / 100")
 }
+/* ========================function  ==================================================== */
 function resumoCategorias(){
 const mapa={}
 dados.forEach(x=>{
@@ -977,34 +938,39 @@ mapa[cat]=(mapa[cat]||0)+Number(x.valor||0)
 })
 return mapa
 }
+/* ========================function  ==================================================== */
 async function editarCampo(id,campo,valor){
 const update={}
 update[campo]=campo==="valor"?Number(valor):valor
 await db.from("lancamentos").update(update).eq("id",id)
 carregar()
 }
+/* ========================function  ==================================================== */
 function mostrarUpgrade(){
 alert("🔒 Plano FREE permite até 20 lançamentos. Faça upgrade para PRO.")
 }
+/* ========================function  ==================================================== */
 function formatarMoeda(v){
 return "R$ "+Number(v||0).toLocaleString("pt-BR",{minimumFractionDigits:2})
 }
+/* ========================function  ==================================================== */
 function formatarDataBR(d){
 if(!d)return"--"
 const dt=new Date(d)
 return dt.toLocaleDateString("pt-BR")
 }
-
-
+/* ========================function  ==================================================== */
 /* 🔹 LOGOUT */
 function logout(){
 localStorage.clear()
 location.reload()
 }
+/* ========================function  ==================================================== */
 /* 🔹 ABRIR FINANCEIRO */
 function abrirFinanceiro(){
 abrirTela("extrato")
 }
+/* ========================function  ==================================================== */
 /* 🔹 ABRIR TELA */
 function abrirTela(nome){
 document.querySelectorAll(".telaApp").forEach(t=>{
@@ -1017,6 +983,7 @@ tela.style.display="block"
 tela.classList.add("telaAtiva")
 }
 }
+/* ========================function  ==================================================== */
 /* 🔹 PLACEHOLD (evita erro até implementar IA) */
 function rodarInteligencia(){}
 
