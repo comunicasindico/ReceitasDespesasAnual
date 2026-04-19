@@ -45,8 +45,8 @@ button:active{transform:scale(0.96)}
 #telaExtrato{padding-top:0;margin-top:0}
 /* ====================================================013 – RESPONSIVO==================================================== */
 @media(max-width:768px){body{padding:10px}.card{padding:10px}.gridUsuarios{grid-template-columns:1fr}}
-[contenteditable="true"]{padding:4px;border-radius:6px;transition:0.2s;}
-[contenteditable="true"]:focus{outline:none;background:#e0f2fe;}
+[contenteditable="true"]{padding:4px 6px;border-radius:6px;cursor:text;background:#fefce8;}
+[contenteditable="true"]:focus{outline:none;background:#e0f2fe;box-shadow:0 0 0 2px #93c5fd;}
 
   
 </style>
@@ -61,6 +61,7 @@ let mesesOcultos={}
 let visibilidade = {}
 let modoEdicao = false
 let isAdmin=false
+let modoEdicaoAdmin=false
 /* ====================================================014 – CONFIG==================================================== */
 const SUPABASE_URL="https://gspdlrenyrzbkxlvyugc.supabase.co"
 const SUPABASE_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdzcGRscmVueXJ6Ymt4bHZ5dWdjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ4ODU0NzAsImV4cCI6MjA5MDQ2MTQ3MH0.UWfkWvOh4qMDEcByVL-KZ6ejJ80V7wJlDOFH76TywaI"
@@ -148,7 +149,11 @@ Criar Conta
 <span id="mobileSaldo"></span>
 <button onclick="toggleSaldo()" style="background:none">👁</button>
 </div>
-
+<div style="margin-bottom:8px">
+<button onclick="toggleEdicaoAdmin()" style="background:#0ea5e9;color:#fff">
+<span id="txtEditAdmin">✏️ Editar</span>
+</button>
+</div>
 <div id="alertaFinanceiro" class="card"></div>
 <div id="areaUsuarios">
 <div id="listaUsuarios"></div>
@@ -380,6 +385,12 @@ function toggleEdicao(){
 modoEdicao=!modoEdicao
 safe("txtEdicao").innerText=modoEdicao?"✔️ Salvar":"✏️ Editar"
 render()
+}
+/* ====================================================033 – ATUALIZAR BOTÃO EDIÇÃO ADMIN==================================================== */
+function toggleEdicaoAdmin(){
+modoEdicaoAdmin=!modoEdicaoAdmin
+safe("txtEditAdmin").innerText=modoEdicaoAdmin?"✔️ Salvar":"✏️ Editar"
+carregarUsuariosAdmin()
 }
 /* ====================================================034 – DASHBOARD ALINHADO==================================================== */
 function atualizarDashboard(){
@@ -728,23 +739,23 @@ const status=u.status||"pendente"
 html+=`
 <div class="gridUsuarios">
 
-<div contenteditable="true"
-onblur="editarInline('${u.id}','nome',this.innerText)">
+<div ${modoEdicaoAdmin?'contenteditable="true"':''}
+onblur="${modoEdicaoAdmin?`editarInline('${u.id}','nome',this.innerText)`:''}">
 <b>${u.nome||"-"}</b>
 </div>
 
-<div contenteditable="true"
-onblur="editarInline('${u.id}','email',this.innerText)">
+<div ${modoEdicaoAdmin?'contenteditable="true"':''}
+onblur="${modoEdicaoAdmin?`editarInline('${u.id}','email',this.innerText)`:''}">
 ${u.email||"-"}
 </div>
 
-<div contenteditable="true"
-onblur="editarInline('${u.id}','agencia',this.innerText)">
+<div ${modoEdicaoAdmin?'contenteditable="true"':''}
+onblur="${modoEdicaoAdmin?`editarInline('${u.id}','agencia',this.innerText)`:''}">
 ${u.agencia||"-"}
 </div>
 
-<div contenteditable="true"
-onblur="editarInline('${u.id}','conta',this.innerText)">
+<div ${modoEdicaoAdmin?'contenteditable="true"':''}
+onblur="${modoEdicaoAdmin?`editarInline('${u.id}','conta',this.innerText)`:''}">
 ${u.conta||"-"}
 </div>
 
