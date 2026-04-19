@@ -165,7 +165,9 @@ Criar Conta
 </div>
 
 <div id="alertaFinanceiro" class="card"></div>
-
+<div id="areaUsuarios">
+<div id="listaUsuarios"></div>
+</div>
 <div class="card">
 <div>Score financeiro</div>
 <div id="scoreBox">--</div>
@@ -309,53 +311,6 @@ safe("blocoFinanceiroUsuario").style.display="none"
 safe("blocoAdmin").style.display="none"
 safe("blocoFinanceiroUsuario").style.display="block"
 }
-}
-/* ====================================================026 – CARREGAR USUÁRIOS ADMIN GRID==================================================== */
-async function carregarUsuariosAdmin(){
-
-const tipo=localStorage.getItem("tipo_usuario_lancamentos")
-if(tipo!=="admin")return
-
-const {data,error}=await db
-.from("usuarios_lancamentos")
-.select("*")
-.order("nome",{ascending:true})
-
-if(error)return console.error(error)
-
-const lista=safe("listaUsuariosAdmin")
-lista.innerHTML=""
-
-data.forEach(u=>{
-lista.innerHTML+=`
-<div class="gridUsuarios">
-
-<div><b>${u.nome}</b></div>
-<div>${u.email}</div>
-<div>${u.agencia||"-"}</div>
-<div>${u.conta||"-"}</div>
-<div>${u.tipo}</div>
-
-<div style="display:flex;gap:4px">
-
-<button onclick="editarUsuario('${u.id}')" style="background:#0ea5e9;color:#fff">✏️</button>
-
-<button onclick="excluirUsuarioAdmin('${u.id}')" style="background:#ef4444;color:#fff">🗑</button>
-
-<button onclick="togglePlano('${u.id}','${u.plano||"free"}')" style="background:#22c55e">
-${u.plano==="pro"?"PRO":"FREE"}
-</button>
-
-<button onclick="aprovarUsuario('${u.id}','${u.status}')" style="background:#f59e0b;color:#fff">
-${u.status==="aprovado"?"OK":"Aprovar"}
-</button>
-
-</div>
-
-</div>
-`
-})
-
 }
 /* ====================================================027 – ALTERAR PLANO==================================================== */
 function togglePlano(id,planoAtual){
@@ -533,9 +488,8 @@ if(b.innerText.includes("Virar PRO"))b.style.display="none"
 /* =====================================001 – INIT SESSÃO (AUTO LOGIN / F5)======================================== */
 document.addEventListener("DOMContentLoaded",async()=>{
 const userId=localStorage.getItem("usuario_id_lancamentos")
-
+const isAdmin=localStorage.getItem("usuario_email_lancamentos")==="admin@admin.com"
 if(userId){
-/* 🔥 JÁ LOGADO → ENTRA DIRETO */
 safe("telaLogin").style.display="none"
 safe("appSistema").style.display="block"
 safe("painelMobile").style.display="block"
@@ -543,14 +497,23 @@ const params=new URLSearchParams(window.location.search)
 if(params.get("sucesso")){
 alert("✅ Pagamento aprovado!")
 }
+/* 🔥 ADMIN PERMANENTE */
+if(isAdmin){
+localStorage.setItem("usuario_plano","pro")
+localStorage.setItem("plano_expira_em","")
+}
 await carregarPerfil()
 await carregar()
 render()
 aplicarPerfilUI()
-abrirTela("inicio")
-
+/* 🔥 ABERTURA CORRETA */
+if(isAdmin){
+abrirTela("usuarios")
+await carregarUsuariosAdmin()
 }else{
-/* 🔥 NÃO LOGADO */
+abrirTela("inicio")
+}
+}else{
 safe("telaLogin").style.display="flex"
 safe("appSistema").style.display="none"
 }
@@ -559,6 +522,7 @@ safe("appSistema").style.display="none"
 async function loginSistema(){
 const email=safe("loginUser").value.trim()
 const senha=safe("loginPass").value.trim()
+const isAdmin=localStorage.getItem("usuario_email_lancamentos")==="admin@admin.com"
 if(!email||!senha){alert("Preencha os dados");return}
 
 const {data,error}=await db.from("usuarios_lancamentos").select("*").eq("email",email).eq("senha",senha).maybeSingle()
@@ -588,6 +552,10 @@ render()
 /* 🔥 UI */
 aplicarPerfilUI()
 abrirTela("inicio")
+/* 🔥 002 – ADMIN APÓS LOGIN */
+if(localStorage.getItem("tipo_usuario_lancamentos")==="admin"){
+await carregarUsuariosAdmin()
+}
 }
 /* ====================================================041 – BLOQUEIO FREE==================================================== */
 function podeAdicionar(){
@@ -641,6 +609,10 @@ safe("badgePlano").innerText="Plano: "+(data.plano||"FREE")
 
 /* 🔥 PLANO TRIMESTRAL NO CABEÇALHO */
 let textoPlano=""
+if(data.email==="admin@admin.com"){
+data.plano="pro"
+data.plano_expira_em=null
+}
 if(data.plano==="pro"){
 const inicio=data.plano_inicio||data.atualizado_em||data.criado_em||new Date()
 const fim=data.plano_expira_em||null
@@ -727,11 +699,49 @@ ocultarSaldo=!ocultarSaldo
 render()
 atualizarDashboardBanco()
 }
+/* ====================================================008A – CARREGAR USUÁRIOS ADMIN GRID (CORRIGIDO PROFISSIONAL)==================================================== */
+async function carregarUsuariosAdmin(){
+const tipo=localStorage.getItem("tipo_usuario_lancamentos")
+if(tipo!=="admin")return
+const lista=safe("listaUsuariosAdmin")
+if(!lista)return
+const {data,error}=await db.from("usuarios_lancamentos").select("*").order("nome",{ascending:true})
+if(error){console.error(error);lista.innerHTML="<div class='card'>Erro ao carregar usuários</div>";return}
+if(!data||!data.length){lista.innerHTML="<div class='card'>Nenhum usuário cadastrado</div>";return}
+let html=""
+data.forEach(u=>{
+const isAdmin=u.email==="admin@admin.com"
+const plano=isAdmin?"pro":(u.plano||"free")
+const status=u.status||"pendente"
+html+=`
+<div class="gridUsuarios">
+<div><b>${u.nome||"-"}</b></div>
+<div>${u.email||"-"}</div>
+<div>${u.agencia||"-"}</div>
+<div>${u.conta||"-"}</div>
+<div>${u.tipo||"user"}</div>
+<div style="display:flex;gap:4px">
+<button onclick="editarUsuario('${u.id}')" style="background:#0ea5e9;color:#fff">✏️</button>
+<button onclick="excluirUsuarioAdmin('${u.id}')" style="background:#ef4444;color:#fff">🗑</button>
+${!isAdmin?`<button onclick="togglePlano('${u.id}','${plano}')" style="background:#22c55e">${plano==="pro"?"PRO":"FREE"}</button>`:`<span style="background:#16a34a;color:#fff;padding:4px 6px;border-radius:6px">ADMIN</span>`}
+<button onclick="aprovarUsuario('${u.id}','${status}')" style="background:#f59e0b;color:#fff">${status==="aprovado"?"OK":"Aprovar"}</button>
+</div>
+</div>`
+})
+lista.innerHTML=html
+}
 /* ===================008 antes do  render =============================== */
 usuario.plano = localStorage.getItem("usuario_plano") || "free"
 usuario.plano_expira_em = localStorage.getItem("plano_expira_em") || null
 /* ====================008 – RENDER (ÚLTIMA FUNÇÃO PRINCIPAL)=============================================== */
 function render(){
+if(isAdmin){
+safe("areaFinanceiro").style.display="none"
+safe("areaUsuarios").style.display="block"
+}else{
+safe("areaFinanceiro").style.display="block"
+safe("areaUsuarios").style.display="none"
+}
 if(!usuario||!usuario.id){console.warn("Usuario não carregado ainda");return}
 const hoje=new Date()
 const expira=usuario.plano_expira_em?new Date(usuario.plano_expira_em):null
