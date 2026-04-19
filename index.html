@@ -39,9 +39,8 @@ button:active{transform:scale(0.96)}
 .gridUsuarios{display:grid;grid-template-columns:1.5fr 2fr 1fr 1fr 1fr 2fr;gap:6px;align-items:center;font-size:13px;padding:6px 0;border-bottom:1px solid #e2e8f0;}
 .gridUsuarios b{font-weight:bold}
 /* ====================================================011 – CENTRALIZA LOGIN==================================================== */
-#telaLogin{position:fixed;top:0;left:0;width:100%;height:100%;display:flex;justify-content:center;align-items:center;background:radial-gradient(circle at center,#020617,#000);}
-/* BOX LOGIN */
-#telaLogin .card{width:320px;max-width:90%;padding:20px;border-radius:16px;background:rgba(255,255,255,0.05);backdrop-filter:blur(10px);box-shadow:0 0 30px rgba(0,0,0,0.5);}
+#telaLogin{position:fixed;top:0;left:0;width:100%;height:100%;display:flex;justify-content:center;align-items:center;background:linear-gradient(135deg,#e0f2fe,#f0fdf4);}
+#telaLogin .card{width:320px;max-width:90%;padding:20px;border-radius:16px;background:#ffffff;box-shadow:0 10px 30px rgba(0,0,0,0.1);}
 /* ====================================================012 – REMOVER ESPAÇO USUÁRIO==================================================== */
 #telaExtrato{padding-top:0;margin-top:0}
 /* ====================================================013 – RESPONSIVO==================================================== */
@@ -157,7 +156,7 @@ Criar Conta
 
 <!-- 🔥 BLOCO USUÁRIO (OCULTAR NO ADMIN) -->
 <div id="blocoFinanceiroUsuario">
-
+<div class="card" id="painelSaaSAdmin" style="display:flex;gap:10px;flex-wrap:wrap"></div>
 <div style="font-size:28px;font-weight:bold;margin-top:10px">
 <span id="mobileSaldo"></span>
 <button onclick="toggleSaldo()" style="background:none">👁</button>
@@ -315,10 +314,14 @@ safe("listaCategorias").innerHTML=unicas.map(c=>`<option value="${c}">`).join(""
 /* ====================================================025 – DETECTAR PERFIL==================================================== */
 function aplicarPerfilUI(){
 const tipo=localStorage.getItem("tipo_usuario_lancamentos")
-
 if(tipo==="admin"){
 safe("blocoAdmin").style.display="block"
 safe("blocoFinanceiroUsuario").style.display="none"
+/* 🔥 GARANTE QUE O DOM EXISTE */
+setTimeout(()=>{
+carregarUsuariosAdmin()
+carregarMetricasAdmin()
+},100)
 }else{
 safe("blocoAdmin").style.display="none"
 safe("blocoFinanceiroUsuario").style.display="block"
@@ -521,7 +524,6 @@ aplicarPerfilUI()
 /* 🔥 ABERTURA CORRETA */
 if(isAdmin){
 abrirTela("usuarios")
-await carregarUsuariosAdmin()
 }else{
 abrirTela("inicio")
 }
@@ -566,7 +568,6 @@ aplicarPerfilUI()
 abrirTela("inicio")
 /* 🔥 002 – ADMIN APÓS LOGIN */
 if(localStorage.getItem("tipo_usuario_lancamentos")==="admin"){
-await carregarUsuariosAdmin()
 }
 }
 /* ====================================================041 – BLOQUEIO FREE==================================================== */
@@ -720,26 +721,38 @@ if(!lista)return
 const {data,error}=await db.from("usuarios_lancamentos").select("*").order("nome",{ascending:true})
 if(error){console.error(error);lista.innerHTML="<div class='card'>Erro ao carregar usuários</div>";return}
 if(!data||!data.length){lista.innerHTML="<div class='card'>Nenhum usuário cadastrado</div>";return}
+
 let html=""
+
 data.forEach(u=>{
 const isAdmin=u.email==="admin@admin.com"
 const plano=isAdmin?"pro":(u.plano||"free")
 const status=u.status||"pendente"
+
 html+=`
 <div class="gridUsuarios">
-<div><b>${u.nome||"-"}</b></div>
-<div>${u.email||"-"}</div>
+<div contenteditable="true" onblur="editarInline('${u.id}','nome',this.innerText)"><b>${u.nome||"-"}</b></div>
+<div contenteditable="true" onblur="editarInline('${u.id}','email',this.innerText)">${u.email||"-"}</div>
 <div>${u.agencia||"-"}</div>
 <div>${u.conta||"-"}</div>
 <div>${u.tipo||"user"}</div>
-<div style="display:flex;gap:4px">
+
+<div style="display:flex;gap:4px;flex-wrap:wrap">
+
+<button onclick="verFinanceiroUsuario('${u.id}')" style="background:#6366f1;color:#fff">👁</button>
+
 <button onclick="editarUsuario('${u.id}')" style="background:#0ea5e9;color:#fff">✏️</button>
+
 <button onclick="excluirUsuarioAdmin('${u.id}')" style="background:#ef4444;color:#fff">🗑</button>
+
 ${!isAdmin?`<button onclick="togglePlano('${u.id}','${plano}')" style="background:#22c55e">${plano==="pro"?"PRO":"FREE"}</button>`:`<span style="background:#16a34a;color:#fff;padding:4px 6px;border-radius:6px">ADMIN</span>`}
+
 <button onclick="aprovarUsuario('${u.id}','${status}')" style="background:#f59e0b;color:#fff">${status==="aprovado"?"OK":"Aprovar"}</button>
+
 </div>
 </div>`
 })
+
 lista.innerHTML=html
 }
 /* ===================008 antes do  render =============================== */
@@ -981,6 +994,68 @@ if(nome==="extrato"){
 render()
 }
 }
+}
+/* ========================function  ==================================================== */
+
+/* ========================function  ==================================================== */
+async function verFinanceiroUsuario(userId){
+localStorage.setItem("usuario_visualizando_admin",userId)
+
+const {data}=await db
+.from("lancamentos")
+.select("*")
+.eq("usuario_id",userId)
+.order("data",{ascending:false})
+
+dados=data||[]
+abrirTela("extrato")
+render()
+}
+/* ========================function  ==================================================== */
+async function editarInline(id,campo,valor){
+const update={}
+update[campo]=valor
+
+const {error}=await db
+.from("usuarios_lancamentos")
+.update(update)
+.eq("id",id)
+
+if(error){
+console.error(error)
+alert("Erro ao editar")
+return
+}
+}
+/* ========================function  ==================================================== */
+async function carregarMetricasAdmin(){
+
+const painel=safe("painelSaaSAdmin")
+if(!painel)return
+
+const {data:usuarios}=await db.from("usuarios_lancamentos").select("*")
+const {data:lancamentos}=await db.from("lancamentos").select("*")
+
+let totalUsuarios=(usuarios||[]).length
+let totalPro=(usuarios||[]).filter(u=>u.plano==="pro").length
+let totalLanc=(lancamentos||[]).length
+
+let receita=0,despesa=0
+;(lancamentos||[]).forEach(x=>{
+if(x.tipo==="RECEITA")receita+=Number(x.valor||0)
+else despesa+=Number(x.valor||0)
+})
+
+let saldo=receita-despesa
+
+painel.innerHTML=`
+<div class="card" style="flex:1;background:#dbeafe">👥 Usuários<br><b>${totalUsuarios}</b></div>
+<div class="card" style="flex:1;background:#dcfce7">💎 PRO<br><b>${totalPro}</b></div>
+<div class="card" style="flex:1;background:#fef3c7">📄 Lançamentos<br><b>${totalLanc}</b></div>
+<div class="card" style="flex:1;background:#dcfce7">💰 Receitas<br><b>${formatarMoeda(receita)}</b></div>
+<div class="card" style="flex:1;background:#fee2e2">💸 Despesas<br><b>${formatarMoeda(despesa)}</b></div>
+<div class="card" style="flex:1;background:#e0f2fe">📊 Saldo<br><b>${formatarMoeda(saldo)}</b></div>
+`
 }
 /* ========================function  ==================================================== */
 /* 🔹 PLACEHOLD (evita erro até implementar IA) */
