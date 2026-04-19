@@ -90,6 +90,7 @@ body{padding:10px}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
+let dados=[]
 let usuario={}
 let ocultarSaldo = true
 let mesesOcultos={}
@@ -609,7 +610,7 @@ if(!email||!senha){alert("Preencha os dados");return}
 const {data,error}=await db.from("usuarios_lancamentos").select("*").eq("email",email).eq("senha",senha).maybeSingle()
 if(error){console.error(error);alert("Erro no login");return}
 if(!data){alert("Login inválido");return}
-if(data.status!=="aprovado"){alert("⏳ Conta aguardando aprovação do administrador");return}
+if(data.status!=="aprovado"){alert("⏳ Conta aguardando aprovação");return}
 localStorage.clear()
 localStorage.setItem("usuario_id_lancamentos",data.id)
 localStorage.setItem("usuario_nome_lancamentos",data.nome)
@@ -640,7 +641,7 @@ carregarUsuariosAdmin()
 }
 /* ====================================================043 – DASHBOARD BANCO CORRIGIDO==================================================== */
 function atualizarDashboardBanco(){
-if(!Array.isArray(dados))return
+if(!Array.isArray(dados)){console.warn("dados não carregado");return}
 let r=0,d=0
 dados.forEach(x=>{if(x.tipo==="RECEITA")r+=Number(x.valor||0);else d+=Number(x.valor||0)})
 const saldo=r-d
@@ -678,7 +679,7 @@ const id=localStorage.getItem("usuario_id_lancamentos")
 if(!id)return
 const {data,error}=await db.from("usuarios_lancamentos").select("*").eq("id",id).maybeSingle()
 if(error||!data){console.error("Erro perfil:",error);return}
-window.usuario=data
+usuario=data
 localStorage.setItem("usuario_plano",data.plano||"free")
 localStorage.setItem("plano_expira_em",data.plano_expira_em||"")
 safe("mobileNome").innerText=data.nome||""
@@ -690,30 +691,17 @@ safe("perfilCelular").value=data.celular||""
 safe("boxAgencia").innerText=data.agencia||"--"
 safe("boxConta").innerText=data.conta||"--"
 safe("badgePlano").innerText="Plano: "+(data.plano||"FREE")
-if(data.plano==="pro"){localStorage.setItem("usuario_plano","pro")}else{localStorage.setItem("usuario_plano","free")}
 atualizarDashboardBanco()
 }
 /* ========================CARREGAR ==================================================== */
-  /* 🔹 CARREGAR DADOS */
 async function carregar(){
 const usuario_id=localStorage.getItem("usuario_id_lancamentos")
 if(!usuario_id)return
-const {data,error}=await db
-.from("lancamentos")
-.select("*")
-.eq("usuario_id",usuario_id)
-.order("data",{ascending:false})
-if(error){
-console.error(error)
-return
-}
-window.dados = data || []
-if(!Array.isArray(window.dados)) window.dados = []
+const {data,error}=await db.from("lancamentos").select("*").eq("usuario_id",usuario_id).order("data",{ascending:false})
+if(error){console.error(error);return}
+dados=data||[]
 render()
-if(!window._initUI){
-window._initUI=true
-atualizarTudo()
-}
+atualizarDashboardBanco()
 }
 /* ========================function  ==================================================== */
 function toggleMes(chave){
