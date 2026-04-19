@@ -738,10 +738,11 @@ const isAdminUser=u.email==="admin@admin.com"
 const plano=isAdminUser?"pro":(u.plano||"free")
 const status=u.status||"pendente"
 
+/* 🔥 AQUI FORA DO HTML */
+const editando=linhasEditando[u.id]
+
 html+=`
 <div class="gridUsuarios">
-
-const editando=linhasEditando[u.id]
 
 <div ${editando?'contenteditable="true"':''}
 onblur="${editando?`editarInline('${u.id}','nome',this.innerText)`:''}">
@@ -767,9 +768,8 @@ ${u.conta||"-"}
 
 <div style="display:flex;gap:4px">
 
-<button onclick="toggleEditarLinha('${u.id}')" 
-style="background:#0ea5e9;color:#fff">
-✏️
+<button onclick="toggleEditarLinha('${u.id}')" style="background:#0ea5e9;color:#fff">
+${editando?'✔':'✏️'}
 </button>
 
 <button onclick="verFinanceiroUsuario('${u.id}')" style="background:#6366f1;color:#fff">👁</button>
