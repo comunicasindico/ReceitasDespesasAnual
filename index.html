@@ -45,8 +45,9 @@ button:active{transform:scale(0.96)}
 #telaExtrato{padding-top:0;margin-top:0}
 /* ====================================================013 – RESPONSIVO==================================================== */
 @media(max-width:768px){body{padding:10px}.card{padding:10px}.gridUsuarios{grid-template-columns:1fr}}
-[contenteditable="true"]{padding:4px 6px;border-radius:6px;cursor:text;background:#fefce8;}
-[contenteditable="true"]:focus{outline:none;background:#e0f2fe;box-shadow:0 0 0 2px #93c5fd;}
+[contenteditable]{padding:4px 6px;border-radius:6px;cursor:default;}
+[contenteditable="true"]{cursor:text;background:#fef9c3;border:1px dashed #f59e0b;}
+[contenteditable="true"]:focus{outline:none;background:#e0f2fe;border:1px solid #38bdf8;box-shadow:0 0 0 2px rgba(56,189,248,0.3);}
 
   
 </style>
@@ -62,6 +63,7 @@ let visibilidade = {}
 let modoEdicao = false
 let isAdmin=false
 let modoEdicaoAdmin=false
+let linhasEditando={}
 /* ====================================================014 – CONFIG==================================================== */
 const SUPABASE_URL="https://gspdlrenyrzbkxlvyugc.supabase.co"
 const SUPABASE_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdzcGRscmVueXJ6Ymt4bHZ5dWdjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ4ODU0NzAsImV4cCI6MjA5MDQ2MTQ3MH0.UWfkWvOh4qMDEcByVL-KZ6ejJ80V7wJlDOFH76TywaI"
@@ -739,29 +741,36 @@ const status=u.status||"pendente"
 html+=`
 <div class="gridUsuarios">
 
-<div ${modoEdicaoAdmin?'contenteditable="true"':''}
-onblur="${modoEdicaoAdmin?`editarInline('${u.id}','nome',this.innerText)`:''}">
+const editando=linhasEditando[u.id]
+
+<div ${editando?'contenteditable="true"':''}
+onblur="${editando?`editarInline('${u.id}','nome',this.innerText)`:''}">
 <b>${u.nome||"-"}</b>
 </div>
 
-<div ${modoEdicaoAdmin?'contenteditable="true"':''}
-onblur="${modoEdicaoAdmin?`editarInline('${u.id}','email',this.innerText)`:''}">
+<div ${editando?'contenteditable="true"':''}
+onblur="${editando?`editarInline('${u.id}','email',this.innerText)`:''}">
 ${u.email||"-"}
 </div>
 
-<div ${modoEdicaoAdmin?'contenteditable="true"':''}
-onblur="${modoEdicaoAdmin?`editarInline('${u.id}','agencia',this.innerText)`:''}">
+<div ${editando?'contenteditable="true"':''}
+onblur="${editando?`editarInline('${u.id}','agencia',this.innerText)`:''}">
 ${u.agencia||"-"}
 </div>
 
-<div ${modoEdicaoAdmin?'contenteditable="true"':''}
-onblur="${modoEdicaoAdmin?`editarInline('${u.id}','conta',this.innerText)`:''}">
+<div ${editando?'contenteditable="true"':''}
+onblur="${editando?`editarInline('${u.id}','conta',this.innerText)`:''}">
 ${u.conta||"-"}
 </div>
 
 <div>${u.tipo||"user"}</div>
 
 <div style="display:flex;gap:4px">
+
+<button onclick="toggleEditarLinha('${u.id}')" 
+style="background:#0ea5e9;color:#fff">
+✏️
+</button>
 
 <button onclick="verFinanceiroUsuario('${u.id}')" style="background:#6366f1;color:#fff">👁</button>
 
@@ -934,6 +943,11 @@ async function toggleStatus(id,atual){
 const novo=atual==="pago"?"pendente":"pago"
 await db.from("lancamentos").update({status:novo}).eq("id",id)
 await carregar()
+}
+/* ========================function  ==================================================== */
+function toggleEditarLinha(id){
+linhasEditando[id]=!linhasEditando[id]
+carregarUsuariosAdmin()
 }
 /* ========================function  ==================================================== */
 function atualizarPainelMobile(){
