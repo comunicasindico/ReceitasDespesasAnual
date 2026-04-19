@@ -209,7 +209,7 @@ Criar Conta
 
 <div style="padding:10px;display:flex;flex-direction:column;gap:8px">
 <button onclick="abrirFinanceiro(this)">Entrar no Financeiro</button>
-<button onclick="assinarPlano()" style="background:#0ea5e9;color:#fff">
+<button id="btnPro" onclick="assinarPlano()" style="background:#0ea5e9;color:#fff">
 💰 Virar PRO
 </button>
 </div>
@@ -659,6 +659,17 @@ textoPlano=`Plano PRO (Trimestral): ${formatarDataBR(inicio)} até ${formatarDat
 textoPlano="Plano FREE"
 }
 safe("planoInfo").innerText=textoPlano
+/* 🔥 ESCONDER BOTÃO PRO SE ATIVO */
+const hoje=new Date()
+const expira=data.plano_expira_em?new Date(data.plano_expira_em):null
+const btnPro=safe("btnPro")
+if(btnPro){
+if(data.plano==="pro" && expira && expira>hoje){
+btnPro.style.display="none"
+}else{
+btnPro.style.display="block"
+}
+}
 atualizarDashboardBanco()
 }
 /* ===============005 – CARREGAR DADOS ======================= */
