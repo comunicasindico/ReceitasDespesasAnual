@@ -172,6 +172,7 @@ Criar Conta
 <div style="font-size:12px;color:#64748b">
 🏦 Ag: <b id="mobileAgencia"></b> • Conta: <b id="mobileConta"></b>
 </div>
+<div id="planoInfo" style="font-size:12px;color:#0ea5e9;margin-top:4px"></div>
 </div>
 <button onclick="logout()" style="background:#ef4444;color:#fff">Sair</button>
 </div>
@@ -578,6 +579,7 @@ hide("telaLogin")
 show("painelMobile")
 await carregarPerfil()
 await carregar()
+render()
 aplicarPerfilUI()
 abrirTela("inicio")
 }
@@ -629,6 +631,16 @@ safe("perfilCelular").value=data.celular||""
 safe("boxAgencia").innerText=data.agencia||"--"
 safe("boxConta").innerText=data.conta||"--"
 safe("badgePlano").innerText="Plano: "+(data.plano||"FREE")
+/* 🔥 PLANO TRIMESTRAL NO CABEÇALHO */
+let textoPlano=""
+if(data.plano==="pro"){
+const inicio=data.atualizado_em||data.criado_em||new Date()
+const fim=data.plano_expira_em||null
+textoPlano=`Plano PRO (Trimestral): ${formatarDataBR(inicio)} até ${formatarDataBR(fim)}`
+}else{
+textoPlano="Plano FREE"
+}
+safe("planoInfo").innerText=textoPlano
 atualizarDashboardBanco()
 }
 /* ===============005 – CARREGAR DADOS ======================= */
@@ -643,9 +655,12 @@ atualizarDashboardBanco()
 }
 /* ====================================006 – DASHBOARD (DEPOIS DO CARREGAR)========================================= */
 function atualizarDashboardBanco(){
-if(!Array.isArray(dados)){console.warn("dados não carregado");return}
+if(!Array.isArray(dados)||!dados.length)return
 let r=0,d=0
-dados.forEach(x=>{if(x.tipo==="RECEITA")r+=Number(x.valor||0);else d+=Number(x.valor||0)})
+dados.forEach(x=>{
+if(x.tipo==="RECEITA")r+=Number(x.valor||0)
+else d+=Number(x.valor||0)
+})
 const saldo=r-d
 safe("dashReceitas").innerText=ocultarSaldo?"R$ ***":formatarMoeda(r)
 safe("dashDespesas").innerText=ocultarSaldo?"R$ ***":formatarMoeda(d)
@@ -775,8 +790,9 @@ return "R$ "+Number(v||0).toLocaleString("pt-BR",{minimumFractionDigits:2})
 /* ========================function  ==================================================== */
 function formatarDataBR(d){
 if(!d)return"--"
-const dt=new Date(d)
-return dt.toLocaleDateString("pt-BR")
+const data=new Date(d)
+if(isNaN(data))return"--"
+return data.toLocaleDateString("pt-BR")
 }
 /* ========================function  ==================================================== */
 /* 🔹 LOGOUT */
