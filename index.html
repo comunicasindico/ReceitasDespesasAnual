@@ -32,54 +32,26 @@ button:active{transform:scale(0.96)}
 /* ====================================================008 – SCORE==================================================== */
 #scoreBox{border-radius:10px;background:#f8fafc;border:1px solid #e2e8f0}
 /* ====================================================009 – GRÁFICOS AJUSTADOS==================================================== */
-#areaGrafico,#areaGraficoCat{
-display:flex;
-justify-content:center;
-gap:10px;
-flex-wrap:wrap;
-margin-bottom:6px;
-}
+#areaGrafico,#areaGraficoCat{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-bottom:6px;}
 #areaGrafico{display:flex;justify-content:center;gap:20px;flex-wrap:wrap;}
 #areaGrafico canvas{width:200px !important;height:200px !important;}
 /* ====================================================010 – GRID ADMIN==================================================== */
-.gridUsuarios{
-display:grid;
-grid-template-columns:1.5fr 2fr 1fr 1fr 1fr 2fr;
-gap:6px;
-align-items:center;
-font-size:13px;
-padding:6px 0;
-border-bottom:1px solid #e2e8f0;
-}
+.gridUsuarios{display:grid;grid-template-columns:1.5fr 2fr 1fr 1fr 1fr 2fr;gap:6px;align-items:center;font-size:13px;padding:6px 0;border-bottom:1px solid #e2e8f0;}
 .gridUsuarios b{font-weight:bold}
 /* ====================================================011 – CENTRALIZA LOGIN==================================================== */
-#telaLogin{
-position:fixed;
-top:0;
-left:0;
-width:100%;
-height:100vh;
-display:flex;
-align-items:center;
-justify-content:center;
-background:#f1f5f9;
-z-index:9999;
-}
-
+#telaLogin{position:fixed;top:0;left:0;width:100%;height:100%;display:flex;justify-content:center;align-items:center;background:radial-gradient(circle at center,#020617,#000);}
+/* BOX LOGIN */
+#telaLogin .card{width:320px;max-width:90%;padding:20px;border-radius:16px;background:rgba(255,255,255,0.05);backdrop-filter:blur(10px);box-shadow:0 0 30px rgba(0,0,0,0.5);}
 /* ====================================================012 – REMOVER ESPAÇO USUÁRIO==================================================== */
 #telaExtrato{padding-top:0;margin-top:0}
-
 /* ====================================================013 – RESPONSIVO==================================================== */
-@media(max-width:768px){
-body{padding:10px}
-.card{padding:10px}
-.gridUsuarios{grid-template-columns:1fr}
-}
-</style>
+@media(max-width:768px){body{padding:10px}.card{padding:10px}.gridUsuarios{grid-template-columns:1fr}}
 
+
+  
+</style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
 <script>
 /* =================================INICIAR APP=============================================== */
 document.addEventListener("DOMContentLoaded",iniciarApp)
