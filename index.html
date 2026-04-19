@@ -74,6 +74,7 @@ let ocultarSaldo = true
 let mesesOcultos={}
 let visibilidade = {}
 let modoEdicao = false
+let isAdmin=false
 /* ====================================================014 – CONFIG==================================================== */
 const SUPABASE_URL="https://gspdlrenyrzbkxlvyugc.supabase.co"
 const SUPABASE_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdzcGRscmVueXJ6Ymt4bHZ5dWdjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ4ODU0NzAsImV4cCI6MjA5MDQ2MTQ3MH0.UWfkWvOh4qMDEcByVL-KZ6ejJ80V7wJlDOFH76TywaI"
@@ -504,23 +505,20 @@ if(b.innerText.includes("Virar PRO"))b.style.display="none"
 document.addEventListener("DOMContentLoaded",async()=>{
 
 const userId=localStorage.getItem("usuario_id_lancamentos")
-const isAdmin=localStorage.getItem("usuario_email_lancamentos")==="admin@admin.com"
+
+/* 🔥 AGORA GLOBAL */
+isAdmin=localStorage.getItem("usuario_email_lancamentos")==="admin@admin.com"
 
 if(userId){
 
-/* 🔥 EXISTE NO HTML */
 safe("telaLogin").style.display="none"
 safe("painelMobile").style.display="block"
-
-/* 🔥 NÃO EXISTE MAIS → REMOVIDO */
-// safe("appSistema")
 
 const params=new URLSearchParams(window.location.search)
 if(params.get("sucesso")){
 alert("✅ Pagamento aprovado!")
 }
 
-/* ADMIN */
 if(isAdmin){
 localStorage.setItem("usuario_plano","pro")
 localStorage.setItem("plano_expira_em","")
@@ -532,20 +530,11 @@ await carregar()
 aplicarPerfilUI()
 render()
 
-/* 🔥 ABERTURA CORRETA */
-if(isAdmin){
 abrirTela("inicio")
-}else{
-abrirTela("inicio")
-}
 
 }else{
 
 safe("telaLogin").style.display="flex"
-
-/* 🔥 REMOVE ISSO TAMBÉM */
-// safe("appSistema")
-
 safe("painelMobile").style.display="none"
 
 }
