@@ -52,21 +52,6 @@ button:active{transform:scale(0.96)}
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-/* =================================INICIAR APP=============================================== */
-document.addEventListener("DOMContentLoaded",iniciarApp)
-async function iniciarApp(){
-const id=localStorage.getItem("usuario_id_lancamentos")
-if(id){
-hide("telaLogin")
-show("painelMobile")
-await carregarPerfil()
-await carregar()
-aplicarPerfilUI()
-abrirTela("inicio")
-}else{
-show("telaLogin")
-}
-}
 /* =================================001 – BASE GLOBAL (TOPO DO SCRIPT – PRIMEIRA COISA DO JS)================================= */
 let dados=[]
 let usuario={}
@@ -767,14 +752,26 @@ usuario.plano = localStorage.getItem("usuario_plano") || "free"
 usuario.plano_expira_em = localStorage.getItem("plano_expira_em") || null
 /* ====================008 – RENDER (ÚLTIMA FUNÇÃO PRINCIPAL)=============================================== */
 function render(){
-if(isAdmin){
-safe("areaFinanceiro").style.display="none"
-safe("areaUsuarios").style.display="block"
-}else{
-safe("areaFinanceiro").style.display="block"
-safe("areaUsuarios").style.display="none"
+/* 🔥 GARANTE USUÁRIO */
+if(!usuario||!usuario.id){
+console.warn("Usuario não carregado ainda")
+return
 }
-if(!usuario||!usuario.id){console.warn("Usuario não carregado ainda");return}
+/* 🔥 GARANTE ELEMENTOS */
+const blocoAdmin=safe("blocoAdmin")
+const blocoUser=safe("blocoFinanceiroUsuario")
+const areaUsuarios=safe("areaUsuarios")
+/* 🔥 CONTROLE ADMIN SEGURO */
+if(isAdmin){
+if(blocoAdmin)blocoAdmin.style.display="block"
+if(blocoUser)blocoUser.style.display="none"
+if(areaUsuarios)areaUsuarios.style.display="block"
+}else{
+if(blocoAdmin)blocoAdmin.style.display="none"
+if(blocoUser)blocoUser.style.display="block"
+if(areaUsuarios)areaUsuarios.style.display="none"
+}
+/* 🔥 CONTINUA NORMAL */
 const hoje=new Date()
 const expira=usuario.plano_expira_em?new Date(usuario.plano_expira_em):null
 const bloqueado=(usuario.plano!=="pro"||(expira&&expira<hoje))
@@ -783,7 +780,12 @@ const tela=safe("telaExtrato")
 if(!tela||!tela.classList.contains("telaAtiva"))return
 const lista=safe("lista")
 const resumo=safe("resumo")
-if(!Array.isArray(dados)||!dados.length){lista.innerHTML="<div class='card'>Sem registros</div>";resumo.innerHTML="";return}
+if(!lista||!resumo)return
+if(!Array.isArray(dados)||!dados.length){
+lista.innerHTML="<div class='card'>Sem registros</div>"
+resumo.innerHTML=""
+return
+}
 const grupos={}
 dados.forEach(x=>{
 if(!x)return
