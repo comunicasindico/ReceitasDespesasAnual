@@ -45,7 +45,8 @@ button:active{transform:scale(0.96)}
 #telaExtrato{padding-top:0;margin-top:0}
 /* ====================================================013 – RESPONSIVO==================================================== */
 @media(max-width:768px){body{padding:10px}.card{padding:10px}.gridUsuarios{grid-template-columns:1fr}}
-
+[contenteditable="true"]{padding:4px;border-radius:6px;transition:0.2s;}
+[contenteditable="true"]:focus{outline:none;background:#e0f2fe;}
 
   
 </style>
@@ -331,16 +332,7 @@ carregarUsuariosAdmin()
 }
 /* ====================================================029 – EDITAR USUÁRIO==================================================== */
 async function editarUsuario(id){
-
-const nome=prompt("Novo nome:")
-if(!nome)return
-
-await db
-.from("usuarios_lancamentos")
-.update({nome})
-.eq("id",id)
-
-carregarUsuariosAdmin()
+/* 🔥 NÃO USA MAIS PROMPT */
 }
 /* ====================================================030 – INSERIR LANÇAMENTO==================================================== */
 async function inserirLancamento(){
@@ -708,41 +700,74 @@ atualizarDashboardBanco()
 async function carregarUsuariosAdmin(){
 const tipo=localStorage.getItem("tipo_usuario_lancamentos")
 if(tipo!=="admin")return
+
 const lista=safe("listaUsuariosAdmin")
 if(!lista)return
+
 const {data,error}=await db.from("usuarios_lancamentos").select("*").order("nome",{ascending:true})
-if(error){console.error(error);lista.innerHTML="<div class='card'>Erro ao carregar usuários</div>";return}
-if(!data||!data.length){lista.innerHTML="<div class='card'>Nenhum usuário cadastrado</div>";return}
+
+if(error){
+console.error(error)
+lista.innerHTML="<div class='card'>Erro ao carregar usuários</div>"
+return
+}
+
+if(!data||!data.length){
+lista.innerHTML="<div class='card'>Nenhum usuário cadastrado</div>"
+return
+}
 
 let html=""
 
 data.forEach(u=>{
-const isAdmin=u.email==="admin@admin.com"
-const plano=isAdmin?"pro":(u.plano||"free")
+
+const isAdminUser=u.email==="admin@admin.com"
+const plano=isAdminUser?"pro":(u.plano||"free")
 const status=u.status||"pendente"
 
 html+=`
 <div class="gridUsuarios">
-<div contenteditable="true" onblur="editarInline('${u.id}','nome',this.innerText)"><b>${u.nome||"-"}</b></div>
-<div contenteditable="true" onblur="editarInline('${u.id}','email',this.innerText)">${u.email||"-"}</div>
-<div>${u.agencia||"-"}</div>
-<div>${u.conta||"-"}</div>
+
+<div contenteditable="true"
+onblur="editarInline('${u.id}','nome',this.innerText)">
+<b>${u.nome||"-"}</b>
+</div>
+
+<div contenteditable="true"
+onblur="editarInline('${u.id}','email',this.innerText)">
+${u.email||"-"}
+</div>
+
+<div contenteditable="true"
+onblur="editarInline('${u.id}','agencia',this.innerText)">
+${u.agencia||"-"}
+</div>
+
+<div contenteditable="true"
+onblur="editarInline('${u.id}','conta',this.innerText)">
+${u.conta||"-"}
+</div>
+
 <div>${u.tipo||"user"}</div>
 
-<div style="display:flex;gap:4px;flex-wrap:wrap">
+<div style="display:flex;gap:4px">
 
 <button onclick="verFinanceiroUsuario('${u.id}')" style="background:#6366f1;color:#fff">👁</button>
 
-<button onclick="editarUsuario('${u.id}')" style="background:#0ea5e9;color:#fff">✏️</button>
-
 <button onclick="excluirUsuarioAdmin('${u.id}')" style="background:#ef4444;color:#fff">🗑</button>
 
-${!isAdmin?`<button onclick="togglePlano('${u.id}','${plano}')" style="background:#22c55e">${plano==="pro"?"PRO":"FREE"}</button>`:`<span style="background:#16a34a;color:#fff;padding:4px 6px;border-radius:6px">ADMIN</span>`}
+${!isAdminUser
+? `<button onclick="togglePlano('${u.id}','${plano}')" style="background:#22c55e">${plano==="pro"?"PRO":"FREE"}</button>`
+: `<span style="background:#16a34a;color:#fff;padding:4px 6px;border-radius:6px">ADMIN</span>`}
 
-<button onclick="aprovarUsuario('${u.id}','${status}')" style="background:#f59e0b;color:#fff">${status==="aprovado"?"OK":"Aprovar"}</button>
+<button onclick="aprovarUsuario('${u.id}','${status}')" style="background:#f59e0b;color:#fff">
+${status==="aprovado"?"OK":"Aprovar"}
+</button>
 
 </div>
-</div>`
+
+</div>
+`
 })
 
 lista.innerHTML=html
@@ -1022,8 +1047,11 @@ render()
 }
 /* ========================function  ==================================================== */
 async function editarInline(id,campo,valor){
+
+if(!valor)return
+
 const update={}
-update[campo]=valor
+update[campo]=valor.trim()
 
 const {error}=await db
 .from("usuarios_lancamentos")
@@ -1032,9 +1060,12 @@ const {error}=await db
 
 if(error){
 console.error(error)
-alert("Erro ao editar")
+alert("Erro ao salvar alteração")
 return
 }
+
+/* 🔥 FEEDBACK VISUAL */
+console.log("Atualizado:",campo,valor)
 }
 /* ========================function  ==================================================== */
 async function carregarMetricasAdmin(){
