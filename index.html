@@ -90,6 +90,21 @@ body{padding:10px}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
+/* =================================INICIAR APP=============================================== */
+document.addEventListener("DOMContentLoaded",iniciarApp)
+async function iniciarApp(){
+const id=localStorage.getItem("usuario_id_lancamentos")
+if(id){
+hide("telaLogin")
+show("painelMobile")
+await carregarPerfil()
+await carregar()
+aplicarPerfilUI()
+abrirTela("inicio")
+}else{
+show("telaLogin")
+}
+}
 /* =================================001 – BASE GLOBAL (TOPO DO SCRIPT – PRIMEIRA COISA DO JS)================================= */
 let dados=[]
 let usuario={}
@@ -707,28 +722,27 @@ totalD+=d
 const saldo=r-d
 const[ano,mes]=chave.split("-")
 html+=`<div class="card" onclick="toggleMes('${chave}')" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center"><div style="font-weight:bold">${mes}/${ano}</div><div style="display:flex;align-items:center;gap:8px"><b style="color:${saldo>=0?"#16a34a":"#dc2626"}">${bloqueado?"🔒":(ocultarSaldo?"R$ ***":formatarMoeda(saldo))}</b><button onclick="event.stopPropagation();toggleSaldo()" style="background:#e2e8f0;padding:6px;border-radius:8px">👁</button></div></div>`
-if(!mesesOcultos[chave]){
 let totalPago=0
 let totalPendente=0
+if(!mesesOcultos[chave]){
 listaMes.forEach(x=>{
 const valor=Number(x.valor||0)
 const vis=visibilidade[x.id]===false
-const status=x.status||"pago"
+const status=x.status||"pendente"
 if(x.tipo==="DESPESA"){
 if(status==="pago")totalPago+=valor
 else totalPendente+=valor
 }
-html+=`<div class="card" style="padding:10px;display:flex;flex-direction:column;gap:6px">
-<div style="display:flex;justify-content:space-between;align-items:center">
-<div style="flex:2;font-size:13px">${modoEdicao?`<input value="${x.descricao||""}" onchange="editarCampo('${x.id}','descricao',this.value)">`:`${formatarDataBR(x.data)} - ${x.descricao}`}</div>
-<div style="flex:1;text-align:right;font-weight:bold;color:${x.tipo==="RECEITA"?"#16a34a":"#dc2626"}">${modoEdicao?`<input value="${valor}" type="number" onchange="editarCampo('${x.id}','valor',this.value)" style="width:90px;text-align:right">`:(bloqueado?"🔒":(vis?"R$ ***":formatarMoeda(valor)))}</div>
-</div>
-<div style="display:flex;justify-content:space-between;align-items:center">
-<div style="display:flex;gap:6px">
+html+=`<div class="card" style="padding:8px;display:flex;align-items:center;gap:10px">
+<div style="width:90px;font-size:12px">${formatarDataBR(x.data)}</div>
+<div style="flex:2;font-size:13px">${modoEdicao?`<input value="${x.descricao||""}" onchange="editarCampo('${x.id}','descricao',this.value)">`:x.descricao}</div>
+<div style="width:120px;text-align:right;font-weight:bold;color:${x.tipo==="RECEITA"?"#16a34a":"#dc2626"}">${modoEdicao?`<input value="${valor}" type="number" onchange="editarCampo('${x.id}','valor',this.value)" style="width:100px;text-align:right">`:(bloqueado?"🔒":(vis?"R$ ***":formatarMoeda(valor)))}</div>
+<div style="width:110px;text-align:center">
 ${x.tipo==="DESPESA"?`<button onclick="event.stopPropagation();toggleStatus('${x.id}','${status}')" style="background:${status==="pago"?"#16a34a":"#f59e0b"};color:#fff;padding:4px 8px;border-radius:6px">${status==="pago"?"✔ Pago":"⏳ Pendente"}</button>`:""}
+</div>
+<div style="width:50px;text-align:center">
 <button onclick="event.stopPropagation();toggleValor('${x.id}')">👁</button>
 ${modoEdicao?`<button onclick="event.stopPropagation();excluirLancamento('${x.id}')" style="background:#ef4444;color:#fff">🗑</button>`:""}
-</div>
 </div>
 </div>`
 })
@@ -835,7 +849,6 @@ function abrirFinanceiro(){
 abrirTela("extrato")
 }
 /* ========================function  ==================================================== */
-/* 🔹 ABRIR TELA */
 function abrirTela(nome){
 document.querySelectorAll(".telaApp").forEach(t=>{
 t.classList.remove("telaAtiva")
@@ -845,6 +858,9 @@ const tela=safe("tela"+nome.charAt(0).toUpperCase()+nome.slice(1))
 if(tela){
 tela.style.display="block"
 tela.classList.add("telaAtiva")
+if(nome==="extrato"){
+render()
+}
 }
 }
 /* ========================function  ==================================================== */
