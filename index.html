@@ -502,35 +502,54 @@ if(b.innerText.includes("Virar PRO"))b.style.display="none"
 }
 /* =====================================001 – INIT SESSÃO (AUTO LOGIN / F5)======================================== */
 document.addEventListener("DOMContentLoaded",async()=>{
+
 const userId=localStorage.getItem("usuario_id_lancamentos")
 const isAdmin=localStorage.getItem("usuario_email_lancamentos")==="admin@admin.com"
+
 if(userId){
+
+/* 🔥 EXISTE NO HTML */
 safe("telaLogin").style.display="none"
-safe("appSistema").style.display="block"
 safe("painelMobile").style.display="block"
+
+/* 🔥 NÃO EXISTE MAIS → REMOVIDO */
+// safe("appSistema")
+
 const params=new URLSearchParams(window.location.search)
 if(params.get("sucesso")){
 alert("✅ Pagamento aprovado!")
 }
-/* 🔥 ADMIN PERMANENTE */
+
+/* ADMIN */
 if(isAdmin){
 localStorage.setItem("usuario_plano","pro")
 localStorage.setItem("plano_expira_em","")
 }
+
 await carregarPerfil()
 await carregar()
-render()
+
 aplicarPerfilUI()
+render()
+
 /* 🔥 ABERTURA CORRETA */
 if(isAdmin){
-abrirTela("usuarios")
+abrirTela("inicio")
 }else{
 abrirTela("inicio")
 }
+
 }else{
+
 safe("telaLogin").style.display="flex"
-safe("appSistema").style.display="none"
+
+/* 🔥 REMOVE ISSO TAMBÉM */
+// safe("appSistema")
+
+safe("painelMobile").style.display="none"
+
 }
+
 })
 /* =====================================003 – LOGIN sistema (ANTES DE QUALQUER CARREGAMENTO)======================================== */
 async function loginSistema(){
@@ -555,7 +574,6 @@ localStorage.setItem("agencia",data.agencia||"")
 localStorage.setItem("conta",data.conta||"")
 /* 🔥 TROCA DE TELA (CORRIGIDO) */
 safe("telaLogin").style.display="none"
-safe("appSistema").style.display="block"
 /* 🔥 GARANTE PAINEL */
 safe("painelMobile").style.display="block"
 /* 🔥 CARREGA DADOS */
