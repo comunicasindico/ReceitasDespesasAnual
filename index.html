@@ -1073,10 +1073,11 @@ render()
 /* ========================function  ==================================================== */
 async function editarInline(id,campo,valor){
 
+valor=String(valor||"").trim()
 if(!valor)return
 
 const update={}
-update[campo]=valor.trim()
+update[campo]=valor
 
 const {error}=await db
 .from("usuarios_lancamentos")
@@ -1084,12 +1085,11 @@ const {error}=await db
 .eq("id",id)
 
 if(error){
-console.error(error)
-alert("Erro ao salvar alteração")
+console.error("ERRO UPDATE:",error)
+alert("Erro ao salvar: "+error.message)
 return
 }
 
-/* 🔥 FEEDBACK VISUAL */
 console.log("Atualizado:",campo,valor)
 }
 /* ========================function  ==================================================== */
