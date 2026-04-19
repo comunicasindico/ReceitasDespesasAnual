@@ -60,6 +60,9 @@ background:rgba(0,0,0,0.35);
 [contenteditable]{padding:4px 6px;border-radius:6px;cursor:default;}
 [contenteditable="true"]{cursor:text;background:#fef9c3;border:1px dashed #f59e0b;}
 [contenteditable="true"]:focus{outline:none;background:#e0f2fe;border:1px solid #38bdf8;box-shadow:0 0 0 2px rgba(56,189,248,0.3);}
+.navItem span{transition:0.2s;}
+.navItem.navAtivo span{transform:scale(1.2);}
+
 
   
 </style>
@@ -1061,22 +1064,112 @@ function abrirFinanceiro(){
 abrirTela("extrato")
 }
 /* ========================function  ==================================================== */
-function abrirTela(nome){
+function abrirTela(nome,el){
+
 document.querySelectorAll(".telaApp").forEach(t=>{
 t.classList.remove("telaAtiva")
 t.style.display="none"
 })
+
 const tela=safe("tela"+nome.charAt(0).toUpperCase()+nome.slice(1))
+
 if(tela){
 tela.style.display="block"
 tela.classList.add("telaAtiva")
-if(nome==="extrato"){
-render()
 }
+
+document.querySelectorAll(".navItem").forEach(n=>{
+n.classList.remove("navAtivo")
+})
+
+if(el)el.classList.add("navAtivo")
+
+if(nome==="extrato")render()
+
+/* 🔥 IA PRO AUTO START */
+if(nome==="ia" && !window._iaInit){
+window._iaInit=true
+setTimeout(()=>{
+addMsgIA("🤖 Olá! Sou sua IA financeira.\n\nPosso te ajudar com:\n• análise de gastos\n• sugestões de economia\n• planejamento financeiro\n\nDigite sua pergunta 👇","bot")
+},300)
 }
 }
 /* ========================function  ==================================================== */
+function addMsgIA(texto,tipo){
 
+const chat=safe("chatIA")
+
+const msg=document.createElement("div")
+
+msg.style.maxWidth="80%"
+msg.style.padding="10px"
+msg.style.borderRadius="12px"
+msg.style.fontSize="13px"
+
+if(tipo==="user"){
+msg.style.alignSelf="flex-end"
+msg.style.background="#22c55e"
+msg.style.color="#000"
+}else{
+msg.style.alignSelf="flex-start"
+msg.style.background="#e2e8f0"
+msg.style.color="#000"
+}
+
+msg.innerText=texto
+
+chat.appendChild(msg)
+chat.scrollTop=chat.scrollHeight
+}
+/* ========================function  ==================================================== */
+function responderIA(){
+safe("perguntaIA").addEventListener("keypress",e=>{
+if(e.key==="Enter"){
+e.preventDefault()
+responderIA()
+}
+})
+const pergunta=safe("perguntaIA").value.trim()
+if(!pergunta)return
+
+addMsgIA(pergunta,"user")
+safe("perguntaIA").value=""
+
+/* 🔥 SIMULA PENSAMENTO */
+setTimeout(()=>{
+
+let resposta=""
+
+const totalR=dados.filter(x=>x.tipo==="RECEITA").reduce((s,x)=>s+Number(x.valor||0),0)
+const totalD=dados.filter(x=>x.tipo==="DESPESA").reduce((s,x)=>s+Number(x.valor||0),0)
+const saldo=totalR-totalD
+
+const p=pergunta.toLowerCase()
+
+if(p.includes("gasto")||p.includes("despesa")){
+resposta=`📊 Você já gastou ${formatarMoeda(totalD)}.\n\nCuidado com excessos.`
+}
+
+else if(p.includes("saldo")){
+resposta=`💰 Seu saldo atual é ${formatarMoeda(saldo)}.`
+}
+
+else if(p.includes("ganho")||p.includes("receita")){
+resposta=`📈 Suas receitas somam ${formatarMoeda(totalR)}.`
+}
+
+else if(p.includes("economizar")){
+resposta=`💡 Dica:\nReduza despesas recorrentes e acompanhe semanalmente seus gastos.`
+}
+
+else{
+resposta="🤖 Ainda estou aprendendo... mas posso analisar seus gastos, receitas e saldo!"
+}
+
+addMsgIA(resposta,"bot")
+
+},500)
+}
 /* ========================function  ==================================================== */
 async function verFinanceiroUsuario(userId){
 localStorage.setItem("usuario_visualizando_admin",userId)
