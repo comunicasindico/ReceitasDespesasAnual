@@ -530,29 +530,62 @@ if(b.innerText.includes("Virar PRO"))b.style.display="none"
 })
 }
 }
-/* =====================================003 – LOGIN (ANTES DE QUALQUER CARREGAMENTO)======================================== */
+/* =====================================001 – INIT SESSÃO (AUTO LOGIN / F5)======================================== */
+document.addEventListener("DOMContentLoaded",async()=>{
+const userId=localStorage.getItem("usuario_id_lancamentos")
+
+if(userId){
+/* 🔥 JÁ LOGADO → ENTRA DIRETO */
+safe("telaLogin").style.display="none"
+safe("appSistema").style.display="block"
+safe("painelMobile").style.display="block"
+const params=new URLSearchParams(window.location.search)
+if(params.get("sucesso")){
+alert("✅ Pagamento aprovado!")
+}
+await carregarPerfil()
+await carregar()
+render()
+aplicarPerfilUI()
+abrirTela("inicio")
+
+}else{
+/* 🔥 NÃO LOGADO */
+safe("telaLogin").style.display="flex"
+safe("appSistema").style.display="none"
+}
+})
+/* =====================================003 – LOGIN sistema (ANTES DE QUALQUER CARREGAMENTO)======================================== */
 async function loginSistema(){
 const email=safe("loginUser").value.trim()
 const senha=safe("loginPass").value.trim()
 if(!email||!senha){alert("Preencha os dados");return}
+
 const {data,error}=await db.from("usuarios_lancamentos").select("*").eq("email",email).eq("senha",senha).maybeSingle()
 if(error){console.error(error);alert("Erro no login");return}
 if(!data){alert("Login inválido");return}
 if(data.status!=="aprovado"){alert("⏳ Conta aguardando aprovação");return}
+/* 🔥 LIMPA E SALVA SESSÃO */
 localStorage.clear()
 localStorage.setItem("usuario_id_lancamentos",data.id)
-localStorage.setItem("usuario_nome_lancamentos",data.nome)
-localStorage.setItem("usuario_email_lancamentos",data.email)
+localStorage.setItem("usuario_nome_lancamentos",data.nome||"")
+localStorage.setItem("usuario_email_lancamentos",data.email||"")
 localStorage.setItem("tipo_usuario_lancamentos",data.tipo||"user")
 localStorage.setItem("usuario_plano",data.plano||"free")
 localStorage.setItem("plano_expira_em",data.plano_expira_em||"")
 localStorage.setItem("agencia",data.agencia||"")
 localStorage.setItem("conta",data.conta||"")
-hide("telaLogin")
-show("painelMobile")
+/* 🔥 TROCA DE TELA (CORRIGIDO) */
+safe("telaLogin").style.display="none"
+safe("appSistema").style.display="block"
+/* 🔥 GARANTE PAINEL */
+safe("painelMobile").style.display="block"
+/* 🔥 CARREGA DADOS */
 await carregarPerfil()
 await carregar()
+/* 🔥 RENDER */
 render()
+/* 🔥 UI */
 aplicarPerfilUI()
 abrirTela("inicio")
 }
