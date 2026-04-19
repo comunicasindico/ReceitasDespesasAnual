@@ -265,30 +265,17 @@ Criar Conta
 <option value="RECEITA">Receita</option>
 <option value="DESPESA">Despesa</option>
 </select>
-
-<select id="categoriaNova">
-<option>Salário</option>
-<option>Cripto</option>
-<option>Educação</option>
-<option>Saúde</option>
-<option>Lazer</option>
-<option>Moradia</option>
-<option>Cartão</option>
-</select>
-
+<input id="dataNovo" type="date">
+<input id="vencimentoNovo" type="date" placeholder="Vencimento (opcional)">
+<input id="categoriaNova" placeholder="Categoria (livre ou escolha)">
 <input id="descNovo" placeholder="Descrição">
 <input id="valorNovo" type="number" placeholder="Valor">
-
 <button onclick="inserirLancamento()">Salvar</button>
-
 </div>
-
 <div id="lista"></div>
 <div id="resumo"></div>
-
 </div>
 </div>
-
 <!-- ====================================================022 – PERFIL==================================================== -->
 <div id="telaPerfil" class="telaApp">
 <div class="topBarMobile"><button onclick="irInicio()">←</button><b>👤 Perfil</b></div>
@@ -429,30 +416,39 @@ carregarUsuariosAdmin()
 
 /* ====================================================030 – INSERIR LANÇAMENTO==================================================== */
 async function inserirLancamento(){
-
 if(!podeAdicionar())return
-
 const tipo=safe("tipoNovo").value
-const categoria=safe("categoriaNova").value
-const desc=safe("descNovo").value
+const data=safe("dataNovo").value
+const vencimento=safe("vencimentoNovo").value||null
+const categoria=safe("categoriaNova").value||"GERAL"
+const descricao=safe("descNovo").value
 const valor=parseFloat(safe("valorNovo").value||0)
-
-if(!desc||!valor){
-alert("Preencha os dados")
+if(!data||!descricao||!valor){
+alert("Preencha data, descrição e valor")
 return
 }
-
-await db.from("lancamentos").insert({
-data:new Date().toISOString().slice(0,10),
-descricao:categoria+" - "+desc,
-valor:valor,
-tipo:tipo,
-status:"pendente",
-usuario_id:localStorage.getItem("usuario_id_lancamentos")
-})
-
-safe("formInsercao").style.display="none"
-carregar()
+const usuario_id=localStorage.getItem("usuario_id_lancamentos")
+const {error}=await db.from("lancamentos").insert([{
+usuario_id,
+tipo,
+data,
+data_vencimento:vencimento,
+categoria,
+descricao,
+valor,
+status:"pendente"
+}])
+if(error){
+console.error(error)
+alert("Erro ao salvar")
+return
+}
+safe("descNovo").value=""
+safe("valorNovo").value=""
+safe("categoriaNova").value=""
+safe("vencimentoNovo").value=""
+await carregar()
+render()
 }
 /* ====================================================031 – ABRIR INSERÇÃO==================================================== */
 function abrirInsercao(){
