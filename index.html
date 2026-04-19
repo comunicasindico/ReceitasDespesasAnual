@@ -118,6 +118,7 @@ function setValue(id,val){const el=safe(id);if(el)el.value=val}
 /* ====================================================016 – TAMANHO GRÁFICO==================================================== */
 const TAM_GRAFICO=180
 </script>
+<script async src="https://js.stripe.com/v3/buy-button.js"></script>
 </head>
 <body class="login">
 
@@ -200,9 +201,12 @@ Criar Conta
 
 <div style="padding:10px;display:flex;flex-direction:column;gap:8px">
 <button onclick="abrirFinanceiro(this)">Entrar no Financeiro</button>
-<button id="btnPro" onclick="assinarPlano()" style="background:#0ea5e9;color:#fff">
-💰 Virar PRO
-</button>
+<div id="btnStripe" style="margin-top:10px">
+<stripe-buy-button
+buy-button-id="buy_btn_1TNwau2E0HBnZO0wlQrrxaZB"
+publishable-key="pk_test_51TNZAs2E0HBnZO0wl3iSNJkiDFw2tlgvovJdixoGXbxZGtd7NIasPNIvAUAZNbl3zgn3XhCcaWb4kSBfO9VLud4y00ZuvmDeqP">
+</stripe-buy-button>
+</div>
 </div>
 
 </div>
@@ -641,14 +645,15 @@ safe("planoInfo").innerText=textoPlano
 /* 🔥 ESCONDER BOTÃO PRO SE ATIVO */
 const hoje=new Date()
 const expira=data.plano_expira_em?new Date(data.plano_expira_em):null
-const btnPro=safe("btnPro")
-if(btnPro){
-if(data.plano==="pro" && expira && expira>hoje){
-btnPro.style.display="none"
-}else{
-btnPro.style.display="block"
+/* 🔥 ESCONDER BOTÃO STRIPE SE PRO ATIVO */
+const ativo=data.plano==="pro" && (!expira || expira>=hoje)
+const btnStripe=safe("btnStripe")
+if(btnStripe){
+btnStripe.style.display=ativo?"none":"block"
 }
-}
+setInterval(async()=>{
+await carregarPerfil()
+},30000)
 atualizarDashboardBanco()
 }
 /* ===============005 – CARREGAR DADOS ======================= */
