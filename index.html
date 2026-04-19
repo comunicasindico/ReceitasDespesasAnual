@@ -90,7 +90,6 @@ function setValue(id,val){const el=safe(id);if(el)el.value=val}
 /* ====================================================016 – TAMANHO GRÁFICO==================================================== */
 const TAM_GRAFICO=180
 </script>
-<script async src="https://js.stripe.com/v3/buy-button.js"></script>
 </head>
 <body class="login">
 
@@ -175,14 +174,27 @@ Criar Conta
 
 <div style="padding:10px;display:flex;flex-direction:column;gap:8px">
 <button onclick="abrirFinanceiro(this)">Entrar no Financeiro</button>
-<div id="btnStripe" style="margin-top:10px">
-<stripe-buy-button
-buy-button-id="buy_btn_1TNwau2E0HBnZO0wlQrrxaZB"
-publishable-key="pk_test_51TNZAs2E0HBnZO0wl3iSNJkiDFw2tlgvovJdixoGXbxZGtd7NIasPNIvAUAZNbl3zgn3XhCcaWb4kSBfO9VLud4y00ZuvmDeqP">
-</stripe-buy-button>
-</div>
-</div>
 
+<div id="propagandaLivro" style="margin-top:12px">
+<div style="background:#ffffff;border:1px solid #e2e8f0;border-radius:14px;padding:14px;text-align:center;box-shadow:0 4px 10px rgba(0,0,0,0.05)">
+<img src="https://i.imgur.com/8Km9tLL.png" style="width:90px;border-radius:8px;margin-bottom:8px">
+<div style="font-weight:bold;font-size:14px;margin-bottom:4px">
+Livro SWOT Cristão
+</div>
+<div style="font-size:12px;color:#64748b;margin-bottom:8px">
+Transforme sua vida espiritual com estratégia e propósito
+</div>
+<div style="font-size:18px;font-weight:bold;color:#16a34a;margin-bottom:8px">
+R$ 51,90
+</div>
+<button onclick="window.open('https://seulink.com','_blank')" 
+style="background:#2563eb;color:#fff;width:100%">
+Comprar agora
+</button>
+</div>
+</div>
+  
+</div>
 </div>
 
 <!-- 🔥 BLOCO ADMIN -->
