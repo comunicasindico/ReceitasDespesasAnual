@@ -665,9 +665,7 @@ function render(){
 if(!usuario||!usuario.id){console.warn("Usuario não carregado ainda");return}
 const hoje=new Date()
 const expira=usuario.plano_expira_em?new Date(usuario.plano_expira_em):null
-let bloqueado=false
-if(usuario.plano!=="pro")bloqueado=true
-if(expira&&expira<hoje)bloqueado=true
+const bloqueado=(usuario.plano!=="pro"||(expira&&expira<hoje))
 try{
 const tela=safe("telaExtrato")
 if(!tela||!tela.classList.contains("telaAtiva"))return
@@ -695,10 +693,7 @@ if(!mesesOcultos[chave]){
 listaMes.forEach(x=>{
 const valor=Number(x.valor||0)
 const vis=visibilidade[x.id]===false
-html+=`<div class="card" style="padding:8px;display:flex;justify-content:space-between;align-items:center"><div style="flex:2;font-size:13px">${modoEdicao?`<input value="${x.descricao||""}" onchange="editarCampo('${x.id}','descricao',this.value)">`:`${formatarDataBR(x.data)} - ${x.descricao}`}</div><div style="flex:1;text-align:right;font-weight:bold;color:${x.tipo==="RECEITA"?"#16a34a":"#dc2626"}">${modoEdicao?`<input value="${valor}" type="number" onchange="editarCampo('${x.id}','valor',this.value)" style="width:90px;text-align:right">`:(bloqueado?"🔒": (bloqueado
-? "🔒"
-: (vis ? "R$ ***" : formatarMoeda(valor))
-))}</div><div style="display:flex;gap:4px"><button onclick="event.stopPropagation();toggleValor('${x.id}')">👁</button>${modoEdicao?`<button onclick="event.stopPropagation();excluirLancamento('${x.id}')" style="background:#ef4444;color:#fff">🗑</button>`:""}</div></div>`
+html+=`<div class="card" style="padding:8px;display:flex;justify-content:space-between;align-items:center"><div style="flex:2;font-size:13px">${modoEdicao?`<input value="${x.descricao||""}" onchange="editarCampo('${x.id}','descricao',this.value)">`:`${formatarDataBR(x.data)} - ${x.descricao}`}</div><div style="flex:1;text-align:right;font-weight:bold;color:${x.tipo==="RECEITA"?"#16a34a":"#dc2626"}">${modoEdicao?`<input value="${valor}" type="number" onchange="editarCampo('${x.id}','valor',this.value)" style="width:90px;text-align:right">`:(bloqueado?"🔒":(vis?"R$ ***":formatarMoeda(valor)))}</div><div style="display:flex;gap:4px"><button onclick="event.stopPropagation();toggleValor('${x.id}')">👁</button>${modoEdicao?`<button onclick="event.stopPropagation();excluirLancamento('${x.id}')" style="background:#ef4444;color:#fff">🗑</button>`:""}</div></div>`
 })
 }
 })
