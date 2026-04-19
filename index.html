@@ -623,6 +623,7 @@ if(error||!data){console.error("Erro perfil:",error);return}
 usuario=data
 localStorage.setItem("usuario_plano",data.plano||"free")
 localStorage.setItem("plano_expira_em",data.plano_expira_em||"")
+localStorage.setItem("plano_grace_ate",data.plano_grace_ate||"")
 safe("mobileNome").innerText=data.nome||""
 safe("mobileAgencia").innerText=data.agencia||"--"
 safe("mobileConta").innerText=data.conta||"--"
@@ -632,28 +633,63 @@ safe("perfilCelular").value=data.celular||""
 safe("boxAgencia").innerText=data.agencia||"--"
 safe("boxConta").innerText=data.conta||"--"
 safe("badgePlano").innerText="Plano: "+(data.plano||"FREE")
+
 /* 🔥 PLANO TRIMESTRAL NO CABEÇALHO */
 let textoPlano=""
 if(data.plano==="pro"){
-const inicio=data.atualizado_em||data.criado_em||new Date()
+const inicio=data.plano_inicio||data.atualizado_em||data.criado_em||new Date()
 const fim=data.plano_expira_em||null
 textoPlano=`Plano PRO (Trimestral): ${formatarDataBR(inicio)} até ${formatarDataBR(fim)}`
 }else{
 textoPlano="Plano FREE"
 }
 safe("planoInfo").innerText=textoPlano
-/* 🔥 ESCONDER BOTÃO PRO SE ATIVO */
+
+/* 🔥 STATUS DO PLANO */
 const hoje=new Date()
 const expira=data.plano_expira_em?new Date(data.plano_expira_em):null
-/* 🔥 ESCONDER BOTÃO STRIPE SE PRO ATIVO */
-const ativo=data.plano==="pro" && (!expira || expira>=hoje)
+const grace=data.plano_grace_ate?new Date(data.plano_grace_ate):null
+
+let statusPlano="free"
+if(data.plano==="pro"){
+if(expira && expira>=hoje){
+statusPlano="ativo"
+}else if(grace && grace>=hoje){
+statusPlano="grace"
+}else{
+statusPlano="expirado"
+}
+}
+
+/* 🔥 ESCONDER BOTÃO STRIPE */
 const btnStripe=safe("btnStripe")
 if(btnStripe){
-btnStripe.style.display=ativo?"none":"block"
+btnStripe.style.display=(statusPlano==="ativo")?"none":"block"
 }
-setInterval(async()=>{
+
+/* 🔥 AVISO VISUAL */
+const aviso=safe("avisoPlano")
+if(aviso){
+if(statusPlano==="grace"){
+aviso.innerText="⚠ Seu plano venceu. Regularize em breve para não perder acesso."
+aviso.style.display="block"
+aviso.style.background="#f59e0b"
+}else if(statusPlano==="expirado"){
+aviso.innerText="🚫 Plano expirado. Limitado a 20 lançamentos."
+aviso.style.display="block"
+aviso.style.background="#ef4444"
+}else{
+aviso.style.display="none"
+}
+}
+
+/* 🔥 AUTO REFRESH (EVITA LOOP DUPLO) */
+if(!window._intervalPerfil){
+window._intervalPerfil=setInterval(async()=>{
 await carregarPerfil()
 },30000)
+}
+
 atualizarDashboardBanco()
 }
 /* ===============005 – CARREGAR DADOS ======================= */
