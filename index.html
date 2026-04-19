@@ -719,12 +719,27 @@ const chave=ano+"-"+mes
 if(!grupos[chave])grupos[chave]=[]
 grupos[chave].push(x)
 })
-const chaves=Object.keys(grupos).sort().reverse()
+const hojeFuturo=new Date()
+for(let i=0;i<6;i++){
+const d=new Date(hojeFuturo.getFullYear(),hojeFuturo.getMonth()+i,1)
+const ano=d.getFullYear()
+const mes=String(d.getMonth()+1).padStart(2,"0")
+const chave=ano+"-"+mes
+if(!grupos[chave])grupos[chave]=[]
+}
+const chaves=Object.keys(grupos).sort((a,b)=>b.localeCompare(a))
 if(!chaves.length){lista.innerHTML="<div class='card'>Sem dados financeiros</div>";resumo.innerHTML="";return}
 let html=""
 let totalR=0
 let totalD=0
+const hoje=new Date()
+const mesAtual=String(hoje.getMonth()+1).padStart(2,"0")
+const anoAtual=hoje.getFullYear()
+const chaveAtual=anoAtual+"-"+mesAtual
 chaves.forEach(chave=>{
+if(mesesOcultos[chave]===undefined){
+mesesOcultos[chave]=(chave!==chaveAtual)
+}
 const listaMes=grupos[chave]||[]
 listaMes.sort((a,b)=>{
 const da=new Date(a.data_vencimento||a.data)
