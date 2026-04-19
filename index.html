@@ -601,180 +601,97 @@ if(b.innerText.includes("Virar PRO"))b.style.display="none"
 })
 }
 }
-/* ====================================================040 – LOGIN SaaS==================================================== */
+/* ====================================================040 – LOGIN SaaS CORRIGIDO==================================================== */
 async function loginSistema(){
 const email=safe("loginUser").value.trim()
 const senha=safe("loginPass").value.trim()
-if(!email||!senha){
-alert("Preencha os dados")
-return
-}
-const {data,error}=await db
-.from("usuarios_lancamentos")
-.select("*")
-.eq("email",email)
-.eq("senha",senha)
-.maybeSingle()
-if(error){
-console.error(error)
-alert("Erro no login")
-return
-}
-if(!data){
-alert("Login inválido")
-return
-}
-/* 🔒 BLOQUEIO POR APROVAÇÃO */
-if(data.status!=="aprovado"){
-alert("⏳ Conta aguardando aprovação do administrador")
-return
-}
-/* 🔥 LIMPA E DEFINE SESSÃO */
+if(!email||!senha){alert("Preencha os dados");return}
+const {data,error}=await db.from("usuarios_lancamentos").select("*").eq("email",email).eq("senha",senha).maybeSingle()
+if(error){console.error(error);alert("Erro no login");return}
+if(!data){alert("Login inválido");return}
+if(data.status!=="aprovado"){alert("⏳ Conta aguardando aprovação do administrador");return}
 localStorage.clear()
-localStorage.setItem("usuario_id_lancamentos", data.id)
-localStorage.setItem("usuario_nome_lancamentos", data.nome)
-localStorage.setItem("usuario_email_lancamentos", data.email)
-localStorage.setItem("tipo_usuario_lancamentos", data.tipo || "user")
-/* 🔥 PLANO (CRÍTICO) */
-localStorage.setItem("usuario_plano", data.plano || "free")
-localStorage.setItem("plano_expira_em", data.plano_expira_em || "")
-/* 🔥 DADOS BANCÁRIOS */
-localStorage.setItem("agencia", data.agencia || "")
-localStorage.setItem("conta", data.conta || "")
-/* 🔥 UI */
+localStorage.setItem("usuario_id_lancamentos",data.id)
+localStorage.setItem("usuario_nome_lancamentos",data.nome)
+localStorage.setItem("usuario_email_lancamentos",data.email)
+localStorage.setItem("tipo_usuario_lancamentos",data.tipo||"user")
+localStorage.setItem("usuario_plano",data.plano||"free")
+localStorage.setItem("plano_expira_em",data.plano_expira_em||"")
+localStorage.setItem("agencia",data.agencia||"")
+localStorage.setItem("conta",data.conta||"")
 hide("telaLogin")
 show("painelMobile")
-/* 🔥 ORDEM CORRETA (CRÍTICO) */
 await carregarPerfil()
 await carregar()
-/* 🔥 FINALIZA UI */
 aplicarPerfilUI()
 abrirTela("inicio")
 }
 /* ====================================================041 – BLOQUEIO FREE==================================================== */
 function podeAdicionar(){
-
 const plano=localStorage.getItem("usuario_plano")||"free"
-
-if(plano==="free" && dados.length>=20){
-mostrarUpgrade()
-return false
-}
-
+if(plano==="free"&&Array.isArray(dados)&&dados.length>=20){mostrarUpgrade();return false}
 return true
 }
 /* ====================================================042 – APROVAR USUÁRIO==================================================== */
 async function aprovarUsuario(id,status){
-
 const novo=status==="aprovado"?"pendente":"aprovado"
-
-await db
-.from("usuarios_lancamentos")
-.update({status:novo})
-.eq("id",id)
-
+await db.from("usuarios_lancamentos").update({status:novo}).eq("id",id)
 carregarUsuariosAdmin()
 }
-/* ====================================================043 – DASHBOARD BANCO==================================================== */
+/* ====================================================043 – DASHBOARD BANCO CORRIGIDO==================================================== */
 function atualizarDashboardBanco(){
-let r = 0
-let d = 0
-dados.forEach(x=>{
-if(x.tipo==="RECEITA") r += Number(x.valor||0)
-else d += Number(x.valor||0)
-})
-const saldo = r - d
-safe("dashReceitas").innerText = ocultarSaldo ? "R$ ***" : formatarMoeda(r)
-safe("dashDespesas").innerText = ocultarSaldo ? "R$ ***" : formatarMoeda(d)
-safe("dashSaldo").innerText = ocultarSaldo ? "R$ ***" : formatarMoeda(saldo)
+if(!Array.isArray(dados))return
+let r=0,d=0
+dados.forEach(x=>{if(x.tipo==="RECEITA")r+=Number(x.valor||0);else d+=Number(x.valor||0)})
+const saldo=r-d
+safe("dashReceitas").innerText=ocultarSaldo?"R$ ***":formatarMoeda(r)
+safe("dashDespesas").innerText=ocultarSaldo?"R$ ***":formatarMoeda(d)
+safe("dashSaldo").innerText=ocultarSaldo?"R$ ***":formatarMoeda(saldo)
 }
-/* ====================================================044 ASSINAR PLANO==================================================== */
+/* ====================================================044 – ASSINAR PLANO==================================================== */
 async function assinarPlano(){
-
-const email = localStorage.getItem("usuario_email_lancamentos") || "teste@email.com"
-const usuario_id = localStorage.getItem("usuario_id_lancamentos")
-
-const res = await fetch("https://gspdlrenyrzbkxlvyugc.supabase.co/functions/v1/criar-checkout",{
-method:"POST",
-headers:{
-"Content-Type":"application/json"
-},
-body: JSON.stringify({
-email,
-usuario_id
-})
-})
-
-const json = await res.json()
-
-if(json.url){
-window.location.href = json.url
-}else{
-alert("Erro ao iniciar pagamento")
+const email=localStorage.getItem("usuario_email_lancamentos")||"teste@email.com"
+const usuario_id=localStorage.getItem("usuario_id_lancamentos")
+const res=await fetch("https://gspdlrenyrzbkxlvyugc.supabase.co/functions/v1/criar-checkout",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({email,usuario_id})})
+const json=await res.json()
+if(json.url){window.location.href=json.url}else{alert("Erro ao iniciar pagamento")}
 }
-
-}
-/* ====================================================050 – FUNÇÃO SALVAR PERFIL ==================================================== */
+/* ====================================================050 – SALVAR PERFIL==================================================== */
 async function salvarPerfil(){
 const id=localStorage.getItem("usuario_id_lancamentos")
 const nome=safe("perfilNome").value
 const email=safe("perfilEmail").value
 const celular=safe("perfilCelular").value
-await db
-.from("usuarios_lancamentos")
-.update({
-nome,
-email,
-celular
-})
-.eq("id",id)
+await db.from("usuarios_lancamentos").update({nome,email,celular}).eq("id",id)
 alert("Atualizado")
+await carregarPerfil()
 }
-/* ====================================================051 – FUNÇÕES FALTANTES==================================================== */
+/* ====================================================051 – TOGGLE SALDO==================================================== */
 function toggleSaldo(){
 ocultarSaldo=!ocultarSaldo
 render()
 atualizarDashboardBanco()
 }
-/* ====================================================CARREGAR PERFIL SaaS==================================================== */
+/* ====================================================052 – CARREGAR PERFIL CORRIGIDO==================================================== */
 async function carregarPerfil(){
-const id = localStorage.getItem("usuario_id_lancamentos")
+const id=localStorage.getItem("usuario_id_lancamentos")
 if(!id)return
-const {data,error} = await db
-.from("usuarios_lancamentos")
-.select("*")
-.eq("id",id)
-.maybeSingle()
-if(error || !data){
-console.error("Erro perfil:",error)
-return
-}
-/* 🔥 GARANTE OBJETO GLOBAL */
-window.usuario = data
-/* 🔥 SINCRONIZA LOCALSTORAGE (CRÍTICO) */
-localStorage.setItem("usuario_plano", data.plano || "free")
-localStorage.setItem("plano_expira_em", data.plano_expira_em || "")
-/* 🔥 UI */
-safe("mobileNome").innerText = data.nome || ""
-safe("mobileAgencia").innerText = data.agencia || "--"
-safe("mobileConta").innerText = data.conta || "--"
-
-safe("perfilNome").value = data.nome || ""
-safe("perfilEmail").value = data.email || ""
-safe("perfilCelular").value = data.celular || ""
-
-safe("boxAgencia").innerText = data.agencia || "--"
-safe("boxConta").innerText = data.conta || "--"
-
-safe("badgePlano").innerText = "Plano: " + (data.plano || "FREE")
-
-/* 🔥 ATUALIZA DASH */
+const {data,error}=await db.from("usuarios_lancamentos").select("*").eq("id",id).maybeSingle()
+if(error||!data){console.error("Erro perfil:",error);return}
+window.usuario=data
+localStorage.setItem("usuario_plano",data.plano||"free")
+localStorage.setItem("plano_expira_em",data.plano_expira_em||"")
+safe("mobileNome").innerText=data.nome||""
+safe("mobileAgencia").innerText=data.agencia||"--"
+safe("mobileConta").innerText=data.conta||"--"
+safe("perfilNome").value=data.nome||""
+safe("perfilEmail").value=data.email||""
+safe("perfilCelular").value=data.celular||""
+safe("boxAgencia").innerText=data.agencia||"--"
+safe("boxConta").innerText=data.conta||"--"
+safe("badgePlano").innerText="Plano: "+(data.plano||"FREE")
+if(data.plano==="pro"){localStorage.setItem("usuario_plano","pro")}else{localStorage.setItem("usuario_plano","free")}
 atualizarDashboardBanco()
-if(data.plano === "pro"){
-localStorage.setItem("usuario_plano","pro")
-}else{
-localStorage.setItem("usuario_plano","free")
-}
 }
 /* ========================CARREGAR ==================================================== */
   /* 🔹 CARREGAR DADOS */
