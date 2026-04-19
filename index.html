@@ -737,30 +737,30 @@ data.forEach(u=>{
 const isAdminUser=u.email==="admin@admin.com"
 const plano=isAdminUser?"pro":(u.plano||"free")
 const status=u.status||"pendente"
-
-/* 🔥 AQUI FORA DO HTML */
 const editando=linhasEditando[u.id]
 
 html+=`
 <div class="gridUsuarios">
 
+<!-- 🔥 EDITÁVEL -->
 <div ${editando?'contenteditable="true"':''}
 onblur="${editando?`editarInline('${u.id}','nome',this.innerText)`:''}">
 <b>${u.nome||"-"}</b>
 </div>
 
+<!-- 🔥 EDITÁVEL -->
 <div ${editando?'contenteditable="true"':''}
 onblur="${editando?`editarInline('${u.id}','email',this.innerText)`:''}">
 ${u.email||"-"}
 </div>
 
-<div ${editando?'contenteditable="true"':''}
-onblur="${editando?`editarInline('${u.id}','agencia',this.innerText)`:''}">
+<!-- 🔒 BLOQUEADO -->
+<div style="opacity:0.6;cursor:not-allowed">
 ${u.agencia||"-"}
 </div>
 
-<div ${editando?'contenteditable="true"':''}
-onblur="${editando?`editarInline('${u.id}','conta',this.innerText)`:''}">
+<!-- 🔒 BLOQUEADO -->
+<div style="opacity:0.6;cursor:not-allowed">
 ${u.conta||"-"}
 </div>
 
