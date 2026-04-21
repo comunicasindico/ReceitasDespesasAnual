@@ -62,7 +62,15 @@ background:rgba(0,0,0,0.35);
 [contenteditable="true"]:focus{outline:none;background:#e0f2fe;border:1px solid #38bdf8;box-shadow:0 0 0 2px rgba(56,189,248,0.3);}
 .navItem span{transition:0.2s;}
 .navItem.navAtivo span{transform:scale(1.2);}
-
+/* 🔥 LOGIN COM FUNDO TOTAL */
+body.login{background:url("img/bancocomunica.png") center center no-repeat;background-size:cover;height:100vh;}
+/* 🔥 ESCURECE LEVEMENTE (EFEITO BANCO) */
+body.login::after{content:"";position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.35);z-index:0;}
+/* 🔥 CENTRALIZA LOGIN */
+#telaLogin{position:fixed;top:0;left:0;width:100%;height:100%;display:flex;justify-content:center;align-items:center;z-index:1;}
+/* 🔥 CARD NA FRENTE */
+#telaLogin .card{position:relative;z-index:2;}
+  
 
   
 </style>
