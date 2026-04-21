@@ -991,7 +991,9 @@ let totalPendente=0
 listaMes.forEach(x=>{
 
 const valor=Number(x.valor||0)
-const vis=visibilidade[x.id]===false
+const oculto = visibilidade[x.id]!==undefined
+? visibilidade[x.id]
+: (x.tipo==="RECEITA")
 const status=x.status||"pendente"
 
 if(x.tipo==="DESPESA"){
@@ -1020,7 +1022,7 @@ ${modoEdicao
 <div style="width:90px;text-align:right;font-weight:bold;color:${x.tipo==="RECEITA"?"#16a34a":"#dc2626"}">
 ${modoEdicao
 ? `<input value="${valor}" type="number" onchange="editarCampo('${x.id}','valor',this.value)" style="width:80px;text-align:right">`
-: (bloqueado?"🔒":(vis?"R$ ***":formatarMoeda(valor)))
+: (bloqueado?"🔒":(oculto?"R$ ***":formatarMoeda(valor)))
 }
 </div>
 
