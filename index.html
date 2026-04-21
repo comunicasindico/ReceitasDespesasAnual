@@ -10,9 +10,9 @@
 /* ====================================================001 – BASE==================================================== */
 html,body{margin:0;padding:0;width:100%;min-height:100%;overflow-x:hidden}
 *{box-sizing:border-box}
-body{font-family:Arial;color:#0f172a;padding:6px;
-background:url("img/bancocomunica.png") center/cover no-repeat fixed;
-}
+body{font-family:Arial;color:#0f172a;padding:6px;background:#f8fafc;}
+/* 🔥 IMAGEM SÓ NO LOGIN */
+body.login{background:url("img/bancocomunica.png") center/cover no-repeat fixed;}
 body::before,.nebula,.vialactea,.shooting-star{display:none!important}
 /* ====================================================002 – CARDS==================================================== */
 .card{background:#ffffff;border:1px solid #e2e8f0;border-radius:10px;padding:6px 8px;margin:3px 0}
@@ -750,7 +750,12 @@ atualizarDashboardBanco()
 async function carregar(){
 const usuario_id=localStorage.getItem("usuario_id_lancamentos")
 if(!usuario_id)return
-const {data,error}=await db.from("lancamentos").select("*").eq("usuario_id",usuario_id).order("data",{ascending:false})
+const {data,error}=await db
+.from("lancamentos")
+.select("*")
+.eq("usuario_id",usuario_id)
+.order("data_vencimento",{ascending:false})
+.order("data",{ascending:false})
 if(error){console.error(error);return}
 dados=data||[]
 render()
@@ -864,16 +869,12 @@ usuario.plano = localStorage.getItem("usuario_plano") || "free"
 usuario.plano_expira_em = localStorage.getItem("plano_expira_em") || null
 /* ====================008 – RENDER (ÚLTIMA FUNÇÃO PRINCIPAL)=============================================== */
 function render(){
-/* 🔥 GARANTE USUÁRIO */
-if(!usuario||!usuario.id){
-console.warn("Usuario não carregado ainda")
-return
-}
-/* 🔥 GARANTE ELEMENTOS */
+if(!usuario||!usuario.id)return
+
 const blocoAdmin=safe("blocoAdmin")
 const blocoUser=safe("blocoFinanceiroUsuario")
 const areaUsuarios=safe("areaUsuarios")
-/* 🔥 CONTROLE ADMIN SEGURO */
+
 if(isAdmin){
 if(blocoAdmin)blocoAdmin.style.display="block"
 if(blocoUser)blocoUser.style.display="none"
@@ -883,27 +884,33 @@ if(blocoAdmin)blocoAdmin.style.display="none"
 if(blocoUser)blocoUser.style.display="block"
 if(areaUsuarios)areaUsuarios.style.display="none"
 }
-/* 🔥 CONTINUA NORMAL */
+
 const hoje=new Date()
 const expira=usuario.plano_expira_em?new Date(usuario.plano_expira_em):null
 const bloqueado=(usuario.plano!=="pro"||(expira&&expira<hoje))
+
 try{
+
 const tela=safe("telaExtrato")
 if(!tela||!tela.classList.contains("telaAtiva"))return
+
 const lista=safe("lista")
 const resumo=safe("resumo")
+
 if(!lista||!resumo)return
+
 if(!Array.isArray(dados)||!dados.length){
 lista.innerHTML="<div class='card'>Sem registros</div>"
 resumo.innerHTML=""
 return
 }
+
+/* ================= AGRUPAMENTO ================= */
 const grupos={}
 dados.forEach(x=>{
-if(!x)return
-const base = x.tipo==="DESPESA" ? (x.data_vencimento||x.data) : x.data
+const base=(x.data_vencimento||x.data||"").slice(0,10)
 if(!base)return
-const d=new Date(String(base).slice(0,10))
+const d=new Date(base)
 if(isNaN(d))return
 const ano=d.getFullYear()
 const mes=String(d.getMonth()+1).padStart(2,"0")
@@ -911,6 +918,8 @@ const chave=ano+"-"+mes
 if(!grupos[chave])grupos[chave]=[]
 grupos[chave].push(x)
 })
+
+/* GARANTE MESES FUTUROS */
 const hojeFuturo=new Date()
 for(let i=0;i<6;i++){
 const d=new Date(hojeFuturo.getFullYear(),hojeFuturo.getMonth()+i,1)
@@ -919,35 +928,45 @@ const mes=String(d.getMonth()+1).padStart(2,"0")
 const chave=ano+"-"+mes
 if(!grupos[chave])grupos[chave]=[]
 }
+
 const chaves=Object.keys(grupos).sort((a,b)=>b.localeCompare(a))
-if(!chaves.length){lista.innerHTML="<div class='card'>Sem dados financeiros</div>";resumo.innerHTML="";return}
+
 let html=""
 let totalR=0
 let totalD=0
-const hoje=new Date()
+
 const mesAtual=String(hoje.getMonth()+1).padStart(2,"0")
 const anoAtual=hoje.getFullYear()
 const chaveAtual=anoAtual+"-"+mesAtual
+
+/* ================= LOOP MESES ================= */
 chaves.forEach(chave=>{
+
 if(mesesOcultos[chave]===undefined){
 mesesOcultos[chave]=(chave!==chaveAtual)
 }
+
 const listaMes=grupos[chave]||[]
+
 listaMes.sort((a,b)=>{
-const da=new Date(a.data_vencimento||a.data)
-const db=new Date(b.data_vencimento||b.data)
-return da-db
+return new Date((a.data_vencimento||a.data)) - new Date((b.data_vencimento||b.data))
 })
+
 let r=0,d=0
-listaMes.forEach(x=>{const v=Number(x.valor||0);if(x.tipo==="RECEITA")r+=v;else{
-if((x.status||"pago")==="pago")d+=v
-}})
+listaMes.forEach(x=>{
+const v=Number(x.valor||0)
+if(x.tipo==="RECEITA")r+=v
+else if((x.status||"pendente")==="pago")d+=v
+})
+
 totalR+=r
 totalD+=d
+
 const saldo=r-d
 const[ano,mes]=chave.split("-")
 const cor=corMes(mes)
 
+/* ================= HEADER ================= */
 html+=`<div class="card" onclick="toggleMes('${chave}')" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center;background:${cor};color:#fff;padding:6px 10px;border-radius:10px">
 <div style="font-weight:bold">${mes}/${ano}</div>
 <div style="display:flex;align-items:center;gap:8px">
@@ -955,42 +974,28 @@ html+=`<div class="card" onclick="toggleMes('${chave}')" style="cursor:pointer;d
 <button onclick="event.stopPropagation();toggleSaldo()" style="background:#e2e8f0;padding:6px;border-radius:8px">👁</button>
 </div>
 </div>`
+
+/* ================= ITENS ================= */
+if(!mesesOcultos[chave]){
+
 let totalPago=0
 let totalPendente=0
-if(dados.length){
-dados.forEach(x=>{
-const base=x.data_vencimento||x.data
-if(!base)return
-const d=new Date(String(base).slice(0,10))
-const ano=d.getFullYear()
-const mes=String(d.getMonth()+1).padStart(2,"0")
-const chave=ano+"-"+mes
-if(!grupos[chave])grupos[chave]=[]
-})
-}
-if(!mesesOcultos[chave]){
+
 listaMes.forEach(x=>{
+
 const valor=Number(x.valor||0)
 const vis=visibilidade[x.id]===false
 const status=x.status||"pendente"
+
 if(x.tipo==="DESPESA"){
 if(status==="pago")totalPago+=valor
 else totalPendente+=valor
 }
+
 const corClaro=corMesClaro(cor)
 
-html+=`<div class="card" 
-style="
-padding:3px 6px;
-margin:2px 0;
-display:flex;
-align-items:center;
-gap:6px;
-font-size:11px;
-line-height:1.2;
-background:${corClaro};
-border-left:4px solid ${cor};
-">align-items:center;gap:6px;font-size:12px">
+html+=`<div class="card" style="padding:3px 6px;margin:2px 0;display:flex;align-items:center;gap:6px;font-size:11px;line-height:1.2;background:${corClaro};border-left:4px solid ${cor};">
+
 <div style="flex:3">
 ${modoEdicao
 ? `<div style="display:flex;gap:4px">
@@ -1004,28 +1009,54 @@ ${modoEdicao
 </div>`
 }
 </div>
+
 <div style="width:90px;text-align:right;font-weight:bold;color:${x.tipo==="RECEITA"?"#16a34a":"#dc2626"}">
-${modoEdicao?`<input value="${valor}" type="number" onchange="editarCampo('${x.id}','valor',this.value)" style="width:80px;text-align:right">`:(bloqueado?"🔒":(x.tipo==="RECEITA"?"R$ ***":(vis?"R$ ***":formatarMoeda(valor))))}
+${modoEdicao
+? `<input value="${valor}" type="number" onchange="editarCampo('${x.id}','valor',this.value)" style="width:80px;text-align:right">`
+: (bloqueado?"🔒":(x.tipo==="RECEITA"?"R$ ***":(vis?"R$ ***":formatarMoeda(valor))))
+}
 </div>
+
 <div style="width:90px;text-align:center">
-${x.tipo==="DESPESA"?`<button onclick="event.stopPropagation();toggleStatus('${x.id}','${status}')" style="background:${status==="pago"?"#16a34a":"#f59e0b"};color:#fff;padding:2px 6px;border-radius:6px;font-size:11px">${status==="pago"?"✔":"⏳"}</button>`:""}
+${x.tipo==="DESPESA"
+? `<button onclick="event.stopPropagation();toggleStatus('${x.id}','${status}')" style="background:${status==="pago"?"#16a34a":"#f59e0b"};color:#fff;padding:2px 6px;border-radius:6px;font-size:11px">${status==="pago"?"✔":"⏳"}</button>`
+: ""}
 </div>
+
 <div style="width:40px;text-align:center">
 <button onclick="event.stopPropagation();toggleValor('${x.id}')">👁</button>
 ${modoEdicao?`<button onclick="event.stopPropagation();excluirLancamento('${x.id}')" style="background:#ef4444;color:#fff">🗑</button>`:""}
 </div>
+
 </div>`
 })
+
 html+=`<div class="card" style="background:#0f172a;color:#fff;display:flex;justify-content:space-between;font-size:11px;padding:4px 8px">
 <div>Pagas: <b>${formatarMoeda(totalPago)}</b></div>
 <div>Pendentes: <b style="color:#f59e0b">${formatarMoeda(totalPendente)}</b></div>
 </div>`
 }
+
 })
+
+/* ================= FINAL ================= */
 lista.innerHTML=html
+
 const saldoTotal=totalR-totalD
-resumo.innerHTML=`<div class="card" style="display:flex;justify-content:space-between;align-items:center"><b>Total Geral</b><div style="display:flex;align-items:center;gap:8px"><b style="color:${saldoTotal>=0?"#16a34a":"#dc2626"}">${bloqueado?"🔒":(ocultarSaldo?"R$ ***":formatarMoeda(saldoTotal))}</b><button onclick="toggleSaldo()">👁</button></div></div>`
-}catch(e){console.error("ERRO RENDER:",e)}
+
+resumo.innerHTML=`<div class="card" style="display:flex;justify-content:space-between;align-items:center">
+<b>Total Geral</b>
+<div style="display:flex;align-items:center;gap:8px">
+<b style="color:${saldoTotal>=0?"#16a34a":"#dc2626"}">
+${bloqueado?"🔒":(ocultarSaldo?"R$ ***":formatarMoeda(saldoTotal))}
+</b>
+<button onclick="toggleSaldo()">👁</button>
+</div>
+</div>`
+
+}catch(e){
+console.error("ERRO RENDER:",e)
+}
 }
 /* ========================function  ==================================================== */
 function toggleMes(chave){
