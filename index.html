@@ -90,7 +90,11 @@ function show(id){const el=safe(id);if(el)el.style.display="block"}
 function hide(id){const el=safe(id);if(el)el.style.display="none"}
 function setHTML(id,html){const el=safe(id);if(el)el.innerHTML=html}
 function setValue(id,val){const el=safe(id);if(el)el.value=val}
-
+function hojeISO(){
+const d=new Date()
+const local=new Date(d.getTime()-d.getTimezoneOffset()*60000)
+return local.toISOString().slice(0,10)
+}
 /* ====================================================016 – TAMANHO GRÁFICO==================================================== */
 const TAM_GRAFICO=180
 </script>
@@ -382,8 +386,8 @@ const usuario_id=localStorage.getItem("usuario_id_lancamentos")
 const {error}=await db.from("lancamentos").insert([{
 usuario_id,
 tipo,
-data,
-data_vencimento:vencimento,
+data: data+"T00:00:00",
+data_vencimento: vencimento ? vencimento+"T00:00:00" : null,
 categoria,
 descricao,
 valor,
@@ -404,7 +408,25 @@ render()
 /* ====================================================031 – ABRIR INSERÇÃO==================================================== */
 function abrirInsercao(){
 const f=safe("formInsercao")
-f.style.display=f.style.display==="none"?"block":"none"
+const abrindo=f.style.display==="none"
+f.style.display=abrindo?"block":"none"
+if(abrindo){
+const hoje=hojeISO()
+if(!safe("dataNovo").value){
+safe("dataNovo").value=hoje
+}
+if(!safe("vencimentoNovo").value){
+safe("vencimentoNovo").value=hoje
+}
+if(!safe("tipoNovo").value){
+safe("tipoNovo").value="DESPESA"
+}
+safe("tipoNovo").addEventListener("change",()=>{
+if(safe("tipoNovo").value==="RECEITA"){
+safe("vencimentoNovo").value=""
+}
+})
+}
 }
 /* ====================================================032 – ATUALIZAR BOTÃO EDIÇÃO==================================================== */
 function toggleEdicao(){
@@ -858,9 +880,9 @@ return
 const grupos={}
 dados.forEach(x=>{
 if(!x)return
-const base=x.data_vencimento||x.data
+const base = x.tipo==="DESPESA" ? (x.data_vencimento||x.data) : x.data
 if(!base)return
-const d=new Date(base)
+const d=new Date(String(base).slice(0,10))
 if(isNaN(d))return
 const ano=d.getFullYear()
 const mes=String(d.getMonth()+1).padStart(2,"0")
@@ -906,6 +928,17 @@ const[ano,mes]=chave.split("-")
 html+=`<div class="card" onclick="toggleMes('${chave}')" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center"><div style="font-weight:bold">${mes}/${ano}</div><div style="display:flex;align-items:center;gap:8px"><b style="color:${saldo>=0?"#16a34a":"#dc2626"}">${bloqueado?"🔒":"R$ ***"}</b><button onclick="event.stopPropagation();toggleSaldo()" style="background:#e2e8f0;padding:6px;border-radius:8px">👁</button></div></div>`
 let totalPago=0
 let totalPendente=0
+if(dados.length){
+dados.forEach(x=>{
+const base=x.data_vencimento||x.data
+if(!base)return
+const d=new Date(String(base).slice(0,10))
+const ano=d.getFullYear()
+const mes=String(d.getMonth()+1).padStart(2,"0")
+const chave=ano+"-"+mes
+if(!grupos[chave])grupos[chave]=[]
+})
+}
 if(!mesesOcultos[chave]){
 listaMes.forEach(x=>{
 const valor=Number(x.valor||0)
