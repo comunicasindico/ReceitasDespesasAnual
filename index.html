@@ -15,7 +15,7 @@ background:url("img/bancocomunica.png") center/cover no-repeat fixed;
 }
 body::before,.nebula,.vialactea,.shooting-star{display:none!important}
 /* ====================================================002 – CARDS==================================================== */
-.card{background:#ffffff;border:1px solid #e2e8f0;border-radius:14px;padding:15px;box-shadow:0 4px 12px rgba(0,0,0,0.05);margin:4px 0}
+.card{background:#ffffff;border:1px solid #e2e8f0;border-radius:10px;padding:6px 8px;margin:3px 0}
 .resumo{background:#ffffff;border:1px solid #e2e8f0;border-radius:12px;padding:12px}
 /* ====================================================003 – INPUTS==================================================== */
 input,select{width:100%;padding:12px;border-radius:10px;border:1px solid #e2e8f0;background:#fff;color:#0f172a}
@@ -94,6 +94,27 @@ function hojeISO(){
 const d=new Date()
 const local=new Date(d.getTime()-d.getTimezoneOffset()*60000)
 return local.toISOString().slice(0,10)
+}
+/* ==================== CORES POR MÊS ==================== */
+const CORES_MES={
+"01":"#64748b",
+"02":"#16a34a",
+"03":"#eab308",
+"04":"#1e3a8a",
+"05":"#9333ea",
+"06":"#0ea5e9",
+"07":"#f97316",
+"08":"#dc2626",
+"09":"#14b8a6",
+"10":"#f59e0b",
+"11":"#22c55e",
+"12":"#3b82f6"
+}
+function corMes(mes){
+return CORES_MES[mes]||"#64748b"
+}
+function corMesClaro(hex){
+return hex+"22"
 }
 /* ====================================================016 – TAMANHO GRÁFICO==================================================== */
 const TAM_GRAFICO=180
@@ -925,7 +946,11 @@ totalR+=r
 totalD+=d
 const saldo=r-d
 const[ano,mes]=chave.split("-")
-html+=`<div class="card" onclick="toggleMes('${chave}')" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center"><div style="font-weight:bold">${mes}/${ano}</div><div style="display:flex;align-items:center;gap:8px"><b style="color:${saldo>=0?"#16a34a":"#dc2626"}">${bloqueado?"🔒":"R$ ***"}</b><button onclick="event.stopPropagation();toggleSaldo()" style="background:#e2e8f0;padding:6px;border-radius:8px">👁</button></div></div>`
+const cor=corMes(mes)
+
+html+=`<div class="card" onclick="toggleMes('${chave}')"
+style="cursor:pointer;display:flex;justify-content:space-between;align-items:center;
+background:${cor};color:#fff;padding:6px 10px;border-radius:10px"> style="cursor:pointer;display:flex;justify-content:space-between;align-items:center"><div style="font-weight:bold">${mes}/${ano}</div><div style="display:flex;align-items:center;gap:8px"><b style="color:${saldo>=0?"#16a34a":"#dc2626"}">${bloqueado?"🔒":"R$ ***"}</b><button onclick="event.stopPropagation();toggleSaldo()" style="background:#e2e8f0;padding:6px;border-radius:8px">👁</button></div></div>`
 let totalPago=0
 let totalPendente=0
 if(dados.length){
@@ -948,7 +973,20 @@ if(x.tipo==="DESPESA"){
 if(status==="pago")totalPago+=valor
 else totalPendente+=valor
 }
-html+=`<div class="card" style="padding:6px;display:flex;align-items:center;gap:6px;font-size:12px">
+const corClaro=corMesClaro(cor)
+
+html+=`<div class="card" 
+style="
+padding:3px 6px;
+margin:2px 0;
+display:flex;
+align-items:center;
+gap:6px;
+font-size:11px;
+line-height:1.2;
+background:${corClaro};
+border-left:4px solid ${cor};
+">align-items:center;gap:6px;font-size:12px">
 <div style="flex:3">
 ${modoEdicao
 ? `<div style="display:flex;gap:4px">
@@ -974,7 +1012,7 @@ ${modoEdicao?`<button onclick="event.stopPropagation();excluirLancamento('${x.id
 </div>
 </div>`
 })
-html+=`<div class="card" style="background:#0f172a;color:#fff;display:flex;justify-content:space-between;font-size:12px">
+html+=`<div class="card" style="background:#0f172a;color:#fff;display:flex;justify-content:space-between;font-size:11px;padding:4px 8px">color:#fff;display:flex;justify-content:space-between;font-size:12px">
 <div>Pagas: <b>${formatarMoeda(totalPago)}</b></div>
 <div>Pendentes: <b style="color:#f59e0b">${formatarMoeda(totalPendente)}</b></div>
 </div>`
