@@ -407,8 +407,8 @@ const usuario_id=localStorage.getItem("usuario_id_lancamentos")
 const {error}=await db.from("lancamentos").insert([{
 usuario_id,
 tipo,
-data: data+"T00:00:00",
-data_vencimento: vencimento ? vencimento+"T00:00:00" : null,
+data: data,
+data_vencimento: vencimento || null,
 categoria,
 descricao,
 valor,
@@ -907,20 +907,16 @@ resumo.innerHTML=""
 return
 }
 
-/* ================= AGRUPAMENTO ================= */
+/* ================= AGRUPAMENTO (SEM TIMEZONE) ================= */
 const grupos={}
+
 dados.forEach(x=>{
 const base=(x.data_vencimento||x.data||"").slice(0,10)
 if(!base)return
-const d=new Date(base)
-if(isNaN(d))return
-const ano=d.getFullYear()
-const mes=String(d.getMonth()+1).padStart(2,"0")
-const chave=ano+"-"+mes
+const chave=getMesAno(base)
 if(!grupos[chave])grupos[chave]=[]
 grupos[chave].push(x)
 })
-
 /* GARANTE MESES FUTUROS */
 const hojeFuturo=new Date()
 for(let i=0;i<6;i++){
@@ -930,13 +926,14 @@ const mes=String(d.getMonth()+1).padStart(2,"0")
 const chave=ano+"-"+mes
 if(!grupos[chave])grupos[chave]=[]
 }
-
+/* ORDENA */
 const chaves=Object.keys(grupos).sort((a,b)=>b.localeCompare(a))
 
 let html=""
 let totalR=0
 let totalD=0
 
+const hoje=new Date()
 const mesAtual=String(hoje.getMonth()+1).padStart(2,"0")
 const anoAtual=hoje.getFullYear()
 const chaveAtual=anoAtual+"-"+mesAtual
@@ -1156,9 +1153,14 @@ return "R$ "+Number(v||0).toLocaleString("pt-BR",{minimumFractionDigits:2})
 /* ========================function  ==================================================== */
 function formatarDataBR(d){
 if(!d)return"--"
-const data=new Date(d)
-if(isNaN(data))return"--"
-return data.toLocaleDateString("pt-BR")
+const [ano,mes,dia]=String(d).slice(0,10).split("-")
+return `${dia}/${mes}/${ano}`
+}
+/* ========================function  ==================================================== */
+function getMesAno(data){
+if(!data)return null
+const [ano,mes]=String(data).slice(0,10).split("-")
+return ano+"-"+mes
 }
 /* ========================function  ==================================================== */
 /* 🔹 LOGOUT */
