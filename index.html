@@ -1221,10 +1221,14 @@ t.style.display="none"
 })
 
 const tela=safe("tela"+nome.charAt(0).toUpperCase()+nome.slice(1))
-if(tela){
+
+if(!tela){
+console.error("Tela não encontrada:",nome)
+return
+}
+
 tela.style.display="block"
 tela.classList.add("telaAtiva")
-}
 
 document.querySelectorAll(".navItem").forEach(n=>{
 n.classList.remove("navAtivo")
@@ -1233,23 +1237,19 @@ if(el)el.classList.add("navAtivo")
 
 if(nome==="extrato")render()
 
-/* 🔥 TELA INÍCIO (BACKGROUND) */
 if(nome==="inicio"){
 document.body.classList.add("inicio")
 }
 
 /* 🔥 IA */
 if(nome==="ia"){
-/* mensagem inicial apenas 1x */
 if(!window._iaInit){
 window._iaInit=true
 setTimeout(()=>{
 addMsgIA("🤖 Olá! Sou sua IA financeira.\n\nPosso te ajudar com:\n• análise de gastos\n• sugestões de economia\n• planejamento financeiro\n\nDigite sua pergunta 👇","bot")
 },300)
 }
-/* limpa chat sempre que entra (opcional) */
 safe("chatIA").innerHTML=""
-/* foco automático */
 setTimeout(()=>safe("perguntaIA").focus(),200)
 }
 }
