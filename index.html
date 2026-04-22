@@ -104,6 +104,10 @@ const d=new Date()
 const local=new Date(d.getTime()-d.getTimezoneOffset()*60000)
 return local.toISOString().slice(0,10)
 }
+function nomeMes(m){
+const meses=["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"]
+return meses[Number(m)-1]||m
+}
 /* ==================== CORES POR MÊS ==================== */
 const CORES_MES={
 "01":"#64748b",
@@ -273,7 +277,13 @@ Comprar agora
 
 <!-- ====================================================021 – EXTRATO==================================================== -->
 <div id="telaExtrato" class="telaApp">
-<div class="topBarMobile"><button onclick="irInicio()">←</button><b>Extrato</b></div>
+<div class="topBarMobile" style="justify-content:space-between">
+<div style="display:flex;align-items:center;gap:8px">
+<button onclick="irInicio()">←</button>
+<b>Extrato</b>
+</div>
+<div style="font-weight:bold">2026</div>
+</div>
 
 <div id="containerExtrato">
 
@@ -975,7 +985,7 @@ const cor=corMes(mes)
 
 /* ================= HEADER ================= */
 html+=`<div class="card" onclick="toggleMes('${chave}')" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center;background:${cor};color:#fff;padding:6px 10px;border-radius:10px">
-<div style="font-weight:bold">${mes}/${ano}</div>
+<div style="font-weight:bold">${nomeMes(mes)} ${ano}</div>
 <div style="display:flex;align-items:center;gap:8px">
 <b style="color:${saldo>=0?"#16a34a":"#dc2626"}">${bloqueado?"🔒":"R$ ***"}</b>
 <button onclick="event.stopPropagation();toggleSaldo()" style="background:#e2e8f0;padding:6px;border-radius:8px">👁</button>
@@ -1019,22 +1029,34 @@ ${modoEdicao
 }
 </div>
 
-<div style="width:90px;text-align:right;font-weight:bold;color:${x.tipo==="RECEITA"?"#16a34a":"#dc2626"}">
+<div style="width:75px;text-align:right;font-weight:bold;color:${x.tipo==="RECEITA"?"#16a34a":"#dc2626"}">
 ${modoEdicao
-? `<input value="${valor}" type="number" onchange="editarCampo('${x.id}','valor',this.value)" style="width:80px;text-align:right">`
+? `<input value="${valor}" type="number" onchange="editarCampo('${x.id}','valor',this.value)" style="width:65px;text-align:right;font-size:11px">`
 : (bloqueado?"🔒":(oculto?"R$ ***":formatarMoeda(valor)))
 }
 </div>
 
-<div style="width:90px;text-align:center">
-${x.tipo==="DESPESA"
-? `<button onclick="event.stopPropagation();toggleStatus('${x.id}','${status}')" style="background:${status==="pago"?"#16a34a":"#f59e0b"};color:#fff;padding:2px 6px;border-radius:6px;font-size:11px">${status==="pago"?"✔":"⏳"}</button>`
-: ""}
-</div>
+<div style="display:flex;gap:4px;align-items:center">
 
-<div style="width:40px;text-align:center">
-<button onclick="event.stopPropagation();toggleValor('${x.id}')">👁</button>
-${modoEdicao?`<button onclick="event.stopPropagation();excluirLancamento('${x.id}')" style="background:#ef4444;color:#fff">🗑</button>`:""}
+${x.tipo==="DESPESA"
+? `<button onclick="event.stopPropagation();toggleStatus('${x.id}','${status}')" 
+style="width:26px;height:26px;padding:0;font-size:12px;border-radius:6px;background:${status==="pago"?"#16a34a":"#f59e0b"};color:#fff">
+${status==="pago"?"✔":"⏳"}
+</button>`
+: ""}
+
+<button onclick="event.stopPropagation();toggleValor('${x.id}')" 
+style="width:26px;height:26px;padding:0;font-size:12px;border-radius:6px;background:#22c55e;color:#000">
+👁
+</button>
+
+${modoEdicao
+? `<button onclick="event.stopPropagation();excluirLancamento('${x.id}')" 
+style="width:26px;height:26px;padding:0;font-size:12px;border-radius:6px;background:#ef4444;color:#fff">
+🗑
+</button>`
+: ""}
+
 </div>
 
 </div>`
@@ -1055,7 +1077,7 @@ const saldoTotal=totalR-totalD
 
 resumo.innerHTML=`<div class="card" style="display:flex;justify-content:space-between;align-items:center">
 <b>Total Geral</b>
-<div style="display:flex;align-items:center;gap:8px">
+<div style="display:flex;align-items:center;gap:6px;flex-wrap:nowrap">
 <b style="color:${saldoTotal>=0?"#16a34a":"#dc2626"}">
 ${bloqueado?"🔒":(ocultarSaldo?"R$ ***":formatarMoeda(saldoTotal))}
 </b>
@@ -1164,7 +1186,7 @@ return "R$ "+Number(v||0).toLocaleString("pt-BR",{minimumFractionDigits:2})
 function formatarDataBR(d){
 if(!d)return"--"
 const [ano,mes,dia]=String(d).slice(0,10).split("-")
-return `${dia}/${mes}/${ano}`
+return `${dia}/${mes}`
 }
 /* ========================function  ==================================================== */
 function getMesAno(data){
