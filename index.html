@@ -1015,15 +1015,15 @@ else totalPendente+=valor
 const corClaro=corMesClaro(cor)
 html+=`<div class="card" style="padding:6px;margin:2px 0;display:flex;flex-direction:column;background:${corClaro};border-left:4px solid ${cor};">
 
-<div style="display:flex;justify-content:space-between;align-items:center">
+<div style="display:flex;justify-content:space-between;align-items:flex-start">
 
 <div style="display:flex;gap:4px;flex:1;min-width:0">
 
-<div style="font-size:10px;width:45px;color:#64748b">
+<div style="font-size:10px;width:42px;color:#64748b">
 ${formatarDataBR(x.data_vencimento||x.data)}
 </div>
 
-<div style="flex:1;font-size:12px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
+<div style="flex:1;font-size:12px;font-weight:500;white-space:normal;word-break:break-word;line-height:1.2">
 ${modoEdicao
 ? `<input value="${x.descricao||""}" onchange="editarCampo('${x.id}','descricao',this.value)" style="width:100%">`
 : x.descricao}
@@ -1031,9 +1031,9 @@ ${modoEdicao
 
 </div>
 
-<div style="width:80px;text-align:right;font-size:12px;font-weight:bold;color:${x.tipo==="RECEITA"?"#16a34a":"#dc2626"}">
+<div style="width:70px;text-align:right;font-size:12px;font-weight:bold;color:${x.tipo==="RECEITA"?"#16a34a":"#dc2626"}">
 ${modoEdicao
-? `<input value="${valor}" type="number" onchange="editarCampo('${x.id}','valor',this.value)" style="width:70px;text-align:right">`
+? `<input value="${valor}" type="number" onchange="editarCampo('${x.id}','valor',this.value)" style="width:65px;text-align:right;font-size:11px">`
 : (bloqueado?"🔒":(oculto?"R$ ***":formatarMoeda(valor)))
 }
 </div>
@@ -1047,16 +1047,16 @@ ${modoEdicao
 </div>`
 : ""}
 
-<div style="display:flex;justify-content:flex-end;gap:6px;margin-top:4px">
+<div style="display:flex;justify-content:flex-end;gap:4px;margin-top:4px">
 
 ${x.tipo==="DESPESA"
-? `<button onclick="event.stopPropagation();toggleStatus('${x.id}','${status}')" style="width:28px;height:28px;border-radius:8px;background:${status==="pago"?"#16a34a":"#f59e0b"};color:#fff;font-size:12px">${status==="pago"?"✔":"⏳"}</button>`
+? `<button onclick="event.stopPropagation();toggleStatus('${x.id}','${status}')" style="width:18px;height:18px;border-radius:5px;font-size:9px;padding:0;line-height:18px;background:${status==="pago"?"#16a34a":"#f59e0b"};color:#fff">${status==="pago"?"✔":"⏳"}</button>`
 : ""}
 
-<button onclick="event.stopPropagation();toggleValor('${x.id}')" style="width:28px;height:28px;border-radius:8px;background:#22c55e;color:#000;font-size:12px">👁</button>
+<button onclick="event.stopPropagation();toggleValor('${x.id}')" style="width:18px;height:18px;border-radius:5px;font-size:9px;padding:0;line-height:18px;background:#22c55e;color:#000">👁</button>
 
 ${modoEdicao
-? `<button onclick="event.stopPropagation();excluirLancamento('${x.id}')" style="width:28px;height:28px;border-radius:8px;background:#ef4444;color:#fff;font-size:12px">🗑</button>`
+? `<button onclick="event.stopPropagation();excluirLancamento('${x.id}')" style="width:18px;height:18px;border-radius:5px;font-size:9px;padding:0;line-height:18px;background:#ef4444;color:#fff">🗑</button>`
 : ""}
 
 </div>
