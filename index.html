@@ -1024,8 +1024,8 @@ ${modoEdicao
 <input value="${x.descricao||""}" onchange="editarCampo('${x.id}','descricao',this.value)" style="flex:1">
 </div>`
 : `<div style="display:flex;gap:6px">
-<div style="width:70px">${formatarDataBR(x.data_vencimento||x.data)}</div>
-<div style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${x.descricao}</div>
+<div style="width:50px;font-size:10px">${formatarDataBR(x.data_vencimento||x.data)}</div>
+<div style="flex:1;margin-left:-4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${x.descricao}</div>
 </div>`
 }
 </div>
@@ -1078,7 +1078,7 @@ const saldoTotal=totalR-totalD
 
 resumo.innerHTML=`<div class="card" style="display:flex;justify-content:space-between;align-items:center">
 <b>Total Geral</b>
-<div style="display:flex;align-items:center;gap:6px;flex-wrap:nowrap">
+<div style="display:flex;align-items:center;gap:4px;flex-wrap:nowrap">
 <b style="color:${saldoTotal>=0?"#16a34a":"#dc2626"}">
 ${bloqueado?"🔒":(ocultarSaldo?"R$ ***":formatarMoeda(saldoTotal))}
 </b>
