@@ -88,6 +88,7 @@ let modoEdicao = false
 let isAdmin=false
 let modoEdicaoAdmin=false
 let linhasEditando={}
+let visMes={}
 /* ====================================================014 – CONFIG==================================================== */
 const SUPABASE_URL="https://gspdlrenyrzbkxlvyugc.supabase.co"
 const SUPABASE_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdzcGRscmVueXJ6Ymt4bHZ5dWdjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ4ODU0NzAsImV4cCI6MjA5MDQ2MTQ3MH0.UWfkWvOh4qMDEcByVL-KZ6ejJ80V7wJlDOFH76TywaI"
@@ -987,8 +988,8 @@ const cor=corMes(mes)
 html+=`<div class="card" onclick="toggleMes('${chave}')" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center;background:${cor};color:#fff;padding:6px 10px;border-radius:10px">
 <div style="font-weight:bold">${nomeMes(mes)} ${ano}</div>
 <div style="display:flex;align-items:center;gap:8px">
-<b style="color:${saldo>=0?"#16a34a":"#dc2626"}">${bloqueado?"🔒":"R$ ***"}</b>
-<button onclick="event.stopPropagation();toggleSaldo()" style="background:#e2e8f0;padding:6px;border-radius:8px">👁</button>
+<b style="color:${saldo>=0?"#16a34a":"#dc2626"}">${bloqueado?"🔒":(visMes[chave]?formatarMoeda(saldo):"R$ ***")}</b>
+<button onclick="event.stopPropagation();toggleMesValor('${chave}')" style="background:#e2e8f0;padding:6px;border-radius:8px">👁</button>
 </div>
 </div>`
 
@@ -1109,6 +1110,11 @@ await carregar()
 function toggleEditarLinha(id){
 linhasEditando[id]=!linhasEditando[id]
 carregarUsuariosAdmin()
+}
+/* ========================function  ==================================================== */
+function toggleMesValor(chave){
+visMes[chave]=!visMes[chave]
+render()
 }
 /* ========================function  ==================================================== */
 function atualizarPainelMobile(){
