@@ -1220,7 +1220,7 @@ t.classList.remove("telaAtiva")
 t.style.display="none"
 })
 
-const tela=safe("tela"+nome.charAt(0).toUpperCase()+nome.slice(1))
+const tela=safe(nome==="ia"?"telaIA":"tela"+nome.charAt(0).toUpperCase()+nome.slice(1))
 
 if(!tela){
 console.error("Tela não encontrada:",nome)
