@@ -1013,49 +1013,50 @@ else totalPendente+=valor
 }
 
 const corClaro=corMesClaro(cor)
+html+=`<div class="card" style="padding:6px;margin:2px 0;display:flex;flex-direction:column;background:${corClaro};border-left:4px solid ${cor};">
 
-html+=`<div class="card" style="padding:3px 6px;margin:2px 0;display:flex;align-items:center;gap:6px;font-size:11px;line-height:1.2;background:${corClaro};border-left:4px solid ${cor};">
+<div style="display:flex;justify-content:space-between;align-items:center">
 
-<div style="flex:3">
-${modoEdicao
-? `<div style="display:flex;gap:4px">
-<input type="date" value="${(x.data||"").slice(0,10)}" onchange="editarCampo('${x.id}','data',this.value)" style="width:110px">
-<input type="date" value="${(x.data_vencimento||"").slice(0,10)}" onchange="editarCampo('${x.id}','data_vencimento',this.value)" style="width:110px">
-<input value="${x.descricao||""}" onchange="editarCampo('${x.id}','descricao',this.value)" style="flex:1">
-</div>`
-: `<div style="display:flex;gap:6px">
-<div style="width:50px;font-size:10px">${formatarDataBR(x.data_vencimento||x.data)}</div>
-<div style="flex:1;margin-left:-4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${x.descricao}</div>
-</div>`
-}
+<div style="display:flex;gap:4px;flex:1;min-width:0">
+
+<div style="font-size:10px;width:45px;color:#64748b">
+${formatarDataBR(x.data_vencimento||x.data)}
 </div>
 
-<div style="width:75px;text-align:right;font-weight:bold;color:${x.tipo==="RECEITA"?"#16a34a":"#dc2626"}">
+<div style="flex:1;font-size:12px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
 ${modoEdicao
-? `<input value="${valor}" type="number" onchange="editarCampo('${x.id}','valor',this.value)" style="width:65px;text-align:right;font-size:11px">`
+? `<input value="${x.descricao||""}" onchange="editarCampo('${x.id}','descricao',this.value)" style="width:100%">`
+: x.descricao}
+</div>
+
+</div>
+
+<div style="width:80px;text-align:right;font-size:12px;font-weight:bold;color:${x.tipo==="RECEITA"?"#16a34a":"#dc2626"}">
+${modoEdicao
+? `<input value="${valor}" type="number" onchange="editarCampo('${x.id}','valor',this.value)" style="width:70px;text-align:right">`
 : (bloqueado?"🔒":(oculto?"R$ ***":formatarMoeda(valor)))
 }
 </div>
 
-<div style="display:flex;gap:4px;align-items:center">
-
-${x.tipo==="DESPESA"
-? `<button onclick="event.stopPropagation();toggleStatus('${x.id}','${status}')" 
-style="width:26px;height:26px;padding:0;font-size:12px;border-radius:6px;background:${status==="pago"?"#16a34a":"#f59e0b"};color:#fff">
-${status==="pago"?"✔":"⏳"}
-</button>`
-: ""}
-
-<button onclick="event.stopPropagation();toggleValor('${x.id}')" 
-style="width:26px;height:26px;padding:0;font-size:12px;border-radius:6px;background:#22c55e;color:#000">
-👁
-</button>
+</div>
 
 ${modoEdicao
-? `<button onclick="event.stopPropagation();excluirLancamento('${x.id}')" 
-style="width:26px;height:26px;padding:0;font-size:12px;border-radius:6px;background:#ef4444;color:#fff">
-🗑
-</button>`
+? `<div style="display:flex;gap:4px;margin-top:4px">
+<input type="date" value="${(x.data||"").slice(0,10)}" onchange="editarCampo('${x.id}','data',this.value)" style="flex:1">
+<input type="date" value="${(x.data_vencimento||"").slice(0,10)}" onchange="editarCampo('${x.id}','data_vencimento',this.value)" style="flex:1">
+</div>`
+: ""}
+
+<div style="display:flex;justify-content:flex-end;gap:6px;margin-top:4px">
+
+${x.tipo==="DESPESA"
+? `<button onclick="event.stopPropagation();toggleStatus('${x.id}','${status}')" style="width:28px;height:28px;border-radius:8px;background:${status==="pago"?"#16a34a":"#f59e0b"};color:#fff;font-size:12px">${status==="pago"?"✔":"⏳"}</button>`
+: ""}
+
+<button onclick="event.stopPropagation();toggleValor('${x.id}')" style="width:28px;height:28px;border-radius:8px;background:#22c55e;color:#000;font-size:12px">👁</button>
+
+${modoEdicao
+? `<button onclick="event.stopPropagation();excluirLancamento('${x.id}')" style="width:28px;height:28px;border-radius:8px;background:#ef4444;color:#fff;font-size:12px">🗑</button>`
 : ""}
 
 </div>
@@ -1063,12 +1064,11 @@ style="width:26px;height:26px;padding:0;font-size:12px;border-radius:6px;backgro
 </div>`
 })
 
-html+=`<div class="card" style="background:#0f172a;color:#fff;display:flex;justify-content:space-between;font-size:11px;padding:4px 8px">
+html+=`<div class="card" style="background:#0f172a;color:#fff;display:flex;justify-content:space-between;font-size:11px;padding:6px 10px;border-radius:10px">
 <div>Pagas: <b>${formatarMoeda(totalPago)}</b></div>
 <div>Pendentes: <b style="color:#f59e0b">${formatarMoeda(totalPendente)}</b></div>
 </div>`
 }
-
 })
 
 /* ================= FINAL ================= */
