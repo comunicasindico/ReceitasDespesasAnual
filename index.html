@@ -1284,46 +1284,34 @@ chat.scrollTop=chat.scrollHeight
 function responderIA(){
 const pergunta=safe("perguntaIA").value.trim()
 if(!pergunta)return
-
 addMsgIA(pergunta,"user")
 safe("perguntaIA").value=""
-
 setTimeout(()=>{
-
-let resposta=""
-
 const totalR=dados.filter(x=>x.tipo==="RECEITA").reduce((s,x)=>s+Number(x.valor||0),0)
 const totalD=dados.filter(x=>x.tipo==="DESPESA").reduce((s,x)=>s+Number(x.valor||0),0)
 const saldo=totalR-totalD
-
+const gastosCategoria=resumoCategorias()
+const maiorGasto=Object.entries(gastosCategoria).sort((a,b)=>b[1]-a[1])[0]
+let resposta=""
 const p=pergunta.toLowerCase()
-
-if(p.includes("gasto")||p.includes("despesa")){
-resposta=`📊 Você já gastou ${formatarMoeda(totalD)}.`
+if(p.includes("análise")||p.includes("analise")){
+resposta=`📊 Análise Financeira:\n\nReceitas: ${formatarMoeda(totalR)}\nDespesas: ${formatarMoeda(totalD)}\nSaldo: ${formatarMoeda(saldo)}\n\nMaior gasto: ${maiorGasto?maiorGasto[0]:"-"} (${maiorGasto?formatarMoeda(maiorGasto[1]):"-"})\n\n${saldo<0?"⚠️ Você está no negativo.":"✅ Situação controlada."}`
 }
-else if(p.includes("saldo")){
-resposta=`💰 Seu saldo atual é ${formatarMoeda(saldo)}.`
-}
-else if(p.includes("ganho")||p.includes("receita")){
-resposta=`📈 Suas receitas somam ${formatarMoeda(totalR)}.`
+else if(p.includes("onde estou gastando")){
+resposta="📊 Seus maiores gastos:\n\n"+Object.entries(gastosCategoria).map(([k,v])=>`${k}: ${formatarMoeda(v)}`).join("\n")
 }
 else if(p.includes("economizar")){
-resposta=`💡 Dica: reduza despesas recorrentes e acompanhe semanalmente.`
+resposta=`💡 Sugestões:\n\n- Reduza ${maiorGasto?maiorGasto[0]:"despesas gerais"}\n- Defina limite mensal\n- Evite gastos recorrentes\n\nEconomia potencial: ${formatarMoeda(totalD*0.15)}`
+}
+else if(p.includes("previsão")||p.includes("futuro")){
+resposta=`📅 Previsão:\n\nSe manter esse ritmo:\nSaldo futuro ≈ ${formatarMoeda(saldo - totalD*0.2)}`
 }
 else{
-resposta="🤖 Posso analisar seus gastos, receitas e saldo. Pergunte algo específico!"
+resposta=`🤖 Posso te ajudar com:\n• análise financeira\n• onde está gastando\n• como economizar\n• previsão futura\n\nDigite o que deseja 👇`
 }
 addMsgIA(resposta,"bot")
-
 },400)
 }
-
-safe("perguntaIA").addEventListener("keypress",e=>{
-if(e.key==="Enter" && !e.shiftKey){
-e.preventDefault()
-responderIA()
-}
-})
 /* ========================function  ==================================================== */
 async function verFinanceiroUsuario(userId){
 localStorage.setItem("usuario_visualizando_admin",userId)
