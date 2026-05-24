@@ -311,7 +311,35 @@ Comprar agora
 <datalist id="listaCategorias"></datalist>
 <input id="descNovo" placeholder="Descrição" style="margin-top:6px">
 <input id="valorNovo" type="number" placeholder="Valor" style="margin-top:6px">
-<button onclick="inserirLancamento()" style="margin-top:6px">Salvar</button>
+<div style="display:flex;gap:6px;margin-top:6px">
+
+<select id="modoLancamento" style="flex:1">
+<option value="unico">Lançamento Único</option>
+<option value="parcelado">Parcelado</option>
+<option value="recorrente">Recorrente até Dez/2026</option>
+</select>
+
+<input id="quantidadeParcelas"
+type="number"
+min="1"
+value="1"
+placeholder="Parcelas"
+style="flex:1">
+
+</div>
+<div style="display:flex;gap:6px;margin-top:6px">
+<select id="modoLancamento" style="flex:1">
+<option value="unico">Lançamento Único</option>
+<option value="parcelado">Parcelado</option>
+<option value="recorrente">Recorrente até Dez/2026</option>
+</select>
+
+<input id="quantidadeParcelas" type="number" min="1" value="1" placeholder="Parcelas" style="flex:1">
+</div>
+
+<button onclick="inserirLancamento()" style="margin-top:6px">
+Salvar
+</button>
 </div>
 <div id="lista"></div>
 <div id="resumo"></div>
@@ -412,37 +440,110 @@ async function editarUsuario(id){
 }
 /* ====================================================030 – INSERIR LANÇAMENTO==================================================== */
 async function inserirLancamento(){
+
 if(!podeAdicionar())return
+
 const tipo=safe("tipoNovo").value
 const data=safe("dataNovo").value
 const vencimento=safe("vencimentoNovo").value||null
 const categoria=safe("categoriaNova").value||"GERAL"
 const descricao=safe("descNovo").value
 const valor=parseFloat(safe("valorNovo").value||0)
+
+const modo=safe("modoLancamento").value
+const parcelas=parseInt(safe("quantidadeParcelas").value||1)
+
 if(!data||!descricao||!valor){
 alert("Preencha data, descrição e valor")
 return
 }
+
 const usuario_id=localStorage.getItem("usuario_id_lancamentos")
-const {error}=await db.from("lancamentos").insert([{
+
+const lancamentos=[]
+
+const grupoRecorrencia=crypto.randomUUID()
+
+const dataBase=new Date(data+"T00:00:00")
+const vencBase=vencimento?new Date(vencimento+"T00:00:00"):null
+
+let totalParcelas=1
+
+if(modo==="parcelado"){
+totalParcelas=parcelas
+}
+
+if(modo==="recorrente"){
+
+const mesBase=dataBase.getMonth()
+
+totalParcelas=12-mesBase
+
+}
+
+for(let i=0;i<totalParcelas;i++){
+
+const novaData=new Date(dataBase)
+novaData.setMonth(novaData.getMonth()+i)
+
+let novoVencimento=null
+
+if(vencBase){
+
+novoVencimento=new Date(vencBase)
+novoVencimento.setMonth(novoVencimento.getMonth()+i)
+
+}
+
+let descFinal=descricao
+
+if(modo==="parcelado"){
+descFinal=`${descricao} (${i+1}/${totalParcelas})`
+}
+
+lancamentos.push({
+
 usuario_id,
 tipo,
-data: data,
-data_vencimento: vencimento || null,
+
+data:novaData.toISOString().slice(0,10),
+
+data_vencimento:novoVencimento
+?novoVencimento.toISOString().slice(0,10)
+:null,
+
 categoria,
-descricao,
+descricao:descFinal,
 valor,
-status:"pendente"
-}])
+
+status:"pendente",
+
+grupo_recorrencia:grupoRecorrencia,
+
+ordem_recorrencia:i,
+
+modo_lancamento:modo
+
+})
+
+}
+
+const {error}=await db
+.from("lancamentos")
+.insert(lancamentos)
+
 if(error){
 console.error(error)
 alert("Erro ao salvar")
 return
 }
+
 safe("descNovo").value=""
 safe("valorNovo").value=""
 safe("categoriaNova").value=""
 safe("vencimentoNovo").value=""
+safe("quantidadeParcelas").value="1"
+
 await carregar()
 render()
 }
@@ -543,9 +644,50 @@ async function excluirLancamento(id){
 
 if(!confirm("Excluir lançamento?"))return
 
-await db.from("lancamentos").delete().eq("id",id)
+const {data:item}=await db
+.from("lancamentos")
+.select("*")
+.eq("id",id)
+.maybeSingle()
 
-carregar()
+if(!item){
+await carregar()
+return
+}
+
+if(item.grupo_recorrencia){
+
+const excluirTudo=confirm(
+"Excluir também os lançamentos futuros desta recorrência?"
+)
+
+if(excluirTudo){
+
+await db
+.from("lancamentos")
+.delete()
+.eq("grupo_recorrencia",item.grupo_recorrencia)
+.gte("ordem_recorrencia",item.ordem_recorrencia||0)
+
+}else{
+
+await db
+.from("lancamentos")
+.delete()
+.eq("id",id)
+
+}
+
+}else{
+
+await db
+.from("lancamentos")
+.delete()
+.eq("id",id)
+
+}
+
+await carregar()
 }
 /* ====================================================036 – IR INICIO==================================================== */
 function irInicio(){
