@@ -75,6 +75,34 @@ button:active{transform:scale(.96)}
 .swotBtn:hover{transform:scale(1.02)}
 @media(max-width:900px){.heroFinanceiro{flex-direction:column}.heroTitulo{font-size:30px}.kpiValor{font-size:30px}.swotFloating{position:relative;right:auto;bottom:auto;width:100%;margin-top:20px}}
 @media(max-width:768px){body{padding:8px}.gridKPIs{grid-template-columns:1fr}.acoesRapidas{grid-template-columns:repeat(2,1fr)}}
+.boxMes{margin:0 auto 14px auto;border-radius:22px;background:rgba(255,255,255,.82);border:1px solid rgba(255,255,255,.95);overflow:hidden;backdrop-filter:blur(14px);box-shadow:0 8px 24px rgba(15,23,42,.05);max-width:1450px}
+.topoMes{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;cursor:pointer;background:rgba(255,255,255,.88);border-bottom:1px solid rgba(226,232,240,.8)}
+.tituloMes{display:flex;align-items:center;gap:10px;font-size:16px;font-weight:900;color:#0f172a}
+.tituloMes span{width:36px;height:36px;border-radius:12px;background:#0ea5e9;color:#fff;display:flex;align-items:center;justify-content:center;font-size:16px}
+.totalMes{display:flex;align-items:center;gap:10px}
+.valorMes{font-size:20px;font-weight:900;color:#16a34a}
+.btnMes{width:34px;height:34px;border-radius:10px;background:#fff;border:1px solid #cbd5e1;display:flex;align-items:center;justify-content:center;color:#0f172a;font-size:15px;padding:0;min-height:auto}
+.listaMovimentos{padding:10px;background:rgba(248,250,252,.68);display:grid;gap:8px}
+.movItem{display:grid;grid-template-columns:60px 1fr auto auto;gap:10px;align-items:center;padding:10px 12px;border-radius:16px;background:rgba(255,255,255,.92);border:1px solid rgba(226,232,240,.9);min-height:64px}
+.movData{font-size:12px;font-weight:800;color:#64748b}
+.movDesc{display:flex;flex-direction:column}
+.movTitulo{font-size:14px;font-weight:800;color:#0f172a;line-height:1.1}
+.movSub{font-size:11px;color:#64748b;margin-top:2px}
+.movValor{font-size:16px;font-weight:900;white-space:nowrap}
+.movReceita{color:#16a34a}
+.movDespesa{color:#dc2626}
+.movAcoes{display:flex;gap:6px}
+.btnMini{width:32px;height:32px;border-radius:10px;border:none;display:flex;align-items:center;justify-content:center;font-size:14px;padding:0;min-height:auto}
+.btnEditar{background:#0ea5e9;color:#fff}
+.btnExcluir{background:#ef4444;color:#fff}
+.filtroMovimentos{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin:0 auto 16px auto;padding:14px 16px;border-radius:22px;background:rgba(255,255,255,.82);border:1px solid rgba(255,255,255,.95);backdrop-filter:blur(14px);max-width:1450px}
+.filtroGrupo{display:flex;gap:8px;flex-wrap:wrap}
+.btnFiltro{padding:8px 12px;border-radius:12px;background:#fff;border:1px solid #cbd5e1;color:#0f172a;font-size:12px;font-weight:800;cursor:pointer;min-height:auto}
+.btnFiltroAtivo{background:#0ea5e9;color:#fff;border-color:#0ea5e9}
+.selectMesRapido{width:auto;min-width:170px;padding:10px 12px;border-radius:12px;background:#fff;border:1px solid #cbd5e1;color:#0f172a;font-size:13px;font-weight:700}
+@media(max-width:768px){.movItem{grid-template-columns:1fr;gap:6px}.movAcoes{justify-content:flex-start}.valorMes{font-size:16px}.movValor{font-size:15px}.tituloMes{font-size:14px}}
+
+
 </style>
   
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -322,7 +350,25 @@ Criar Conta
 </div>
 
 <div id="containerExtrato">
+<div class="filtroMovimentos">
 
+<div class="filtroGrupo">
+<button class="btnFiltro btnFiltroAtivo">Todas</button>
+<button class="btnFiltro">Receitas</button>
+<button class="btnFiltro">Despesas</button>
+<button class="btnFiltro">Recorrentes</button>
+</div>
+
+<select class="selectMesRapido">
+<option>Maio 2026</option>
+<option>Junho 2026</option>
+<option>Julho 2026</option>
+<option>Agosto 2026</option>
+<option>Setembro 2026</option>
+<option>Outubro 2026</option>
+</select>
+
+</div>
 <div style="display:flex;justify-content:flex-end;margin-bottom:6px;gap:6px">
 
 <button onclick="toggleEdicao()" style="background:#0ea5e9;color:#fff">
@@ -337,16 +383,27 @@ Criar Conta
 
 <!-- 🔥 FORM INSERÇÃO -->
 <div id="formInsercao" style="display:none" class="card">
-<div style="display:flex;gap:6px">
-<select id="tipoNovo" style="flex:1"><option value="RECEITA">Receita</option><option value="DESPESA">Despesa</option></select>
+
+<div style="display:flex;gap:6px;flex-wrap:wrap">
+<select id="tipoNovo" style="flex:1">
+<option value="RECEITA">Receita</option>
+<option value="DESPESA">Despesa</option>
+</select>
+
 <input id="dataNovo" type="date" style="flex:1">
+
 <input id="vencimentoNovo" type="date" style="flex:1">
 </div>
-<input id="categoriaNova" list="listaCategorias" placeholder="Categoria" style="margin-top:6px">
+
+<input id="categoriaNova" list="listaCategorias" placeholder="Categoria" style="margin-top:8px">
+
 <datalist id="listaCategorias"></datalist>
-<input id="descNovo" placeholder="Descrição" style="margin-top:6px">
-<input id="valorNovo" type="number" placeholder="Valor" style="margin-top:6px">
-<div style="display:flex;gap:6px;margin-top:6px">
+
+<input id="descNovo" placeholder="Descrição" style="margin-top:8px">
+
+<input id="valorNovo" type="number" placeholder="Valor" style="margin-top:8px">
+
+<div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap">
 
 <select id="modoLancamento" style="flex:1">
 <option value="unico">Lançamento Único</option>
@@ -362,21 +419,125 @@ placeholder="Parcelas"
 style="flex:1">
 
 </div>
-<div style="display:flex;gap:6px;margin-top:6px">
-<select id="modoLancamento" style="flex:1">
-<option value="unico">Lançamento Único</option>
-<option value="parcelado">Parcelado</option>
-<option value="recorrente">Recorrente até Dez/2026</option>
-</select>
 
-<input id="quantidadeParcelas" type="number" min="1" value="1" placeholder="Parcelas" style="flex:1">
-</div>
-
-<button onclick="inserirLancamento()" style="margin-top:6px">
+<button onclick="inserirLancamento()" style="margin-top:10px;width:100%">
 Salvar
 </button>
+
 </div>
-<div id="lista"></div>
+
+<div id="lista">
+
+<div class="boxMes">
+
+<div class="topoMes">
+
+<div class="tituloMes">
+<span>📅</span>
+Maio 2026
+</div>
+
+<div class="totalMes">
+<div class="valorMes">R$ ***</div>
+<button class="btnMes" onclick="toggleSaldo()">👁</button>
+</div>
+
+</div>
+
+<div class="listaMovimentos">
+
+<div class="movItem">
+
+<div class="movData">
+01/05
+</div>
+
+<div class="movDesc">
+<div class="movTitulo movReceita">
+PIX RECEBIDO
+</div>
+
+<div class="movSub">
+Cliente exemplo
+</div>
+
+</div>
+
+<div class="movValor movReceita">
+R$ 254,99
+</div>
+
+<div class="movAcoes">
+<button class="btnMini btnEditar">✏️</button>
+<button class="btnMini btnExcluir">🗑️</button>
+</div>
+
+</div>
+
+<div class="movItem">
+
+<div class="movData">
+01/05
+</div>
+
+<div class="movDesc">
+
+<div class="movTitulo movDespesa">
+SUPERMERCADO
+</div>
+
+<div class="movSub">
+Compras do mês
+</div>
+
+</div>
+
+<div class="movValor movDespesa">
+R$ 128,79
+</div>
+
+<div class="movAcoes">
+<button class="btnMini btnEditar">✏️</button>
+<button class="btnMini btnExcluir">🗑️</button>
+</div>
+
+</div>
+
+<div class="movItem">
+
+<div class="movData">
+02/05
+</div>
+
+<div class="movDesc">
+
+<div class="movTitulo movReceita">
+SALÁRIO
+</div>
+
+<div class="movSub">
+Empresa ABC
+</div>
+
+</div>
+
+<div class="movValor movReceita">
+R$ 6.500,00
+</div>
+
+<div class="movAcoes">
+<button class="btnMini btnEditar">✏️</button>
+<button class="btnMini btnExcluir">🗑️</button>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
 <div id="resumo"></div>
 </div>
 </div>
