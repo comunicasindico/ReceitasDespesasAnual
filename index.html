@@ -1375,9 +1375,7 @@ let totalPendente=0
 listaMes.forEach(x=>{
 
 const valor=Number(x.valor||0)
-const oculto = visibilidade[x.id]!==undefined
-? visibilidade[x.id]
-: (x.tipo==="RECEITA")
+const oculto=visibilidade[x.id]!==undefined?visibilidade[x.id]:(x.tipo==="RECEITA")
 const status=x.status||"pendente"
 
 if(x.tipo==="DESPESA"){
@@ -1385,70 +1383,83 @@ if(status==="pago")totalPago+=valor
 else totalPendente+=valor
 }
 
-const corClaro=corMesClaro(cor)
 html+=`
 
 <div class="movItem">
 
-<div style="display:flex;justify-content:space-between;align-items:flex-start">
+<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px">
 
-<div style="display:flex;gap:4px;flex:1;min-width:0">
+<div style="display:flex;gap:10px;flex:1;min-width:0">
 
-<div style="font-size:10px;width:42px;color:#64748b">
+<div style="min-width:52px;font-size:11px;font-weight:800;color:#64748b">
 ${formatarDataBR(x.data_vencimento||x.data)}
 </div>
 
-<div style="flex:1;font-size:12px;font-weight:600;white-space:normal;word-break:break-word;line-height:1.25">
+<div style="flex:1;min-width:0">
+
+<div style="font-size:14px;font-weight:800;line-height:1.2;color:${x.tipo==="RECEITA"?"#16a34a":"#dc2626"}">
 
 ${modoEdicao
 ? `<input value="${x.descricao||""}" onchange="editarCampo('${x.id}','descricao',this.value)" style="width:100%">`
-: x.descricao}
+: (x.descricao||"-")}
 
-<div style="font-size:10px;color:#64748b;margin-top:2px">
-${x.categoria||"-"}
+</div>
+
+<div style="font-size:11px;color:#64748b;margin-top:2px">
+
+${x.categoria||"GERAL"}
+
+${x.recorrente?" • 🔁 Recorrente":""}
+
+${x.parcela_atual&&x.parcela_total?` • ${x.parcela_atual}/${x.parcela_total}`:""}
+
 </div>
 
 </div>
 
 </div>
 
-<div style="width:82px;text-align:right;font-size:13px;font-weight:900;color:${x.tipo==="RECEITA"?"#16a34a":"#dc2626"}">
+<div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
+
+<div style="font-size:15px;font-weight:900;color:${x.tipo==="RECEITA"?"#16a34a":"#dc2626"}">
 
 ${modoEdicao
-? `<input value="${valor}" type="number" onchange="editarCampo('${x.id}','valor',this.value)" style="width:75px;text-align:right;font-size:11px">`
-: (bloqueado?"🔒":(oculto?"R$ ***":formatarMoeda(valor)))
-}
+? `<input value="${valor}" type="number" onchange="editarCampo('${x.id}','valor',this.value)" style="width:85px;text-align:right;font-size:12px">`
+: (bloqueado?"🔒":(oculto?"R$ ***":formatarMoeda(valor)))}
+
+</div>
+
+<div style="display:flex;gap:5px">
+
+${x.tipo==="DESPESA"
+? `<button onclick="event.stopPropagation();toggleStatus('${x.id}','${status}')" style="width:26px;height:26px;border-radius:8px;font-size:12px;padding:0;background:${status==="pago"?"#16a34a":"#f59e0b"};color:#fff">${status==="pago"?"✔":"⏳"}</button>`
+: ""}
+
+<button onclick="event.stopPropagation();toggleValor('${x.id}')" style="width:26px;height:26px;border-radius:8px;font-size:12px;padding:0;background:#0ea5e9;color:#fff">
+👁
+</button>
+
+${modoEdicao
+? `<button onclick="event.stopPropagation();excluirLancamento('${x.id}')" style="width:26px;height:26px;border-radius:8px;font-size:12px;padding:0;background:#ef4444;color:#fff">🗑</button>`
+: ""}
+
+</div>
 
 </div>
 
 </div>
 
 ${modoEdicao
-? `<div style="display:flex;gap:4px;margin-top:6px">
+? `<div style="display:flex;gap:6px;margin-top:8px">
 <input type="date" value="${(x.data||"").slice(0,10)}" onchange="editarCampo('${x.id}','data',this.value)" style="flex:1">
 <input type="date" value="${(x.data_vencimento||"").slice(0,10)}" onchange="editarCampo('${x.id}','data_vencimento',this.value)" style="flex:1">
 </div>`
 : ""}
 
-<div style="display:flex;justify-content:flex-end;gap:6px;margin-top:8px">
-
-${x.tipo==="DESPESA"
-? `<button onclick="event.stopPropagation();toggleStatus('${x.id}','${status}')" style="width:24px;height:24px;border-radius:7px;font-size:11px;padding:0;line-height:24px;background:${status==="pago"?"#16a34a":"#f59e0b"};color:#fff">${status==="pago"?"✔":"⏳"}</button>`
-: ""}
-
-<button onclick="event.stopPropagation();toggleValor('${x.id}')" style="width:24px;height:24px;border-radius:7px;font-size:11px;padding:0;line-height:24px;background:#22c55e;color:#000">
-👁
-</button>
-
-${modoEdicao
-? `<button onclick="event.stopPropagation();excluirLancamento('${x.id}')" style="width:24px;height:24px;border-radius:7px;font-size:11px;padding:0;line-height:24px;background:#ef4444;color:#fff">🗑</button>`
-: ""}
-
-</div>
-
 </div>
 
 `
+
 })
 
 html+=`
@@ -1468,6 +1479,7 @@ html+=`
 </div>
 
 `
+
 }
 })
 
