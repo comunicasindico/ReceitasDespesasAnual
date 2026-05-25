@@ -1392,7 +1392,21 @@ if(!mesesOcultos[chave]){
 html+=`<div class="listaMovimentos">`
 let totalPago=0
 let totalPendente=0
+html+=`
 
+<div style="display:grid;grid-template-columns:90px 130px 1fr 150px 120px 70px 140px;gap:12px;padding:12px 16px;font-size:12px;font-weight:900;color:#64748b;background:#f8fafc;border:1px solid #e2e8f0;border-radius:16px;margin-bottom:8px">
+
+<div>DATA</div>
+<div>CATEGORIA</div>
+<div>DESCRIÇÃO</div>
+<div>RECORRÊNCIA</div>
+<div>STATUS</div>
+<div>👁</div>
+<div style="text-align:right">VALOR</div>
+
+</div>
+
+`
 listaMes.forEach(x=>{
 
 const valor=Number(x.valor||0)
@@ -1406,15 +1420,20 @@ else totalPendente+=valor
 
 html+=`
 
-<div class="movItem" style="display:flex;justify-content:space-between;align-items:center;gap:14px;padding:14px 16px;background:#fff;border:1px solid #e2e8f0;border-radius:18px;margin-bottom:8px;box-shadow:0 2px 10px rgba(0,0,0,.03)">
+<div class="movItem" style="display:grid;grid-template-columns:90px 130px 1fr 150px 120px 70px 140px;align-items:center;gap:12px;padding:14px 16px;background:#fff;border:1px solid #e2e8f0;border-radius:18px;margin-bottom:8px;box-shadow:0 2px 10px rgba(0,0,0,.03)">
 
-<div style="display:flex;align-items:center;gap:14px;flex:1;min-width:0">
-
-<div style="min-width:58px;font-size:11px;font-weight:800;color:#64748b">
+<!-- DATA -->
+<div style="font-size:13px;font-weight:800;color:#64748b">
 ${formatarDataBR(x.data_vencimento||x.data)}
 </div>
 
-<div style="flex:1;min-width:0">
+<!-- CATEGORIA -->
+<div style="font-size:13px;font-weight:700;color:#64748b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
+${x.categoria||"GERAL"}
+</div>
+
+<!-- DESCRIÇÃO -->
+<div style="min-width:0">
 
 <div style="font-size:15px;font-weight:900;color:${x.tipo==="RECEITA"?"#16a34a":"#dc2626"};line-height:1.2">
 
@@ -1424,39 +1443,51 @@ ${modoEdicao
 
 </div>
 
-<div style="font-size:12px;color:#64748b;margin-top:3px">
-${x.categoria||"GERAL"}${x.recorrente?" • 🔁 Recorrente":""}${x.parcela_atual&&x.parcela_total?` • ${x.parcela_atual}/${x.parcela_total}`:""}
 </div>
+
+<!-- RECORRENTE -->
+<div style="font-size:12px;font-weight:700;color:#64748b">
+
+${x.recorrente?"🔁 Recorrente":""}
+
+${x.parcela_atual&&x.parcela_total
+? `📦 ${x.parcela_atual}/${x.parcela_total}`
+: ""}
 
 </div>
 
+<!-- STATUS -->
+<div style="display:flex;justify-content:center">
+
+${x.tipo==="DESPESA"
+? `<button onclick="event.stopPropagation();toggleStatus('${x.id}','${status}')" style="width:90px;height:34px;border-radius:10px;font-size:12px;font-weight:800;padding:0;background:${status==="pago"?"#16a34a":"#f59e0b"};color:#fff">${status==="pago"?"✔ PAGO":"⏳ PENDENTE"}</button>`
+: `<div style="font-size:12px;font-weight:800;color:#16a34a">✔ ENTRADA</div>`}
+
 </div>
 
-<div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px">
+<!-- OCULTAR -->
+<div style="display:flex;justify-content:center">
+
+<button onclick="event.stopPropagation();toggleValor('${x.id}')" style="width:34px;height:34px;border-radius:10px;font-size:14px;padding:0;background:#0ea5e9;color:#fff">
+👁
+</button>
+
+</div>
+
+<!-- VALOR -->
+<div style="display:flex;justify-content:flex-end;align-items:center">
 
 <div style="font-size:18px;font-weight:900;color:${x.tipo==="RECEITA"?"#16a34a":"#dc2626"};white-space:nowrap">
 
 ${modoEdicao
-? `<input value="${valor}" type="number" onchange="editarCampo('${x.id}','valor',this.value)" style="width:90px;text-align:right;font-size:12px">`
+? `<input value="${valor}" type="number" onchange="editarCampo('${x.id}','valor',this.value)" style="width:110px;text-align:right;font-size:13px">`
 : (bloqueado?"🔒":(oculto?"R$ ***":formatarMoeda(valor)))}
 
 </div>
 
-<div style="display:flex;gap:6px">
-
-${x.tipo==="DESPESA"
-? `<button onclick="event.stopPropagation();toggleStatus('${x.id}','${status}')" style="width:28px;height:28px;border-radius:8px;font-size:12px;padding:0;background:${status==="pago"?"#16a34a":"#f59e0b"};color:#fff">${status==="pago"?"✔":"⏳"}</button>`
-: ""}
-
-<button onclick="event.stopPropagation();toggleValor('${x.id}')" style="width:28px;height:28px;border-radius:8px;font-size:12px;padding:0;background:#0ea5e9;color:#fff">
-👁
-</button>
-
 ${modoEdicao
-? `<button onclick="event.stopPropagation();excluirLancamento('${x.id}')" style="width:28px;height:28px;border-radius:8px;font-size:12px;padding:0;background:#ef4444;color:#fff">🗑</button>`
+? `<button onclick="event.stopPropagation();excluirLancamento('${x.id}')" style="margin-left:8px;width:34px;height:34px;border-radius:10px;font-size:14px;padding:0;background:#ef4444;color:#fff">🗑</button>`
 : ""}
-
-</div>
 
 </div>
 
