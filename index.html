@@ -1119,74 +1119,105 @@ const res=await fetch("https://gspdlrenyrzbkxlvyugc.supabase.co/functions/v1/cri
 const json=await res.json()
 if(json.url){window.location.href=json.url}else{alert("Erro ao iniciar pagamento")}
 }
-/* ====================================================050 – SALVAR PERFIL==================================================== */
+/*====================================================050 – SALVAR PERFIL====================================================*/
 async function salvarPerfil(){
 const id=localStorage.getItem("usuario_id_lancamentos")
-const nome=safe("perfilNome").value
-const email=safe("perfilEmail").value
-const celular=safe("perfilCelular").value
-await db.from("usuarios_lancamentos").update({nome,email,celular}).eq("id",id)
-alert("Atualizado")
+if(!id){
+alert("Usuário não encontrado")
+return
+}
+const nome=safe("perfilNome")?.value||""
+const email=safe("perfilEmail")?.value||""
+const celular=safe("perfilCelular")?.value||""
+const {error}=await db
+.from("usuarios_lancamentos")
+.update({
+nome,
+email,
+celular
+})
+.eq("id",id)
+if(error){
+console.error(error)
+alert("Erro ao atualizar perfil")
+return
+}
+alert("Perfil atualizado com sucesso")
 await carregarPerfil()
 }
-/* ==================================004 – CARREGAR PERFIL (ANTES DO DASHBOARD)========================================= */
+/*==================================004 – CARREGAR PERFIL (ANTES DO DASHBOARD)=========================================*/
 async function carregarPerfil(){
 const id=localStorage.getItem("usuario_id_lancamentos")
 if(!id)return
-const {data,error}=await db.from("usuarios_lancamentos").select("*").eq("id",id).maybeSingle()
-if(error||!data){console.error("Erro perfil:",error);return}
+const {data,error}=await db
+.from("usuarios_lancamentos")
+.select("*")
+.eq("id",id)
+.maybeSingle()
+if(error||!data){
+console.error("Erro perfil:",error)
+return
+}
 usuario=data
 localStorage.setItem("usuario_plano",data.plano||"free")
 localStorage.setItem("plano_expira_em",data.plano_expira_em||"")
 localStorage.setItem("plano_grace_ate",data.plano_grace_ate||"")
-safe("mobileNome").innerText=data.nome||""
-safe("mobileAgencia").innerText=data.agencia||"--"
-safe("mobileConta").innerText=data.conta||"--"
+document.querySelectorAll("#mobileNome").forEach(el=>{
+el.innerText=data.nome||""
+})
+document.querySelectorAll("#mobileAgencia").forEach(el=>{
+el.innerText=data.agencia||"--"
+})
+document.querySelectorAll("#mobileConta").forEach(el=>{
+el.innerText=data.conta||"--"
+})
+if(safe("perfilNome")){
 safe("perfilNome").value=data.nome||""
+}
+if(safe("perfilEmail")){
 safe("perfilEmail").value=data.email||""
+}
+if(safe("perfilCelular")){
 safe("perfilCelular").value=data.celular||""
+}
+if(safe("boxAgencia")){
 safe("boxAgencia").innerText=data.agencia||"--"
+}
+if(safe("boxConta")){
 safe("boxConta").innerText=data.conta||"--"
+}
+if(safe("badgePlano")){
 safe("badgePlano").innerText="Plano: "+(data.plano||"FREE")
-
-/* 🔥 PLANO TRIMESTRAL NO CABEÇALHO */
-let textoPlano=""
+}
+let textoPlano="📅 Sem vigência"
 if(data.email==="admin@admin.com"){
 data.plano="pro"
-data.plano_expira_em=null
 }
 if(data.plano==="pro"){
-const inicio=data.plano_inicio||data.atualizado_em||data.criado_em||new Date()
+const inicio=data.plano_inicio||data.created_at||new Date()
 const fim=data.plano_expira_em||null
-textoPlano=`Plano PRO (Trimestral): ${formatarDataBR(inicio)} até ${formatarDataBR(fim)}`
-}else{
-textoPlano="Plano FREE"
+textoPlano=`📅 ${formatarDataBR(inicio)} até ${formatarDataBR(fim)}`
 }
+if(safe("planoInfo")){
 safe("planoInfo").innerText=textoPlano
-
-/* 🔥 STATUS DO PLANO */
+}
 const hoje=new Date()
 const expira=data.plano_expira_em?new Date(data.plano_expira_em):null
 const grace=data.plano_grace_ate?new Date(data.plano_grace_ate):null
-
 let statusPlano="free"
 if(data.plano==="pro"){
-if(expira && expira>=hoje){
+if(expira&&expira>=hoje){
 statusPlano="ativo"
-}else if(grace && grace>=hoje){
+}else if(grace&&grace>=hoje){
 statusPlano="grace"
 }else{
 statusPlano="expirado"
 }
 }
-
-/* 🔥 ESCONDER BOTÃO STRIPE */
 const btnStripe=safe("btnStripe")
 if(btnStripe){
 btnStripe.style.display=(statusPlano==="ativo")?"none":"block"
 }
-
-/* 🔥 AVISO VISUAL */
 const aviso=safe("avisoPlano")
 if(aviso){
 if(statusPlano==="grace"){
@@ -1201,14 +1232,11 @@ aviso.style.background="#ef4444"
 aviso.style.display="none"
 }
 }
-
-/* 🔥 AUTO REFRESH (EVITA LOOP DUPLO) */
 if(!window._intervalPerfil){
 window._intervalPerfil=setInterval(async()=>{
 await carregarPerfil()
 },30000)
 }
-
 atualizarDashboardBanco()
 }
 /* ===============005 – CARREGAR DADOS ======================= */
