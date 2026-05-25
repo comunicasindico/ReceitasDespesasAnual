@@ -169,153 +169,131 @@ const TAM_GRAFICO=180
 <body class="login">
 
 <div id="telaLogin">
-<div style="width:280px;
-background:rgba(255,255,255,0.9);
-padding:22px;
-border-radius:16px;
-box-shadow:0 20px 60px rgba(0,0,0,.4);
-backdrop-filter:blur(8px);
-display:flex;
-flex-direction:column;
-gap:12px">
-
-<h3 style="text-align:center;margin:0">Acesso</h3>
-
+<div style="width:280px;background:rgba(255,255,255,.92);padding:22px;border-radius:18px;box-shadow:0 20px 60px rgba(0,0,0,.35);backdrop-filter:blur(10px);display:flex;flex-direction:column;gap:12px">
+<h3 style="text-align:center;margin:0;color:#0f172a;font-size:28px;font-weight:900">Acesso</h3>
 <input id="loginUser" placeholder="Usuário">
 <input id="loginPass" type="password" placeholder="Senha">
-
 <button onclick="loginSistema()">Entrar</button>
-
-<div style="display:flex;justify-content:center;margin-top:10px">
-<button onclick="abrirCadastro()" style="background:#ef4444;color:#fff;width:100%;max-width:200px">
-Criar Conta
-</button>
-</div>
-
+<div style="display:flex;justify-content:center;margin-top:8px">
+<button onclick="abrirCadastro()" style="background:#ef4444;color:#fff;width:100%;max-width:200px">Criar Conta</button>
 </div>
 </div>
-
+</div>
 <div id="painelMobile" style="display:none">
-<div class="heroFinanceiro">
-<div>
-<div class="heroTitulo">💰 Receitas & Despesas 2026</div>
-<div class="heroSub">Controle financeiro inteligente com visual premium, recorrências automáticas, parcelamentos e análise financeira avançada.</div>
-<div class="heroInfo">
-<div class="heroTag">🏦 Ag: <span id="mobileAgencia"></span></div>
-<div class="heroTag">💳 Conta: <span id="mobileConta"></span></div>
-<div class="heroTag">💎 Plano PRO</div>
+<div id="telaInicio" class="telaApp telaAtiva">
+<div class="card" style="padding:18px 22px;margin-bottom:14px">
+<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:20px;flex-wrap:wrap">
+<div style="display:flex;flex-direction:column;gap:6px">
+<div style="font-size:28px;font-weight:900;color:#0f172a">💰 Receitas & Despesas 2026</div>
+<div style="font-size:14px;color:#475569">Controle financeiro inteligente com recorrência automática, parcelamentos e relatórios avançados.</div>
+<div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:8px">
+<div class="heroTag">👤 <b id="mobileNome"></b></div>
+<div class="heroTag">🏦 Ag: <b id="mobileAgencia"></b></div>
+<div class="heroTag">💳 Conta: <b id="mobileConta"></b></div>
+<div class="heroTag">📅 Vigência: 18/04 até 19/07</div>
 </div>
 </div>
-<div style="text-align:right">
-<div style="font-size:18px;font-weight:800">📈 Painel Financeiro</div>
-<div style="margin-top:8px;color:#94a3b8">Organize hoje para prosperar amanhã.</div>
+<div style="display:flex;align-items:center;gap:10px">
+<button onclick="toggleSaldo()" class="btnOlho">👁</button>
+<button onclick="logout()" style="background:#ef4444;color:#fff;font-weight:900;padding:12px 20px;border-radius:14px">🚪 Sair</button>
+</div>
 </div>
 </div>
 <div class="card">
-<div style="font-size:20px;font-weight:900;margin-bottom:14px">
-📊 Dashboard Anual
-</div>
+<div style="font-size:20px;font-weight:900;margin-bottom:14px">📊 Dashboard Anual</div>
 <div id="dashboardAnual" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px"></div>
 </div>
 <div class="gridKPIs">
-
 <div class="kpiCard kpiReceita">
 <div class="kpiTitulo">Receitas</div>
 <div class="kpiLinha">
 <div class="kpiValor" id="dashReceitasPremium" style="color:#16a34a">R$ ***</div>
-<button class="btnOlho" onclick="toggleSaldo()">👁</button>
 </div>
-<div class="kpiDesc">Entradas financeiras do período</div>
+<div class="kpiDesc">Entradas financeiras</div>
 </div>
-
 <div class="kpiCard kpiDespesa">
 <div class="kpiTitulo">Despesas</div>
 <div class="kpiLinha">
 <div class="kpiValor" id="dashDespesasPremium" style="color:#dc2626">R$ ***</div>
-<button class="btnOlho" onclick="toggleSaldo()">👁</button>
 </div>
-<div class="kpiDesc">Saídas financeiras do período</div>
+<div class="kpiDesc">Saídas financeiras</div>
 </div>
-
 <div class="kpiCard kpiSaldo">
-<div class="kpiTitulo">Saldo</div>
+<div class="kpiTitulo">Saldo Atual</div>
 <div class="kpiLinha">
 <div class="kpiValor" id="dashSaldoPremium" style="color:#0284c7">R$ ***</div>
-<button class="btnOlho" onclick="toggleSaldo()">👁</button>
 </div>
-<div class="kpiDesc">Resultado financeiro atual</div>
+<div class="kpiDesc">Resultado consolidado</div>
 </div>
-
 </div>
 <div class="card">
 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-<div style="font-size:18px;font-weight:900">
-🎯 Meta Financeira
-</div>
-<div id="metaPercentual" style="font-size:18px;font-weight:900;color:#16a34a">
-0%
-</div>
+<div style="font-size:18px;font-weight:900">🎯 Meta Financeira</div>
+<div id="metaPercentual" style="font-size:18px;font-weight:900;color:#16a34a">0%</div>
 </div>
 <div style="height:18px;background:#e2e8f0;border-radius:999px;overflow:hidden">
 <div id="barraMeta" style="height:100%;width:0%;background:linear-gradient(90deg,#16a34a,#22c55e)"></div>
 </div>
-<div style="margin-top:8px;font-size:13px;color:#64748b">
-Meta mensal de economia e saldo positivo.
-</div>
+<div style="margin-top:8px;font-size:13px;color:#64748b">Meta mensal de economia e saldo positivo.</div>
 </div>
 <div class="card">
-<div style="font-size:18px;font-weight:900;margin-bottom:12px">
-📅 Próximos Vencimentos
-</div>
+<div style="font-size:18px;font-weight:900;margin-bottom:12px">📅 Próximos Vencimentos</div>
 <div id="listaVencimentos"></div>
 </div>
 <div class="acoesRapidas">
-
-<div class="cardAcao" onclick="abrirTela('extrato')">
+<div class="cardAcao" onclick="abrirTela('extrato',this)">
 <div class="cardAcaoIcone iconReceita">💵</div>
 <div>Receitas</div>
 </div>
-
-<div class="cardAcao" onclick="abrirTela('extrato')">
+<div class="cardAcao" onclick="abrirTela('extrato',this)">
 <div class="cardAcaoIcone iconDespesa">💸</div>
 <div>Despesas</div>
 </div>
-
 <div class="cardAcao" onclick="abrirRelatorios()">
 <div class="cardAcaoIcone iconRelatorio">📊</div>
 <div>Relatórios</div>
 </div>
-
 <div class="cardAcao" onclick="abrirMetas()">
 <div class="cardAcaoIcone iconMeta">🎯</div>
 <div>Metas</div>
 </div>
-
 </div>
-
+<div id="blocoFinanceiroUsuario">
+<div id="painelSaaSAdmin" class="card" style="display:flex;gap:10px;flex-wrap:wrap"></div>
+<div id="alertaFinanceiro" class="card"></div>
+<div class="card">
+<div style="font-size:18px;font-weight:900;margin-bottom:14px">📈 Evolução Financeira Mensal</div>
+<canvas id="graficoFinanceiro" height="120"></canvas>
+</div>
+<div id="areaUsuarios">
+<div id="listaUsuarios"></div>
+</div>
+</div>
+<div id="blocoAdmin" style="display:none">
+<div class="card">
+<div style="font-size:18px;font-weight:900;margin-bottom:14px">👥 Usuários cadastrados</div>
+<div class="gridUsuarios" style="font-weight:bold">
+<div>Nome</div>
+<div>Email</div>
+<div>Agência</div>
+<div>Conta</div>
+<div>Tipo</div>
+<div>Ações</div>
+</div>
+<div id="listaUsuariosAdmin"></div>
+</div>
+</div>
 <div class="swotFloating" id="boxLivro">
-
-<button onclick="fecharLivro()" style="position:absolute;top:10px;right:10px;width:28px;height:28px;border:none;border-radius:50%;background:#ef4444;color:#fff;font-size:14px;font-weight:900;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:999;box-shadow:0 4px 12px rgba(239,68,68,.35)">
-✕
-</button>
-<div class="swotHeader">
-LANÇAMENTO EXCLUSIVO
-</div>
+<button onclick="fecharLivro()" style="position:absolute;top:10px;right:10px;width:28px;height:28px;border:none;border-radius:50%;background:#ef4444;color:#fff;font-size:14px;font-weight:900;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:999;box-shadow:0 4px 12px rgba(239,68,68,.35)">✕</button>
+<div class="swotHeader">LANÇAMENTO EXCLUSIVO</div>
 <div class="swotBody">
 <img src="img/swot.png" class="swotLivro">
 <div class="swotTexto">
-<h2>
-SWOT<br>CRISTÃO
-</h2>
-<p>
-Transforme sua vida espiritual com estratégia, propósito e crescimento com Deus.
-</p>
-<div class="swotPreco">
-R$ 51,60
+<h2>SWOT<br>CRISTÃO</h2>
+<p>Transforme sua vida espiritual com estratégia, propósito e crescimento com Deus.</p>
+<div class="swotPreco">R$ 51,60</div>
+<button class="swotBtn" onclick="window.open('https://www.bemprotegido.net')">🛒 QUERO INVESTIR NO REINO DE DEUS.</button>
 </div>
-<button class="swotBtn" onclick="window.open('https://www.bemprotegido.net')">
-🛒 QUERO INVESTIR NO REINO DE DEUS.
-</button>
 </div>
 </div>
 </div>
