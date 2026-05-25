@@ -1898,65 +1898,6 @@ setTimeout(()=>safe("perguntaIA").focus(),200)
 }
 }
 /* ========================function  ==================================================== */
-function addMsgIA(texto,tipo){
-
-const chat=safe("chatIA")
-
-const msg=document.createElement("div")
-
-msg.style.maxWidth="80%"
-msg.style.padding="10px"
-msg.style.borderRadius="12px"
-msg.style.fontSize="13px"
-
-if(tipo==="user"){
-msg.style.alignSelf="flex-end"
-msg.style.background="#22c55e"
-msg.style.color="#000"
-}else{
-msg.style.alignSelf="flex-start"
-msg.style.background="#e2e8f0"
-msg.style.color="#000"
-}
-
-msg.innerText=texto
-
-chat.appendChild(msg)
-chat.scrollTop=chat.scrollHeight
-}
-/* ========================function  ==================================================== */
-function responderIA(){
-const pergunta=safe("perguntaIA").value.trim()
-if(!pergunta)return
-addMsgIA(pergunta,"user")
-safe("perguntaIA").value=""
-setTimeout(()=>{
-const totalR=dados.filter(x=>x.tipo==="RECEITA").reduce((s,x)=>s+Number(x.valor||0),0)
-const totalD=dados.filter(x=>x.tipo==="DESPESA").reduce((s,x)=>s+Number(x.valor||0),0)
-const saldo=totalR-totalD
-const gastosCategoria=resumoCategorias()
-const maiorGasto=Object.entries(gastosCategoria).sort((a,b)=>b[1]-a[1])[0]
-let resposta=""
-const p=pergunta.toLowerCase()
-if(p.includes("análise")||p.includes("analise")){
-resposta=`📊 Análise Financeira:\n\nReceitas: ${formatarMoeda(totalR)}\nDespesas: ${formatarMoeda(totalD)}\nSaldo: ${formatarMoeda(saldo)}\n\nMaior gasto: ${maiorGasto?maiorGasto[0]:"-"} (${maiorGasto?formatarMoeda(maiorGasto[1]):"-"})\n\n${saldo<0?"⚠️ Você está no negativo.":"✅ Situação controlada."}`
-}
-else if(p.includes("onde estou gastando")){
-resposta="📊 Seus maiores gastos:\n\n"+Object.entries(gastosCategoria).map(([k,v])=>`${k}: ${formatarMoeda(v)}`).join("\n")
-}
-else if(p.includes("economizar")){
-resposta=`💡 Sugestões:\n\n- Reduza ${maiorGasto?maiorGasto[0]:"despesas gerais"}\n- Defina limite mensal\n- Evite gastos recorrentes\n\nEconomia potencial: ${formatarMoeda(totalD*0.15)}`
-}
-else if(p.includes("previsão")||p.includes("futuro")){
-resposta=`📅 Previsão:\n\nSe manter esse ritmo:\nSaldo futuro ≈ ${formatarMoeda(saldo - totalD*0.2)}`
-}
-else{
-resposta=`🤖 Posso te ajudar com:\n• análise financeira\n• onde está gastando\n• como economizar\n• previsão futura\n\nDigite o que deseja 👇`
-}
-addMsgIA(resposta,"bot")
-},400)
-}
-/* ========================function  ==================================================== */
 async function verFinanceiroUsuario(userId){
 localStorage.setItem("usuario_visualizando_admin",userId)
 
@@ -2253,8 +2194,7 @@ box.innerHTML=`
 </div>
 `
 }
-
-<!-- 010 IA -->
+/*====================================================010 IA====================================================*/
 function analisarFinanceiroIA(){
 let receitas=0
 let despesas=0
@@ -2284,6 +2224,167 @@ msg+
 "\nDespesas: "+formatarMoeda(despesas)+
 "\nSaldo: "+formatarMoeda(saldo)
 )
+}
+/*====================================================ADD MSG IA====================================================*/
+function addMsgIA(texto,tipo="bot"){
+const chat=safe("chatIA")
+if(!chat)return
+const lado=tipo==="user"?"flex-end":"flex-start"
+const bg=tipo==="user"?"#22c55e":"#ffffff"
+const cor=tipo==="user"?"#000":"#0f172a"
+chat.innerHTML+=`
+<div style="
+display:flex;
+justify-content:${lado};
+margin-bottom:10px">
+
+<div style="
+max-width:78%;
+background:${bg};
+color:${cor};
+padding:12px 14px;
+border-radius:18px;
+font-size:14px;
+line-height:1.5;
+box-shadow:0 4px 12px rgba(0,0,0,.08);
+white-space:pre-line">
+${texto}
+</div>
+
+</div>
+`
+chat.scrollTop=chat.scrollHeight
+}
+/*====================================================RESPONDER IA====================================================*/
+function responderIA(){
+const campo=safe("perguntaIA")
+if(!campo)return
+const pergunta=campo.value.trim()
+if(!pergunta)return
+addMsgIA(pergunta,"user")
+campo.value=""
+setTimeout(()=>{
+const totalR=dados
+.filter(x=>x.tipo==="RECEITA")
+.reduce((s,x)=>s+Number(x.valor||0),0)
+const totalD=dados
+.filter(x=>x.tipo==="DESPESA")
+.reduce((s,x)=>s+Number(x.valor||0),0)
+const saldo=totalR-totalD
+const gastosCategoria=resumoCategorias()
+const maiorGasto=Object
+.entries(gastosCategoria)
+.sort((a,b)=>b[1]-a[1])[0]
+let resposta=""
+const p=pergunta.toLowerCase()
+if(
+p.includes("análise")||
+p.includes("analise")
+){
+resposta=
+`📊 Análise Financeira:
+
+Receitas: ${formatarMoeda(totalR)}
+Despesas: ${formatarMoeda(totalD)}
+Saldo: ${formatarMoeda(saldo)}
+
+Maior gasto:
+${maiorGasto?maiorGasto[0]:"-"}
+(${maiorGasto?formatarMoeda(maiorGasto[1]):"-"})
+
+${saldo<0
+?"⚠️ Você está no negativo."
+:"✅ Situação controlada."}`
+}
+else if(
+p.includes("onde estou gastando")||
+p.includes("gastos")
+){
+resposta=
+"📊 Seus maiores gastos:\n\n"+
+Object.entries(gastosCategoria)
+.map(([k,v])=>
+`${k}: ${formatarMoeda(v)}`
+)
+.join("\n")
+}
+else if(
+p.includes("economizar")||
+p.includes("economia")
+){
+resposta=
+`💡 Sugestões:
+
+• Reduza ${maiorGasto?maiorGasto[0]:"despesas gerais"}
+• Defina limite mensal
+• Evite gastos recorrentes
+• Revise assinaturas
+
+Economia potencial:
+${formatarMoeda(totalD*0.15)}`
+}
+else if(
+p.includes("previsão")||
+p.includes("futuro")
+){
+resposta=
+`📅 Previsão Financeira:
+
+Mantendo este ritmo:
+
+Saldo futuro estimado:
+${formatarMoeda(saldo-totalD*0.2)}
+
+${saldo>0
+?"📈 Tendência positiva."
+:"⚠️ Tendência de déficit."}`
+}
+else if(
+p.includes("cripto")||
+p.includes("bitcoin")||
+p.includes("ethereum")
+){
+resposta=
+`🪙 Criptomoedas:
+
+• Bitcoin → reserva principal
+• Ethereum → crescimento
+• Solana/XRP → agressivas
+• Diversifique investimentos
+• Nunca invista tudo
+
+⚠️ Cripto possui alta volatilidade.`
+}
+else if(
+p.includes("investir")||
+p.includes("aplicar")
+){
+resposta=
+`🏦 Sugestões:
+
+• Tesouro Selic
+• CDB 100% CDI
+• ETFs
+• Fundos imobiliários
+• Criptomoedas moderadamente
+
+📈 Diversifique sempre.`
+}
+else{
+resposta=
+`🤖 Posso ajudar com:
+
+• análise financeira
+• gastos
+• economia
+• previsão futura
+• investimentos
+• criptomoedas
+
+Digite o que deseja 👇`
+}
+addMsgIA(resposta,"bot")
+},500)
 }
 /*====================================================
 TOGGLE RECORRÊNCIA
