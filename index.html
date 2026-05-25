@@ -1598,33 +1598,30 @@ ${x.categoria||"GERAL"}
 
 <!-- DESCRIÇÃO -->
 <div style="min-width:0">
-
 <div style="font-size:13px;font-weight:900;color:${x.tipo==="RECEITA"?"#16a34a":"#dc2626"};line-height:1.2">
-
 ${modoEdicao
 ? `<input value="${x.descricao||""}" onchange="editarCampo('${x.id}','descricao',this.value)" style="width:100%">`
 : (x.descricao||"-")}
-
 </div>
-
 </div>
-
-<!-- RECORRENTE -->
-<div style="font-size:12px;font-weight:700;color:#64748b">
-
-${modoEdicao
-? `
-<label style="display:flex;align-items:center;gap:4px;font-size:10px;color:#64748b">
-<input type="checkbox"
-${x.recorrente?"checked":""}
-onchange="editarCampo('${x.id}','recorrente',this.checked)">
-🔁 Recorrente
-</label>
-`
-: (x.recorrente?"🔁 Recorrente":"")}
+/* RECORRÊNCIA */
+<div style="display:flex;flex-direction:column;gap:4px">
+<button
+onclick="event.stopPropagation();toggleRecorrencia('${x.id}',${x.recorrente?true:false})"
+style="
+height:34px;
+border-radius:10px;
+font-size:12px;
+font-weight:900;
+padding:0 12px;
+background:${x.recorrente?"#16a34a":"#e2e8f0"};
+color:${x.recorrente?"#fff":"#0f172a"};
+border:none">
+${x.recorrente?"🔁 SIM":"NÃO"}
+</button>
 
 ${x.parcela_atual&&x.parcela_total
-? `📦 ${x.parcela_atual}/${x.parcela_total}`
+? `<div style="font-size:11px;color:#64748b">📦 ${x.parcela_atual}/${x.parcela_total}</div>`
 : ""}
 
 </div>
@@ -2261,7 +2258,44 @@ msg+
 "\nSaldo: "+formatarMoeda(saldo)
 )
 }
-  
+/*====================================================
+TOGGLE RECORRÊNCIA
+====================================================*/
+async function toggleRecorrencia(id,atual){
+const novo=!atual
+const {data:item}=await db
+.from("lancamentos")
+.select("*")
+.eq("id",id)
+.maybeSingle()
+if(!item)return
+await db
+.from("lancamentos")
+.update({
+recorrente:novo
+})
+.eq("id",id)
+/* 🔥 SE ATIVOU RECORRÊNCIA */
+if(novo){
+const dataBase=new Date((item.data_vencimento||item.data)+"T00:00:00")
+const prox=new Date(dataBase)
+prox.setMonth(prox.getMonth()+1)
+await db
+.from("lancamentos")
+.insert([{
+usuario_id:item.usuario_id,
+tipo:item.tipo,
+data:prox.toISOString().slice(0,10),
+data_vencimento:prox.toISOString().slice(0,10),
+categoria:item.categoria,
+descricao:item.descricao,
+valor:item.valor,
+status:"pendente",
+recorrente:true
+}])
+}
+await carregar()
+}
 
 </script>
 </body>
