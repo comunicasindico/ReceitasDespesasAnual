@@ -265,15 +265,29 @@ Criar Conta
 
 </div>
 
-<div class="swotFloating">
-<div class="swotHeader">LANÇAMENTO EXCLUSIVO</div>
+<div class="swotFloating" id="boxLivro">
+
+<button onclick="fecharLivro()" style="position:absolute;top:10px;right:10px;width:28px;height:28px;border:none;border-radius:50%;background:#ef4444;color:#fff;font-size:14px;font-weight:900;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:999;box-shadow:0 4px 12px rgba(239,68,68,.35)">
+✕
+</button>
+<div class="swotHeader">
+LANÇAMENTO EXCLUSIVO
+</div>
 <div class="swotBody">
 <img src="img/swot.png" class="swotLivro">
 <div class="swotTexto">
-<h2>SWOT<br>CRISTÃO</h2>
-<p>Transforme sua vida espiritual com estratégia, propósito e crescimento com Deus.</p>
-<div class="swotPreco">R$ 51,60</div>
-<button class="swotBtn" onclick="window.open('https://www.bemprotegido.net')">🛒 QUERO O MEU AGORA</button>
+<h2>
+SWOT<br>CRISTÃO
+</h2>
+<p>
+Transforme sua vida espiritual com estratégia, propósito e crescimento com Deus.
+</p>
+<div class="swotPreco">
+R$ 51,60
+</div>
+<button class="swotBtn" onclick="window.open('https://www.bemprotegido.net')">
+🛒 QUERO INVESTIR NO REINO DE DEUS.
+</button>
 </div>
 </div>
 </div>
@@ -1420,7 +1434,7 @@ else totalPendente+=valor
 
 html+=`
 
-<div class="movItem" style="display:grid;grid-template-columns:90px 130px 1fr 150px 120px 70px 140px;align-items:center;gap:12px;padding:14px 16px;background:#fff;border:1px solid #e2e8f0;border-radius:18px;margin-bottom:8px;box-shadow:0 2px 10px rgba(0,0,0,.03)">
+<div class="movItem" style="display:grid;grid-template-columns:90px 130px 1fr 150px 120px 70px 140px;align-items:center;gap:8px;padding:8px 12px;background:#fff;border:1px solid #e2e8f0;border-radius:18px;margin-bottom:8px;box-shadow:0 2px 10px rgba(0,0,0,.03)">
 
 <!-- DATA -->
 <div style="font-size:13px;font-weight:800;color:#64748b">
@@ -1435,7 +1449,7 @@ ${x.categoria||"GERAL"}
 <!-- DESCRIÇÃO -->
 <div style="min-width:0">
 
-<div style="font-size:15px;font-weight:900;color:${x.tipo==="RECEITA"?"#16a34a":"#dc2626"};line-height:1.2">
+<div style="font-size:13px;font-weight:900;color:${x.tipo==="RECEITA"?"#16a34a":"#dc2626"};line-height:1.2">
 
 ${modoEdicao
 ? `<input value="${x.descricao||""}" onchange="editarCampo('${x.id}','descricao',this.value)" style="width:100%">`
@@ -1448,7 +1462,16 @@ ${modoEdicao
 <!-- RECORRENTE -->
 <div style="font-size:12px;font-weight:700;color:#64748b">
 
-${x.recorrente?"🔁 Recorrente":""}
+${modoEdicao
+? `
+<label style="display:flex;align-items:center;gap:4px;font-size:10px;color:#64748b">
+<input type="checkbox"
+${x.recorrente?"checked":""}
+onchange="editarCampo('${x.id}','recorrente',this.checked)">
+🔁 Recorrente
+</label>
+`
+: (x.recorrente?"🔁 Recorrente":"")}
 
 ${x.parcela_atual&&x.parcela_total
 ? `📦 ${x.parcela_atual}/${x.parcela_total}`
@@ -1477,7 +1500,7 @@ ${x.tipo==="DESPESA"
 <!-- VALOR -->
 <div style="display:flex;justify-content:flex-end;align-items:center">
 
-<div style="font-size:18px;font-weight:900;color:${x.tipo==="RECEITA"?"#16a34a":"#dc2626"};white-space:nowrap">
+<div style="font-size:15px;font-weight:900;color:${x.tipo==="RECEITA"?"#16a34a":"#dc2626"};white-space:nowrap">
 
 ${modoEdicao
 ? `<input value="${valor}" type="number" onchange="editarCampo('${x.id}','valor',this.value)" style="width:110px;text-align:right;font-size:13px">`
@@ -1829,6 +1852,12 @@ painel.innerHTML=`
 /* 🔹 PLACEHOLD (evita erro até implementar IA) */
 function rodarInteligencia(){}
 
+function fecharLivro(){
+const box=document.querySelector(".swotFloating")
+if(box){
+box.style.display="none"
+}
+}
 
 </script>
 </body>
