@@ -168,17 +168,34 @@ const TAM_GRAFICO=180
 </head>
 <body class="login">
 
+<!-- 001 INÍCIO TELA LOGIN -->
 <div id="telaLogin">
+<!-- 002 CARD LOGIN -->
 <div style="width:280px;background:rgba(255,255,255,.92);padding:22px;border-radius:18px;box-shadow:0 20px 60px rgba(0,0,0,.35);backdrop-filter:blur(10px);display:flex;flex-direction:column;gap:12px">
-<h3 style="text-align:center;margin:0;color:#0f172a;font-size:28px;font-weight:900">Acesso</h3>
+<!-- 003 TÍTULO -->
+<h3 style="text-align:center;margin:0;color:#0f172a;font-size:28px;font-weight:900">
+Acesso
+</h3>
+<!-- 004 FORM LOGIN -->
+<form onsubmit="loginSistema();return false;" style="display:flex;flex-direction:column;gap:12px">
+<!-- 005 USUÁRIO -->
 <input id="loginUser" placeholder="Usuário">
+<!-- 006 SENHA -->
 <input id="loginPass" type="password" placeholder="Senha">
-<button onclick="loginSistema()">Entrar</button>
+<!-- 007 BOTÃO ENTRAR -->
+<button type="submit">
+Entrar
+</button>
+</form>
+<!-- 008 BOTÃO CRIAR CONTA -->
 <div style="display:flex;justify-content:center;margin-top:8px">
-<button onclick="abrirCadastro()" style="background:#ef4444;color:#fff;width:100%;max-width:200px">Criar Conta</button>
+<button onclick="abrirCadastro()" style="background:#ef4444;color:#fff;width:100%;max-width:200px">
+Criar Conta
+</button>
 </div>
 </div>
 </div>
+<!-- 009 FIM TELA LOGIN -->
 <div id="painelMobile" style="display:none">
 <div id="telaInicio" class="telaApp telaAtiva">
 <div class="card" style="padding:18px 22px;margin-bottom:14px">
