@@ -1619,25 +1619,23 @@ ${modoEdicao
 : (x.descricao||"-")}
 </div>
 </div>
-/* RECORRÊNCIA */
-<div style="display:flex;flex-direction:column;gap:4px">
+<div style="display:flex;justify-content:center">
+
 <button
 onclick="event.stopPropagation();toggleRecorrencia('${x.id}',${x.recorrente?true:false})"
 style="
-height:34px;
-border-radius:10px;
-font-size:12px;
+height:28px;
+min-width:70px;
+border-radius:8px;
+font-size:11px;
 font-weight:900;
-padding:0 12px;
-background:${x.recorrente?"#16a34a":"#e2e8f0"};
+padding:0 10px;
+background:${x.recorrente?"#16a34a":"#cbd5e1"};
 color:${x.recorrente?"#fff":"#0f172a"};
-border:none">
+border:none;
+box-shadow:none">
 ${x.recorrente?"🔁 SIM":"NÃO"}
 </button>
-
-${x.parcela_atual&&x.parcela_total
-? `<div style="font-size:11px;color:#64748b">📦 ${x.parcela_atual}/${x.parcela_total}</div>`
-: ""}
 
 </div>
 
