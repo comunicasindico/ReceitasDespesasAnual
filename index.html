@@ -1561,31 +1561,46 @@ else totalPendente+=valor
 }
 
 html+=`
-
 <div class="movItem" style="display:grid;grid-template-columns:90px 130px 1fr 150px 120px 70px 140px;align-items:center;gap:8px;padding:8px 12px;background:#fff;border:1px solid #e2e8f0;border-radius:18px;margin-bottom:8px;box-shadow:0 2px 10px rgba(0,0,0,.03)">
-
-<!-- DATA -->
-<div style="font-size:13px;font-weight:800;color:#64748b">
-
-${modoEdicao
-? `
+/* DATA PAGAMENTO / VENCIMENTO */
 <div style="display:flex;flex-direction:column;gap:4px">
-
+<div style="display:flex;align-items:center;gap:4px">
+<div style="font-size:10px;font-weight:900;color:#64748b;min-width:32px">
+PAG:
+</div>
 <input
 type="date"
 value="${(x.data||"").slice(0,10)}"
 onchange="editarCampo('${x.id}','data',this.value)"
-style="width:95px;padding:4px 6px;font-size:11px">
+style="
+width:115px;
+padding:4px 6px;
+font-size:11px;
+border-radius:8px;
+border:1px solid #cbd5e1;
+background:#fff">
+
+</div>
+
+<div style="display:flex;align-items:center;gap:4px">
+
+<div style="font-size:10px;font-weight:900;color:#64748b;min-width:32px">
+VENC:
+</div>
 
 <input
 type="date"
-value="${(x.data_vencimento||"").slice(0,10)}"
+value="${(x.data_vencimento||x.data||"").slice(0,10)}"
 onchange="editarCampo('${x.id}','data_vencimento',this.value)"
-style="width:95px;padding:4px 6px;font-size:11px">
+style="
+width:115px;
+padding:4px 6px;
+font-size:11px;
+border-radius:8px;
+border:1px solid #cbd5e1;
+background:#fff">
 
 </div>
-`
-: formatarDataBR(x.data_vencimento||x.data)}
 
 </div>
 
