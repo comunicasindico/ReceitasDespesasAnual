@@ -1340,18 +1340,35 @@ const saldo=r-d
 const[ano,mes]=chave.split("-")
 const cor=corMes(mes)
 
-/* ================= HEADER ================= */
-html+=`<div class="card" onclick="toggleMes('${chave}')" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center;background:${cor};color:#fff;padding:6px 10px;border-radius:10px">
-<div style="font-weight:bold">${nomeMes(mes)} ${ano}</div>
-<div style="display:flex;align-items:center;gap:8px">
-<b style="color:${saldo>=0?"#16a34a":"#dc2626"}">${bloqueado?"🔒":(visMes[chave]?formatarMoeda(saldo):"R$ ***")}</b>
-<button onclick="event.stopPropagation();toggleMesValor('${chave}')" style="background:#e2e8f0;padding:6px;border-radius:8px">👁</button>
-</div>
-</div>`
+/* ================= HEADER PREMIUM ================= */
+html+=`
+<div class="boxMes">
 
+<div class="topoMes" onclick="toggleMes('${chave}')">
+
+<div class="tituloMes">
+<span style="background:${cor}">📅</span>
+${nomeMes(mes)} ${ano}
+</div>
+
+<div class="totalMes">
+
+<div class="valorMes" style="color:${saldo>=0?"#16a34a":"#dc2626"}">
+${bloqueado?"🔒":(visMes[chave]?formatarMoeda(saldo):"R$ ***")}
+</div>
+
+<button class="btnMes"
+onclick="event.stopPropagation();toggleMesValor('${chave}')">
+👁
+</button>
+
+</div>
+
+</div>
+`
 /* ================= ITENS ================= */
 if(!mesesOcultos[chave]){
-
+html+=`<div class="listaMovimentos">`
 let totalPago=0
 let totalPendente=0
 
@@ -1369,7 +1386,9 @@ else totalPendente+=valor
 }
 
 const corClaro=corMesClaro(cor)
-html+=`<div class="card" style="padding:6px;margin:2px 0;display:flex;flex-direction:column;background:${corClaro};border-left:4px solid ${cor};">
+html+=`
+<div class="movItem">
+`
 
 <div style="display:flex;justify-content:space-between;align-items:flex-start">
 
@@ -1417,13 +1436,24 @@ ${modoEdicao
 
 </div>
 
-</div>`
+</div>
+
+</div>
+`
 })
 
-html+=`<div class="card" style="background:#0f172a;color:#fff;display:flex;justify-content:space-between;font-size:11px;padding:6px 10px;border-radius:10px">
-<div>Pagas: <b>${formatarMoeda(totalPago)}</b></div>
-<div>Pendentes: <b style="color:#f59e0b">${formatarMoeda(totalPendente)}</b></div>
-</div>`
+html+=`
+<div class="card" style="background:#f8fafc;border:1px solid #e2e8f0;display:flex;justify-content:space-between;font-size:12px;padding:10px 14px;border-radius:16px;margin-top:6px">
+<div style="color:#16a34a;font-weight:800">
+✔ Pagas: ${formatarMoeda(totalPago)}
+</div>
+<div style="color:#f59e0b;font-weight:800">
+⏳ Pendentes: ${formatarMoeda(totalPendente)}
+</div>
+</div>
+
+</div>
+`
 }
 })
 
