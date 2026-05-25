@@ -2030,10 +2030,21 @@ y=20
 doc.save("financeiro-premium-2026.pdf")
 }
 
+<!-- 001 XLSX -->
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+
+<!-- 002 CHART -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- 003 FUNÇÃO EXPORTAR EXCEL -->
 function exportarExcel(){
-const lista=dados.map(x=>({
+if(typeof XLSX==="undefined"){
+alert("Biblioteca XLSX não carregada")
+return
+}
+const lista=(dados||[]).map(x=>({
 Data:formatarDataBR(x.data_vencimento||x.data),
-Tipo:x.tipo,
+Tipo:x.tipo||"-",
 Categoria:x.categoria||"-",
 Descricao:x.descricao||"-",
 Valor:Number(x.valor||0),
@@ -2045,8 +2056,8 @@ const wb=XLSX.utils.book_new()
 XLSX.utils.book_append_sheet(wb,ws,"Financeiro")
 XLSX.writeFile(wb,"financeiro-2026.xlsx")
 }
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
+<!-- 004 GRÁFICO -->
 function renderGraficoFinanceiro(){
 
 const meses=["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"]
@@ -2054,9 +2065,14 @@ const meses=["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","
 let receitas=new Array(12).fill(0)
 let despesas=new Array(12).fill(0)
 
-dados.forEach(x=>{
+;(dados||[]).forEach(x=>{
+
+if(!(x.data_vencimento||x.data))return
 
 const data=new Date(x.data_vencimento||x.data)
+
+if(isNaN(data))return
+
 const mes=data.getMonth()
 
 if(x.tipo==="RECEITA"){
@@ -2083,17 +2099,20 @@ datasets:[
 {
 label:"Receitas",
 data:receitas,
-backgroundColor:"#16a34a"
+backgroundColor:"#16a34a",
+borderRadius:10
 },
 {
 label:"Despesas",
 data:despesas,
-backgroundColor:"#dc2626"
+backgroundColor:"#dc2626",
+borderRadius:10
 }
 ]
 },
 options:{
 responsive:true,
+maintainAspectRatio:false,
 plugins:{
 legend:{
 position:"top"
@@ -2103,12 +2122,14 @@ position:"top"
 })
 
 }
+
+<!-- 005 META -->
 function atualizarMeta(){
 
 let receitas=0
 let despesas=0
 
-dados.forEach(x=>{
+;(dados||[]).forEach(x=>{
 
 if(x.tipo==="RECEITA"){
 receitas+=Number(x.valor||0)
@@ -2120,7 +2141,9 @@ despesas+=Number(x.valor||0)
 
 const saldo=receitas-despesas
 
-const percentual=Math.max(0,Math.min(100,(saldo/receitas)*100||0))
+const percentual=receitas>0
+? Math.max(0,Math.min(100,(saldo/receitas)*100))
+: 0
 
 if(document.getElementById("barraMeta")){
 document.getElementById("barraMeta").style.width=percentual+"%"
@@ -2131,6 +2154,8 @@ document.getElementById("metaPercentual").innerText=percentual.toFixed(0)+"%"
 }
 
 }
+
+<!-- 006 CORES -->
 function corCategoria(cat){
 const cores={
 "salario":"#16a34a",
@@ -2143,15 +2168,15 @@ const cores={
 }
 return cores[(cat||"").toLowerCase()]||"#64748b"
 }
+
+<!-- 007 VENCIMENTOS -->
 function renderVencimentos(){
 
 const box=document.getElementById("listaVencimentos")
 
 if(!box)return
 
-const hoje=new Date()
-
-const proximos=dados
+const proximos=(dados||[])
 .filter(x=>x.tipo==="DESPESA")
 .sort((a,b)=>new Date(a.data_vencimento||a.data)-new Date(b.data_vencimento||b.data))
 .slice(0,5)
@@ -2159,29 +2184,22 @@ const proximos=dados
 box.innerHTML=proximos.map(x=>`
 
 <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #e2e8f0">
-
 <div>
-<div style="font-weight:800">
-${x.descricao}
+<div style="font-weight:800">${x.descricao||"-"}</div>
+<div style="font-size:12px;color:#64748b">${formatarDataBR(x.data_vencimento||x.data)}</div>
 </div>
-<div style="font-size:12px;color:#64748b">
-${formatarDataBR(x.data_vencimento||x.data)}
-</div>
-</div>
-
-<div style="font-weight:900;color:#dc2626">
-${formatarMoeda(Number(x.valor||0))}
-</div>
-
+<div style="font-weight:900;color:#dc2626">${formatarMoeda(Number(x.valor||0))}</div>
 </div>
 
 `).join("")
 
 }
+
+<!-- 008 BACKUP -->
 async function backupSupabase(){
 
 const blob=new Blob(
-[JSON.stringify(dados,null,2)],
+[JSON.stringify(dados||[],null,2)],
 {type:"application/json"}
 )
 
@@ -2194,6 +2212,8 @@ a.download="backup-financeiro-2026.json"
 a.click()
 
 }
+
+<!-- 009 DASHBOARD -->
 function renderDashboardAnual(){
 
 const box=document.getElementById("dashboardAnual")
@@ -2203,7 +2223,7 @@ if(!box)return
 let receitas=0
 let despesas=0
 
-dados.forEach(x=>{
+;(dados||[]).forEach(x=>{
 
 if(x.tipo==="RECEITA"){
 receitas+=Number(x.valor||0)
@@ -2233,29 +2253,44 @@ box.innerHTML=`
 </div>
 
 `
+
 }
+
+<!-- 010 IA -->
 function analisarFinanceiroIA(){
+
 let receitas=0
 let despesas=0
-dados.forEach(x=>{
+
+;(dados||[]).forEach(x=>{
+
 if(x.tipo==="RECEITA"){
 receitas+=Number(x.valor||0)
 }else{
 despesas+=Number(x.valor||0)
 }
+
 })
+
 const saldo=receitas-despesas
+
 let msg=""
+
 if(saldo>0){
+
 msg=
 "✅ Suas finanças estão saudáveis."+
 "\n📈 Há equilíbrio positivo entre receitas e despesas."
+
 }else{
+
 msg=
 "⚠️ Atenção: despesas maiores que receitas."+
 "\n💰 As criptomoedas estão sendo utilizadas para suprir o déficit do salário."+
 "\n📉 Recomenda-se reduzir despesas ou aumentar receitas recorrentes."
+
 }
+
 alert(
 "🤖 IA FINANCEIRA\n\n"+
 msg+
@@ -2263,6 +2298,7 @@ msg+
 "\nDespesas: "+formatarMoeda(despesas)+
 "\nSaldo: "+formatarMoeda(saldo)
 )
+
 }
   
 
