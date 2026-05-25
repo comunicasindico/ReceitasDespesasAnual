@@ -211,7 +211,12 @@ Criar Conta
 <div style="margin-top:8px;color:#94a3b8">Organize hoje para prosperar amanhã.</div>
 </div>
 </div>
-
+<div class="card">
+<div style="font-size:20px;font-weight:900;margin-bottom:14px">
+📊 Dashboard Anual
+</div>
+<div id="dashboardAnual" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px"></div>
+</div>
 <div class="gridKPIs">
 
 <div class="kpiCard kpiReceita">
@@ -242,7 +247,28 @@ Criar Conta
 </div>
 
 </div>
-
+<div class="card">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+<div style="font-size:18px;font-weight:900">
+🎯 Meta Financeira
+</div>
+<div id="metaPercentual" style="font-size:18px;font-weight:900;color:#16a34a">
+0%
+</div>
+</div>
+<div style="height:18px;background:#e2e8f0;border-radius:999px;overflow:hidden">
+<div id="barraMeta" style="height:100%;width:0%;background:linear-gradient(90deg,#16a34a,#22c55e)"></div>
+</div>
+<div style="margin-top:8px;font-size:13px;color:#64748b">
+Meta mensal de economia e saldo positivo.
+</div>
+</div>
+<div class="card">
+<div style="font-size:18px;font-weight:900;margin-bottom:12px">
+📅 Próximos Vencimentos
+</div>
+<div id="listaVencimentos"></div>
+</div>
 <div class="acoesRapidas">
 
 <div class="cardAcao" onclick="abrirTela('extrato')">
@@ -373,6 +399,12 @@ Controle financeiro inteligente com recorrência automática, parcelamentos e re
 </div>
 <div id="painelSaaSAdmin" class="card" style="display:flex;gap:10px;flex-wrap:wrap"></div>
 <div id="alertaFinanceiro" class="card"></div>
+<div class="card">
+<div style="font-size:18px;font-weight:900;margin-bottom:14px">
+📈 Evolução Financeira Mensal
+</div>
+<canvas id="graficoFinanceiro" height="120"></canvas>
+</div>
 <div id="areaUsuarios">
 <div id="listaUsuarios"></div>
 </div>
@@ -1535,7 +1567,9 @@ style="width:95px;padding:4px 6px;font-size:11px">
 
 <!-- CATEGORIA -->
 <div style="font-size:13px;font-weight:700;color:#64748b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
+<span style="padding:4px 8px;border-radius:999px;background:${corCategoria(x.categoria)}22;color:${corCategoria(x.categoria)};font-weight:800;font-size:11px">
 ${x.categoria||"GERAL"}
+</span>
 </div>
 
 <!-- DESCRIÇÃO -->
@@ -1976,22 +2010,29 @@ alert(
 async function exportarPDF(){
 const {jsPDF}=window.jspdf
 const doc=new jsPDF()
-let y=20
-doc.setFontSize(18)
-doc.text("RELATÓRIO FINANCEIRO 2026",14,y)
-y+=12
-doc.setFontSize(11)
+doc.setFillColor(15,23,42)
+doc.rect(0,0,220,30,"F")
+doc.setTextColor(255,255,255)
+doc.setFontSize(22)
+doc.text("RELATÓRIO FINANCEIRO 2026",14,20)
+let y=40
 dados.forEach(x=>{
-const linha=
-`${formatarDataBR(x.data_vencimento||x.data)} | ${x.tipo} | ${x.categoria||"-"} | ${x.descricao||"-"} | ${formatarMoeda(Number(x.valor||0))}`
-doc.text(linha,14,y)
-y+=7
+doc.setFillColor(x.tipo==="RECEITA"?22:220,x.tipo==="RECEITA"?163:38,x.tipo==="RECEITA"?74:38)
+doc.roundedRect(10,y-6,190,12,3,3,"F")
+doc.setTextColor(255,255,255)
+doc.setFontSize(10)
+doc.text(
+`${formatarDataBR(x.data_vencimento||x.data)} | ${x.descricao} | ${formatarMoeda(Number(x.valor||0))}`,
+14,
+y+1
+)
+y+=16
 if(y>270){
 doc.addPage()
 y=20
 }
 })
-doc.save("financeiro-2026.pdf")
+doc.save("financeiro-premium-2026.pdf")
 }
 
 function exportarExcel(){
@@ -2009,7 +2050,226 @@ const wb=XLSX.utils.book_new()
 XLSX.utils.book_append_sheet(wb,ws,"Financeiro")
 XLSX.writeFile(wb,"financeiro-2026.xlsx")
 }
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
+function renderGraficoFinanceiro(){
+
+const meses=["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"]
+
+let receitas=new Array(12).fill(0)
+let despesas=new Array(12).fill(0)
+
+dados.forEach(x=>{
+
+const data=new Date(x.data_vencimento||x.data)
+const mes=data.getMonth()
+
+if(x.tipo==="RECEITA"){
+receitas[mes]+=Number(x.valor||0)
+}else{
+despesas[mes]+=Number(x.valor||0)
+}
+
+})
+
+const ctx=document.getElementById("graficoFinanceiro")
+
+if(!ctx)return
+
+if(window.graficoFinanceiroObj){
+window.graficoFinanceiroObj.destroy()
+}
+
+window.graficoFinanceiroObj=new Chart(ctx,{
+type:"bar",
+data:{
+labels:meses,
+datasets:[
+{
+label:"Receitas",
+data:receitas,
+backgroundColor:"#16a34a"
+},
+{
+label:"Despesas",
+data:despesas,
+backgroundColor:"#dc2626"
+}
+]
+},
+options:{
+responsive:true,
+plugins:{
+legend:{
+position:"top"
+}
+}
+}
+})
+
+}
+function atualizarMeta(){
+
+let receitas=0
+let despesas=0
+
+dados.forEach(x=>{
+
+if(x.tipo==="RECEITA"){
+receitas+=Number(x.valor||0)
+}else{
+despesas+=Number(x.valor||0)
+}
+
+})
+
+const saldo=receitas-despesas
+
+const percentual=Math.max(0,Math.min(100,(saldo/receitas)*100||0))
+
+if(document.getElementById("barraMeta")){
+document.getElementById("barraMeta").style.width=percentual+"%"
+}
+
+if(document.getElementById("metaPercentual")){
+document.getElementById("metaPercentual").innerText=percentual.toFixed(0)+"%"
+}
+
+}
+function corCategoria(cat){
+const cores={
+"salario":"#16a34a",
+"mercado":"#dc2626",
+"cartao":"#9333ea",
+"telefone":"#0284c7",
+"internet":"#0ea5e9",
+"aluguel":"#ea580c",
+"energia":"#ca8a04"
+}
+return cores[(cat||"").toLowerCase()]||"#64748b"
+}
+function renderVencimentos(){
+
+const box=document.getElementById("listaVencimentos")
+
+if(!box)return
+
+const hoje=new Date()
+
+const proximos=dados
+.filter(x=>x.tipo==="DESPESA")
+.sort((a,b)=>new Date(a.data_vencimento||a.data)-new Date(b.data_vencimento||b.data))
+.slice(0,5)
+
+box.innerHTML=proximos.map(x=>`
+
+<div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #e2e8f0">
+
+<div>
+<div style="font-weight:800">
+${x.descricao}
+</div>
+<div style="font-size:12px;color:#64748b">
+${formatarDataBR(x.data_vencimento||x.data)}
+</div>
+</div>
+
+<div style="font-weight:900;color:#dc2626">
+${formatarMoeda(Number(x.valor||0))}
+</div>
+
+</div>
+
+`).join("")
+
+}
+async function backupSupabase(){
+
+const blob=new Blob(
+[JSON.stringify(dados,null,2)],
+{type:"application/json"}
+)
+
+const a=document.createElement("a")
+
+a.href=URL.createObjectURL(blob)
+
+a.download="backup-financeiro-2026.json"
+
+a.click()
+
+}
+function renderDashboardAnual(){
+
+const box=document.getElementById("dashboardAnual")
+
+if(!box)return
+
+let receitas=0
+let despesas=0
+
+dados.forEach(x=>{
+
+if(x.tipo==="RECEITA"){
+receitas+=Number(x.valor||0)
+}else{
+despesas+=Number(x.valor||0)
+}
+
+})
+
+const saldo=receitas-despesas
+
+box.innerHTML=`
+
+<div class="card">
+<div style="font-size:12px;color:#64748b">Receitas</div>
+<div style="font-size:24px;font-weight:900;color:#16a34a">${formatarMoeda(receitas)}</div>
+</div>
+
+<div class="card">
+<div style="font-size:12px;color:#64748b">Despesas</div>
+<div style="font-size:24px;font-weight:900;color:#dc2626">${formatarMoeda(despesas)}</div>
+</div>
+
+<div class="card">
+<div style="font-size:12px;color:#64748b">Saldo</div>
+<div style="font-size:24px;font-weight:900;color:#0284c7">${formatarMoeda(saldo)}</div>
+</div>
+
+`
+}
+function analisarFinanceiroIA(){
+let receitas=0
+let despesas=0
+dados.forEach(x=>{
+if(x.tipo==="RECEITA"){
+receitas+=Number(x.valor||0)
+}else{
+despesas+=Number(x.valor||0)
+}
+})
+const saldo=receitas-despesas
+let msg=""
+if(saldo>0){
+msg=
+"✅ Suas finanças estão saudáveis."+
+"\n📈 Há equilíbrio positivo entre receitas e despesas."
+}else{
+msg=
+"⚠️ Atenção: despesas maiores que receitas."+
+"\n💰 As criptomoedas estão sendo utilizadas para suprir o déficit do salário."+
+"\n📉 Recomenda-se reduzir despesas ou aumentar receitas recorrentes."
+}
+alert(
+"🤖 IA FINANCEIRA\n\n"+
+msg+
+"\n\nReceitas: "+formatarMoeda(receitas)+
+"\nDespesas: "+formatarMoeda(despesas)+
+"\nSaldo: "+formatarMoeda(saldo)
+)
+}
+  
 
 </script>
 </body>
