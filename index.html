@@ -1438,7 +1438,27 @@ html+=`
 
 <!-- DATA -->
 <div style="font-size:13px;font-weight:800;color:#64748b">
-${formatarDataBR(x.data_vencimento||x.data)}
+
+${modoEdicao
+? `
+<div style="display:flex;flex-direction:column;gap:4px">
+
+<input
+type="date"
+value="${(x.data||"").slice(0,10)}"
+onchange="editarCampo('${x.id}','data',this.value)"
+style="width:95px;padding:4px 6px;font-size:11px">
+
+<input
+type="date"
+value="${(x.data_vencimento||"").slice(0,10)}"
+onchange="editarCampo('${x.id}','data_vencimento',this.value)"
+style="width:95px;padding:4px 6px;font-size:11px">
+
+</div>
+`
+: formatarDataBR(x.data_vencimento||x.data)}
+
 </div>
 
 <!-- CATEGORIA -->
