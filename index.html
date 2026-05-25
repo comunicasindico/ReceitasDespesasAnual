@@ -1406,19 +1406,17 @@ else totalPendente+=valor
 
 html+=`
 
-<div class="movItem">
+<div class="movItem" style="display:flex;justify-content:space-between;align-items:center;gap:14px;padding:14px 16px;background:#fff;border:1px solid #e2e8f0;border-radius:18px;margin-bottom:8px;box-shadow:0 2px 10px rgba(0,0,0,.03)">
 
-<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px">
+<div style="display:flex;align-items:center;gap:14px;flex:1;min-width:0">
 
-<div style="display:flex;gap:10px;flex:1;min-width:0">
-
-<div style="min-width:52px;font-size:11px;font-weight:800;color:#64748b">
+<div style="min-width:58px;font-size:11px;font-weight:800;color:#64748b">
 ${formatarDataBR(x.data_vencimento||x.data)}
 </div>
 
 <div style="flex:1;min-width:0">
 
-<div style="font-size:14px;font-weight:800;line-height:1.2;color:${x.tipo==="RECEITA"?"#16a34a":"#dc2626"}">
+<div style="font-size:15px;font-weight:900;color:${x.tipo==="RECEITA"?"#16a34a":"#dc2626"};line-height:1.2">
 
 ${modoEdicao
 ? `<input value="${x.descricao||""}" onchange="editarCampo('${x.id}','descricao',this.value)" style="width:100%">`
@@ -1426,56 +1424,41 @@ ${modoEdicao
 
 </div>
 
-<div style="font-size:11px;color:#64748b;margin-top:2px">
-
-${x.categoria||"GERAL"}
-
-${x.recorrente?" • 🔁 Recorrente":""}
-
-${x.parcela_atual&&x.parcela_total?` • ${x.parcela_atual}/${x.parcela_total}`:""}
-
+<div style="font-size:12px;color:#64748b;margin-top:3px">
+${x.categoria||"GERAL"}${x.recorrente?" • 🔁 Recorrente":""}${x.parcela_atual&&x.parcela_total?` • ${x.parcela_atual}/${x.parcela_total}`:""}
 </div>
 
 </div>
 
 </div>
 
-<div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
+<div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px">
 
-<div style="font-size:15px;font-weight:900;color:${x.tipo==="RECEITA"?"#16a34a":"#dc2626"}">
+<div style="font-size:18px;font-weight:900;color:${x.tipo==="RECEITA"?"#16a34a":"#dc2626"};white-space:nowrap">
 
 ${modoEdicao
-? `<input value="${valor}" type="number" onchange="editarCampo('${x.id}','valor',this.value)" style="width:85px;text-align:right;font-size:12px">`
+? `<input value="${valor}" type="number" onchange="editarCampo('${x.id}','valor',this.value)" style="width:90px;text-align:right;font-size:12px">`
 : (bloqueado?"🔒":(oculto?"R$ ***":formatarMoeda(valor)))}
 
 </div>
 
-<div style="display:flex;gap:5px">
+<div style="display:flex;gap:6px">
 
 ${x.tipo==="DESPESA"
-? `<button onclick="event.stopPropagation();toggleStatus('${x.id}','${status}')" style="width:26px;height:26px;border-radius:8px;font-size:12px;padding:0;background:${status==="pago"?"#16a34a":"#f59e0b"};color:#fff">${status==="pago"?"✔":"⏳"}</button>`
+? `<button onclick="event.stopPropagation();toggleStatus('${x.id}','${status}')" style="width:28px;height:28px;border-radius:8px;font-size:12px;padding:0;background:${status==="pago"?"#16a34a":"#f59e0b"};color:#fff">${status==="pago"?"✔":"⏳"}</button>`
 : ""}
 
-<button onclick="event.stopPropagation();toggleValor('${x.id}')" style="width:26px;height:26px;border-radius:8px;font-size:12px;padding:0;background:#0ea5e9;color:#fff">
+<button onclick="event.stopPropagation();toggleValor('${x.id}')" style="width:28px;height:28px;border-radius:8px;font-size:12px;padding:0;background:#0ea5e9;color:#fff">
 👁
 </button>
 
 ${modoEdicao
-? `<button onclick="event.stopPropagation();excluirLancamento('${x.id}')" style="width:26px;height:26px;border-radius:8px;font-size:12px;padding:0;background:#ef4444;color:#fff">🗑</button>`
+? `<button onclick="event.stopPropagation();excluirLancamento('${x.id}')" style="width:28px;height:28px;border-radius:8px;font-size:12px;padding:0;background:#ef4444;color:#fff">🗑</button>`
 : ""}
 
 </div>
 
 </div>
-
-</div>
-
-${modoEdicao
-? `<div style="display:flex;gap:6px;margin-top:8px">
-<input type="date" value="${(x.data||"").slice(0,10)}" onchange="editarCampo('${x.id}','data',this.value)" style="flex:1">
-<input type="date" value="${(x.data_vencimento||"").slice(0,10)}" onchange="editarCampo('${x.id}','data_vencimento',this.value)" style="flex:1">
-</div>`
-: ""}
 
 </div>
 
