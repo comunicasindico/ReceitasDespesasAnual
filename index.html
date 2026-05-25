@@ -163,6 +163,8 @@ return hex+"22"
 /* ====================================================016 – TAMANHO GRÁFICO==================================================== */
 const TAM_GRAFICO=180
 </script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body class="login">
 
@@ -253,12 +255,12 @@ Criar Conta
 <div>Despesas</div>
 </div>
 
-<div class="cardAcao">
+<div class="cardAcao" onclick="abrirRelatorios()">
 <div class="cardAcaoIcone iconRelatorio">📊</div>
 <div>Relatórios</div>
 </div>
 
-<div class="cardAcao">
+<div class="cardAcao" onclick="abrirMetas()">
 <div class="cardAcaoIcone iconMeta">🎯</div>
 <div>Metas</div>
 </div>
@@ -372,7 +374,25 @@ R$ 51,60
 <button class="btnFiltro">Despesas</button>
 <button class="btnFiltro">Recorrentes</button>
 </div>
+<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
 
+<div style="font-size:12px;font-weight:800;color:#64748b">
+Pesquisar Datas:
+</div>
+
+<input
+type="date"
+id="filtroDataInicio"
+onchange="render()"
+style="width:150px;padding:8px 10px;font-size:12px">
+
+<input
+type="date"
+id="filtroDataFim"
+onchange="render()"
+style="width:150px;padding:8px 10px;font-size:12px">
+
+</div>
 <select class="selectMesRapido">
 <option>Maio 2026</option>
 <option>Junho 2026</option>
@@ -383,8 +403,7 @@ R$ 51,60
 </select>
 
 </div>
-<div style="display:flex;justify-content:flex-end;margin-bottom:6px;gap:6px">
-
+<div style="display:flex;justify-content:flex-end;gap:8px;margin-bottom:10px;flex-wrap:wrap">
 <button onclick="toggleEdicao()" style="background:#0ea5e9;color:#fff">
 <span id="txtEdicao">✏️ Editar</span>
 </button>
@@ -392,7 +411,13 @@ R$ 51,60
 <button onclick="abrirInsercao()" style="background:#22c55e">
 ➕ Inserir
 </button>
+<button onclick="exportarPDF()" style="background:#dc2626;color:#fff">
+📄 PDF
+</button>
 
+<button onclick="exportarExcel()" style="background:#16a34a;color:#fff">
+📊 Excel
+</button>
 </div>
 
 <!-- 🔥 FORM INSERÇÃO -->
@@ -1421,6 +1446,14 @@ html+=`
 </div>
 
 `
+const filtroInicio=safe("filtroDataInicio")?.value||""
+const filtroFim=safe("filtroDataFim")?.value||""
+if(filtroInicio){
+listaMes=listaMes.filter(x=>(x.data||"")>=filtroInicio)
+}
+if(filtroFim){
+listaMes=listaMes.filter(x=>(x.data||"")<=filtroFim)
+}
 listaMes.forEach(x=>{
 
 const valor=Number(x.valor||0)
@@ -1878,6 +1911,66 @@ if(box){
 box.style.display="none"
 }
 }
+function abrirRelatorios(){
+alert(
+"📊 RELATÓRIOS\n\n"+
+"• Receitas por período\n"+
+"• Despesas por período\n"+
+"• Comparativo mensal\n"+
+"• Gastos por categoria\n"+
+"• Fluxo de caixa\n"+
+"• Exportação PDF/Excel"
+)
+}
+
+function abrirMetas(){
+alert(
+"🎯 METAS FINANCEIRAS\n\n"+
+"• Meta mensal\n"+
+"• Meta anual\n"+
+"• Controle de economia\n"+
+"• Acompanhamento de despesas\n"+
+"• Objetivos financeiros"
+)
+}
+
+async function exportarPDF(){
+const {jsPDF}=window.jspdf
+const doc=new jsPDF()
+let y=20
+doc.setFontSize(18)
+doc.text("RELATÓRIO FINANCEIRO 2026",14,y)
+y+=12
+doc.setFontSize(11)
+dados.forEach(x=>{
+const linha=
+`${formatarDataBR(x.data_vencimento||x.data)} | ${x.tipo} | ${x.categoria||"-"} | ${x.descricao||"-"} | ${formatarMoeda(Number(x.valor||0))}`
+doc.text(linha,14,y)
+y+=7
+if(y>270){
+doc.addPage()
+y=20
+}
+})
+doc.save("financeiro-2026.pdf")
+}
+
+function exportarExcel(){
+const lista=dados.map(x=>({
+Data:formatarDataBR(x.data_vencimento||x.data),
+Tipo:x.tipo,
+Categoria:x.categoria||"-",
+Descricao:x.descricao||"-",
+Valor:Number(x.valor||0),
+Status:x.status||"-",
+Recorrente:x.recorrente?"SIM":"NÃO"
+}))
+const ws=XLSX.utils.json_to_sheet(lista)
+const wb=XLSX.utils.book_new()
+XLSX.utils.book_append_sheet(wb,ws,"Financeiro")
+XLSX.writeFile(wb,"financeiro-2026.xlsx")
+}
+
 
 </script>
 </body>
