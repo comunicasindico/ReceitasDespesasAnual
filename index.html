@@ -1126,7 +1126,8 @@ function atualizarDashboardBanco(){
 
 if(!Array.isArray(dados)||!dados.length)return
 
-let r=0,d=0
+let r=0
+let d=0
 
 dados.forEach(x=>{
 if(x.tipo==="RECEITA")r+=Number(x.valor||0)
@@ -1135,9 +1136,17 @@ else d+=Number(x.valor||0)
 
 const saldo=r-d
 
+if(safe("dashReceitas")){
 safe("dashReceitas").innerText=ocultarSaldo?"R$ ***":formatarMoeda(r)
+}
+
+if(safe("dashDespesas")){
 safe("dashDespesas").innerText=ocultarSaldo?"R$ ***":formatarMoeda(d)
+}
+
+if(safe("dashSaldo")){
 safe("dashSaldo").innerText=ocultarSaldo?"R$ ***":formatarMoeda(saldo)
+}
 
 if(safe("dashReceitasPremium")){
 safe("dashReceitasPremium").innerText=ocultarSaldo?"R$ ***":formatarMoeda(r)
@@ -1149,6 +1158,18 @@ safe("dashDespesasPremium").innerText=ocultarSaldo?"R$ ***":formatarMoeda(d)
 
 if(safe("dashSaldoPremium")){
 safe("dashSaldoPremium").innerText=ocultarSaldo?"R$ ***":formatarMoeda(saldo)
+}
+
+if(safe("kpiReceitasMes")){
+safe("kpiReceitasMes").innerText=ocultarSaldo?"R$ ***":formatarMoeda(r)
+}
+
+if(safe("kpiDespesasMes")){
+safe("kpiDespesasMes").innerText=ocultarSaldo?"R$ ***":formatarMoeda(d)
+}
+
+if(safe("kpiSaldoMes")){
+safe("kpiSaldoMes").innerText=ocultarSaldo?"R$ ***":formatarMoeda(saldo)
 }
 
 }
