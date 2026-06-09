@@ -113,8 +113,73 @@ input,select,button,textarea{width:100%;max-width:100%;}
 canvas{max-width:100%!important;height:auto!important;}
 table{font-size:12px;min-width:700px;}
 }
+/*=========================================================
+MOBILE EXTRATO RESPONSIVO
+=========================================================*/
+@media(max-width:768px){
 
-  
+.movItem{
+display:flex!important;
+flex-direction:column!important;
+align-items:flex-start!important;
+gap:8px!important;
+}
+
+.movItem > div{
+width:100%!important;
+}
+
+#lista{
+padding-bottom:120px;
+}
+
+.listaMovimentos{
+overflow-x:hidden;
+}
+
+.boxMes{
+margin-bottom:18px;
+}
+
+#formInsercao input,
+#formInsercao select,
+#formInsercao button{
+width:100%!important;
+}
+
+#formInsercao div{
+flex-direction:column!important;
+}
+
+}
+.cabecalhoExtrato{
+display:grid;
+grid-template-columns:
+minmax(80px,90px)
+minmax(100px,120px)
+1fr
+minmax(90px,120px)
+minmax(90px,120px)
+minmax(60px,70px)
+minmax(90px,120px);
+gap:12px;
+padding:12px 16px;
+font-size:12px;
+font-weight:900;
+color:#64748b;
+background:#f8fafc;
+border:1px solid #e2e8f0;
+border-radius:16px;
+margin-bottom:8px;
+}
+
+@media(max-width:768px){
+
+.cabecalhoExtrato{
+display:none;
+}
+
+}
 </style>
   
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -175,7 +240,6 @@ return hex+"22"
 /* ====================================================016 – TAMANHO GRÁFICO==================================================== */
 const TAM_GRAFICO=180
 </script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
@@ -327,113 +391,7 @@ Criar Conta
 </div>
 </div>
 </div>
-<!-- ====================================================020 – TELA INICIO==================================================== -->
-<div id="telaInicio" class="telaApp telaAtiva">
-<div class="card" style="padding:18px 22px;margin-bottom:14px">
-<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:20px;flex-wrap:wrap">
-<div style="display:flex;flex-direction:column;gap:6px">
-<div style="font-size:26px;font-weight:900;color:#0f172a">
-💰 Receitas & Despesas 2026
-</div>
-<div style="font-size:14px;color:#475569">
-Controle financeiro inteligente com recorrência automática, parcelamentos e relatórios avançados.
-</div>
-<div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:6px">
-<div class="heroTag">
-👤 <b id="mobileNome"></b>
-</div>
-<div class="heroTag">
-🏦 Ag: <b id="mobileAgencia"></b>
-</div>
-<div class="heroTag">
-💳 Conta: <b id="mobileConta"></b>
-</div>
-<div class="heroTag">
-📅 Vigência: 18/04 até 19/07
-</div>
-</div>
-</div>
-<div style="display:flex;align-items:center;gap:10px">
-<button onclick="toggleSaldo()" class="btnOlho">
-👁
-</button>
-<button onclick="logout()" style="background:#ef4444;color:#fff;font-weight:900;padding:12px 20px;border-radius:14px">
-🚪 Sair
-</button>
-</div>
-</div>
-</div>
-<div id="blocoFinanceiroUsuario">
-<div class="gridKPIs">
-<div class="kpiCard kpiReceita">
-<div class="kpiTitulo">Receitas</div>
-<div class="kpiLinha">
-<div class="kpiValor" id="dashReceitasPremium" style="color:#16a34a">R$ ***</div>
-</div>
-<div class="kpiDesc">Entradas financeiras</div>
-</div>
-<div class="kpiCard kpiDespesa">
-<div class="kpiTitulo">Despesas</div>
-<div class="kpiLinha">
-<div class="kpiValor" id="dashDespesasPremium" style="color:#dc2626">R$ ***</div>
-</div>
-<div class="kpiDesc">Saídas financeiras</div>
-</div>
-<div class="kpiCard kpiSaldo">
-<div class="kpiTitulo">Saldo Atual</div>
-<div class="kpiLinha">
-<div class="kpiValor" id="dashSaldoPremium" style="color:#0284c7">R$ ***</div>
-</div>
-<div class="kpiDesc">Resultado consolidado</div>
-</div>
-</div>
-<div class="acoesRapidas">
-<div class="cardAcao" onclick="abrirTela('extrato',this)">
-<div class="cardAcaoIcone iconReceita">💵</div>
-<div>Receitas</div>
-</div>
-<div class="cardAcao" onclick="abrirTela('extrato',this)">
-<div class="cardAcaoIcone iconDespesa">💸</div>
-<div>Despesas</div>
-</div>
-<div class="cardAcao" onclick="abrirRelatorios()">
-<div class="cardAcaoIcone iconRelatorio">📊</div>
-<div>Relatórios</div>
-</div>
-<div class="cardAcao" onclick="abrirMetas()">
-<div class="cardAcaoIcone iconMeta">🎯</div>
-<div>Metas</div>
-</div>
-</div>
-<div id="painelSaaSAdmin" class="card" style="display:flex;gap:10px;flex-wrap:wrap"></div>
-<div id="alertaFinanceiro" class="card"></div>
-<div class="card">
-<div style="font-size:18px;font-weight:900;margin-bottom:14px">
-📈 Evolução Financeira Mensal
-</div>
-<canvas id="graficoFinanceiro" height="120"></canvas>
-</div>
-<div id="areaUsuarios">
-<div id="listaUsuarios"></div>
-</div>
-</div>
-<div id="blocoAdmin" style="display:none">
-<div class="card">
-<div style="font-size:18px;font-weight:900;margin-bottom:14px">
-👥 Usuários cadastrados
-</div>
-<div class="gridUsuarios" style="font-weight:bold">
-<div>Nome</div>
-<div>Email</div>
-<div>Agência</div>
-<div>Conta</div>
-<div>Tipo</div>
-<div>Ações</div>
-</div>
-<div id="listaUsuariosAdmin"></div>
-</div>
-</div>
-</div>ok
+
 <!-- ====================================================021 – EXTRATO==================================================== -->
 <div id="telaExtrato" class="telaApp">
 <div class="topBarMobile" style="justify-content:space-between">
@@ -896,63 +854,7 @@ modoEdicaoAdmin=!modoEdicaoAdmin
 safe("txtEditAdmin").innerText=modoEdicaoAdmin?"✔️ Salvar":"✏️ Editar"
 carregarUsuariosAdmin()
 }
-/* ====================================================034 – DASHBOARD ALINHADO==================================================== */
-function atualizarDashboard(){
-if(!dados.length)return
-const container=safe("containerExtrato")
-let area=safe("areaGrafico")
-if(!area){
-area=document.createElement("div")
-area.id="areaGrafico"
-container.prepend(area)
-}
-area.innerHTML=""
-/* 🔥 DOIS CANVAS */
-const canvas1=document.createElement("canvas")
-const canvas2=document.createElement("canvas")
-canvas1.width=TAM_GRAFICO
-canvas1.height=TAM_GRAFICO
 
-canvas2.width=TAM_GRAFICO
-canvas2.height=TAM_GRAFICO
-
-area.appendChild(canvas1)
-area.appendChild(canvas2)
-
-/* 🔥 DADOS */
-let r=0,d=0
-dados.forEach(x=>{
-if(x.tipo==="RECEITA")r+=Number(x.valor||0)
-else d+=Number(x.valor||0)
-})
-
-/* 🔥 RESUMO */
-new Chart(canvas1,{
-type:"doughnut",
-data:{
-labels:["Receitas","Despesas"],
-datasets:[{
-data:[r,d],
-backgroundColor:["#22c55e","#ef4444"]
-}]
-},
-options:{responsive:false,cutout:"70%"}
-})
-
-/* 🔥 CATEGORIAS */
-const mapa=resumoCategorias()
-
-new Chart(canvas2,{
-type:"doughnut",
-data:{
-labels:Object.keys(mapa),
-datasets:[{
-data:Object.values(mapa)
-}]
-},
-options:{responsive:false,cutout:"70%"}
-})
-}
 /* ====================================================035 – EXCLUIR LANÇAMENTO==================================================== */
 async function excluirLancamento(id){
 
@@ -1171,6 +1073,8 @@ console.error("Erro perfil:",error)
 return
 }
 usuario=data
+usuario.plano = localStorage.getItem("usuario_plano") || "free"
+usuario.plano_expira_em = localStorage.getItem("plano_expira_em") || null
 localStorage.setItem("usuario_plano",data.plano||"free")
 localStorage.setItem("plano_expira_em",data.plano_expira_em||"")
 localStorage.setItem("plano_grace_ate",data.plano_grace_ate||"")
@@ -1263,8 +1167,7 @@ const {data,error}=await db
 .order("data",{ascending:false})
 if(error){console.error(error);return}
 dados=data||[]
-render()
-atualizarDashboardBanco()
+atualizarTelaCompleta()
 await carregarCategoriasDinamicas()
 }
 /* ====================================006 – DASHBOARD (DEPOIS DO CARREGAR)========================================= */
@@ -1322,8 +1225,7 @@ safe("kpiSaldoMes").innerText=ocultarSaldo?"R$ ***":formatarMoeda(saldo)
 /* ===============================007 – TOGGLE SALDO======================================= */
 function toggleSaldo(){
 ocultarSaldo=!ocultarSaldo
-render()
-atualizarDashboardBanco()
+atualizarTelaCompleta()
 }
 /* ====================================================008A – CARREGAR USUÁRIOS ADMIN GRID (CORRIGIDO PROFISSIONAL)==================================================== */
 async function carregarUsuariosAdmin(){
@@ -1408,9 +1310,7 @@ ${status==="aprovado"?"OK":"Aprovar"}
 
 lista.innerHTML=html
 }
-/* ===================008 antes do  render =============================== */
-usuario.plano = localStorage.getItem("usuario_plano") || "free"
-usuario.plano_expira_em = localStorage.getItem("plano_expira_em") || null
+
 /* ====================008 – RENDER (ÚLTIMA FUNÇÃO PRINCIPAL)=============================================== */
 function render(){
 if(!usuario||!usuario.id)return
@@ -1540,8 +1440,7 @@ let totalPago=0
 let totalPendente=0
 html+=`
 
-<div style="display:grid;grid-template-columns:minmax(80px,90px) minmax(100px,120px) 1fr minmax(90px,120px) minmax(90px,120px) minmax(60px,70px) minmax(90px,120px);gap:12px;padding:12px 16px;font-size:12px;font-weight:900;color:#64748b;background:#f8fafc;border:1px solid #e2e8f0;border-radius:16px;margin-bottom:8px">
-
+<div class="cabecalhoExtrato">
 <div>DATA</div>
 <div>CATEGORIA</div>
 <div>DESCRIÇÃO</div>
@@ -2036,7 +1935,7 @@ y=20
 doc.save("financeiro-premium-2026.pdf")
 }
 
-<!-- 003 FUNÇÃO EXPORTAR EXCEL -->
+/* 003 FUNÇÃO EXPORTAR EXCEL */
 function exportarExcel(){
 if(typeof XLSX==="undefined"){
 alert("Biblioteca XLSX não carregada")
@@ -2057,7 +1956,7 @@ XLSX.utils.book_append_sheet(wb,ws,"Financeiro")
 XLSX.writeFile(wb,"financeiro-2026.xlsx")
 }
 
-<!-- 004 GRÁFICO -->
+/* 004 GRÁFICO */
 function renderGraficoFinanceiro(){
 const meses=["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"]
 let receitas=new Array(12).fill(0)
@@ -2109,7 +2008,7 @@ position:"top"
 })
 }
 
-<!-- 005 META -->
+/* 005 META */
 function atualizarMeta(){
 let receitas=0
 let despesas=0
@@ -2132,8 +2031,8 @@ document.getElementById("metaPercentual").innerText=percentual.toFixed(0)+"%"
 }
 }
 
-<!-- 006 CORES -->
-function corCategoria(cat){
+/* 006 cores */
+  function corCategoria(cat){
 const cores={
 "salario":"#16a34a",
 "mercado":"#dc2626",
@@ -2146,7 +2045,7 @@ const cores={
 return cores[(cat||"").toLowerCase()]||"#64748b"
 }
 
-<!-- 007 VENCIMENTOS -->
+/* 007 VENCIMENTOS */
 function renderVencimentos(){
 const box=document.getElementById("listaVencimentos")
 if(!box)return
@@ -2165,7 +2064,7 @@ box.innerHTML=proximos.map(x=>`
 `).join("")
 }
 
-<!-- 008 BACKUP -->
+/* 008 BACKUP -->*/
 async function backupSupabase(){
 const blob=new Blob(
 [JSON.stringify(dados||[],null,2)],
@@ -2177,7 +2076,7 @@ a.download="backup-financeiro-2026.json"
 a.click()
 }
 
-<!-- 009 DASHBOARD -->
+/* - 009 DASHBOARD --*/
 function renderDashboardAnual(){
 const box=document.getElementById("dashboardAnual")
 if(!box)return
@@ -2436,7 +2335,13 @@ recorrente:true
 }
 await carregar()
 }
-
+function atualizarTelaCompleta(){
+atualizarTelaCompleta()
+renderDashboardAnual()
+renderGraficoFinanceiro()
+renderVencimentos()
+atualizarMeta()
+}
 </script>
 </body>
 </html>
