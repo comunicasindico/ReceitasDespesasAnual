@@ -306,7 +306,9 @@ Criar Conta
 <div id="alertaFinanceiro" class="card"></div>
 <div class="card">
 <div style="font-size:18px;font-weight:900;margin-bottom:14px">📈 Evolução Financeira Mensal</div>
-<canvas id="graficoFinanceiro" height="120"></canvas>
+<div style="height:320px;position:relative">
+<canvas id="graficoFinanceiro"></canvas>
+</div>
 </div>
 <div id="areaUsuarios">
 <div id="listaUsuarios"></div>
@@ -1738,7 +1740,7 @@ data:{labels:meses,datasets:[{label:"Receitas",data:receitas,backgroundColor:"#1
 },
 options:{
 responsive:true,
-maintainAspectRatio:false,
+maintainAspectRatio:true,
 animation:{
 duration:0
 },
