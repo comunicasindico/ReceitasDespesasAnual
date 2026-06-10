@@ -766,10 +766,8 @@ if(b.innerText.includes("Virar PRO"))b.style.display="none"
 })
 }
 }
-/* =====================================001 – INIT SESSÃO (AUTO LOGIN / F5)======================================== */
 document.addEventListener("DOMContentLoaded",async()=>{
 const userId=localStorage.getItem("usuario_id_lancamentos")
-/* 🔥 AGORA GLOBAL */
 isAdmin=localStorage.getItem("usuario_email_lancamentos")==="admin@admin.com"
 if(userId){
 safe("telaLogin").style.display="none"
@@ -787,13 +785,15 @@ await carregar()
 aplicarPerfilUI()
 render()
 abrirTela("inicio")
+setTimeout(()=>{
+carregarMesAtual()
+carregarPeriodoAtual()
+},500)
 }else{
 safe("telaLogin").style.display="flex"
 safe("painelMobile").style.display="none"
 document.body.classList.add("login")
 }
-carregarMesAtual()
-carregarPeriodoAtual()
 })
 /* =====================================003 – LOGIN sistema (ANTES DE QUALQUER CARREGAMENTO)======================================== */
 async function loginSistema(){
