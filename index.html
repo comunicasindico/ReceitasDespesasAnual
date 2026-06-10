@@ -987,7 +987,11 @@ const {data,error}=await db
 .order("data",{ascending:false})
 if(error){console.error(error);return}
 dados=data||[]
-atualizarTelaCompleta()
+render()
+renderDashboardAnual()
+renderGraficoFinanceiro()
+renderVencimentos()
+atualizarMeta()
 await carregarCategoriasDinamicas()
 }
 /* ====================================006 – DASHBOARD (DEPOIS DO CARREGAR)========================================= */
@@ -2085,13 +2089,6 @@ recorrente:true
 }])
 }
 await carregar()
-}
-function atualizarTelaCompleta(){
-atualizarTelaCompleta()
-renderDashboardAnual()
-renderGraficoFinanceiro()
-renderVencimentos()
-atualizarMeta()
 }
 function carregarMesAtual(){
 const meses=[
