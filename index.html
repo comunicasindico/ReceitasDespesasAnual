@@ -82,7 +82,6 @@ button:active{transform:scale(.96)}
 .valorMes{font-size:20px;font-weight:900;color:#16a34a}
 .btnMes{width:34px;height:34px;border-radius:10px;background:#fff;border:1px solid #cbd5e1;display:flex;align-items:center;justify-content:center;color:#0f172a;font-size:15px;padding:0;min-height:auto}
 .listaMovimentos{padding:10px;background:rgba(248,250,252,.68);display:grid;gap:8px}
-.movItem{display:grid;grid-template-columns:60px 1fr auto auto;gap:10px;align-items:center;padding:10px 12px;border-radius:16px;background:rgba(255,255,255,.92);border:1px solid rgba(226,232,240,.9);min-height:64px}
 .movData{font-size:12px;font-weight:800;color:#64748b}
 .movDesc{display:flex;flex-direction:column}
 .movTitulo{font-size:14px;font-weight:800;color:#0f172a;line-height:1.1}
@@ -106,8 +105,8 @@ html{width:100%;overflow-x:hidden}
 body{width:100%;max-width:100vw;overflow-x:hidden}
 *{box-sizing:border-box}
 .table-responsive{width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
-.cabecalhoExtrato{display:grid;grid-template-columns:90px 90px 120px 1fr 140px 110px 90px 50px;align-items:center;gap:10px;padding:12px 16px;font-size:12px;font-weight:900;color:#64748b;background:#f8fafc;border:1px solid #e2e8f0;border-radius:16px;margin-bottom:8px}
-.movItem{display:grid;grid-template-columns:90px 90px 120px 1fr 140px 110px 90px 50px;align-items:center;gap:10px}
+.cabecalhoExtrato{display:grid;grid-template-columns:90px 90px 120px 1fr 140px 110px 90px 50px;align-items:center;gap:10px;padding:12px 16px;font-size:12px;font-weight:900;color:#64748b;background:#f8fafc;border:1px solid #e2e8f0;border-radius:16px;margin-bottom:8px;}
+.movItem{display:grid;grid-template-columns:90px 90px 120px 1fr 140px 110px 90px 50px;align-items:center;gap:10px;padding:10px 12px;border-radius:16px;background:rgba(255,255,255,.92);border:1px solid rgba(226,232,240,.9);min-height:64px;}
 .valorDireita{text-align:right;font-weight:900;font-size:22px;white-space:nowrap}
 .btnStatus{height:30px;padding:0 12px;font-size:11px;font-weight:900;border-radius:8px}
 .btnPago{background:#16a34a;color:#fff}
@@ -647,7 +646,6 @@ safe("vencimentoNovo").value=""
 safe("quantidadeParcelas").value="1"
 
 await carregar()
-render()
 }
 /* ====================================================031 – ABRIR INSERÇÃO==================================================== */
 function abrirInsercao(){
@@ -665,11 +663,14 @@ safe("vencimentoNovo").value=hoje
 if(!safe("tipoNovo").value){
 safe("tipoNovo").value="DESPESA"
 }
+if(!window._eventoTipoNovo){
+window._eventoTipoNovo=true
 safe("tipoNovo").addEventListener("change",()=>{
 if(safe("tipoNovo").value==="RECEITA"){
 safe("vencimentoNovo").value=""
 }
 })
+}
 }
 }
 /* ====================================================032 – ATUALIZAR BOTÃO EDIÇÃO==================================================== */
@@ -783,7 +784,6 @@ localStorage.setItem("plano_expira_em","")
 await carregarPerfil()
 await carregar()
 aplicarPerfilUI()
-render()
 abrirTela("inicio")
 setTimeout(()=>{
 carregarMesAtual()
@@ -824,8 +824,6 @@ document.body.classList.remove("login")
 /* 🔥 CARREGA DADOS */
 await carregarPerfil()
 await carregar()
-/* 🔥 RENDER */
-render()
 /* 🔥 UI */
 aplicarPerfilUI()
 abrirTela("inicio")
@@ -979,13 +977,13 @@ atualizarDashboardBanco()
 async function carregar(){
 const usuario_id=localStorage.getItem("usuario_id_lancamentos")
 if(!usuario_id)return
-
 const {data,error}=await db
 .from("lancamentos")
 .select("*")
 .eq("usuario_id",usuario_id)
 .order("data_vencimento",{ascending:false})
 .order("data",{ascending:false})
+
 if(error){
 console.error(error)
 return
@@ -1491,7 +1489,6 @@ alert("Erro ao atualizar")
 return
 }
 await carregar()
-render()
 }
 /* ========================function  ==================================================== */
 function mostrarUpgrade(){
@@ -1733,7 +1730,10 @@ despesas[mes]+=Number(x.valor||0)
 const ctx=document.getElementById("graficoFinanceiro")
 if(!ctx)return
 if(window.graficoFinanceiroObj){
-window.graficoFinanceiroObj.destroy()
+window.graficoFinanceiroObj.data.datasets[0].data=receitas
+window.graficoFinanceiroObj.data.datasets[1].data=despesas
+window.graficoFinanceiroObj.update()
+return
 }
 window.graficoFinanceiroObj=new Chart(ctx,{
 type:"bar",
@@ -2114,6 +2114,18 @@ ${meses[data.getMonth()]} ${data.getFullYear()}
 safe("selectMesRapido").innerHTML=html
 safe("selectMesRapido").value=
 `${anoAtual}-${String(mesAtual+1).padStart(2,"0")}`
+safe("selectMesRapido").onchange=function(){
+const valor=this.value
+safe("filtroDataInicio").value=valor+"-01"
+const fim=new Date(
+parseInt(valor.split("-")[0]),
+parseInt(valor.split("-")[1]),
+0
+)
+safe("filtroDataFim").value=
+fim.toISOString().slice(0,10)
+render()
+}
 }
 function carregarPeriodoAtual(){
 const hoje=new Date()
