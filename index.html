@@ -1309,61 +1309,24 @@ else totalPendente+=valor
 }
 
 html+=`
-<div class="movItem" style="display:grid;grid-template-columns:minmax(80px,90px) minmax(100px,120px) 1fr minmax(90px,120px) minmax(90px,120px) minmax(60px,70px) minmax(90px,120px);align-items:center;gap:8px;padding:8px 12px;background:#fff;border:1px solid #e2e8f0;border-radius:18px;margin-bottom:8px;box-shadow:0 2px 10px rgba(0,0,0,.03)">
-<div style="display:flex;flex-direction:column;gap:6px;min-width:140px">
+<div class="movItem" style="display:grid;grid-template-columns:110px 110px 120px 1fr 140px 110px 90px 50px;align-items:center;gap:10px;padding:8px 12px;background:#fff;border:1px solid #e2e8f0;border-radius:18px;margin-bottom:8px;box-shadow:0 2px 10px rgba(0,0,0,.03)">
 
-<div style="display:flex;align-items:center;gap:6px">
-
-<div style="
-font-size:11px;
-font-weight:900;
-color:#64748b;
-width:38px">
-PAG:
-</div>
-
-<input
-type="date"
-value="${(x.data||"").slice(0,10)}"
-onchange="editarCampo('${x.id}','data',this.value)"
-style="
-width:120px;
-height:32px;
-padding:4px 8px;
-font-size:11px;
-border-radius:10px;
-border:1px solid #cbd5e1;
-background:#fff;
-color:#0f172a">
-
-</div>
-
-<div style="display:flex;align-items:center;gap:6px">
-
-<div style="
-font-size:11px;
-font-weight:900;
-color:#64748b;
-width:38px">
-VENC:
-</div>
-
+<!-- VENCIMENTO -->
+<div>
 <input
 type="date"
 value="${(x.data_vencimento||x.data||"").slice(0,10)}"
 onchange="editarCampo('${x.id}','data_vencimento',this.value)"
-style="
-width:120px;
-height:32px;
-padding:4px 8px;
-font-size:11px;
-border-radius:10px;
-border:1px solid #cbd5e1;
-background:#fff;
-color:#0f172a">
-
+style="width:100px;height:32px;padding:4px 8px;font-size:11px;border-radius:10px;border:1px solid #cbd5e1">
 </div>
 
+<!-- PAGAMENTO -->
+<div>
+<input
+type="date"
+value="${(x.data||"").slice(0,10)}"
+onchange="editarCampo('${x.id}','data',this.value)"
+style="width:100px;height:32px;padding:4px 8px;font-size:11px;border-radius:10px;border:1px solid #cbd5e1">
 </div>
 
 <!-- CATEGORIA -->
@@ -1374,92 +1337,60 @@ ${x.categoria||"GERAL"}
 </div>
 
 <!-- DESCRIÇÃO -->
-<div style="min-width:0">
-<div style="font-size:13px;font-weight:900;color:${x.tipo==="RECEITA"?"#16a34a":"#dc2626"};line-height:1.2">
+<div style="min-width:0;font-size:13px;font-weight:900;color:${x.tipo==="RECEITA"?"#16a34a":"#dc2626"};line-height:1.2">
 ${modoEdicao
 ? `<input value="${x.descricao||""}" onchange="editarCampo('${x.id}','descricao',this.value)" style="width:100%">`
 : (x.descricao||"-")}
 </div>
+
+<!-- VALOR -->
+<div style="display:flex;justify-content:flex-end;align-items:center">
+<div style="font-size:18px;font-weight:900;color:${x.tipo==="RECEITA"?"#16a34a":"#dc2626"};white-space:nowrap">
+${modoEdicao
+? `<input value="${valor}" type="number" onchange="editarCampo('${x.id}','valor',this.value)" style="width:110px;text-align:right;font-size:13px">`
+: (bloqueado?"🔒":(oculto?"R$ ***":formatarMoeda(valor)))}
 </div>
-<div style="display:flex;justify-content:center">
-
-<button
-onclick="event.stopPropagation();toggleRecorrencia('${x.id}',${x.recorrente?true:false})"
-style="
-height:28px;
-min-width:70px;
-border-radius:8px;
-font-size:11px;
-font-weight:900;
-padding:0 10px;
-background:${x.recorrente?"#16a34a":"#cbd5e1"};
-color:${x.recorrente?"#fff":"#0f172a"};
-border:none;
-box-shadow:none">
-${x.recorrente?"🔁 SIM":"NÃO"}
-</button>
-
 </div>
 
 <!-- STATUS -->
 <div style="display:flex;justify-content:center">
-
 ${x.tipo==="DESPESA"
-? `<button onclick="event.stopPropagation();toggleStatus('${x.id}','${status}')" style="width:90px;height:34px;border-radius:10px;font-size:12px;font-weight:800;padding:0;background:${status==="pago"?"#16a34a":"#f59e0b"};color:#fff">${status==="pago"?"✔ PAGO":"⏳ PENDENTE"}</button>`
-: `<div style="font-size:12px;font-weight:800;color:#16a34a">✔ ENTRADA</div>`}
-
+? `<button onclick="event.stopPropagation();toggleStatus('${x.id}','${status}')" class="btnStatus ${status==="pago"?"btnPago":"btnPendente"}">${status==="pago"?"PAGO":"PENDENTE"}</button>`
+: `<div style="font-size:12px;font-weight:800;color:#16a34a">ENTRADA</div>`}
 </div>
 
-<!-- OCULTAR -->
+<!-- RECORRÊNCIA -->
 <div style="display:flex;justify-content:center">
+<button
+onclick="event.stopPropagation();toggleRecorrencia('${x.id}',${x.recorrente?true:false})"
+class="btnRecorrencia"
+style="background:${x.recorrente?"#16a34a":"#cbd5e1"};color:${x.recorrente?"#fff":"#0f172a"}">
+${x.recorrente?"SIM":"NÃO"}
+</button>
+</div>
 
+<!-- VISUALIZAÇÃO -->
+<div style="display:flex;justify-content:center">
 <button onclick="event.stopPropagation();toggleValor('${x.id}')" style="width:34px;height:34px;border-radius:10px;font-size:14px;padding:0;background:#0ea5e9;color:#fff">
 👁
 </button>
-
-</div>
-
-<!-- VALOR -->
-<div style="display:flex;justify-content:flex-end;align-items:center">
-
-<div style="font-size:15px;font-weight:900;color:${x.tipo==="RECEITA"?"#16a34a":"#dc2626"};white-space:nowrap">
-
-${modoEdicao
-? `<input value="${valor}" type="number" onchange="editarCampo('${x.id}','valor',this.value)" style="width:110px;text-align:right;font-size:13px">`
-: (bloqueado?"🔒":(oculto?"R$ ***":formatarMoeda(valor)))}
-
-</div>
-
-${modoEdicao
-? `<button onclick="event.stopPropagation();excluirLancamento('${x.id}')" style="margin-left:8px;width:34px;height:34px;border-radius:10px;font-size:14px;padding:0;background:#ef4444;color:#fff">🗑</button>`
-: ""}
-
 </div>
 
 </div>
-
 `
-
 })
 
 html+=`
-
 <div class="card" style="background:#f8fafc;border:1px solid #e2e8f0;display:flex;justify-content:space-between;font-size:12px;padding:10px 14px;border-radius:16px;margin-top:6px">
-
 <div style="color:#16a34a;font-weight:800">
 ✔ Pagas: ${formatarMoeda(totalPago)}
 </div>
-
 <div style="color:#f59e0b;font-weight:800">
 Pendentes: ${formatarMoeda(totalPendente)}
 </div>
-
 </div>
-
 </div>
-
 `
-
 }
 })
 
