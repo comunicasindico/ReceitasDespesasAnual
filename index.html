@@ -1708,7 +1708,6 @@ XLSX.writeFile(wb,"financeiro-2026.xlsx")
 
 /* 004 GRÁFICO */
 function renderGraficoFinanceiro(){
-console.count("renderGraficoFinanceiro")
 
 const meses=["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"]
 let receitas=new Array(12).fill(0)
@@ -1726,13 +1725,14 @@ despesas[mes]+=Number(x.valor||0)
 })
 const ctx=document.getElementById("graficoFinanceiro")
 if(!ctx)return
+const chartCtx=ctx.getContext("2d")
 if(window.graficoFinanceiroObj){
 window.graficoFinanceiroObj.data.datasets[0].data=receitas
 window.graficoFinanceiroObj.data.datasets[1].data=despesas
 window.graficoFinanceiroObj.update()
 return
 }
-window.graficoFinanceiroObj=new Chart(ctx,{
+window.graficoFinanceiroObj=new Chart(chartCtx,{
 type:"bar",
 data:{labels:meses,datasets:[{label:"Receitas",data:receitas,backgroundColor:"#16a34a",borderRadius:10},
 {label:"Despesas",data:despesas,backgroundColor:"#dc2626",borderRadius:10}
@@ -1740,13 +1740,19 @@ data:{labels:meses,datasets:[{label:"Receitas",data:receitas,backgroundColor:"#1
 },
 options:{
 responsive:true,
-maintainAspectRatio:true,
-animation:{
-duration:0
-},
+maintainAspectRatio:false,
+animation:false,
 plugins:{
 legend:{
 position:"top"
+}
+},
+scales:{
+y:{
+beginAtZero:true,
+ticks:{
+callback:(value)=>value.toLocaleString("pt-BR")
+}
 }
 }
 }
