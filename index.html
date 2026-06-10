@@ -979,13 +979,17 @@ atualizarDashboardBanco()
 async function carregar(){
 const usuario_id=localStorage.getItem("usuario_id_lancamentos")
 if(!usuario_id)return
+
 const {data,error}=await db
 .from("lancamentos")
 .select("*")
 .eq("usuario_id",usuario_id)
 .order("data_vencimento",{ascending:false})
 .order("data",{ascending:false})
-if(error){console.error(error);return}
+if(error){
+console.error(error)
+return
+}
 dados=data||[]
 render()
 renderDashboardAnual()
@@ -1049,7 +1053,6 @@ safe("kpiSaldoMes").innerText=ocultarSaldo?"R$ ***":formatarMoeda(saldo)
 /* ===============================007 – TOGGLE SALDO======================================= */
 function toggleSaldo(){
 ocultarSaldo=!ocultarSaldo
-atualizarTelaCompleta()
 }
 /* ====================================================008A – CARREGAR USUÁRIOS ADMIN GRID (CORRIGIDO PROFISSIONAL)==================================================== */
 async function carregarUsuariosAdmin(){
