@@ -1799,21 +1799,43 @@ return cores[(cat||"").toLowerCase()]||"#64748b"
 function renderVencimentos(){
 const box=document.getElementById("listaVencimentos")
 if(!box)return
+const hoje=new Date()
+hoje.setHours(0,0,0,0)
+const fimMes=new Date(
+hoje.getFullYear(),
+hoje.getMonth()+1,
+0
+)
 const proximos=(dados||[])
-.filter(x=>x.tipo==="DESPESA")
-.sort((a,b)=>new Date(a.data_vencimento||a.data)-new Date(b.data_vencimento||b.data))
-.slice(0,5)
+.filter(x=>{
+if(x.tipo!=="DESPESA")return false
+if((x.status||"pendente")==="pago")return false
+const data=new Date(
+(x.data_vencimento||x.data)+"T00:00:00"
+)
+return data>=hoje && data<=fimMes
+})
+.sort((a,b)=>
+new Date(a.data_vencimento||a.data)-
+new Date(b.data_vencimento||b.data)
+)
 box.innerHTML=proximos.map(x=>`
 <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #e2e8f0">
 <div>
-<div style="font-weight:800">${x.descricao||"-"}</div>
-<div style="font-size:12px;color:#64748b">${formatarDataBR(x.data_vencimento||x.data)}</div>
+<div style="font-weight:800">
+${x.descricao||"-"}
 </div>
-<div style="font-weight:900;color:#dc2626">${formatarMoeda(Number(x.valor||0))}</div>
+<div style="font-size:12px;color:#64748b">
+${formatarDataBR(x.data_vencimento||x.data)}
+</div>
+</div>
+<div style="font-weight:900;color:#dc2626">
+${formatarMoeda(Number(x.valor||0))}
+</div>
 </div>
 `).join("")
 }
-
+}
 /* 008 BACKUP -->*/
 async function backupSupabase(){
 const blob=new Blob(
