@@ -990,6 +990,9 @@ console.error(error)
 return
 }
 dados=data||[]
+console.log("DADOS",dados.length)
+console.log("RECEITAS",dados.filter(x=>x.tipo==="RECEITA").length)
+console.log("DESPESAS",dados.filter(x=>x.tipo==="DESPESA").length)
 render()
 renderDashboardAnual()
 renderGraficoFinanceiro()
@@ -1224,7 +1227,9 @@ let r=0,d=0
 listaMes.forEach(x=>{
 const v=Number(x.valor||0)
 if(x.tipo==="RECEITA")r+=v
-else if((x.status||"pendente")==="pago")d+=v
+else{
+d+=v
+}
 })
 
 totalR+=r
@@ -1705,58 +1710,105 @@ const wb=XLSX.utils.book_new()
 XLSX.utils.book_append_sheet(wb,ws,"Financeiro")
 XLSX.writeFile(wb,"financeiro-2026.xlsx")
 }
-
-/* 004 GRÁFICO */
+/* ====================================================
+004 GRÁFICO FINANCEIRO MENSAL
+==================================================== */
 function renderGraficoFinanceiro(){
 
-const meses=["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"]
-let receitas=new Array(12).fill(0)
-let despesas=new Array(12).fill(0)
+const meses=[
+"Jan","Fev","Mar","Abr","Mai","Jun",
+"Jul","Ago","Set","Out","Nov","Dez"
+]
+
+const receitas=new Array(12).fill(0)
+const despesas=new Array(12).fill(0)
+
 ;(dados||[]).forEach(x=>{
-if(!(x.data_vencimento||x.data))return
-const data=new Date(x.data_vencimento||x.data)
-if(isNaN(data))return
-const mes=data.getMonth()
+
+const dt=(x.data_vencimento||x.data||"").slice(0,10)
+
+if(!dt)return
+
+const partes=dt.split("-")
+
+if(partes.length<2)return
+
+const mes=parseInt(partes[1],10)-1
+
+if(mes<0||mes>11)return
+
+const valor=Number(x.valor||0)
+
 if(x.tipo==="RECEITA"){
-receitas[mes]+=Number(x.valor||0)
-}else{
-despesas[mes]+=Number(x.valor||0)
+receitas[mes]+=valor
+}else if(x.tipo==="DESPESA"){
+despesas[mes]+=valor
 }
+
 })
-const ctx=document.getElementById("graficoFinanceiro")
-if(!ctx)return
-const chartCtx=ctx.getContext("2d")
+
+const canvas=document.getElementById("graficoFinanceiro")
+
+if(!canvas)return
+
 if(window.graficoFinanceiroObj){
-window.graficoFinanceiroObj.data.datasets[0].data=receitas
-window.graficoFinanceiroObj.data.datasets[1].data=despesas
-window.graficoFinanceiroObj.update()
-return
+window.graficoFinanceiroObj.destroy()
+window.graficoFinanceiroObj=null
 }
-window.graficoFinanceiroObj=new Chart(chartCtx,{
+
+window.graficoFinanceiroObj=new Chart(
+canvas,
+{
 type:"bar",
-data:{labels:meses,datasets:[{label:"Receitas",data:receitas,backgroundColor:"#16a34a",borderRadius:10},
-{label:"Despesas",data:despesas,backgroundColor:"#dc2626",borderRadius:10}
+
+data:{
+labels:meses,
+
+datasets:[
+{
+label:"Receitas",
+data:receitas,
+backgroundColor:"#16a34a",
+borderRadius:8
+},
+{
+label:"Despesas",
+data:despesas,
+backgroundColor:"#dc2626",
+borderRadius:8
+}
 ]
 },
+
 options:{
 responsive:true,
 maintainAspectRatio:false,
-animation:false,
+
 plugins:{
 legend:{
+display:true,
 position:"top"
 }
 },
+
 scales:{
+x:{
+grid:{
+display:false
+}
+},
 y:{
 beginAtZero:true,
 ticks:{
-callback:(value)=>value.toLocaleString("pt-BR")
+callback:v=>
+"R$ "+Number(v).toLocaleString("pt-BR")
 }
 }
 }
 }
-})
+}
+)
+
 }
 
 /* 005 META */
