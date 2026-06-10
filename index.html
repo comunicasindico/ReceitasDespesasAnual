@@ -1706,6 +1706,8 @@ XLSX.writeFile(wb,"financeiro-2026.xlsx")
 
 /* 004 GRÁFICO */
 function renderGraficoFinanceiro(){
+console.count("renderGraficoFinanceiro")
+
 const meses=["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"]
 let receitas=new Array(12).fill(0)
 let despesas=new Array(12).fill(0)
@@ -1736,7 +1738,6 @@ data:{labels:meses,datasets:[{label:"Receitas",data:receitas,backgroundColor:"#1
 },
 options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:"top"}}}
 })
-console.count("renderGraficoFinanceiro")
 }
 
 /* 005 META */
