@@ -102,84 +102,34 @@ button:active{transform:scale(.96)}
 @media(max-width:768px){.movItem{grid-template-columns:1fr;gap:6px}.movAcoes{justify-content:flex-start}.valorMes{font-size:16px}.movValor{font-size:15px}.tituloMes{font-size:14px}}
 .gridUsuarios{display:grid;grid-template-columns:1fr;gap:8px;align-items:center;font-size:13px;padding:10px 0;border-bottom:1px solid rgba(226,232,240,.8);color:#0f172a}
 @media(min-width:769px){.gridUsuarios{grid-template-columns:1.5fr 2fr 1fr 1fr 1fr 2fr}}
-html{width:100%;overflow-x:hidden;}
-body{width:100%;max-width:100vw;overflow-x:hidden;}
-*{box-sizing:border-box;}
-.table-responsive{width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;}
+html{width:100%;overflow-x:hidden}
+body{width:100%;max-width:100vw;overflow-x:hidden}
+*{box-sizing:border-box}
+.table-responsive{width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.cabecalhoExtrato{display:grid;grid-template-columns:90px 90px 120px 1fr 140px 110px 90px 50px;align-items:center;gap:10px;padding:12px 16px;font-size:12px;font-weight:900;color:#64748b;background:#f8fafc;border:1px solid #e2e8f0;border-radius:16px;margin-bottom:8px}
+.movItem{display:grid;grid-template-columns:90px 90px 120px 1fr 140px 110px 90px 50px;align-items:center;gap:10px}
+.valorDireita{text-align:right;font-weight:900;font-size:22px;white-space:nowrap}
+.btnStatus{height:30px;padding:0 12px;font-size:11px;font-weight:900;border-radius:8px}
+.btnPago{background:#16a34a;color:#fff}
+.btnPendente{background:#f59e0b;color:#fff}
+.btnRecorrencia{height:28px;min-width:60px;padding:0 8px;font-size:11px;font-weight:900;border-radius:8px}
 @media(max-width:768px){
-body{font-size:14px;}
-.card,.dashboard-card,.kpi-card,.box,.painel{width:100%!important;margin:0!important;}
-input,select,button,textarea{width:100%;max-width:100%;}
-canvas{max-width:100%!important;height:auto!important;}
-table{font-size:12px;min-width:700px;}
+body{font-size:14px}
+.card,.dashboard-card,.kpi-card,.box,.painel{width:100%!important;margin:0!important}
+input,select,button,textarea{width:100%;max-width:100%}
+canvas{max-width:100%!important;height:auto!important}
+table{font-size:12px;min-width:700px}
+.cabecalhoExtrato{display:none!important}
+.movItem{display:flex!important;flex-direction:column!important;align-items:flex-start!important;gap:8px!important;padding:12px!important}
+.movItem>div{width:100%!important}
+.valorDireita{width:100%!important;text-align:left!important;font-size:24px!important}
+#lista{padding-bottom:120px}
+.listaMovimentos{overflow-x:hidden}
+.boxMes{margin-bottom:18px}
+#formInsercao input,#formInsercao select,#formInsercao button{width:100%!important}
+#formInsercao div{flex-direction:column!important}
 }
-/*=========================================================
-MOBILE EXTRATO RESPONSIVO
-=========================================================*/
-@media(max-width:768px){
-
-.movItem{
-display:flex!important;
-flex-direction:column!important;
-align-items:flex-start!important;
-gap:8px!important;
-}
-
-.movItem > div{
-width:100%!important;
-}
-
-#lista{
-padding-bottom:120px;
-}
-
-.listaMovimentos{
-overflow-x:hidden;
-}
-
-.boxMes{
-margin-bottom:18px;
-}
-
-#formInsercao input,
-#formInsercao select,
-#formInsercao button{
-width:100%!important;
-}
-
-#formInsercao div{
-flex-direction:column!important;
-}
-
-}
-.cabecalhoExtrato{
-display:grid;
-grid-template-columns:
-minmax(80px,90px)
-minmax(100px,120px)
-1fr
-minmax(90px,120px)
-minmax(90px,120px)
-minmax(60px,70px)
-minmax(90px,120px);
-gap:12px;
-padding:12px 16px;
-font-size:12px;
-font-weight:900;
-color:#64748b;
-background:#f8fafc;
-border:1px solid #e2e8f0;
-border-radius:16px;
-margin-bottom:8px;
-}
-
-@media(max-width:768px){
-
-.cabecalhoExtrato{
-display:none;
-}
-
-}
+  
 </style>
   
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -539,8 +489,8 @@ Cliente exemplo
 
 </div>
 
-<div class="movValor movReceita">
-R$ 254,99
+<div class="valorDireita movDespesa">
+R$ 69,98
 </div>
 
 <div class="movAcoes">
@@ -1441,14 +1391,14 @@ let totalPendente=0
 html+=`
 
 <div class="cabecalhoExtrato">
-<div>DATA</div>
+<div>VENC.</div>
+<div>PAGTO</div>
 <div>CATEGORIA</div>
 <div>DESCRIÇÃO</div>
-<div>RECORRÊNCIA</div>
+<div style="text-align:right">VALOR R$</div>
 <div>STATUS</div>
+<div>RECORR.</div>
 <div>👁</div>
-<div style="text-align:right">VALOR</div>
-
 </div>
 
 `
@@ -1614,7 +1564,7 @@ html+=`
 </div>
 
 <div style="color:#f59e0b;font-weight:800">
-⏳ Pendentes: ${formatarMoeda(totalPendente)}
+Pendentes: ${formatarMoeda(totalPendente)}
 </div>
 
 </div>
