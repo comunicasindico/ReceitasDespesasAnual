@@ -1730,33 +1730,13 @@ return
 }
 window.graficoFinanceiroObj=new Chart(ctx,{
 type:"bar",
-data:{
-labels:meses,
-datasets:[
-{
-label:"Receitas",
-data:receitas,
-backgroundColor:"#16a34a",
-borderRadius:10
-},
-{
-label:"Despesas",
-data:despesas,
-backgroundColor:"#dc2626",
-borderRadius:10
-}
+data:{labels:meses,datasets:[{label:"Receitas",data:receitas,backgroundColor:"#16a34a",borderRadius:10},
+{label:"Despesas",data:despesas,backgroundColor:"#dc2626",borderRadius:10}
 ]
 },
-options:{
-responsive:true,
-maintainAspectRatio:false,
-plugins:{
-legend:{
-position:"top"
-}
-}
-}
+options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:"top"}}}
 })
+console.count("renderGraficoFinanceiro")
 }
 
 /* 005 META */
