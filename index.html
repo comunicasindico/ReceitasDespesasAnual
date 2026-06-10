@@ -380,14 +380,7 @@ onchange="render()"
 style="width:150px;padding:8px 10px;font-size:12px">
 
 </div>
-<select class="selectMesRapido">
-<option>Maio 2026</option>
-<option>Junho 2026</option>
-<option>Julho 2026</option>
-<option>Agosto 2026</option>
-<option>Setembro 2026</option>
-<option>Outubro 2026</option>
-</select>
+<select id="selectMesRapido" class="selectMesRapido"></select>
 
 </div>
 <div style="display:flex;justify-content:flex-end;gap:8px;margin-bottom:10px;flex-wrap:wrap">
@@ -775,42 +768,32 @@ if(b.innerText.includes("Virar PRO"))b.style.display="none"
 }
 /* =====================================001 – INIT SESSÃO (AUTO LOGIN / F5)======================================== */
 document.addEventListener("DOMContentLoaded",async()=>{
-
 const userId=localStorage.getItem("usuario_id_lancamentos")
-
 /* 🔥 AGORA GLOBAL */
 isAdmin=localStorage.getItem("usuario_email_lancamentos")==="admin@admin.com"
-
 if(userId){
-
 safe("telaLogin").style.display="none"
 safe("painelMobile").style.display="block"
-
 const params=new URLSearchParams(window.location.search)
 if(params.get("sucesso")){
 alert("✅ Pagamento aprovado!")
 }
-
 if(isAdmin){
 localStorage.setItem("usuario_plano","pro")
 localStorage.setItem("plano_expira_em","")
 }
-
 await carregarPerfil()
 await carregar()
-
 aplicarPerfilUI()
 render()
-
 abrirTela("inicio")
-
 }else{
-
 safe("telaLogin").style.display="flex"
 safe("painelMobile").style.display="none"
 document.body.classList.add("login")
 }
-
+carregarMesAtual()
+carregarPeriodoAtual()
 })
 /* =====================================003 – LOGIN sistema (ANTES DE QUALQUER CARREGAMENTO)======================================== */
 async function loginSistema(){
@@ -2110,6 +2093,38 @@ renderGraficoFinanceiro()
 renderVencimentos()
 atualizarMeta()
 }
+function carregarMesAtual(){
+const meses=[
+"Janeiro","Fevereiro","Março","Abril",
+"Maio","Junho","Julho","Agosto",
+"Setembro","Outubro","Novembro","Dezembro"
+]
+const hoje=new Date()
+const mesAtual=hoje.getMonth()
+const anoAtual=hoje.getFullYear()
+let html=""
+for(let i=-2;i<=3;i++){
+let data=new Date(anoAtual,mesAtual+i,1)
+html+=`
+<option value="${data.getFullYear()}-${String(data.getMonth()+1).padStart(2,"0")}">
+${meses[data.getMonth()]} ${data.getFullYear()}
+</option>
+`
+}
+safe("selectMesRapido").innerHTML=html
+safe("selectMesRapido").value=
+`${anoAtual}-${String(mesAtual+1).padStart(2,"0")}`
+}
+function carregarPeriodoAtual(){
+const hoje=new Date()
+const inicioMes=
+`${hoje.getFullYear()}-${String(hoje.getMonth()+1).padStart(2,"0")}-01`
+const hojeISO=
+hoje.toISOString().slice(0,10)
+safe("filtroDataInicio").value=inicioMes
+safe("filtroDataFim").value=hojeISO
+}
+  
 </script>
 </body>
 </html>
