@@ -1736,7 +1736,18 @@ data:{labels:meses,datasets:[{label:"Receitas",data:receitas,backgroundColor:"#1
 {label:"Despesas",data:despesas,backgroundColor:"#dc2626",borderRadius:10}
 ]
 },
-options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:"top"}}}
+options:{
+responsive:true,
+maintainAspectRatio:false,
+animation:{
+duration:0
+},
+plugins:{
+legend:{
+position:"top"
+}
+}
+}
 })
 }
 
