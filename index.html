@@ -1213,8 +1213,7 @@ if(mesesOcultos[chave]===undefined){
 mesesOcultos[chave]=(chave!==chaveAtual)
 }
 
-const listaMes=grupos[chave]||[]
-
+let listaMes=grupos[chave]||[]
 listaMes.sort((a,b)=>{
 return new Date((a.data_vencimento||a.data)) - new Date((b.data_vencimento||b.data))
 })
@@ -1837,7 +1836,7 @@ ${formatarMoeda(Number(x.valor||0))}
 </div>
 `).join("")
 }
-}
+
 /* 008 BACKUP -->*/
 async function backupSupabase(){
 const blob=new Blob(
