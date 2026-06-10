@@ -677,7 +677,6 @@ safe("vencimentoNovo").value=""
 function toggleEdicao(){
 modoEdicao=!modoEdicao
 safe("txtEdicao").innerText=modoEdicao?"✔️ Salvar":"✏️ Editar"
-render()
 }
 /* ====================================================033 – ATUALIZAR BOTÃO EDIÇÃO ADMIN==================================================== */
 function toggleEdicaoAdmin(){
@@ -1404,12 +1403,10 @@ console.error("ERRO RENDER:",e)
 /* ========================function  ==================================================== */
 function toggleMes(chave){
 mesesOcultos[chave] = !mesesOcultos[chave]
-render()
 }
 /* ========================function  ==================================================== */
 function toggleValor(id){
 visibilidade[id] = !visibilidade[id]
-render()
 }
 /* ========================function  ==================================================== */
 async function toggleStatus(id,atual){
@@ -1425,7 +1422,6 @@ carregarUsuariosAdmin()
 /* ========================function  ==================================================== */
 function toggleMesValor(chave){
 visMes[chave]=!visMes[chave]
-render()
 }
 /* ========================function  ==================================================== */
 function atualizarPainelMobile(){
@@ -1544,13 +1540,10 @@ document.querySelectorAll(".navItem").forEach(n=>{
 n.classList.remove("navAtivo")
 })
 if(el)el.classList.add("navAtivo")
-
-if(nome==="extrato")render()
-
+if(nome==="extrato")
 if(nome==="inicio"){
 document.body.classList.add("inicio")
 }
-
 /* 🔥 IA */
 if(nome==="ia"){
 if(!window._iaInit){
@@ -1575,7 +1568,6 @@ const {data}=await db
 
 dados=data||[]
 abrirTela("extrato")
-render()
 }
 /* ========================function  ==================================================== */
 async function editarInline(id,campo,valor){
@@ -2124,7 +2116,6 @@ parseInt(valor.split("-")[1]),
 )
 safe("filtroDataFim").value=
 fim.toISOString().slice(0,10)
-render()
 }
 }
 function carregarPeriodoAtual(){
