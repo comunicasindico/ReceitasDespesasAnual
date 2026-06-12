@@ -798,6 +798,17 @@ setTimeout(()=>{
 carregarMesAtual()
 carregarPeriodoAtual()
 },500)
+setTimeout(()=>{
+const hoje=new Date()
+safe("metaInicio").value=
+`${hoje.getFullYear()}-01-01`
+safe("metaFim").value=
+hoje.toISOString().slice(0,10)
+atualizarMeta(
+safe("metaInicio").value,
+safe("metaFim").value
+)
+},600)
 }else{
 safe("telaLogin").style.display="flex"
 safe("painelMobile").style.display="none"
@@ -2274,7 +2285,14 @@ return
 }
 atualizarMeta(inicio,fim)
 }  
+function definirPeriodoMetaPadrao(){
+const hoje=new Date()
+safe("metaInicio").value=
+`${hoje.getFullYear()}-01-01`
+safe("metaFim").value=
+hoje.toISOString().slice(0,10)
 
+}
   
 </script>
 </body>
