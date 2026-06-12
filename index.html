@@ -1052,8 +1052,13 @@ safe("kpiSaldoMes").innerText=ocultarSaldo?"R$ ***":formatarMoeda(saldo)
 /* ===============================007 – TOGGLE SALDO======================================= */
 function toggleSaldo(){
 ocultarSaldo=!ocultarSaldo
-render()
+localStorage.setItem(
+"ocultarSaldo",
+ocultarSaldo
+)
+renderDashboardAnual()
 atualizarDashboardBanco()
+render()
 }
 /* ====================================================008A – CARREGAR USUÁRIOS ADMIN GRID (CORRIGIDO PROFISSIONAL)==================================================== */
 async function carregarUsuariosAdmin(){
