@@ -1839,12 +1839,19 @@ callback:v=>
 }
 
 /* 005 META */
-function atualizarMeta(){
+function atualizarMeta(inicio=null,fim=null){
 
 let salario=0
 let despesas=0
 
 ;(dados||[]).forEach(x=>{
+
+const data=
+(x.data_vencimento||x.data||"")
+.slice(0,10)
+
+if(inicio && data<inicio)return
+if(fim && data>fim)return
 
 const categoria=
 String(x.categoria||"")
@@ -1873,23 +1880,19 @@ percentual=
 ((salario-despesas)/salario)*100
 }
 
-const barra=
-Math.max(
-0,
-Math.min(100,percentual)
-)
-
-safe("barraMeta").style.width=
-barra+"%"
-
 safe("metaPercentual").innerText=
 percentual.toFixed(1)+"%"
 
-if(percentual<0){
-safe("metaPercentual").style.color="#dc2626"
-}else{
-safe("metaPercentual").style.color="#16a34a"
-}
+safe("metaPercentual").style.color=
+percentual>=0
+?"#16a34a"
+:"#dc2626"
+
+safe("barraMeta").style.width=
+Math.max(
+0,
+Math.min(100,percentual)
+)+"%"
 
 }
 
@@ -2261,6 +2264,16 @@ hoje.toISOString().slice(0,10)
 safe("filtroDataInicio").value=inicioMes
 safe("filtroDataFim").value=hojeISO
 }
+function pesquisarMetaPeriodo(){
+const inicio=safe("metaInicio")?.value
+const fim=safe("metaFim")?.value
+if(!inicio||!fim){
+alert("Selecione o período")
+return
+}
+atualizarMeta(inicio,fim)
+}  
+
   
 </script>
 </body>
