@@ -990,6 +990,16 @@ console.error(error)
 return
 }
 dados=data||[]
+console.clear()
+console.log("TOTAL",dados.length)
+console.log(
+"RECEITAS",
+dados.filter(x=>x.tipo==="RECEITA")
+)
+console.log(
+"DESPESAS",
+dados.filter(x=>x.tipo==="DESPESA")
+)
 console.log("DADOS",dados.length)
 console.log("RECEITAS",dados.filter(x=>x.tipo==="RECEITA").length)
 console.log("DESPESAS",dados.filter(x=>x.tipo==="DESPESA").length)
@@ -1410,11 +1420,13 @@ console.error("ERRO RENDER:",e)
 }
 /* ========================function  ==================================================== */
 function toggleMes(chave){
-mesesOcultos[chave] = !mesesOcultos[chave]
+mesesOcultos[chave]=!mesesOcultos[chave]
+render()
 }
 /* ========================function  ==================================================== */
 function toggleValor(id){
-visibilidade[id] = !visibilidade[id]
+visibilidade[id]=!visibilidade[id]
+render()
 }
 /* ========================function  ==================================================== */
 async function toggleStatus(id,atual){
@@ -1430,6 +1442,7 @@ carregarUsuariosAdmin()
 /* ========================function  ==================================================== */
 function toggleMesValor(chave){
 visMes[chave]=!visMes[chave]
+render()
 }
 /* ========================function  ==================================================== */
 function atualizarPainelMobile(){
@@ -1517,7 +1530,7 @@ return ano+"-"+mes
 /* ========================function  ==================================================== */
 /* 🔹 LOGOUT */
 function logout(){
-localStorage.clear()
+sessionStorage.clear()
 location.reload()
 }
 /* ========================function  ==================================================== */
@@ -1548,7 +1561,9 @@ document.querySelectorAll(".navItem").forEach(n=>{
 n.classList.remove("navAtivo")
 })
 if(el)el.classList.add("navAtivo")
-if(nome==="extrato")
+if(nome==="extrato"){
+render()
+}
 if(nome==="inicio"){
 document.body.classList.add("inicio")
 }
