@@ -338,7 +338,20 @@ style="margin-top:8px;width:100%;background:#25d366;color:#fff;font-weight:900">
 </div>
 
 </div>
-
+<!-- ====================================================010 – CADASTRO==================================================== -->
+<div id="telaCadastro" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;justify-content:center;align-items:center;z-index:99999;background:rgba(255,255,255,.12);backdrop-filter:blur(10px)">
+<div style="width:320px;max-width:90%;padding:24px;border-radius:24px;background:rgba(255,255,255,.92);border:1px solid rgba(255,255,255,.85);box-shadow:0 20px 60px rgba(15,23,42,.12)">
+<h3 style="text-align:center;margin:0 0 15px 0;color:#0f172a;font-size:28px;font-weight:900">Criar Conta</h3>
+<input id="cadNome" placeholder="Nome Completo" style="margin-bottom:8px">
+<input id="cadEmail" placeholder="E-mail" style="margin-bottom:8px">
+<input id="cadCelular" placeholder="Celular" style="margin-bottom:8px">
+<input id="cadAgencia" placeholder="Agência" style="margin-bottom:8px">
+<input id="cadConta" placeholder="Conta" style="margin-bottom:8px">
+<input id="cadSenha" type="password" placeholder="Senha" style="margin-bottom:12px">
+<button onclick="salvarCadastro()" style="width:100%;background:#22c55e;margin-bottom:8px">Cadastrar</button>
+<button onclick="voltarLogin()" style="width:100%;background:#64748b;color:#fff">Voltar</button>
+</div>
+</div>
 <!-- 009 FIM TELA LOGIN -->
 <div id="painelMobile" style="display:none">
 <div id="telaInicio" class="telaApp telaAtiva">
@@ -2414,6 +2427,82 @@ safe("metaInicio").value=
 safe("metaFim").value=
 hoje.toISOString().slice(0,10)
 
+}
+/* ====================================================
+ABRIR CADASTRO
+==================================================== */
+function abrirCadastro(){
+safe("telaLogin").style.display="none"
+safe("telaCadastro").style.display="flex"
+}
+/* ====================================================
+CADASTRAR USUÁRIO
+==================================================== */
+async function salvarCadastro(){
+
+const nome=safe("cadNome").value.trim()
+const email=safe("cadEmail").value.trim()
+const celular=safe("cadCelular").value.trim()
+const agencia=safe("cadAgencia").value.trim()
+const conta=safe("cadConta").value.trim()
+const senha=safe("cadSenha").value.trim()
+
+if(!nome||!email||!senha){
+alert("Preencha Nome, E-mail e Senha")
+return
+}
+
+const {data:existe}=await db
+.from("usuarios_lancamentos")
+.select("id")
+.eq("email",email)
+.maybeSingle()
+
+if(existe){
+alert("E-mail já cadastrado")
+return
+}
+
+const {error}=await db
+.from("usuarios_lancamentos")
+.insert([{
+nome:nome,
+email:email,
+senha:senha,
+celular:celular,
+agencia:agencia,
+conta:conta,
+tipo:"user",
+status:"aprovado",
+plano:"free",
+limite_lancamentos:20,
+limite:20,
+status_pagamento:"pendente",
+plano_status:"free"
+}])
+
+if(error){
+console.error(error)
+alert("Erro ao cadastrar: "+error.message)
+return
+}
+
+alert("Cadastro realizado com sucesso!")
+
+safe("telaCadastro").style.display="none"
+safe("telaLogin").style.display="flex"
+
+safe("loginUser").value=email
+safe("loginPass").value=senha
+
+}
+
+/* ====================================================
+VOLTAR LOGIN
+==================================================== */
+function voltarLogin(){
+safe("telaCadastro").style.display="none"
+safe("telaLogin").style.display="flex"
 }
   
 </script>
