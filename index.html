@@ -1871,14 +1871,10 @@ String(x.categoria||"")
 
 if(
 x.tipo==="RECEITA" &&
-(
-categoria.includes("SALARIO") ||
-categoria.includes("SALÁRIO")
-)
+categoria==="TCE/RO"
 ){
 salario+=Number(x.valor||0)
 }
-
 if(x.tipo==="DESPESA"){
 despesas+=Number(x.valor||0)
 }
