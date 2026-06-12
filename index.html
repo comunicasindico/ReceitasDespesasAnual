@@ -137,7 +137,8 @@ table{font-size:12px;min-width:700px}
 /* =================================001 – BASE GLOBAL (TOPO DO SCRIPT – PRIMEIRA COISA DO JS)================================= */
 let dados=[]
 let usuario={}
-let ocultarSaldo = true
+let ocultarSaldo=
+localStorage.getItem("ocultarSaldo")==="true"
 let mesesOcultos={}
 let visibilidade = {}
 let modoEdicao = false
