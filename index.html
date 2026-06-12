@@ -255,11 +255,31 @@ class="btnOlho">
 </div>
 <div id="dashboardAnual" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px"></div>
 </div>
-
 <div class="card">
 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-<div style="font-size:18px;font-weight:900">🎯 Meta Financeira</div>
-<div id="metaPercentual" style="font-size:18px;font-weight:900;color:#16a34a">0%</div>
+<div style="font-size:18px;font-weight:900">
+🎯 Meta Financeira
+</div>
+<div style="display:flex;gap:8px;align-items:center">
+<input
+type="date"
+id="metaInicio"
+style="width:140px">
+<input
+type="date"
+id="metaFim"
+style="width:140px">
+<button
+onclick="pesquisarMetaPeriodo()"
+style="background:#0ea5e9;color:#fff">
+🔍 Pesquisar
+</button>
+<div
+id="metaPercentual"
+style="font-size:18px;font-weight:900;color:#16a34a">
+0%
+</div>
+</div>
 </div>
 <div style="height:18px;background:#e2e8f0;border-radius:999px;overflow:hidden">
 <div id="barraMeta" style="height:100%;width:0%;background:linear-gradient(90deg,#16a34a,#22c55e)"></div>
@@ -1957,15 +1977,15 @@ const saldo=receitas-despesas
 box.innerHTML=`
 <div class="card">
 <div style="font-size:12px;color:#64748b">Receitas</div>
-<div style="font-size:24px;font-weight:900;color:#16a34a">${formatarMoeda(receitas)}</div>
+<div style="font-size:24px;font-weight:900;color:#16a34a">${ocultarSaldo?"R$ ***":formatarMoeda(receitas)}</div>
 </div>
 <div class="card">
 <div style="font-size:12px;color:#64748b">Despesas</div>
-<div style="font-size:24px;font-weight:900;color:#dc2626">${formatarMoeda(despesas)}</div>
+<div style="font-size:24px;font-weight:900;color:#dc2626">${ocultarSaldo?"R$ ***":formatarMoeda(despesas)}</div>
 </div>
 <div class="card">
 <div style="font-size:12px;color:#64748b">Saldo</div>
-<div style="font-size:24px;font-weight:900;color:#0284c7">${formatarMoeda(saldo)}</div>
+<div style="font-size:24px;font-weight:900;color:#0284c7">${ocultarSaldo?"R$ ***":formatarMoeda(saldo)}</div>
 </div>
 `
 }
