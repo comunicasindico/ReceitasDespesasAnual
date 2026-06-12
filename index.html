@@ -1828,25 +1828,57 @@ callback:v=>
 
 /* 005 META */
 function atualizarMeta(){
-let receitas=0
+
+let salario=0
 let despesas=0
+
 ;(dados||[]).forEach(x=>{
-if(x.tipo==="RECEITA"){
-receitas+=Number(x.valor||0)
-}else{
+
+const categoria=
+String(x.categoria||"")
+.toUpperCase()
+
+if(
+x.tipo==="RECEITA" &&
+(
+categoria.includes("SALARIO") ||
+categoria.includes("SALÁRIO")
+)
+){
+salario+=Number(x.valor||0)
+}
+
+if(x.tipo==="DESPESA"){
 despesas+=Number(x.valor||0)
 }
+
 })
-const saldo=receitas-despesas
-const percentual=receitas>0
-? Math.max(0,Math.min(100,(saldo/receitas)*100))
-: 0
-if(document.getElementById("barraMeta")){
-document.getElementById("barraMeta").style.width=percentual+"%"
+
+let percentual=0
+
+if(salario>0){
+percentual=
+((salario-despesas)/salario)*100
 }
-if(document.getElementById("metaPercentual")){
-document.getElementById("metaPercentual").innerText=percentual.toFixed(0)+"%"
+
+const barra=
+Math.max(
+0,
+Math.min(100,percentual)
+)
+
+safe("barraMeta").style.width=
+barra+"%"
+
+safe("metaPercentual").innerText=
+percentual.toFixed(1)+"%"
+
+if(percentual<0){
+safe("metaPercentual").style.color="#dc2626"
+}else{
+safe("metaPercentual").style.color="#16a34a"
 }
+
 }
 
 /* 006 cores */
