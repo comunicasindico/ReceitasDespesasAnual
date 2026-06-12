@@ -1552,10 +1552,19 @@ const [ano,mes]=String(data).slice(0,10).split("-")
 return ano+"-"+mes
 }
 /* ========================function  ==================================================== */
-/* 🔹 LOGOUT */
 function logout(){
-sessionStorage.clear()
+
+localStorage.removeItem("usuario_id_lancamentos")
+localStorage.removeItem("usuario_nome_lancamentos")
+localStorage.removeItem("usuario_email_lancamentos")
+localStorage.removeItem("tipo_usuario_lancamentos")
+localStorage.removeItem("usuario_plano")
+localStorage.removeItem("plano_expira_em")
+localStorage.removeItem("agencia")
+localStorage.removeItem("conta")
+
 location.reload()
+
 }
 /* ========================function  ==================================================== */
 /* 🔹 ABRIR FINANCEIRO */
