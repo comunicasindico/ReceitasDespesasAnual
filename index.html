@@ -243,32 +243,19 @@ Criar Conta
 </div>
 </div>
 <div class="card">
-<div style="font-size:20px;font-weight:900;margin-bottom:14px">📊 Dashboard Anual</div>
+<div style="display:flex;justify-content:space-between;align-items:center">
+<div style="font-size:20px;font-weight:900">
+📊 Dashboard Anual
+</div>
+<button
+onclick="toggleSaldo()"
+class="btnOlho">
+👁
+</button>
+</div>
 <div id="dashboardAnual" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px"></div>
 </div>
-<div class="gridKPIs">
-<div class="kpiCard kpiReceita">
-<div class="kpiTitulo">Receitas</div>
-<div class="kpiLinha">
-<div class="kpiValor" id="dashReceitasPremium" style="color:#16a34a">R$ ***</div>
-</div>
-<div class="kpiDesc">Entradas financeiras</div>
-</div>
-<div class="kpiCard kpiDespesa">
-<div class="kpiTitulo">Despesas</div>
-<div class="kpiLinha">
-<div class="kpiValor" id="dashDespesasPremium" style="color:#dc2626">R$ ***</div>
-</div>
-<div class="kpiDesc">Saídas financeiras</div>
-</div>
-<div class="kpiCard kpiSaldo">
-<div class="kpiTitulo">Saldo Atual</div>
-<div class="kpiLinha">
-<div class="kpiValor" id="dashSaldoPremium" style="color:#0284c7">R$ ***</div>
-</div>
-<div class="kpiDesc">Resultado consolidado</div>
-</div>
-</div>
+
 <div class="card">
 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
 <div style="font-size:18px;font-weight:900">🎯 Meta Financeira</div>
