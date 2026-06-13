@@ -197,86 +197,52 @@ const TAM_GRAFICO=180
 
 <!-- 001 INÍCIO TELA LOGIN -->
 <div id="telaLogin">
-<!-- 002 CARD LOGIN -->
-<div style="width:280px;background:rgba(255,255,255,.92);padding:22px;border-radius:18px;box-shadow:0 20px 60px rgba(0,0,0,.35);backdrop-filter:blur(10px);display:flex;flex-direction:column;gap:12px">
-<!-- 003 TÍTULO -->
-<h3 style="text-align:center;margin:0;color:#0f172a;font-size:28px;font-weight:900">
-Acesso
-</h3>
-<!-- 004 FORM LOGIN -->
+<div style="display:flex;flex-direction:column;align-items:center;gap:18px;padding:20px">
+<div style="width:320px;background:rgba(255,255,255,.92);padding:22px;border-radius:18px;box-shadow:0 20px 60px rgba(0,0,0,.35);backdrop-filter:blur(10px)">
+<h3 style="text-align:center;margin:0 0 15px 0;color:#0f172a;font-size:28px;font-weight:900">Acesso</h3>
 <form onsubmit="loginSistema();return false;" style="display:flex;flex-direction:column;gap:12px">
-<!-- 005 USUÁRIO -->
 <input id="loginUser" placeholder="Usuário">
-<!-- 006 SENHA -->
 <input id="loginPass" type="password" placeholder="Senha">
-<!-- 007 BOTÃO ENTRAR -->
-<button type="submit">
-Entrar
-</button>
+<button type="submit">Entrar</button>
 </form>
-<!-- 008 BOTÃO CRIAR CONTA -->
-<div style="display:flex;justify-content:center;margin-top:8px">
-<button onclick="abrirCadastro()" style="background:#ef4444;color:#fff;width:100%;max-width:200px">
+</div>
+<div style="width:320px;background:rgba(255,255,255,.92);padding:22px;border-radius:18px;box-shadow:0 20px 60px rgba(0,0,0,.35);backdrop-filter:blur(10px)">
+<h3 style="text-align:center;margin:0 0 15px 0;color:#ef4444;font-size:24px;font-weight:900">Criar Conta</h3>
+<div style="font-size:13px;color:#64748b;text-align:center;margin-bottom:12px">
+Cadastre-se gratuitamente para começar a usar o sistema.
+</div>
+<button onclick="abrirCadastro()" style="background:#ef4444;color:#fff;width:100%">
 Criar Conta
 </button>
 </div>
-
-<!-- 009 PLANOS -->
-<div style="margin-top:15px;padding:12px;border-radius:12px;background:#f8fafc;border:1px solid #e2e8f0">
-
+<div style="width:320px;background:rgba(255,255,255,.92);padding:22px;border-radius:18px;box-shadow:0 20px 60px rgba(0,0,0,.35);backdrop-filter:blur(10px)">
 <div style="font-size:18px;font-weight:900;text-align:center;color:#0f172a;margin-bottom:10px">
 💎 PLANOS DISPONÍVEIS
 </div>
-
-<!-- FREE -->
 <div style="padding:10px;border:1px solid #e2e8f0;border-radius:10px;margin-bottom:8px;background:#fff">
-<div style="font-size:14px;font-weight:900;color:#64748b">
-FREE
-</div>
-<div style="font-size:24px;font-weight:900;color:#64748b">
-R$ 0,00
-</div>
+<div style="font-size:14px;font-weight:900;color:#64748b">FREE</div>
+<div style="font-size:24px;font-weight:900;color:#64748b">R$ 0,00</div>
 <div style="font-size:11px;color:#64748b">
 ✓ Até 20 lançamentos<br>
 ✓ Dashboard Básico<br>
 ✓ Controle Financeiro
 </div>
 </div>
-
-<!-- PRO -->
 <div style="padding:10px;border:1px solid #e2e8f0;border-radius:10px;margin-bottom:8px;background:#fff">
-<div style="font-size:14px;font-weight:900;color:#0284c7">
-PRO
-</div>
-<div style="font-size:24px;font-weight:900;color:#0284c7">
-R$ 97,00
-</div>
+<div style="font-size:14px;font-weight:900;color:#0284c7">PRO</div>
+<div style="font-size:24px;font-weight:900;color:#0284c7">R$ 97,00</div>
 <div style="font-size:11px;color:#64748b">
 ✓ Lançamentos Ilimitados<br>
 ✓ Relatórios PDF e Excel<br>
 ✓ Backup Completo<br>
 ✓ IA Financeira
 </div>
-<div style="font-size:11px;color:#64748b">
-Acesso anual
+<div style="font-size:11px;color:#64748b">Acesso anual</div>
 </div>
-</div>
-
-<!-- PREMIUM -->
 <div style="padding:12px;border:3px solid #22c55e;border-radius:12px;background:#f0fdf4">
-
-<div style="font-size:12px;color:#ef4444;font-weight:900">
-🔥 MAIS VENDIDO
-</div>
-
-<div style="font-size:16px;font-weight:900;color:#16a34a">
-⭐ PREMIUM RECOMENDADO
-</div>
-
-<div style="font-size:12px;color:#64748b;margin-top:4px">
-Sistema Financeiro + Livro SWOT Cristão
-</div>
-
+<div style="font-size:12px;color:#ef4444;font-weight:900">🔥 MAIS VENDIDO</div>
+<div style="font-size:16px;font-weight:900;color:#16a34a">⭐ PREMIUM RECOMENDADO</div>
+<div style="font-size:12px;color:#64748b;margin-top:4px">Sistema Financeiro + Livro SWOT Cristão</div>
 <div style="font-size:11px;color:#64748b;margin-top:6px">
 ✓ Lançamentos Ilimitados<br>
 ✓ Relatórios PDF e Excel<br>
@@ -284,59 +250,29 @@ Sistema Financeiro + Livro SWOT Cristão
 ✓ Backup Completo<br>
 ✓ Livro SWOT Cristão
 </div>
-
-<div style="font-size:36px;font-weight:900;color:#16a34a;margin-top:8px">
-R$ 147,00
-</div>
-
-<div style="font-size:12px;color:#64748b">
-Acesso anual
-</div>
-
+<div style="font-size:36px;font-weight:900;color:#16a34a;margin-top:8px">R$ 147,00</div>
+<div style="font-size:12px;color:#64748b">Acesso anual</div>
 <div style="font-size:11px;color:#64748b;margin-top:4px">
 Economize R$ 51,60 recebendo o Livro SWOT Cristão incluso.
 </div>
-
 <div style="margin-top:10px;padding:10px;border-radius:10px;background:#dcfce7;border:1px solid #86efac">
-
-<div style="font-size:12px;font-weight:900;color:#166534">
-PIX
-</div>
-
+<div style="font-size:12px;font-weight:900;color:#166534">PIX</div>
 <div style="margin-top:8px;font-size:11px;color:#64748b;text-align:center">
 Após o pagamento envie o comprovante pelo WhatsApp para liberação imediata do Plano Premium.
 </div>
-
-<div style="font-size:12px;color:#166534">
-📱 69984311978
+<div style="font-size:12px;color:#166534">📱 69984311978</div>
+<div style="font-size:12px;color:#166534">📧 phdbr68@gmail.com</div>
 </div>
-
-<div style="font-size:12px;color:#166534">
-📧 phdbr68@gmail.com
-</div>
-
-</div>
-
-<button
-onclick="navigator.clipboard.writeText('69984311978');alert('PIX copiado: 69984311978')"
-style="margin-top:10px;width:100%;background:#16a34a;color:#fff;font-weight:900">
+<button onclick="navigator.clipboard.writeText('69984311978');alert('PIX copiado: 69984311978')" style="margin-top:10px;width:100%;background:#16a34a;color:#fff;font-weight:900">
 📋 COPIAR PIX
 </button>
-
-<a
-href="https://wa.me/5569984311978?text=Olá%20Manoel.%20Realizei%20o%20pagamento%20do%20Plano%20Premium."
-target="_blank"
-style="display:block;text-decoration:none">
-
-<button
-style="margin-top:8px;width:100%;background:#25d366;color:#fff;font-weight:900">
+<a href="https://wa.me/5569984311978?text=Olá%20Manoel.%20Realizei%20o%20pagamento%20do%20Plano%20Premium." target="_blank" style="display:block;text-decoration:none">
+<button style="margin-top:8px;width:100%;background:#25d366;color:#fff;font-weight:900">
 ✅ JÁ PAGUEI
 </button>
-
 </a>
-
 </div>
-
+</div>
 </div>
 <!-- ====================================================010 – CADASTRO==================================================== -->
 <div id="telaCadastro" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;justify-content:center;align-items:center;z-index:99999;background:rgba(255,255,255,.12);backdrop-filter:blur(10px)">
