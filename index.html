@@ -1888,39 +1888,76 @@ const wb=XLSX.utils.book_new()
 XLSX.utils.book_append_sheet(wb,ws,"Financeiro")
 XLSX.writeFile(wb,"financeiro-2026.xlsx")
 }
-  
+/* 004 function renderGraficoFinanceiro */
 function renderGraficoFinanceiro(){
-
-alert("FUNÇÃO EXECUTOU")
 
 const canvas=document.getElementById("graficoFinanceiro")
 
-if(!canvas){
-alert("CANVAS NÃO ENCONTRADO")
-return
+if(!canvas)return
+
+if(window.graficoFinanceiro){
+window.graficoFinanceiro.destroy()
+window.graficoFinanceiro=null
 }
 
-alert("CANVAS OK")
+const receitas=new Array(12).fill(0)
+const despesas=new Array(12).fill(0)
 
-if(typeof Chart==="undefined"){
-alert("CHART NÃO CARREGOU")
-return
+dados.forEach(x=>{
+
+const data=(x.data_vencimento||x.data||"").slice(0,10)
+
+if(!data)return
+
+const mes=parseInt(data.split("-")[1])-1
+
+const valor=Number(x.valor||0)
+
+if(x.tipo==="RECEITA"){
+receitas[mes]+=valor
+}else{
+despesas[mes]+=valor
 }
 
-new Chart(canvas,{
-type:"bar",
-data:{
-labels:["Jan","Fev","Mar"],
-datasets:[
-{
-label:"Teste",
-data:[100,200,300]
-}
-]
-}
 })
 
-alert("GRÁFICO CRIADO")
+window.graficoFinanceiro=new Chart(canvas,{
+type:"bar",
+data:{
+labels:[
+"Jan","Fev","Mar","Abr",
+"Mai","Jun","Jul","Ago",
+"Set","Out","Nov","Dez"
+],
+datasets:[
+{
+label:"Receitas",
+backgroundColor:"#16a34a",
+data:receitas
+},
+{
+label:"Despesas",
+backgroundColor:"#dc2626",
+data:despesas
+}
+]
+},
+options:{
+responsive:true,
+maintainAspectRatio:false,
+animation:false,
+plugins:{
+legend:{
+display:true
+}
+},
+scales:{
+y:{
+beginAtZero:true
+}
+}
+}
+})
 
 }
 
