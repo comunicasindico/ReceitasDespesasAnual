@@ -1097,10 +1097,11 @@ console.log("RECEITAS",dados.filter(x=>x.tipo==="RECEITA").length)
 console.log("DESPESAS",dados.filter(x=>x.tipo==="DESPESA").length)
 render()
 renderDashboardAnual()
+renderVencimentos()
+
 setTimeout(()=>{
 renderGraficoFinanceiro()
-},500)
-renderVencimentos()
+},800)
 atualizarMeta()
 await carregarCategoriasDinamicas()
 }
@@ -1840,6 +1841,16 @@ const canvas=document.getElementById("graficoFinanceiro")
 
 if(!canvas)return
 
+const box=canvas.parentElement
+
+if(!box)return
+
+box.style.height="320px"
+box.style.minHeight="320px"
+
+canvas.style.width="100%"
+canvas.style.height="320px"
+
 if(
 window.graficoFinanceiro &&
 typeof window.graficoFinanceiro.destroy==="function"
@@ -1847,15 +1858,45 @@ typeof window.graficoFinanceiro.destroy==="function"
 window.graficoFinanceiro.destroy()
 }
 
+const receitas=new Array(12).fill(0)
+const despesas=new Array(12).fill(0)
+
+dados.forEach(x=>{
+
+const data=x.data_vencimento||x.data
+
+if(!data)return
+
+const mes=parseInt(data.slice(5,7))-1
+
+if(mes<0||mes>11)return
+
+if(x.tipo==="RECEITA"){
+receitas[mes]+=Number(x.valor||0)
+}else{
+despesas[mes]+=Number(x.valor||0)
+}
+
+})
+
 window.graficoFinanceiro=
 new Chart(canvas,{
 type:"bar",
 data:{
-labels:["Jan","Fev","Mar"],
+labels:[
+"Jan","Fev","Mar","Abr","Mai","Jun",
+"Jul","Ago","Set","Out","Nov","Dez"
+],
 datasets:[
 {
-label:"Teste",
-data:[100,200,300]
+label:"Receitas",
+data:receitas,
+backgroundColor:"#16a34a"
+},
+{
+label:"Despesas",
+data:despesas,
+backgroundColor:"#dc2626"
 }
 ]
 },
@@ -1864,6 +1905,10 @@ responsive:true,
 maintainAspectRatio:false
 }
 })
+
+setTimeout(()=>{
+window.graficoFinanceiro.resize()
+},300)
 
 }
 
