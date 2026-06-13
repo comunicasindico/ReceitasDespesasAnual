@@ -1831,9 +1831,11 @@ const canvas=document.getElementById("graficoFinanceiro")
 
 if(!canvas)return
 
-if(window.graficoFinanceiro){
+if(
+window.graficoFinanceiro &&
+typeof window.graficoFinanceiro.destroy==="function"
+){
 window.graficoFinanceiro.destroy()
-window.graficoFinanceiro=null
 }
 
 const receitas=new Array(12).fill(0)
@@ -1857,7 +1859,8 @@ despesas[mes]+=valor
 
 })
 
-window.graficoFinanceiro=new Chart(canvas,{
+window.graficoFinanceiro=
+new Chart(canvas,{
 type:"bar",
 data:{
 labels:[
