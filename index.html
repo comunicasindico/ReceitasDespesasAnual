@@ -865,6 +865,12 @@ localStorage.setItem("plano_expira_em","")
 }
 await carregarPerfil()
 await carregar()
+
+setTimeout(()=>{
+renderDashboardAnual()
+renderGraficoFinanceiro()
+renderVencimentos()
+},1000)
 aplicarPerfilUI()
 abrirTela("inicio")
 setTimeout(()=>{
@@ -920,6 +926,11 @@ await carregar()
 /* 🔥 UI */
 aplicarPerfilUI()
 abrirTela("inicio")
+setTimeout(()=>{
+renderDashboardAnual()
+renderGraficoFinanceiro()
+renderVencimentos()
+},1000)
 /* 🔥 002 – ADMIN APÓS LOGIN */
 if(localStorage.getItem("tipo_usuario_lancamentos")==="admin"){
 }
@@ -1082,7 +1093,6 @@ console.error(error)
 return
 }
 dados=data||[]
-console.clear()
 console.log("TOTAL",dados.length)
 console.log(
 "RECEITAS",
@@ -1555,7 +1565,9 @@ safe("mobileConta").innerText=conta
 let r=0,d=0
 dados.forEach(x=>{if(x.tipo==="RECEITA")r+=Number(x.valor||0);else d+=Number(x.valor||0)})
 const saldo=r-d
-safe("mobileSaldo").innerText=ocultarSaldo?"R$ ***":formatarMoeda(saldo)
+if(safe("mobileSaldo")){
+safe("mobileSaldo").innerText=
+ocultarSaldo?"R$ ***":formatarMoeda(saldo)
 }
 /* ========================function  ==================================================== */
 function alertaInteligente(){
@@ -1845,11 +1857,16 @@ const box=canvas.parentElement
 
 if(!box)return
 
+box.style.display="block"
 box.style.height="320px"
 box.style.minHeight="320px"
 
+canvas.width=1200
+canvas.height=320
+
 canvas.style.width="100%"
 canvas.style.height="320px"
+canvas.style.display="block"
 
 if(
 window.graficoFinanceiro &&
@@ -1907,8 +1924,8 @@ maintainAspectRatio:false
 })
 
 setTimeout(()=>{
-window.graficoFinanceiro.resize()
-},300)
+window.dispatchEvent(new Event("resize"))
+},500)
 
 }
 
