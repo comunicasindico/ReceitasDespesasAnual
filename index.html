@@ -1888,11 +1888,10 @@ const wb=XLSX.utils.book_new()
 XLSX.utils.book_append_sheet(wb,ws,"Financeiro")
 XLSX.writeFile(wb,"financeiro-2026.xlsx")
 }
-/* ====================================================
-004 GRÁFICO FINANCEIRO MENSAL
-==================================================== */
 function renderGraficoFinanceiro(){
-console.log("RENDER GRAFICO",new Date().toLocaleTimeString())
+
+console.clear()
+
 const meses=[
 "Jan","Fev","Mar","Abr","Mai","Jun",
 "Jul","Ago","Set","Out","Nov","Dez"
@@ -1925,6 +1924,9 @@ despesas[mes]+=valor
 
 })
 
+console.log("RECEITAS",receitas)
+console.log("DESPESAS",despesas)
+
 const canvas=document.getElementById("graficoFinanceiro")
 
 if(!canvas)return
@@ -1938,51 +1940,24 @@ window.graficoFinanceiroObj=new Chart(
 canvas,
 {
 type:"bar",
-
 data:{
 labels:meses,
-
 datasets:[
 {
 label:"Receitas",
 data:receitas,
-backgroundColor:"#16a34a",
-borderRadius:8
+backgroundColor:"#16a34a"
 },
 {
 label:"Despesas",
 data:despesas,
-backgroundColor:"#dc2626",
-borderRadius:8
+backgroundColor:"#dc2626"
 }
 ]
 },
-
 options:{
 responsive:true,
-maintainAspectRatio:false,
-
-plugins:{
-legend:{
-display:true,
-position:"top"
-}
-},
-
-scales:{
-x:{
-grid:{
-display:false
-}
-},
-y:{
-beginAtZero:true,
-ticks:{
-callback:v=>
-"R$ "+Number(v).toLocaleString("pt-BR")
-}
-}
-}
+maintainAspectRatio:false
 }
 }
 )
