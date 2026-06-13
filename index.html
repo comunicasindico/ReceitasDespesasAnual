@@ -381,7 +381,14 @@ style="font-size:18px;font-weight:900;color:#16a34a">
 <div class="card">
 <div style="font-size:18px;font-weight:900;margin-bottom:14px">📈 Evolução Financeira Mensal</div>
 <div style="height:320px;position:relative">
-<canvas id="graficoFinanceiro"></canvas>
+<canvas
+id="graficoFinanceiro"
+style="
+width:100%!important;
+height:320px!important;
+display:block!important;
+">
+</canvas>
 </div>
 </div>
 <div id="areaUsuarios">
@@ -1838,63 +1845,21 @@ typeof window.graficoFinanceiro.destroy==="function"
 window.graficoFinanceiro.destroy()
 }
 
-const receitas=new Array(12).fill(0)
-const despesas=new Array(12).fill(0)
-
-dados.forEach(x=>{
-
-const data=(x.data_vencimento||x.data||"").slice(0,10)
-
-if(!data)return
-
-const mes=parseInt(data.split("-")[1])-1
-
-const valor=Number(x.valor||0)
-
-if(x.tipo==="RECEITA"){
-receitas[mes]+=valor
-}else{
-despesas[mes]+=valor
-}
-
-})
-
 window.graficoFinanceiro=
 new Chart(canvas,{
 type:"bar",
 data:{
-labels:[
-"Jan","Fev","Mar","Abr",
-"Mai","Jun","Jul","Ago",
-"Set","Out","Nov","Dez"
-],
+labels:["Jan","Fev","Mar"],
 datasets:[
 {
-label:"Receitas",
-backgroundColor:"#16a34a",
-data:receitas
-},
-{
-label:"Despesas",
-backgroundColor:"#dc2626",
-data:despesas
+label:"Teste",
+data:[100,200,300]
 }
 ]
 },
 options:{
 responsive:true,
-maintainAspectRatio:false,
-animation:false,
-plugins:{
-legend:{
-display:true
-}
-},
-scales:{
-y:{
-beginAtZero:true
-}
-}
+maintainAspectRatio:false
 }
 })
 
