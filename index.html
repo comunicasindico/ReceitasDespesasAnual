@@ -2350,15 +2350,25 @@ safe("filtroDataFim").value=
 fim.toISOString().slice(0,10)
 }
 }
+
 function carregarPeriodoAtual(){
 const hoje=new Date()
-const inicioMes=
-`${hoje.getFullYear()}-${String(hoje.getMonth()+1).padStart(2,"0")}-01`
-const hojeISO=
-hoje.toISOString().slice(0,10)
-safe("filtroDataInicio").value=inicioMes
-safe("filtroDataFim").value=hojeISO
+const primeiroDia=new Date(
+hoje.getFullYear(),
+hoje.getMonth(),
+1
+)
+const ultimoDia=new Date(
+hoje.getFullYear(),
+hoje.getMonth()+1,
+0
+)
+safe("filtroDataInicio").value=
+primeiroDia.toISOString().split("T")[0]
+safe("filtroDataFim").value=
+ultimoDia.toISOString().split("T")[0]
 }
+
 function pesquisarMetaPeriodo(){
 const inicio=safe("metaInicio")?.value
 const fim=safe("metaFim")?.value
