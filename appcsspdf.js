@@ -33,12 +33,10 @@ button:active{transform:scale(.96)}
 [contenteditable]{padding:4px 6px;border-radius:8px;cursor:default}
 [contenteditable="true"]{cursor:text;background:#fef9c3;border:1px dashed #f59e0b;color:#000}
 [contenteditable="true"]:focus{outline:none;background:#e0f2fe;border:1px solid #38bdf8;box-shadow:0 0 0 2px rgba(56,189,248,.3)}
-.heroFinanceiro{display:flex;justify-content:space-between;align-items:center;gap:20px;margin:0 auto 18px auto;padding:22px 26px;border-radius:28px;background:linear-gradient(135deg,rgba(255,255,255,.76),rgba(241,245,249,.72));border:1px solid rgba(255,255,255,.95);box-shadow:0 12px 35px rgba(15,23,42,.06);backdrop-filter:blur(14px);max-width:1450px}
 .heroTitulo{font-size:42px;font-weight:900;margin-bottom:10px;color:#0f172a}
 .heroSub{font-size:17px;color:#475569;margin-bottom:16px;line-height:1.5;max-width:720px}
 .heroInfo{display:flex;gap:12px;flex-wrap:wrap}
 .heroTag{padding:10px 14px;border-radius:16px;background:rgba(255,255,255,.86);border:1px solid rgba(226,232,240,.95);font-size:13px;color:#0f172a;font-weight:700}
-.gridKPIs{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,320px));justify-content:center;gap:18px;margin:0 auto 18px auto;max-width:1450px}
 .kpiCard{padding:18px 20px;border-radius:24px;background:rgba(255,255,255,.78);border:1px solid rgba(255,255,255,.95);box-shadow:0 10px 25px rgba(15,23,42,.06);position:relative;overflow:hidden;backdrop-filter:blur(14px);min-height:150px}
 .kpiCard::before{content:"";position:absolute;top:-60px;right:-60px;width:150px;height:150px;border-radius:50%;opacity:.10}
 .kpiReceita::before{background:#22c55e}
@@ -58,7 +56,6 @@ button:active{transform:scale(.96)}
 .iconDespesa{background:#dc2626}
 .iconRelatorio{background:#ca8a04}
 .iconMeta{background:#7c3aed}
-.swotFloating{position:fixed;right:18px;bottom:85px;width:330px;max-width:90%;border-radius:26px;overflow:hidden;z-index:99999;background:rgba(255,255,255,.9);border:1px solid rgba(255,255,255,.98);box-shadow:0 16px 45px rgba(15,23,42,.10);backdrop-filter:blur(18px);animation:floatSwot 4s ease-in-out infinite}
 @keyframes floatSwot{0%{transform:translateY(0)}50%{transform:translateY(-8px)}100%{transform:translateY(0)}}
 .swotHeader{background:#facc15;color:#000;padding:8px 14px;font-size:12px;font-weight:900;letter-spacing:.5px}
 .swotBody{padding:22px;display:flex;gap:18px;align-items:center}
@@ -68,7 +65,6 @@ button:active{transform:scale(.96)}
 .swotPreco{font-size:42px;font-weight:900;color:#16a34a;margin-bottom:10px}
 .swotBtn{width:100%;padding:16px;border:none;border-radius:18px;background:linear-gradient(90deg,#f59e0b,#facc15);font-size:18px;font-weight:900;cursor:pointer;transition:.25s;color:#000}
 .swotBtn:hover{transform:scale(1.02)}
-@media(max-width:900px){.heroFinanceiro{flex-direction:column}.heroTitulo{font-size:30px}.kpiValor{font-size:30px}.swotFloating{position:relative;right:auto;bottom:auto;width:100%;margin-top:20px}}
 @media(max-width:768px){body{padding:8px}.gridKPIs{grid-template-columns:1fr}.acoesRapidas{grid-template-columns:repeat(2,1fr)}}
 .boxMes{margin:0 auto 14px auto;border-radius:22px;background:rgba(255,255,255,.82);border:1px solid rgba(255,255,255,.95);overflow:hidden;backdrop-filter:blur(14px);box-shadow:0 8px 24px rgba(15,23,42,.05);max-width:1450px}
 .topoMes{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;cursor:pointer;background:rgba(255,255,255,.88);border-bottom:1px solid rgba(226,232,240,.8)}
@@ -122,9 +118,11 @@ table{font-size:12px;min-width:700px}
 #formInsercao input,#formInsercao select,#formInsercao button{width:100%!important}
 #formInsercao div{flex-direction:column!important}
 }
-  
-</style>
+.gridKPIs{display:grid;grid-template-columns:repeat(3,minmax(260px,1fr));gap:20px;width:100%;max-width:1400px;margin:0 auto 18px auto;align-items:stretch}
+@media(max-width:1100px){.gridKPIs{grid-template-columns:repeat(2,minmax(260px,1fr))}}
+@media(max-width:768px){.gridKPIs{grid-template-columns:1fr}}
+.swotFloating{position:relative;right:auto;bottom:auto;width:100%;max-width:420px;margin:20px auto;border-radius:26px;overflow:hidden;z-index:10;background:rgba(255,255,255,.9);border:1px solid rgba(255,255,255,.98);box-shadow:0 16px 45px rgba(15,23,42,.10);backdrop-filter:blur(18px);animation:none}
+.heroFinanceiro{display:flex;justify-content:space-between;align-items:center;gap:20px;width:100%;max-width:1400px;margin:0 auto 18px auto;padding:22px 26px;border-radius:28px;background:linear-gradient(135deg,rgba(255,255,255,.76),rgba(241,245,249,.72));border:1px solid rgba(255,255,255,.95);box-shadow:0 12px 35px rgba(15,23,42,.06);backdrop-filter:blur(14px)}
+@media(max-width:900px){.heroFinanceiro{flex-direction:column;align-items:flex-start}.heroTitulo{font-size:30px}.kpiValor{font-size:30px}.swotFloating{width:100%;max-width:100%;margin:20px 0}}
 
-function abrirRelatorios(){
-abrirTela("relatorios")
-}
+</style>
