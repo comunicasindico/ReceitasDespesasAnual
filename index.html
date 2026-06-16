@@ -2363,13 +2363,18 @@ return
 }
 atualizarMeta(inicio,fim)
 }  
+  
 function definirPeriodoMetaPadrao(){
 const hoje=new Date()
+const ultimoDiaMes=new Date(
+hoje.getFullYear(),
+hoje.getMonth()+1,
+0
+)
 safe("metaInicio").value=
 `${hoje.getFullYear()}-01-01`
 safe("metaFim").value=
-hoje.toISOString().slice(0,10)
-
+ultimoDiaMes.toISOString().split("T")[0]
 }
 /* ====================================================
 ABRIR CADASTRO
