@@ -1,0 +1,130 @@
+<style>
+html,body{margin:0;padding:0;width:100%;min-height:100%;overflow-x:hidden}
+*{box-sizing:border-box}
+body::before,.nebula,.vialactea,.shooting-star{display:none!important}
+body{padding:6px;font-family:'Inter',Arial,sans-serif;background:linear-gradient(rgba(248,250,252,.965),rgba(248,250,252,.972)),url("img/bancoconecta.png") center center/cover no-repeat fixed;color:#0f172a;overflow-x:hidden;min-height:100vh;width:100%;max-width:100vw}
+body.login{background:url("img/bancoconecta.png") center center/cover no-repeat fixed}
+#painelMobile{display:none;width:100%;min-height:100vh;padding-bottom:90px;position:relative;background:transparent}
+.telaApp{display:none;width:100%;min-height:calc(100vh - 80px);position:relative;background:transparent}
+.telaAtiva{display:block!important;width:100%;min-height:calc(100vh - 80px)}
+#telaInicio,#telaExtrato,#telaPerfil,#telaIA{width:100%;min-height:calc(100vh - 80px)}
+#telaLogin{position:fixed;top:0;left:0;width:100%;height:100%;display:flex;justify-content:center;align-items:center;z-index:999999;background:rgba(255,255,255,.12);backdrop-filter:blur(10px)}
+#telaLogin .card{position:relative;z-index:2;width:320px;max-width:90%;padding:24px;border-radius:24px;background:rgba(255,255,255,.78);border:1px solid rgba(255,255,255,.85);box-shadow:0 20px 60px rgba(15,23,42,.12);backdrop-filter:blur(14px)}
+
+.card{background:rgba(255,255,255,.78);border:1px solid rgba(255,255,255,.7);border-radius:22px;padding:14px;margin:6px 0;backdrop-filter:blur(14px);box-shadow:0 10px 30px rgba(15,23,42,.08);color:#0f172a}
+.resumo{background:rgba(255,255,255,.78);border:1px solid rgba(255,255,255,.7);border-radius:22px;padding:16px;color:#0f172a}
+input,select,textarea{width:100%;padding:12px;border-radius:14px;border:1px solid rgba(203,213,225,.9);background:rgba(255,255,255,.85);color:#0f172a;font-size:14px}
+input::placeholder,textarea::placeholder{color:#64748b}
+button{cursor:pointer;background:#22c55e;color:#000;font-weight:800;border:none;border-radius:14px;padding:12px;min-height:42px;transition:.2s}
+button:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(34,197,94,.22)}
+button:active{transform:scale(.96)}
+.bottomNav{position:fixed;bottom:0;left:0;width:100%;height:74px;background:rgba(255,255,255,.78);display:flex;justify-content:space-evenly;align-items:center;z-index:99999;border-top:1px solid rgba(226,232,240,.9);backdrop-filter:blur(18px);box-shadow:0 -4px 20px rgba(15,23,42,.06)}
+.navItem{display:flex;flex-direction:column;align-items:center;font-size:11px;color:#64748b;font-weight:700;transition:.2s}
+.navItem span{font-size:22px;transition:.2s}
+.navAtivo{color:#0284c7}
+.navItem.navAtivo span{transform:scale(1.18)}
+.topBarMobile{margin:0;display:flex;align-items:center;gap:10px;padding:12px;background:rgba(255,255,255,.72);border-bottom:1px solid rgba(226,232,240,.9);backdrop-filter:blur(14px)}
+#boxAgencia,#boxConta{background:rgba(255,255,255,.82);border:1px solid rgba(203,213,225,.9);padding:12px;border-radius:14px;color:#0f172a}
+#scoreBox{border-radius:16px;background:rgba(255,255,255,.84);border:1px solid rgba(226,232,240,.9);padding:14px;color:#0284c7;font-weight:800}
+#areaGrafico,#areaGraficoCat{display:flex;justify-content:center;gap:16px;flex-wrap:wrap;margin-bottom:10px}
+#areaGrafico canvas{width:220px!important;height:220px!important;background:rgba(255,255,255,.78);border-radius:24px;padding:10px;box-shadow:0 10px 25px rgba(15,23,42,.06)}
+.gridUsuarios b{font-weight:800}
+#telaExtrato{padding-top:0;margin-top:0}
+[contenteditable]{padding:4px 6px;border-radius:8px;cursor:default}
+[contenteditable="true"]{cursor:text;background:#fef9c3;border:1px dashed #f59e0b;color:#000}
+[contenteditable="true"]:focus{outline:none;background:#e0f2fe;border:1px solid #38bdf8;box-shadow:0 0 0 2px rgba(56,189,248,.3)}
+.heroFinanceiro{display:flex;justify-content:space-between;align-items:center;gap:20px;margin:0 auto 18px auto;padding:22px 26px;border-radius:28px;background:linear-gradient(135deg,rgba(255,255,255,.76),rgba(241,245,249,.72));border:1px solid rgba(255,255,255,.95);box-shadow:0 12px 35px rgba(15,23,42,.06);backdrop-filter:blur(14px);max-width:1450px}
+.heroTitulo{font-size:42px;font-weight:900;margin-bottom:10px;color:#0f172a}
+.heroSub{font-size:17px;color:#475569;margin-bottom:16px;line-height:1.5;max-width:720px}
+.heroInfo{display:flex;gap:12px;flex-wrap:wrap}
+.heroTag{padding:10px 14px;border-radius:16px;background:rgba(255,255,255,.86);border:1px solid rgba(226,232,240,.95);font-size:13px;color:#0f172a;font-weight:700}
+.gridKPIs{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,320px));justify-content:center;gap:18px;margin:0 auto 18px auto;max-width:1450px}
+.kpiCard{padding:18px 20px;border-radius:24px;background:rgba(255,255,255,.78);border:1px solid rgba(255,255,255,.95);box-shadow:0 10px 25px rgba(15,23,42,.06);position:relative;overflow:hidden;backdrop-filter:blur(14px);min-height:150px}
+.kpiCard::before{content:"";position:absolute;top:-60px;right:-60px;width:150px;height:150px;border-radius:50%;opacity:.10}
+.kpiReceita::before{background:#22c55e}
+.kpiDespesa::before{background:#ef4444}
+.kpiSaldo::before{background:#0ea5e9}
+.kpiTitulo{font-size:18px;font-weight:800;margin-bottom:10px;color:#475569}
+.kpiValor{font-size:32px;font-weight:900;margin-bottom:8px;line-height:1}
+.kpiDesc{font-size:14px;color:#64748b}
+.kpiLinha{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.btnOlho{width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.9);border:1px solid rgba(203,213,225,.9);display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer;color:#0f172a;transition:.2s;padding:0;min-height:auto}
+.btnOlho:hover{transform:scale(1.08);background:#e2e8f0}
+.acoesRapidas{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,180px));justify-content:center;gap:14px;margin:0 auto 18px auto;max-width:1000px}
+.cardAcao{padding:14px;border-radius:22px;background:rgba(255,255,255,.78);border:1px solid rgba(255,255,255,.95);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;min-height:100px;transition:.2s;cursor:pointer;backdrop-filter:blur(14px);box-shadow:0 8px 20px rgba(15,23,42,.05)}
+.cardAcao:hover{transform:translateY(-4px);background:#fff}
+.cardAcaoIcone{width:60px;height:60px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:800;color:#fff}
+.iconReceita{background:#16a34a}
+.iconDespesa{background:#dc2626}
+.iconRelatorio{background:#ca8a04}
+.iconMeta{background:#7c3aed}
+.swotFloating{position:fixed;right:18px;bottom:85px;width:330px;max-width:90%;border-radius:26px;overflow:hidden;z-index:99999;background:rgba(255,255,255,.9);border:1px solid rgba(255,255,255,.98);box-shadow:0 16px 45px rgba(15,23,42,.10);backdrop-filter:blur(18px);animation:floatSwot 4s ease-in-out infinite}
+@keyframes floatSwot{0%{transform:translateY(0)}50%{transform:translateY(-8px)}100%{transform:translateY(0)}}
+.swotHeader{background:#facc15;color:#000;padding:8px 14px;font-size:12px;font-weight:900;letter-spacing:.5px}
+.swotBody{padding:22px;display:flex;gap:18px;align-items:center}
+.swotLivro{width:95px;border-radius:14px;box-shadow:0 8px 22px rgba(15,23,42,.12)}
+.swotTexto h2{margin:0 0 6px 0;font-size:28px;line-height:1;font-weight:900;color:#0f172a}
+.swotTexto p{margin:0 0 12px 0;font-size:14px;color:#475569;line-height:1.5}
+.swotPreco{font-size:42px;font-weight:900;color:#16a34a;margin-bottom:10px}
+.swotBtn{width:100%;padding:16px;border:none;border-radius:18px;background:linear-gradient(90deg,#f59e0b,#facc15);font-size:18px;font-weight:900;cursor:pointer;transition:.25s;color:#000}
+.swotBtn:hover{transform:scale(1.02)}
+@media(max-width:900px){.heroFinanceiro{flex-direction:column}.heroTitulo{font-size:30px}.kpiValor{font-size:30px}.swotFloating{position:relative;right:auto;bottom:auto;width:100%;margin-top:20px}}
+@media(max-width:768px){body{padding:8px}.gridKPIs{grid-template-columns:1fr}.acoesRapidas{grid-template-columns:repeat(2,1fr)}}
+.boxMes{margin:0 auto 14px auto;border-radius:22px;background:rgba(255,255,255,.82);border:1px solid rgba(255,255,255,.95);overflow:hidden;backdrop-filter:blur(14px);box-shadow:0 8px 24px rgba(15,23,42,.05);max-width:1450px}
+.topoMes{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;cursor:pointer;background:rgba(255,255,255,.88);border-bottom:1px solid rgba(226,232,240,.8)}
+.tituloMes{display:flex;align-items:center;gap:10px;font-size:16px;font-weight:900;color:#0f172a}
+.tituloMes span{width:36px;height:36px;border-radius:12px;background:#0ea5e9;color:#fff;display:flex;align-items:center;justify-content:center;font-size:16px}
+.totalMes{display:flex;align-items:center;gap:10px}
+.valorMes{font-size:20px;font-weight:900;color:#16a34a}
+.btnMes{width:34px;height:34px;border-radius:10px;background:#fff;border:1px solid #cbd5e1;display:flex;align-items:center;justify-content:center;color:#0f172a;font-size:15px;padding:0;min-height:auto}
+.listaMovimentos{padding:10px;background:rgba(248,250,252,.68);display:grid;gap:8px}
+.movData{font-size:12px;font-weight:800;color:#64748b}
+.movDesc{display:flex;flex-direction:column}
+.movTitulo{font-size:14px;font-weight:800;color:#0f172a;line-height:1.1}
+.movSub{font-size:11px;color:#64748b;margin-top:2px}
+.movValor{font-size:16px;font-weight:900;white-space:nowrap}
+.movReceita{color:#16a34a}
+.movDespesa{color:#dc2626}
+.movAcoes{display:flex;gap:6px}
+.btnMini{width:32px;height:32px;border-radius:10px;border:none;display:flex;align-items:center;justify-content:center;font-size:14px;padding:0;min-height:auto}
+.btnEditar{background:#0ea5e9;color:#fff}
+.btnExcluir{background:#ef4444;color:#fff}
+.filtroMovimentos{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin:0 auto 16px auto;padding:14px 16px;border-radius:22px;background:rgba(255,255,255,.82);border:1px solid rgba(255,255,255,.95);backdrop-filter:blur(14px);max-width:1450px}
+.filtroGrupo{display:flex;gap:8px;flex-wrap:wrap}
+.btnFiltro{padding:8px 12px;border-radius:12px;background:#fff;border:1px solid #cbd5e1;color:#0f172a;font-size:12px;font-weight:800;cursor:pointer;min-height:auto}
+.btnFiltroAtivo{background:#0ea5e9;color:#fff;border-color:#0ea5e9}
+.selectMesRapido{width:auto;min-width:170px;padding:10px 12px;border-radius:12px;background:#fff;border:1px solid #cbd5e1;color:#0f172a;font-size:13px;font-weight:700}
+@media(max-width:768px){.movItem{grid-template-columns:1fr;gap:6px}.movAcoes{justify-content:flex-start}.valorMes{font-size:16px}.movValor{font-size:15px}.tituloMes{font-size:14px}}
+.gridUsuarios{display:grid;grid-template-columns:1fr;gap:8px;align-items:center;font-size:13px;padding:10px 0;border-bottom:1px solid rgba(226,232,240,.8);color:#0f172a}
+@media(min-width:769px){.gridUsuarios{grid-template-columns:1.5fr 2fr 1fr 1fr 1fr 2fr}}
+
+.table-responsive{width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.cabecalhoExtrato{display:grid;grid-template-columns:90px 90px 120px 1fr 140px 110px 90px 50px;align-items:center;gap:10px;padding:12px 16px;font-size:12px;font-weight:900;color:#64748b;background:#f8fafc;border:1px solid #e2e8f0;border-radius:16px;margin-bottom:8px;}
+.movItem{display:grid;grid-template-columns:90px 90px 120px 1fr 140px 110px 90px 50px;align-items:center;gap:10px;padding:10px 12px;border-radius:16px;background:rgba(255,255,255,.92);border:1px solid rgba(226,232,240,.9);min-height:64px;}
+.valorDireita{text-align:right;font-weight:900;font-size:22px;white-space:nowrap}
+.btnStatus{height:30px;padding:0 12px;font-size:11px;font-weight:900;border-radius:8px}
+.btnPago{background:#16a34a;color:#fff}
+.btnPendente{background:#f59e0b;color:#fff}
+.btnRecorrencia{height:28px;min-width:60px;padding:0 8px;font-size:11px;font-weight:900;border-radius:8px}
+@media(max-width:768px){
+body{font-size:14px}
+.card,.dashboard-card,.kpi-card,.box,.painel{width:100%!important;margin:0!important}
+input,select,button,textarea{width:100%;max-width:100%}
+canvas{max-width:100%!important;height:auto!important}
+table{font-size:12px;min-width:700px}
+.cabecalhoExtrato{display:none!important}
+.movItem{display:flex!important;flex-direction:column!important;align-items:flex-start!important;gap:8px!important;padding:12px!important}
+.movItem>div{width:100%!important}
+.valorDireita{width:100%!important;text-align:left!important;font-size:24px!important}
+#lista{padding-bottom:120px}
+.listaMovimentos{overflow-x:hidden}
+.boxMes{margin-bottom:18px}
+#formInsercao input,#formInsercao select,#formInsercao button{width:100%!important}
+#formInsercao div{flex-direction:column!important}
+}
+  
+</style>
+
+function abrirRelatorios(){
+abrirTela("relatorios")
+}
