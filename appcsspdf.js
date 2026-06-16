@@ -1,10 +1,29 @@
 <style>
-html,body{margin:0;padding:0;width:100%;min-height:100%;overflow-x:hidden}
+html,body{
+margin:0;
+padding:0;
+width:100%;
+min-height:100%;
+overflow-x:hidden;
+font-size:16px!important;
+zoom:1!important;
+transform:none!important;
+}
 *{box-sizing:border-box}
 body::before,.nebula,.vialactea,.shooting-star{display:none!important}
 body{padding:6px;font-family:'Inter',Arial,sans-serif;background:linear-gradient(rgba(248,250,252,.965),rgba(248,250,252,.972)),url("img/bancoconecta.png") center center/cover no-repeat fixed;color:#0f172a;overflow-x:hidden;min-height:100vh;width:100%;max-width:100vw}
 body.login{background:url("img/bancoconecta.png") center center/cover no-repeat fixed}
-#painelMobile{display:none;width:100%;min-height:100vh;padding-bottom:90px;position:relative;background:transparent}
+#painelMobile{
+display:none;
+width:100%;
+max-width:100%;
+min-height:100vh;
+padding-bottom:90px;
+position:relative;
+background:transparent;
+transform:none!important;
+zoom:1!important;
+}
 .telaApp{display:none;width:100%;min-height:calc(100vh - 80px);position:relative;background:transparent}
 .telaAtiva{display:block!important;width:100%;min-height:calc(100vh - 80px)}
 #telaInicio,#telaExtrato,#telaPerfil,#telaIA{width:100%;min-height:calc(100vh - 80px)}
@@ -124,5 +143,13 @@ table{font-size:12px;min-width:700px}
 .swotFloating{position:relative;right:auto;bottom:auto;width:100%;max-width:420px;margin:20px auto;border-radius:26px;overflow:hidden;z-index:10;background:rgba(255,255,255,.9);border:1px solid rgba(255,255,255,.98);box-shadow:0 16px 45px rgba(15,23,42,.10);backdrop-filter:blur(18px);animation:none}
 .heroFinanceiro{display:flex;justify-content:space-between;align-items:center;gap:20px;width:100%;max-width:1400px;margin:0 auto 18px auto;padding:22px 26px;border-radius:28px;background:linear-gradient(135deg,rgba(255,255,255,.76),rgba(241,245,249,.72));border:1px solid rgba(255,255,255,.95);box-shadow:0 12px 35px rgba(15,23,42,.06);backdrop-filter:blur(14px)}
 @media(max-width:900px){.heroFinanceiro{flex-direction:column;align-items:flex-start}.heroTitulo{font-size:30px}.kpiValor{font-size:30px}.swotFloating{width:100%;max-width:100%;margin:20px 0}}
+#telaInicio{
+width:100%;
+max-width:100%;
+transform:none!important;
+zoom:1!important;
+}
+body *{zoom:1!important;}
 
+  
 </style>
