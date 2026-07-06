@@ -144,3 +144,54 @@ body{padding:6px!important;font-size:13px!important}
 .movItem button{min-height:34px!important;height:34px!important;font-size:11px!important;padding:0 8px!important}
 .bottomNav{height:68px!important}
 }
+body{background:linear-gradient(90deg,rgba(15,23,42,.82),rgba(15,23,42,.45)),url("img/bancoconecta.png") center center/cover no-repeat fixed!important}
+#painelMobile{max-width:1380px!important;margin:0 auto!important;padding:22px 22px 110px 22px!important}
+#telaInicio{display:none!important;grid-template-columns:minmax(320px,430px) 1fr!important;gap:18px!important;align-items:start!important}
+#telaInicio.telaAtiva{display:grid!important}
+#telaInicio>.card{width:100%!important;max-width:100%!important;margin:0!important;background:rgba(255,255,255,.88)!important;border:1px solid rgba(255,255,255,.9)!important;box-shadow:0 20px 60px rgba(15,23,42,.18)!important}
+#telaInicio>.card:nth-child(1){grid-column:1/2!important}
+#telaInicio>.card:nth-child(2){grid-column:1/2!important}
+#telaInicio>.card:nth-child(3){grid-column:1/2!important}
+#telaInicio>.card:nth-child(4){grid-column:1/2!important}
+#telaInicio>.acoesRapidas{grid-column:2/3!important;grid-row:1!important;align-self:start!important;justify-self:center!important;margin-top:0!important}
+#blocoFinanceiroUsuario{grid-column:2/3!important;grid-row:2/6!important;display:grid!important;grid-template-columns:1fr!important;gap:18px!important}
+#alertaFinanceiro{display:none!important}
+#painelSaaSAdmin:empty{display:none!important}
+#areaUsuarios{display:none!important}
+#boxLivro{position:fixed!important;right:28px!important;bottom:96px!important;width:360px!important;max-width:360px!important;margin:0!important;z-index:9999!important}
+#dashboardAnual{grid-template-columns:repeat(3,1fr)!important;gap:14px!important}
+#dashboardAnual .card{max-width:100%!important;min-height:118px!important;margin:0!important;padding:22px!important;background:#fff!important;border-radius:22px!important}
+#dashboardAnual .card div:nth-child(2){font-size:28px!important;line-height:1.15!important}
+#listaVencimentos>div{padding:12px 0!important}
+#listaVencimentos div[style*="font-weight:800"]{font-size:15px!important}
+#listaVencimentos div[style*="font-weight:900"]{font-size:15px!important}
+#blocoFinanceiroUsuario>.card{max-width:100%!important;margin:0!important}
+#blocoFinanceiroUsuario .card:has(#graficoFinanceiro){max-width:760px!important;justify-self:end!important}
+#graficoFinanceiro{height:280px!important}
+.acoesRapidas{display:grid!important;grid-template-columns:repeat(4,120px)!important;gap:14px!important;max-width:none!important}
+.cardAcao{min-height:96px!important;border-radius:20px!important;background:rgba(255,255,255,.88)!important}
+.cardAcaoIcone{width:48px!important;height:48px!important;font-size:22px!important}
+.bottomNav{left:50%!important;transform:translateX(-50%)!important;bottom:22px!important;width:auto!important;min-width:520px!important;max-width:760px!important;height:76px!important;border-radius:24px!important;border:1px solid rgba(255,255,255,.9)!important;box-shadow:0 20px 50px rgba(0,0,0,.22)!important}
+.bottomNav .navItem{width:96px!important;height:60px!important;justify-content:center!important;border-radius:18px!important}
+.bottomNav .navAtivo{background:rgba(14,165,233,.14)!important}
+@media(max-width:900px){
+body{background:linear-gradient(rgba(248,250,252,.90),rgba(248,250,252,.94)),url("img/bancoconecta.png") center center/cover no-repeat fixed!important}
+#painelMobile{width:100%!important;max-width:100%!important;padding:10px 10px 95px 10px!important}
+#telaInicio.telaAtiva{display:flex!important;flex-direction:column!important;gap:12px!important}
+#telaInicio>.card{width:100%!important;border-radius:22px!important;padding:16px!important}
+#telaInicio>.card:nth-child(1)>div{display:flex!important;flex-direction:column!important}
+#telaInicio>.card:nth-child(1) div[style*="font-size:28px"]{font-size:25px!important;line-height:1.1!important}
+.heroTag{width:100%!important}
+#dashboardAnual{grid-template-columns:1fr!important}
+#dashboardAnual .card{min-height:92px!important;padding:18px!important}
+#dashboardAnual .card div:nth-child(2){font-size:28px!important}
+.acoesRapidas{order:5!important;grid-template-columns:repeat(4,1fr)!important;width:100%!important;gap:8px!important;margin:0!important}
+.cardAcao{min-height:76px!important;padding:8px!important}
+.cardAcaoIcone{width:38px!important;height:38px!important;font-size:18px!important}
+#blocoFinanceiroUsuario{display:flex!important;flex-direction:column!important;width:100%!important}
+#blocoFinanceiroUsuario .card:has(#graficoFinanceiro){max-width:100%!important;width:100%!important}
+#boxLivro{position:relative!important;right:auto!important;bottom:auto!important;width:100%!important;max-width:100%!important;margin:10px 0!important}
+.bottomNav{width:calc(100% - 20px)!important;min-width:0!important;bottom:10px!important;height:70px!important}
+.bottomNav .navItem{width:auto!important;flex:1!important;font-size:10px!important}
+.bottomNav .navItem span{font-size:20px!important}
+}
