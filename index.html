@@ -2,7 +2,9 @@
 <html lang="pt-br">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta
+name="viewport"
+content="width=device-width, initial-scale=1, maximum-scale=5, minimum-scale=1, viewport-fit=cover">
 <title>ReceitasDespesasAnual PRO</title>
 <link rel="icon" href="data:,">
 
@@ -320,26 +322,12 @@ display:block!important;
 <button class="btnFiltro">Despesas</button>
 <button class="btnFiltro">Recorrentes</button>
 </div>
-<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
-
-<div style="font-size:12px;font-weight:800;color:#64748b">
-Pesquisar Datas:
+<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;width:100%">
+<div style="font-size:12px;font-weight:800;color:#64748b;width:100%">Pesquisar Datas:</div>
+<input type="date" id="filtroDataInicio" onchange="render()" style="flex:1;min-width:130px;padding:8px 10px;font-size:12px">
+<input type="date" id="filtroDataFim" onchange="render()" style="flex:1;min-width:130px;padding:8px 10px;font-size:12px">
+<select id="selectMesRapido" class="selectMesRapido" style="flex:1;min-width:170px"></select>
 </div>
-
-<input
-type="date"
-id="filtroDataInicio"
-onchange="render()"
-style="width:150px;padding:8px 10px;font-size:12px">
-
-<input
-type="date"
-id="filtroDataFim"
-onchange="render()"
-style="width:150px;padding:8px 10px;font-size:12px">
-
-</div>
-<select id="selectMesRapido" class="selectMesRapido"></select>
 
 </div>
 <div style="display:flex;justify-content:flex-end;gap:8px;margin-bottom:10px;flex-wrap:wrap">
