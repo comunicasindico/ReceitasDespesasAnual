@@ -2379,13 +2379,6 @@ safe("metaFim").value=
 ultimoDiaMes.toISOString().split("T")[0]
 }
 /* ====================================================
-ABRIR CADASTRO
-==================================================== */
-function abrirCadastro(){
-safe("telaLogin").style.display="none"
-safe("telaCadastro").style.display="flex"
-}
-/* ====================================================
 CADASTRAR USUÁRIO
 ==================================================== */
 async function salvarCadastro(){
@@ -2448,25 +2441,22 @@ safe("loginPass").value=senha
 }
   
 function abrirPainelAcesso(){
-document.getElementById('painelEscolhaLogin').style.display='none'
-document.getElementById('painelAcessoLogin').style.display='block'
+safe("painelEscolhaLogin").style.display="none"
+safe("painelAcessoLogin").style.display="block"
 }
 function voltarEscolhaLogin(){
-document.getElementById('painelAcessoLogin').style.display='none'
-document.getElementById('painelEscolhaLogin').style.display='block'
+safe("painelAcessoLogin").style.display="none"
+safe("painelEscolhaLogin").style.display="block"
 }
 function abrirCadastro(){
-document.getElementById('telaCadastro').style.display='flex'
+safe("telaLogin").style.display="none"
+safe("telaCadastro").style.display="flex"
 }
-function voltarLogin(){
-document.getElementById('telaCadastro').style.display='none'
-}
-/* ====================================================
-VOLTAR LOGIN
-==================================================== */
 function voltarLogin(){
 safe("telaCadastro").style.display="none"
 safe("telaLogin").style.display="flex"
+safe("painelEscolhaLogin").style.display="block"
+safe("painelAcessoLogin").style.display="none"
 }
   
 </script>
