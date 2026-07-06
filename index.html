@@ -165,8 +165,9 @@ const TAM_GRAFICO=180
 </div>
 <div class="card">
 <div style="display:flex;justify-content:space-between;align-items:center">
-<div style="font-size:20px;font-weight:900">
-📊 Dashboard Anual
+<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+<div style="font-size:20px;font-weight:900">📊 Dashboard por Período</div>
+<input type="month" id="periodoDashboard" onchange="renderDashboardAnual()" style="width:150px">
 </div>
 <button
 onclick="toggleSaldo()"
@@ -2049,9 +2050,18 @@ a.click()
 function renderDashboardAnual(){
 const box=document.getElementById("dashboardAnual")
 if(!box)return
+const campo=document.getElementById("periodoDashboard")
+if(campo&&!campo.value){
+const hoje=new Date()
+const anterior=new Date(hoje.getFullYear(),hoje.getMonth()-1,1)
+campo.value=`${anterior.getFullYear()}-${String(anterior.getMonth()+1).padStart(2,"0")}`
+}
+const periodo=campo?.value||""
 let receitas=0
 let despesas=0
 ;(dados||[]).forEach(x=>{
+const data=(x.data_vencimento||x.data||"").slice(0,7)
+if(periodo&&data!==periodo)return
 if(x.tipo==="RECEITA"){
 receitas+=Number(x.valor||0)
 }else{
@@ -2070,7 +2080,7 @@ box.innerHTML=`
 </div>
 <div class="card">
 <div style="font-size:12px;color:#64748b">Saldo</div>
-<div style="font-size:24px;font-weight:900;color:#0284c7">${ocultarSaldo?"R$ ***":formatarMoeda(saldo)}</div>
+<div style="font-size:24px;font-weight:900;color:${saldo>=0?"#0284c7":"#dc2626"}">${ocultarSaldo?"R$ ***":formatarMoeda(saldo)}</div>
 </div>
 `
 }
