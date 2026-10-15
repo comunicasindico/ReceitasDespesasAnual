@@ -8,7 +8,7 @@ content="width=device-width, initial-scale=1, maximum-scale=5, minimum-scale=1, 
 <title>ReceitasDespesasAnual PRO</title>
 <link rel="icon" href="data:,">
 
-<link rel="stylesheet" href="appcss.css">
+<link rel="stylesheet" href="appcss.css?v=20261015">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
@@ -154,7 +154,7 @@ const TAM_GRAFICO=180
 <div class="heroTag">👤 <b id="mobileNome"></b></div>
 <div class="heroTag">🏦 Ag: <b id="mobileAgencia"></b></div>
 <div class="heroTag">💳 Conta: <b id="mobileConta"></b></div>
-<div class="heroTag">📅 Vigência: 18/04 até 19/07</div>
+
 </div>
 </div>
 <div style="display:flex;align-items:center;gap:10px">
@@ -290,6 +290,7 @@ display:block!important;
 </div>
 
 <div id="containerExtrato">
+<div class="card extratoIntro"><h2>Receitas e despesas</h2><p>Histórico completo. Filtre por período, tipo ou descrição.</p><input id="buscaMovimento" type="search" placeholder="Buscar descrição ou categoria" aria-label="Buscar descrição ou categoria" oninput="render()"><button type="button" onclick="mostrarTudo()">Mostrar tudo</button><button type="button" onclick="expandirMeses(true)">Expandir meses</button><button type="button" onclick="expandirMeses(false)">Recolher meses</button></div>
 <div class="filtroMovimentos">
 
 <div class="filtroGrupo">
@@ -314,6 +315,7 @@ display:block!important;
 <button onclick="abrirInsercao()" style="background:#22c55e">
 ➕ Inserir
 </button>
+<button onclick="prepararImportacaoContas()" style="background:#2563eb;color:#fff">🧾 Importar contas</button>
 <button onclick="exportarPDF()" style="background:#dc2626;color:#fff">
 📄 PDF
 </button>
@@ -325,6 +327,7 @@ display:block!important;
 
 <!-- 🔥 FORM INSERÇÃO -->
 <div id="formInsercao" style="display:none" class="card">
+<p>Revise os dados antes de salvar. Ler um QR Code não confirma pagamento.</p>
 
 <div style="display:flex;gap:6px;flex-wrap:wrap">
 <select id="tipoNovo" style="flex:1">
@@ -337,13 +340,15 @@ display:block!important;
 <input id="vencimentoNovo" type="date" style="flex:1">
 </div>
 
+<label for="statusNovo">Situação do lançamento</label><select id="statusNovo"><option value="pendente">Pendente</option><option value="pago">Pago / recebido</option></select>
+<div class="qrActions"><button type="button" onclick="abrirQR()">Ler QR Code</button></div>
 <input id="categoriaNova" list="listaCategorias" placeholder="Categoria" style="margin-top:8px">
 
 <datalist id="listaCategorias"></datalist>
 
 <input id="descNovo" placeholder="Descrição" style="margin-top:8px">
 
-<input id="valorNovo" type="number" placeholder="Valor" style="margin-top:8px">
+<input id="valorNovo" type="number" step="0.01" min="0.01" placeholder="Valor" style="margin-top:8px">
 
 <div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap">
 
@@ -366,6 +371,7 @@ style="flex:1">
 Salvar
 </button>
 </div>
+<div id="estadoCarga" role="status" aria-live="polite"></div>
 <div id="lista"></div>
 <div id="resumo"></div>
 </div>
@@ -495,7 +501,7 @@ const valor=parseFloat(safe("valorNovo").value||0)
 const modo=safe("modoLancamento").value
 const parcelas=parseInt(safe("quantidadeParcelas").value||1)
 
-if(!data||!descricao||!valor){
+if(!data||!descricao||!Number.isFinite(valor)||valor<=0||!Number.isInteger(parcelas)||parcelas<1||parcelas>120){
 alert("Preencha data, descrição e valor")
 return
 }
@@ -558,7 +564,7 @@ categoria,
 descricao:descFinal,
 valor,
 
-status:"pendente",
+status:safe("statusNovo").value,
 
 grupo_recorrencia:grupoRecorrencia,
 
@@ -690,7 +696,7 @@ calcularScore()
 
 if(!window._graficoRodou){
 window._graficoRodou=true
-setTimeout(atualizarDashboard,200)
+setTimeout(renderDashboardAnual,200)
 }
 
 if(!window._inteligenciaRodou){
@@ -734,7 +740,7 @@ aplicarPerfilUI()
 abrirTela("inicio")
 setTimeout(()=>{
 carregarMesAtual()
-carregarPeriodoAtual()
+limparPeriodo()
 },500)
 setTimeout(()=>{
 const hoje=new Date()
@@ -2348,7 +2354,7 @@ fim.toISOString().slice(0,10)
 }
 }
 
-function carregarPeriodoAtual(){
+function limparPeriodo(){
 const hoje=new Date()
 const primeiroDia=new Date(
 hoje.getFullYear(),
@@ -2470,7 +2476,8 @@ safe("painelAcessoLogin").style.display="none"
 }
   
 </script>
-<script src="js/app.js"></script>
-<script src="js/pdf.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+<script src="financeiro.js?v=20261015"></script>
 </body>
 </html>
+
